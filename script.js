@@ -1,14 +1,13 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V26 - ALL-IN-ONE)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V28 - ALL-IN-ONE)
    Tác giả: Văn Đạo
-   Mô tả: Bộ não trung tâm xử lý Theme, Routing, Render Data, 
-          Random Quotes và Động cơ Thi Pháp 4 Tầng (Không dùng AI).
+   Mô tả: Bộ não trung tâm xử lý Theme, Routing, Data Render, 
+          Random Quotes, Đổi Favicon động và Động cơ Thi Pháp 4 Tầng.
    ===================================================================== */
 
 /* =====================================================================
    MODULE 1: HỆ THỐNG ICONS (SVG) & HẰNG SỐ
    ===================================================================== */
-// Sử dụng SVG để đảm bảo icon sắc nét, đồng bộ màu sắc với theme
 const ICON_PEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
 const ICON_CLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
 const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
@@ -16,18 +15,20 @@ const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="cur
 const THEME_KEY = 'vandao_theme';
 
 /* =====================================================================
-   MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI)
+   MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI) & FAVICON
    ===================================================================== */
 /**
  * Hàm chuyển đổi giao diện Sáng/Tối.
- * Lưu lựa chọn vào LocalStorage và cập nhật hiệu ứng Canvas.
  */
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
+    
     localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+    
     updateCanvasColors();
     updateThemeText(isDark);
+    updateFavicon(isDark); // Gọi hàm đổi Logo
 }
 
 /**
@@ -36,8 +37,11 @@ function toggleTheme() {
 function loadSavedTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
     const isDark = savedTheme === 'dark';
+    
     if (isDark) document.body.classList.add('dark-mode');
+    
     updateThemeText(isDark);
+    updateFavicon(isDark); // Gọi hàm đổi Logo
 }
 
 /**
@@ -48,31 +52,40 @@ function updateThemeText(isDark) {
     if (textEl) textEl.textContent = isDark ? 'Chế độ Sáng' : 'Chế độ Tối';
 }
 
+/**
+ * Hàm tự động đổi Favicon (Logo) dựa trên chế độ Sáng/Tối.
+ * Sử dụng đúng tên file ảnh bạn đã up lên GitHub.
+ */
+function updateFavicon(isDark) {
+    const favicon = document.getElementById('dynamic-favicon');
+    if (favicon) {
+        favicon.href = isDark ? 'logo_toi.png' : 'logo_trang.png';
+    }
+}
+
 /* =====================================================================
    MODULE 3: ĐIỀU HƯỚNG (ROUTING) & MENU
    ===================================================================== */
 /**
- * Chuyển đổi giữa các View (Trang chủ, Văn hiến, Bách khoa, Thi pháp).
+ * Chuyển đổi giữa các View.
  */
 function switchView(viewId) {
-    // Ẩn tất cả view, xóa active của menu
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(link => link.classList.remove('active'));
 
-    // Bật view mới
     const targetView = document.getElementById(`view-${viewId}`);
     const targetNav = document.getElementById(`nav-${viewId}`);
+    
     if (targetView) targetView.classList.add('active');
     if (targetNav) targetNav.classList.add('active');
 
-    // Đóng menu mobile, cuộn lên đầu
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /**
- * Bật/tắt Menu Mobile (Hamburger).
+ * Bật/tắt Menu Mobile.
  */
 function toggleMobileMenu() {
     const navMenu = document.getElementById('navMenu');
@@ -469,7 +482,8 @@ function initWaterCanvas() {
 
     function animateRipples() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; // Vàng (Tối) hoặc Xanh (Sáng)
+        // Màu Vàng Gold (Tối) hoặc Xanh Ngọc (Sáng)
+        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; 
         
         for (let i = ripples.length - 1; i >= 0; i--) {
             let p = ripples[i]; 
@@ -508,7 +522,8 @@ function initDewdrops() {
         drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
         
         container.appendChild(drop);
-        setTimeout(() => drop.remove(), 20000); // Xóa DOM sau khi bay xong tránh rác
+        // Xóa DOM sau khi bay xong tránh rác bộ nhớ
+        setTimeout(() => drop.remove(), 20000); 
     }, 800);
 }
 
@@ -516,18 +531,22 @@ function initDewdrops() {
    MODULE 8: KHỞI CHẠY (INITIALIZATION)
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Tải Theme & Favicon
     loadSavedTheme();
     updateCanvasColors();
     
+    // 2. Render dữ liệu tĩnh
     renderHeritage('all');
     renderEncyclopedia();
     
+    // 3. Khởi tạo Danh ngôn tự động
     renderRandomQuote(); 
     setInterval(renderRandomQuote, 6000); 
     
+    // 4. Khởi tạo hiệu ứng hình ảnh
     initCursorGlow();
     initWaterCanvas();
     initDewdrops();
     
-    console.log("VĂN ĐẠO V26: Hệ thống đã sẵn sàng! Không Emoji - Chỉ SVG.");
+    console.log("VĂN ĐẠO V28: Hệ thống đã sẵn sàng!");
 });
