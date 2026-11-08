@@ -158,9 +158,7 @@ function renderData() {
     const marquee = document.getElementById('marquee-content');
     if(marquee) {
         const svgStar = `<svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg>`;
-        // Tạo 1 chuỗi từ khóa
         const marqueeHTML = MARQUEE_KEYWORDS.map(k => `<span>${k} ${svgStar}</span>`).join('');
-        // Nhân đôi chuỗi để tạo vòng lặp vô tận không bị đứt quãng
         marquee.innerHTML = marqueeHTML + marqueeHTML; 
     }
 }
@@ -176,21 +174,18 @@ function initQuotes() {
     if(!qText || !qAuth) return;
 
     setInterval(() => {
-        // Mờ dần
         qText.style.opacity = '0'; 
         qAuth.style.opacity = '0';
         
         setTimeout(() => {
-            // Đổi nội dung
             quoteIndex = (quoteIndex + 1) % QUOTES_DATA.length;
             qText.textContent = `"${QUOTES_DATA[quoteIndex].text}"`;
             qAuth.textContent = `— ${QUOTES_DATA[quoteIndex].author} —`;
             
-            // Hiện lại
             qText.style.opacity = '1'; 
             qAuth.style.opacity = '1';
-        }, 500); // Đợi 0.5s cho hiệu ứng mờ hoàn tất
-    }, 4000); // Đổi 4 giây 1 lần
+        }, 500); 
+    }, 4000); 
 }
 
 /* =========================================
@@ -200,22 +195,16 @@ function executePipeline() {
     const rawText = document.getElementById('poemInput').value;
     if (!rawText.trim()) return;
     
-    // Tách các dòng thơ
     const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     
     let linesHtml = lines.map((line, index) => {
-        // Tách âm tiết (dùng regex hỗ trợ Unicode)
         const syllables = line.match(/[\p{L}\p{N}]+/gu) || [];
         
-        // Phân tích thanh điệu
         const pattern = syllables.map(s => {
-            // Chuyển sang NFD để tách dấu thanh
             const nfd = s.normalize('NFD');
-            // Nếu chứa các dấu: huyền, sắc, ngã, hỏi, nặng -> Trắc (T)
             if (nfd.includes('\u0300') || nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) {
                 return 'T';
             }
-            // Không dấu (ngang) -> Bằng (B)
             return 'B';
         }).join(' - ');
         
@@ -228,11 +217,9 @@ function executePipeline() {
         `;
     }).join('');
     
-    // Đánh giá cấu trúc 6-8
     const counts = lines.map(l => (l.match(/[\p{L}\p{N}]+/gu) || []).length);
     const is68 = counts.length > 0 && counts[0] === 6 && counts.every((c, i) => c === (i % 2 === 0 ? 6 : 8));
 
-    // Hiển thị kết quả ra màn hình
     document.getElementById('results-panel').innerHTML = `
         <div class="result-step">
             <div class="step-title">Thái Thanh (Tầng 1)</div>
@@ -250,7 +237,7 @@ function executePipeline() {
 }
 
 /* =========================================
-   8. TÍNH NĂNG TÌM KIẾM (LIVE SEARCH)
+   8. TÍNH NĂNG TÌM KIẾM (LIVE SEARCH) - ĐÃ SỬA HOÀN CHỈNH
    ========================================= */
 // Hàm loại bỏ dấu tiếng Việt để tìm kiếm không dấu dễ dàng hơn
 function removeTones(str) {
@@ -308,8 +295,9 @@ function initSearch() {
 
         // 3. Hiển thị kết quả (Giới hạn 6 kết quả đầu tiên cho gọn)
         if (results.length > 0) {
+            // DÙNG data-view và data-title ĐỂ LƯU TRỮ THAY VÌ TRUYỀN CHUỖI
             resultsBox.innerHTML = results.slice(0, 6).map(r => `
-                <div class="search-item" onclick="handleSearchClick('${r.view}', '${r.title}')">
+                <div class="search-item" data-view="${r.view}" data-title="${r.title}" onclick="handleSearchClick(this)">
                     <span class="s-type">${r.type}</span>
                     <h4>${r.title}</h4>
                     <p>${r.sub}</p>
@@ -331,7 +319,10 @@ function initSearch() {
 }
 
 // Hàm xử lý khi click vào một kết quả tìm kiếm
-function handleSearchClick(viewId, title) {
+function handleSearchClick(element) {
+    const viewId = element.getAttribute('data-view');
+    const title = element.getAttribute('data-title');
+    
     // Chuyển sang trang tương ứng
     switchView(viewId);
     
@@ -339,57 +330,51 @@ function handleSearchClick(viewId, title) {
     document.getElementById('global-search').value = '';
     document.getElementById('search-results').classList.remove('active');
     
-    // Đợi 1 chút để trang chuyển xong, sau đó cuộn và highlight
+    // Đợi 1 chút để trang render xong, sau đó tìm và làm nổi bật
     setTimeout(() => {
+        let targetElement = null;
+
         if (viewId === 'encyclopedia') {
             const summaries = document.querySelectorAll('.accordion-item summary');
-            summaries.forEach(summary => {
+            for (let summary of summaries) {
                 if (summary.textContent.includes(title)) {
-                    const parentItem = summary.parentElement;
-                    parentItem.setAttribute('open', 'true'); // Mở quyển sách ra
-                    
-                    // Thêm hiệu ứng phát sáng
-                    parentItem.classList.add('highlight-target');
-                    
-                    // Cuộn đến giữa màn hình
-                    summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    
-                    // Xóa hiệu ứng sau 3 giây
-                    setTimeout(() => parentItem.classList.remove('highlight-target'), 3000);
+                    targetElement = summary.closest('.accordion-item');
+                    targetElement.setAttribute('open', 'true'); // Mở nắp ra
+                    break;
                 }
-            });
+            }
         } else if (viewId === 'heritage') {
-            const cards = document.querySelectorAll('.heritage-card h3');
-            cards.forEach(h3 => {
-                if (h3.textContent.includes(title)) {
-                    const card = h3.closest('.heritage-card');
-                    
-                    // Thêm hiệu ứng phát sáng
-                    card.classList.add('highlight-target');
-                    
-                    // Cuộn đến giữa màn hình
-                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    
-                    // Xóa hiệu ứng sau 3 giây
-                    setTimeout(() => card.classList.remove('highlight-target'), 3000);
+            const cards = document.querySelectorAll('.heritage-card');
+            for (let card of cards) {
+                const h3 = card.querySelector('h3');
+                if (h3 && h3.textContent.includes(title)) {
+                    targetElement = card;
+                    break;
                 }
-            });
+            }
         }
-    }, 300);
+
+        // Nếu tìm thấy mục tiêu, cuộn đến và làm phát sáng
+        if (targetElement) {
+            targetElement.classList.add('highlight-target');
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Xóa viền phát sáng sau 3 giây
+            setTimeout(() => {
+                targetElement.classList.remove('highlight-target');
+            }, 3000);
+        }
+    }, 300); // Đợi 0.3s
 }
 
 /* =========================================
    9. KHỞI CHẠY KHI TẢI TRANG
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Nạp dữ liệu từ Data.js vào HTML
     renderData();
-    
-    // 2. Khởi tạo các hiệu ứng
     initTilt();
     initQuotes();
-    initSearch(); // Khởi tạo tính năng tìm kiếm
+    initSearch(); 
     
-    // 3. Chạy hiệu ứng gõ chữ sau 0.5s
     setTimeout(typeWriter, 500);
 });
