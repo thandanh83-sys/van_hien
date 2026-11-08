@@ -4,6 +4,7 @@
 const themeBtn = document.getElementById('theme-btn');
 const currentTheme = localStorage.getItem('vandao-theme');
 
+// Khôi phục theme đã lưu khi tải lại trang
 if (currentTheme === 'dark') {
     document.body.classList.add('dark-mode');
 }
@@ -17,22 +18,31 @@ function toggleTheme() {
 /* =========================================
    2. ĐIỀU HƯỚNG & HIỆU ỨNG NAVBAR
    ========================================= */
+// Hiệu ứng đổi màu navbar khi cuộn
 window.addEventListener('scroll', () => {
     const navbar = document.getElementById('mainNavbar');
     navbar.classList.toggle('scrolled', window.scrollY > 20);
 });
 
+// Chuyển đổi giữa các trang (View)
 function switchView(viewId) {
+    // Ẩn tất cả các view
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    // Bỏ active của tất cả các nút menu
     document.querySelectorAll('.nav-btn').forEach(a => a.classList.remove('active'));
     
+    // Hiển thị view được chọn và thêm active cho nút tương ứng
     document.getElementById(`view-${viewId}`).classList.add('active');
     document.getElementById(`nav-${viewId}`).classList.add('active');
     
+    // Cuộn lên đầu trang
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Đóng menu mobile nếu đang mở
     document.getElementById('navMenu').classList.remove('show');
 }
 
+// Bật/tắt menu mobile
 function toggleMobileMenu() {
     document.getElementById('navMenu').classList.toggle('show');
 }
@@ -40,7 +50,7 @@ function toggleMobileMenu() {
 /* =========================================
    3. HIỆU ỨNG GÕ CHỮ (TYPEWRITER)
    ========================================= */
-const textToType = "Vạn tượng trong lời,\nThiên thu trong ý.";
+const textToType = "Vạn tượng trong lời.\nThiên thu trong ý.";
 const typeTarget = document.getElementById('typewriter-text');
 const cursor = document.getElementById('cursor');
 let typeIndex = 0;
@@ -55,12 +65,13 @@ function typeWriter() {
         typeIndex++;
         setTimeout(typeWriter, 100);
     } else {
+        // Gõ xong thì tắt con trỏ nhấp nháy
         if(cursor) cursor.style.display = 'none'; 
     }
 }
 
 /* =========================================
-   4. HIỆU ỨNG 3D TILT
+   4. HIỆU ỨNG 3D TILT CHO THẺ CHỨC NĂNG
    ========================================= */
 function initTilt() {
     const tiltCards = document.querySelectorAll('.tilt');
@@ -72,7 +83,7 @@ function initTilt() {
             const centerX = rect.width / 2; 
             const centerY = rect.height / 2;
             
-            const rotateX = ((y - centerY) / centerY) * -10;
+            const rotateX = ((y - centerY) / centerY) * -10; // Nghiêng tối đa 10 độ
             const rotateY = ((x - centerX) / centerX) * 10;
             
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
@@ -92,6 +103,7 @@ function initTilt() {
 /* =========================================
    5. RENDER DỮ LIỆU & BỘ LỌC VĂN HIẾN
    ========================================= */
+// Các icon SVG dùng chung
 const svgUser = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
 const svgClock = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
 
@@ -121,11 +133,13 @@ function renderHeritage(filterCategory = 'all') {
 
 // Hàm xử lý khi bấm nút Bộ lọc
 function filterHeritage(category, btnElement) {
-    // Đổi màu nút active
+    // 1. Đổi màu nút active
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    btnElement.classList.add('active');
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
     
-    // Render lại danh sách theo bộ lọc
+    // 2. Render lại danh sách theo bộ lọc
     renderHeritage(category);
 }
 
@@ -361,6 +375,12 @@ function handleSearchClick(element) {
                 }
             }
         } else if (viewId === 'heritage') {
+            // Vì đã có bộ lọc, nếu đang ở chế độ lọc khác mà tìm kiếm, cần đưa về 'all' để thấy kết quả
+            const allBtn = document.querySelector('.filter-btn'); // Nút "Tất cả" đầu tiên
+            if(allBtn && !allBtn.classList.contains('active')) {
+                filterHeritage('all', allBtn);
+            }
+
             const cards = document.querySelectorAll('.heritage-card');
             for (let card of cards) {
                 const h3 = card.querySelector('h3');
