@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V14)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V17)
    Tác giả: Văn Đạo
    Mô tả: Xử lý logic, render dữ liệu, tìm kiếm, danh ngôn và thi pháp.
    Cấu trúc: 7 Modules từ Icons, Theme, Routing, Rendering,
@@ -50,7 +50,7 @@ function loadSavedTheme() {
 }
 
 /**
- * Cập nhật chữ hiển thị trên nút đổi Theme (Menu Mobile).
+ * Cập nhật chữ hiển thị trên nút đổi Theme.
  * Lưu ý: Màu sắc (Xanh ngọc / Vàng sáng) đã được CSS tự động xử lý.
  */
 function updateThemeText(isDark) {
@@ -104,7 +104,7 @@ function toggleMobileMenu() {
     }
 }
 
-// Sự kiện: Click ra ngoài vùng Menu thì tự động đóng Menu lại (Giống các app hiện đại)
+// Sự kiện: Click ra ngoài vùng Menu thì tự động đóng Menu lại
 document.addEventListener('click', (e) => {
     const navMenu = document.getElementById('navMenu');
     const menuBtn = document.querySelector('.mobile-menu-btn');
@@ -116,22 +116,22 @@ document.addEventListener('click', (e) => {
 });
 
 /* =====================================================================
-   MODULE 4: RENDER DỮ LIỆU (VĂN HIẾN & BÁCH KHOA & DANH NGÔN)
+   MODULE 4: RENDER DỮ LIỆU (VĂN HIẾN, BÁCH KHOA, DANH NGÔN)
    ===================================================================== */
 /**
  * Hiển thị danh sách các tác phẩm Văn Hiến.
  */
 function renderHeritage(filterCategory = 'all') {
     const grid = document.getElementById('heritage-grid');
-    // Kiểm tra xem thẻ chứa và dữ liệu có tồn tại không
+    // Kiểm tra xem thẻ chứa và dữ liệu (từ data-heritage.js) có tồn tại không
     if (!grid || typeof HERITAGE_DATA === 'undefined') return;
 
-    // 1. Lọc dữ liệu dựa trên danh mục (all, dan-gian, trung-dai...)
+    // 1. Lọc dữ liệu dựa trên danh mục
     const filteredData = filterCategory === 'all' 
         ? HERITAGE_DATA 
         : HERITAGE_DATA.filter(item => item.category === filterCategory);
 
-    // 2. Tạo mã HTML cho từng thẻ tác phẩm (Bao gồm cả icon SVG)
+    // 2. Tạo mã HTML cho từng thẻ tác phẩm
     const htmlContent = filteredData.map(item => `
         <div class="heritage-card">
             <span class="h-tag">${item.genre}</span>
@@ -166,6 +166,7 @@ function filterHeritage(category, btnElement) {
  */
 function renderEncyclopedia() {
     const container = document.getElementById('encyclopedia-container');
+    // Kiểm tra xem thẻ chứa và dữ liệu (từ data-encyclopedia.js) có tồn tại không
     if (!container || typeof ENCYCLOPEDIA_DATA === 'undefined') return;
 
     // Tạo HTML cho từng Quyển sách
@@ -188,6 +189,7 @@ function renderEncyclopedia() {
  */
 function renderRandomQuote() {
     const container = document.getElementById('daily-quote-container');
+    // Kiểm tra xem thẻ chứa và dữ liệu (từ data-quotes.js) có tồn tại không
     if (!container || typeof QUOTES_DATA === 'undefined') return;
 
     // Lấy ngẫu nhiên 1 câu
@@ -223,7 +225,7 @@ function executePipeline() {
     
     const rawText = inputField.value;
     
-    // Xử lý trường hợp người dùng không nhập gì (thay vì dùng alert gây khó chịu)
+    // Xử lý trường hợp người dùng không nhập gì
     if (!rawText.trim()) {
         resultsPanel.innerHTML = `
             <div class="result-step" style="border-left-color:var(--accent-gold);">
@@ -247,9 +249,10 @@ function executePipeline() {
             // Chuyển đổi sang dạng NFD (Tách dấu ra khỏi ký tự gốc)
             const nfdString = syllable.normalize('NFD');
             
-            // FIX BUG THI PHÁP: 
+            // CHUẨN THI PHÁP VIỆT NAM: 
             // Bằng (B) = Không dấu + Dấu huyền (\u0300)
             // Trắc (T) = Sắc (\u0301), Ngã (\u0303), Hỏi (\u0309), Nặng (\u0323)
+            // Tuyệt đối không đưa \u0300 (dấu huyền) vào danh sách Trắc.
             const isTrac = nfdString.includes('\u0301') || 
                            nfdString.includes('\u0303') || 
                            nfdString.includes('\u0309') || 
@@ -300,20 +303,17 @@ function updateCanvasColors() {
  * Khởi tạo hiệu ứng Quầng sáng theo chuột (Chỉ trên Desktop).
  */
 function initCursorGlow() {
-    // Kiểm tra xem thiết bị có chuột không (tránh lỗi trên điện thoại)
     if (window.matchMedia('(pointer: fine)').matches) {
         const glow = document.getElementById('cursor-glow');
         if (!glow) return;
 
         window.addEventListener('mousemove', (e) => {
-            // Sử dụng requestAnimationFrame để tối ưu hiệu năng (không bị lag)
             requestAnimationFrame(() => {
                 glow.style.left = `${e.clientX}px`;
                 glow.style.top = `${e.clientY}px`;
             });
         });
     } else {
-        // Nếu là mobile, ẩn quầng sáng đi cho nhẹ máy
         const glow = document.getElementById('cursor-glow');
         if (glow) glow.style.display = 'none';
     }
@@ -327,7 +327,6 @@ function initWaterCanvas() {
     if (!canvas) return;
     ctx = canvas.getContext('2d');
 
-    // Cấu hình kích thước Canvas bằng kích thước cửa sổ
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -335,7 +334,6 @@ function initWaterCanvas() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Bắt sự kiện click để tạo gợn sóng
     window.addEventListener('click', (e) => {
         ripples.push({
             x: e.clientX,
@@ -347,26 +345,22 @@ function initWaterCanvas() {
         });
     });
 
-    // Vòng lặp vẽ Animation
     function animateRipples() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa khung hình cũ
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Chọn màu dựa trên theme: Vàng Gold (Dark) hoặc Xanh ngọc (Light)
+        // Màu sóng: Vàng Gold (Dark mode) hoặc Xanh ngọc (Light mode)
         const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; 
         
-        // Duyệt ngược mảng để xóa phần tử an toàn
         for (let i = ripples.length - 1; i >= 0; i--) {
             let p = ripples[i];
             p.radius += p.growth;
             p.alpha -= p.fade;
 
-            // Nếu sóng mờ hẳn thì xóa khỏi mảng
             if (p.alpha <= 0) {
                 ripples.splice(i, 1);
                 continue;
             }
 
-            // Vẽ vòng tròn
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             ctx.strokeStyle = `rgba(${color}, ${p.alpha})`;
@@ -386,30 +380,24 @@ function initDewdrops() {
     if (!container) return;
 
     setInterval(() => {
-        // Không tạo hạt sương nếu đang ở Dark Mode
         if (document.body.classList.contains('dark-mode')) return;
 
         const drop = document.createElement('div');
         drop.className = 'dewdrop';
         
-        // Kích thước ngẫu nhiên từ 2px đến 8px
         const size = Math.random() * 6 + 2;
         drop.style.width = `${size}px`;
         drop.style.height = `${size}px`;
-        
-        // Vị trí ngẫu nhiên theo chiều ngang
         drop.style.left = `${Math.random() * 100}vw`;
-        
-        // Thời gian bay ngẫu nhiên (10s - 20s)
         drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
 
         container.appendChild(drop);
 
-        // Tự động xóa DOM sau khi bay xong để tránh rác bộ nhớ (memory leak)
+        // Xóa DOM sau khi bay xong để tránh rác bộ nhớ (memory leak)
         setTimeout(() => {
             drop.remove();
         }, 20000);
-    }, 800); // Tạo hạt mới mỗi 0.8s
+    }, 800);
 }
 
 /* =====================================================================
@@ -423,12 +411,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Render nội dung tĩnh ban đầu
     renderHeritage('all');
     renderEncyclopedia();
-    renderRandomQuote(); // Gọi hàm hiển thị danh ngôn
+    renderRandomQuote(); // Gọi hàm hiển thị danh ngôn ngẫu nhiên
 
     // 3. Khởi tạo các hiệu ứng hình ảnh
     initCursorGlow();
     initWaterCanvas();
     initDewdrops();
 
-    console.log("VĂN ĐẠO: Hệ thống V14 đã sẵn sàng và hoạt động hoàn hảo!");
+    console.log("VĂN ĐẠO: Hệ thống V17 đã sẵn sàng và hoạt động hoàn hảo!");
 });
