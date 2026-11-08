@@ -164,7 +164,7 @@ body.dark-mode .hero-title { text-shadow: 0 4px 20px rgba(229, 184, 94, 0.15); }
 .typewriter::after { content: '|'; animation: blink 1s step-end infinite; color: var(--accent); font-weight: 300; }
 @keyframes blink { 50% { opacity: 0; } }
 
-/* Thanh tìm kiếm */
+/* Thanh tìm kiếm (Search Box) */
 .search-box { 
     display: flex; align-items: center; background: var(--card-bg); 
     border-radius: 12px; padding: 1rem 1.2rem; margin: 0 auto 3rem; 
@@ -173,7 +173,7 @@ body.dark-mode .hero-title { text-shadow: 0 4px 20px rgba(229, 184, 94, 0.15); }
 }
 .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); transform: scale(1.02); }
 body.dark-mode .search-box:focus-within { box-shadow: 0 0 25px rgba(229, 184, 94, 0.15); }
-.search-icon { color: var(--text-muted); margin-right: 10px; width: 20px; height: 20px; }
+.search-icon { color: var(--text-muted); margin-right: 10px; width: 20px; height: 20px; flex-shrink: 0; }
 .search-box input { border: none; outline: none; width: 100%; font-size: 1rem; color: var(--text-dark); background: transparent; }
 .search-box input::placeholder { color: var(--text-muted); opacity: 0.6; }
 
@@ -258,7 +258,7 @@ body.dark-mode .f-icon { background: rgba(255,255,255,0.05); color: var(--accent
 .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
 .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 3rem; }
 
-/* Văn Hiến Grid */
+/* Văn Hiến */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
 .heritage-card { 
     background: var(--card-bg); border-radius: 16px; padding: 2rem; 
@@ -348,7 +348,80 @@ body.dark-mode .btn-analyze { background: var(--accent); color: #000; }
 .pattern-text { font-family: monospace; color: var(--accent); letter-spacing: 2px; font-weight: bold; }
 
 /* =========================================
-   6. RESPONSIVE (ĐIỆN THOẠI)
+   6. CSS CHO TÌM KIẾM (LIVE SEARCH)
+   ========================================= */
+#search-container {
+    position: relative; 
+    z-index: 99;
+}
+
+.search-results {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+    max-height: 350px;
+    overflow-y: auto;
+    display: none; /* Ẩn mặc định */
+    z-index: 100;
+}
+
+.search-results.active {
+    display: block;
+}
+
+.search-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.search-item:hover {
+    background: var(--border-color);
+}
+
+.search-item h4 {
+    font-family: 'Playfair Display', serif;
+    color: var(--text-dark);
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+}
+
+.search-item p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    gap: 10px;
+}
+
+.search-item .s-type {
+    font-size: 0.7rem;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.no-results {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* =========================================
+   7. RESPONSIVE (ĐIỆN THOẠI)
    ========================================= */
 @media (max-width: 768px) {
     .hero-title { font-size: 2.5rem; min-height: 100px; }
