@@ -1,7 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V17)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V20 - FINAL)
    Tác giả: Văn Đạo
-   Mô tả: Xử lý logic, render dữ liệu, tìm kiếm, danh ngôn và thi pháp.
+   Mô tả: Xử lý logic, render dữ liệu, danh ngôn và phân tích thi pháp.
    Cấu trúc: 7 Modules từ Icons, Theme, Routing, Rendering,
              Analysis, Visual Effects đến Initialization.
    ===================================================================== */
@@ -196,17 +196,12 @@ function renderRandomQuote() {
     const randomIndex = Math.floor(Math.random() * QUOTES_DATA.length);
     const quote = QUOTES_DATA[randomIndex];
 
-    // Đổ HTML ra màn hình với icon dấu ngoặc kép
+    // FIX LỖI: Sử dụng thẻ div cho dấu ngoặc kép nghệ thuật (đã được CSS định dạng), 
+    // không dùng SVG bị lỗi font như trước.
     container.innerHTML = `
-        <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--accent)" stroke-width="1.5" fill="none" style="margin-bottom: 15px; opacity: 0.7;">
-            <path d="M10 11h-4v-4h4v4zm10 0h-4v-4h4v4zm-10 5c-2.5 0-4.5-2-4.5-4.5 0 3-1.5 5.5-4 7.5 3 0 6-1.5 8.5-3zm10 0c-2.5 0-4.5-2-4.5-4.5 0 3-1.5 5.5-4 7.5 3 0 6-1.5 8.5-3z"></path>
-        </svg>
-        <p style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--text-main); font-style: italic; line-height: 1.5; max-width: 800px; margin: 0 auto;">
-            "${quote.text}"
-        </p>
-        <p style="margin-top: 15px; font-size: 0.9rem; font-weight: 600; color: var(--accent); letter-spacing: 1px;">
-            — ${quote.author} —
-        </p>
+        <div class="quote-mark">“</div>
+        <p class="quote-text">${quote.text}</p>
+        <p class="quote-author">— ${quote.author} —</p>
     `;
 }
 
@@ -252,7 +247,7 @@ function executePipeline() {
             // CHUẨN THI PHÁP VIỆT NAM: 
             // Bằng (B) = Không dấu + Dấu huyền (\u0300)
             // Trắc (T) = Sắc (\u0301), Ngã (\u0303), Hỏi (\u0309), Nặng (\u0323)
-            // Tuyệt đối không đưa \u0300 (dấu huyền) vào danh sách Trắc.
+            // Tuyệt đối không đưa \u0300 vào danh sách Trắc.
             const isTrac = nfdString.includes('\u0301') || 
                            nfdString.includes('\u0303') || 
                            nfdString.includes('\u0309') || 
@@ -418,5 +413,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initWaterCanvas();
     initDewdrops();
 
-    console.log("VĂN ĐẠO: Hệ thống V17 đã sẵn sàng và hoạt động hoàn hảo!");
+    console.log("VĂN ĐẠO: Hệ thống V20 đã sẵn sàng và hoạt động hoàn hảo!");
 });
