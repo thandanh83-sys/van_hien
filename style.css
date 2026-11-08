@@ -1,7 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V20 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V22 - FINAL)
    Tác giả: Văn Đạo
-   Cập nhật: Fix toàn bộ icon, nền toàn trang, khung vòm, danh ngôn.
+   Cập nhật: Xóa gạch ngang danh ngôn, thêm hiệu ứng mờ (fade) khi đổi câu.
    ===================================================================== */
 
 /* =====================================================================
@@ -147,7 +147,7 @@ body.dark-mode .dewdrop { display: none; }
 .theme-toggle-btn { font-weight: 600; }
 .theme-toggle-btn .nav-icon { display: block; }
 
-/* FIX LỖI ICON MẶT TRỜI / MẶT TRĂNG */
+/* FIX LỖI ICON MẶT TRỜI / MẶT TRĂNG (Không bị chồng chéo) */
 .sun-icon { display: none !important; } 
 .moon-icon { display: block !important; }
 body.dark-mode .sun-icon { display: block !important; } 
@@ -331,8 +331,9 @@ body.dark-mode .btn .light-text { display: none !important; }
     margin-top: 60px;
     text-align: center;
     padding: 50px 20px;
-    border-top: 1px dashed var(--glass-border);
     position: relative;
+    transition: opacity 0.5s ease-in-out; /* Hiệu ứng mờ mượt mà khi đổi câu */
+    /* Đã xóa border-top (đường gạch đứt nét) theo yêu cầu */
 }
 
 .quote-mark {
