@@ -1,7 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V20 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V22 - FINAL)
    Tác giả: Văn Đạo
-   Mô tả: Xử lý logic, render dữ liệu, danh ngôn và phân tích thi pháp.
+   Mô tả: Xử lý logic, render dữ liệu, danh ngôn tự động và thi pháp.
    Cấu trúc: 7 Modules từ Icons, Theme, Routing, Rendering,
              Analysis, Visual Effects đến Initialization.
    ===================================================================== */
@@ -186,23 +186,39 @@ function renderEncyclopedia() {
 
 /**
  * Hiển thị 1 câu Danh ngôn ngẫu nhiên ở Trang Chủ.
+ * Có hiệu ứng mờ dần (fade) và không bao giờ lặp lại 2 câu liên tiếp.
  */
+let currentQuoteIndex = -1; // Biến lưu câu hiện tại để tránh lặp
+
 function renderRandomQuote() {
     const container = document.getElementById('daily-quote-container');
     // Kiểm tra xem thẻ chứa và dữ liệu (từ data-quotes.js) có tồn tại không
     if (!container || typeof QUOTES_DATA === 'undefined') return;
 
-    // Lấy ngẫu nhiên 1 câu
-    const randomIndex = Math.floor(Math.random() * QUOTES_DATA.length);
-    const quote = QUOTES_DATA[randomIndex];
+    // 1. Hiệu ứng mờ dần (Fade out)
+    container.style.opacity = 0;
 
-    // FIX LỖI: Sử dụng thẻ div cho dấu ngoặc kép nghệ thuật (đã được CSS định dạng), 
-    // không dùng SVG bị lỗi font như trước.
-    container.innerHTML = `
-        <div class="quote-mark">“</div>
-        <p class="quote-text">${quote.text}</p>
-        <p class="quote-author">— ${quote.author} —</p>
-    `;
+    // 2. Đợi 0.5s cho mờ hẳn rồi đổi chữ và hiện lên lại
+    setTimeout(() => {
+        // Lấy câu mới ngẫu nhiên (đảm bảo khác câu cũ)
+        let newIndex = Math.floor(Math.random() * QUOTES_DATA.length);
+        while (QUOTES_DATA.length > 1 && newIndex === currentQuoteIndex) {
+            newIndex = Math.floor(Math.random() * QUOTES_DATA.length);
+        }
+        currentQuoteIndex = newIndex;
+        
+        const quote = QUOTES_DATA[currentQuoteIndex];
+
+        // Đổ nội dung mới
+        container.innerHTML = `
+            <div class="quote-mark">“</div>
+            <p class="quote-text">${quote.text}</p>
+            <p class="quote-author">— ${quote.author} —</p>
+        `;
+        
+        // 3. Hiện lại (Fade in)
+        container.style.opacity = 1;
+    }, 500); 
 }
 
 /* =====================================================================
@@ -406,12 +422,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Render nội dung tĩnh ban đầu
     renderHeritage('all');
     renderEncyclopedia();
-    renderRandomQuote(); // Gọi hàm hiển thị danh ngôn ngẫu nhiên
+    
+    // 3. Khởi tạo Danh ngôn và bộ đếm thời gian
+    renderRandomQuote(); // Chạy lần đầu tiên
+    setInterval(renderRandomQuote, 6000); // Tự động đổi câu khác sau mỗi 6 giây
 
-    // 3. Khởi tạo các hiệu ứng hình ảnh
+    // 4. Khởi tạo các hiệu ứng hình ảnh
     initCursorGlow();
     initWaterCanvas();
     initDewdrops();
 
-    console.log("VĂN ĐẠO: Hệ thống V20 đã sẵn sàng và hoạt động hoàn hảo!");
+    console.log("VĂN ĐẠO: Hệ thống V22 đã sẵn sàng và hoạt động hoàn hảo!");
 });
