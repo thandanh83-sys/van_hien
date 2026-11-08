@@ -1,74 +1,42 @@
 /* =========================================
    KHO DỮ LIỆU VĂN ĐẠO ENGINE
-   (Bản quyền tri thức: Vui lòng không xóa hoặc sửa nội dung file này)
+   (Trái tim tri thức - Bảo vệ dữ liệu tuyệt đối)
    ========================================= */
 
-// 1. DỮ LIỆU VĂN HIẾN (8 TÁC PHẨM KINH ĐIỂN)
+// 1. DỮ LIỆU VĂN HIẾN (MỞ RỘNG 24 TÁC PHẨM & PHÂN LOẠI)
 const HERITAGE_DATA = [
-    { 
-        title: "Truyện Kiều", 
-        author: "Nguyễn Du", 
-        genre: "Lục bát", 
-        era: "Triều Nguyễn", 
-        script: "Chữ Nôm", 
-        desc: "Tác phẩm kiệt xuất nhất của văn học trung đại Việt Nam, kể về cuộc đời gian truân của Thúy Kiều." 
-    },
-    { 
-        title: "Qua Đèo Ngang", 
-        author: "Bà Huyện Thanh Quan", 
-        genre: "Đường luật", 
-        era: "Triều Nguyễn", 
-        script: "Chữ Nôm", 
-        desc: "Bức tranh thiên nhiên và tâm trạng hoài cổ, cô đơn của tác giả khi dừng chân trên đèo." 
-    },
-    { 
-        title: "Nam quốc sơn hà", 
-        author: "Lý Thường Kiệt", 
-        genre: "Thất ngôn tứ tuyệt", 
-        era: "Nhà Lý", 
-        script: "Chữ Hán", 
-        desc: "Bản tuyên ngôn độc lập đầu tiên của Việt Nam, khẳng định chủ quyền lãnh thổ." 
-    },
-    { 
-        title: "Tĩnh Dạ Tứ", 
-        author: "Lý Bạch", 
-        genre: "Ngũ ngôn tứ tuyệt", 
-        era: "Thịnh Đường", 
-        script: "Chữ Hán", 
-        desc: "Bài thơ nổi tiếng về nỗi nhớ quê hương của thi tiên Lý Bạch." 
-    },
-    { 
-        title: "Bình Ngô Đại Cáo", 
-        author: "Nguyễn Trãi", 
-        genre: "Cáo", 
-        era: "Nhà Lê sơ", 
-        script: "Chữ Hán", 
-        desc: "Áng văn chính luận mẫu mực, tuyên bố chiến thắng quân Minh và khẳng định nền độc lập." 
-    },
-    { 
-        title: "Chinh Phụ Ngâm", 
-        author: "Đặng Trần Côn", 
-        genre: "Song thất lục bát", 
-        era: "TK 18", 
-        script: "Chữ Hán / Nôm", 
-        desc: "Khúc ngâm nói về nỗi sầu muộn, cô đơn của người vợ chờ chồng đi chinh chiến." 
-    },
-    { 
-        title: "Nhật Ký Trong Tù", 
-        author: "Hồ Chí Minh", 
-        genre: "Thất ngôn tứ tuyệt", 
-        era: "Hiện đại (1942-1943)", 
-        script: "Chữ Hán", 
-        desc: "Tập thơ ghi lại những ngày tháng bị giam cầm, thể hiện tinh thần lạc quan và ý chí kiên cường." 
-    },
-    { 
-        title: "Tây Tiến", 
-        author: "Quang Dũng", 
-        genre: "Thơ tự do", 
-        era: "Kháng chiến chống Pháp", 
-        script: "Quốc ngữ", 
-        desc: "Bài thơ mang đậm chất lãng mạn, bi tráng về người lính Tây Tiến và núi rừng Tây Bắc." 
-    }
+    // --- VĂN HỌC DÂN GIAN ---
+    { title: "Con Rồng Cháu Tiên", author: "Dân gian", genre: "Truyền thuyết", era: "Thời Hồng Bàng", script: "Truyền miệng", desc: "Giải thích nguồn gốc cao quý của dân tộc Việt Nam.", category: "dan-gian" },
+    { title: "Sơn Tinh Thủy Tinh", author: "Dân gian", genre: "Truyền thuyết", era: "Thời Hùng Vương", script: "Truyền miệng", desc: "Ca ngợi công cuộc trị thủy và bảo vệ đất nước của cha ông.", category: "dan-gian" },
+    { title: "Tấm Cám", author: "Dân gian", genre: "Cổ tích", era: "Không rõ", script: "Truyền miệng", desc: "Hành trình đấu tranh giành hạnh phúc của cô Tấm.", category: "dan-gian" },
+    { title: "Thạch Sanh", author: "Dân gian", genre: "Cổ tích", era: "Không rõ", script: "Truyền miệng", desc: "Người hùng diệt chằn tinh, đại bàng và đánh đuổi giặc ngoại xâm.", category: "dan-gian" },
+    { title: "Truyện Trê Cóc", author: "Dân gian", genre: "Truyện thơ Nôm", era: "Không rõ", script: "Chữ Nôm", desc: "Tác phẩm trào phúng sâu sắc về xã hội phong kiến.", category: "dan-gian" },
+
+    // --- VĂN HỌC TRUNG ĐẠI ---
+    { title: "Nam quốc sơn hà", author: "Lý Thường Kiệt", genre: "Thất ngôn tứ tuyệt", era: "Nhà Lý", script: "Chữ Hán", desc: "Bản tuyên ngôn độc lập đầu tiên, khẳng định chủ quyền.", category: "trung-dai" },
+    { title: "Hịch tướng sĩ", author: "Trần Quốc Tuấn", genre: "Hịch", era: "Nhà Trần", script: "Chữ Hán", desc: "Lời kêu gọi tinh thần yêu nước, quyết chiến chống quân Nguyên Mông.", category: "trung-dai" },
+    { title: "Phò giá về kinh", author: "Trần Quang Khải", genre: "Ngũ ngôn tứ tuyệt", era: "Nhà Trần", script: "Chữ Hán", desc: "Hào khí chiến thắng và khát vọng thái bình thịnh trị.", category: "trung-dai" },
+    { title: "Bình Ngô Đại Cáo", author: "Nguyễn Trãi", genre: "Cáo", era: "Nhà Lê sơ", script: "Chữ Hán", desc: "Áng văn chính luận mẫu mực, tuyên bố chiến thắng quân Minh.", category: "trung-dai" },
+    { title: "Truyện Kiều", author: "Nguyễn Du", genre: "Lục bát", era: "Triều Nguyễn", script: "Chữ Nôm", desc: "Tác phẩm kiệt xuất nhất của văn học trung đại Việt Nam.", category: "trung-dai" },
+    { title: "Chinh Phụ Ngâm", author: "Đặng Trần Côn", genre: "Song thất lục bát", era: "TK 18", script: "Chữ Hán / Nôm", desc: "Khúc ngâm về nỗi sầu muộn của người vợ chờ chồng đi chinh chiến.", category: "trung-dai" },
+    { title: "Qua Đèo Ngang", author: "Bà Huyện Thanh Quan", genre: "Đường luật", era: "Triều Nguyễn", script: "Chữ Nôm", desc: "Bức tranh thiên nhiên và tâm trạng hoài cổ, cô đơn.", category: "trung-dai" },
+    { title: "Bánh Trôi Nước", author: "Hồ Xuân Hương", genre: "Thất ngôn tứ tuyệt", era: "Cuối Lê - Đầu Nguyễn", script: "Chữ Nôm", desc: "Tiếng nói bênh vực và ca ngợi vẻ đẹp người phụ nữ.", category: "trung-dai" },
+    { title: "Nhàn", author: "Nguyễn Bỉnh Khiêm", genre: "Đường luật", era: "Nhà Mạc", script: "Chữ Nôm", desc: "Vẻ đẹp thanh cao, tâm thế nhàn dật của kẻ sĩ.", category: "trung-dai" },
+
+    // --- VĂN HỌC HIỆN ĐẠI ---
+    { title: "Chí Phèo", author: "Nam Cao", genre: "Truyện ngắn", era: "1941", script: "Quốc ngữ", desc: "Bi kịch của người nông dân bị tha hóa bởi xã hội phong kiến.", category: "hien-dai" },
+    { title: "Số Đỏ", author: "Vũ Trọng Phụng", genre: "Tiểu thuyết", era: "1936", script: "Quốc ngữ", desc: "Bức tranh trào phúng sâu sắc về xã hội tư sản thành thị.", category: "hien-dai" },
+    { title: "Vội Vàng", author: "Xuân Diệu", genre: "Thơ tự do", era: "Thơ Mới (1938)", script: "Quốc ngữ", desc: "Khát vọng sống mãnh liệt, cuồng nhiệt trước vẻ đẹp cuộc đời.", category: "hien-dai" },
+    { title: "Đây Thôn Vĩ Dạ", author: "Hàn Mặc Tử", genre: "Thất ngôn bát cú", era: "Thơ Mới (1938)", script: "Quốc ngữ", desc: "Bức tranh xứ Huế mộng mơ và nỗi niềm thi sĩ.", category: "hien-dai" },
+    { title: "Tây Tiến", author: "Quang Dũng", genre: "Thơ tự do", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Bài thơ lãng mạn, bi tráng về người lính và núi rừng Tây Bắc.", category: "hien-dai" },
+    { title: "Đồng Chí", author: "Chính Hữu", genre: "Thơ tự do", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Tình đồng đội thiêng liêng, gắn bó keo sơn nơi chiến hào.", category: "hien-dai" },
+    { title: "Nhật Ký Trong Tù", author: "Hồ Chí Minh", genre: "Thất ngôn tứ tuyệt", era: "1942-1943", script: "Chữ Hán", desc: "Tinh thần lạc quan, ý chí kiên cường của người tù cách mạng.", category: "hien-dai" },
+
+    // --- VĂN HỌC THẾ GIỚI ---
+    { title: "Tĩnh Dạ Tứ", author: "Lý Bạch", genre: "Ngũ ngôn tứ tuyệt", era: "Thịnh Đường", script: "Chữ Hán", desc: "Nỗi nhớ quê hương da diết của thi tiên Lý Bạch.", category: "the-gioi" },
+    { title: "Thần Khúc", author: "Dante", genre: "Trường ca", era: "Thời Phục Hưng", script: "Tiếng Ý", desc: "Hành trình qua Địa ngục, Luyện ngục và Thiên đường.", category: "the-gioi" },
+    { title: "Hamlet", author: "Shakespeare", genre: "Bi kịch", era: "TK 16-17", script: "Tiếng Anh", desc: "Vở kịch kinh điển về sự trả thù và những trăn trở triết học.", category: "the-gioi" },
+    { title: "Hoàng Tử Bé", author: "Antoine de Saint-Exupéry", genre: "Tiểu thuyết", era: "1943", script: "Tiếng Pháp", desc: "Câu chuyện triết lý sâu sắc dành cho cả người lớn và trẻ em.", category: "the-gioi" }
 ];
 
 // 2. DỮ LIỆU ĐẠI BÁCH KHOA (8 QUYỂN)
@@ -109,7 +77,7 @@ const ENCYCLOPEDIA_DATA = [
             <h4>1.5. Tôn trọng tính đa nghĩa của biểu tượng</h4>
             <p>Biểu tượng nghệ thuật không phải một công thức giải mã cố định. Ý nghĩa cụ thể phải được xác định từ văn cảnh, chủ thể trữ tình, truyền thống văn hóa và cấu trúc tác phẩm.</p>
             <h4>1.6. Phân biệt sự thật, giả thuyết và diễn giải</h4>
-            <p>Mọi nhận định học thuật nên được phân thành bốn cấp: Dữ kiện (có căn cứ văn bản/lịch sử) -> Giả thuyết (có khả năng đúng nhưng cần chứng cứ) -> Diễn giải (cách đọc dựa trên lập luận) -> Cảm nhận (phản ứng thẩm mỹ).</p>
+            <p>Mọi nhận định học thuật nên được phân thành bốn cấp: Dữ kiện (có căn cứ văn bản/lịch sử) -> Giả thuyết -> Diễn giải -> Cảm nhận.</p>
         `
     },
     {
@@ -213,7 +181,8 @@ const QUOTES_DATA = [
     { text: "Văn học là nhân học.", author: "M. Gorky" },
     { text: "Thơ là tiếng nói của tâm hồn.", author: "Khuyết danh" },
     { text: "Đọc sách không chỉ để lấy kiến thức, mà để học cách làm người.", author: "Khổng Tử" },
-    { text: "Thi trung hữu họa, thi trung hữu nhạc.", author: "Cổ nhân" }
+    { text: "Thi trung hữu họa, thi trung hữu nhạc.", author: "Cổ nhân" },
+    { text: "Học rộng để nhìn thấy nhiều chân trời, học sâu để hiểu được bản chất.", author: "Văn Đạo Tuyên Ngôn" }
 ];
 
 // 4. TỪ KHÓA CHẠY NGANG (MARQUEE)
@@ -225,5 +194,9 @@ const MARQUEE_KEYWORDS = [
     "Thi pháp học", 
     "Thất ngôn bát cú", 
     "Lục bát", 
-    "Văn học dân gian"
+    "Văn học dân gian",
+    "Tản Đà",
+    "Thơ Mới",
+    "Nam Cao",
+    "Xuân Diệu"
 ];
