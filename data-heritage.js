@@ -1,5 +1,8 @@
 /* =====================================================================
    VĂN ĐẠO ENGINE - DỮ LIỆU VĂN HIẾN (HERITAGE DATA)
+   Tác giả: Văn Đạo
+   Mô tả: Kho tàng văn học đồ sộ với 60+ tác phẩm.
+   Đã bổ sung Ca dao - Tục ngữ về Người Thầy và Truyện Cười.
    ===================================================================== */
 const HERITAGE_DATA = [
     
@@ -11,7 +14,7 @@ const HERITAGE_DATA = [
     { title: "Thánh Gióng", author: "Dân gian", genre: "Truyền thuyết", era: "Thời Hùng Vương", script: "Truyền miệng", desc: "Ca ngợi tinh thần yêu nước, chống giặc ngoại xâm của người anh hùng nhỏ tuổi.", category: "dan-gian" },
     
     // --- NHÓM 2: VĂN HỌC TRUNG ĐẠI (Chữ Hán & Chữ Nôm) ---
-    { title: "Truyện Trê Cóc", author: "Khuyết danh", genre: "Truyện thơ Nôm", era: "TK 18", script: "Chữ Nôm", desc: "Tác phẩm trào phúng sâu sắc về xã hội phong kiến đầy bất công.", category: "trung-dai" },
+    { title: "Truyện Trê Cóc", author: "Khuyết danh", genre: "Truyện thơ Nôm", era: "TK 18", script: "Chữ Nôm", desc: "Tác phẩm trào phúng sâu sắc về xã hội phong kiến đầy bất công (Lưu ý: Là văn bản viết, không phải truyền miệng).", category: "trung-dai" },
     { title: "Nam quốc sơn hà", author: "Lý Thường Kiệt", genre: "Thất ngôn tứ tuyệt", era: "Nhà Lý", script: "Chữ Hán", desc: "Bản tuyên ngôn độc lập đầu tiên, khẳng định chủ quyền lãnh thổ.", category: "trung-dai" },
     { title: "Hịch tướng sĩ", author: "Trần Quốc Tuấn", genre: "Hịch", era: "Nhà Trần", script: "Chữ Hán", desc: "Lời kêu gọi tinh thần yêu nước, quyết chiến chống quân Nguyên Mông.", category: "trung-dai" },
     { title: "Phò giá về kinh", author: "Trần Quang Khải", genre: "Ngũ ngôn tứ tuyệt", era: "Nhà Trần", script: "Chữ Hán", desc: "Hào khí chiến thắng và khát vọng thái bình thịnh trị của dân tộc.", category: "trung-dai" },
@@ -50,12 +53,20 @@ const HERITAGE_DATA = [
     { title: "Hoàng Tử Bé", author: "Antoine de Saint-Exupéry", genre: "Tiểu thuyết", era: "1943", script: "Tiếng Pháp", desc: "Câu chuyện triết lý sâu sắc dành cho cả người lớn và trẻ em.", category: "the-gioi" },
     { title: "Chiến tranh và Hòa bình", author: "Lev Tolstoy", genre: "Tiểu thuyết sử thi", era: "1869", script: "Tiếng Nga", desc: "Bức tranh hoành tráng về xã hội Nga trong cuộc chiến tranh Napoleon.", category: "the-gioi" },
 
-    // --- NHÓM 5: CA DAO - TỤC NGỮ ---
+    // --- NHÓM 5: CA DAO - TỤC NGỮ (Bổ sung chủ đề Người Thầy) ---
     { title: "Tục ngữ về thiên nhiên", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Kinh nghiệm dự báo thời tiết, quan sát tự nhiên (VD: 'Chuồn chuồn bay thấp...').", category: "ca-dao" },
     { title: "Tục ngữ về đạo lý", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Bài học ứng xử, triết lý sống (VD: 'Uống nước nhớ nguồn').", category: "ca-dao" },
     { title: "Ca dao than thân", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tiếng nói phản kháng, than thở về số phận bất hạnh (VD: 'Thân em như tấm lụa đào...').", category: "ca-dao" },
     { title: "Ca dao yêu thương tình nghĩa", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tình cảm gia đình, tình yêu đôi lứa, tình bạn.", category: "ca-dao" },
     { title: "Ca dao hài hước", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tiếng cười tự trào, phê phán thói hư tật xấu.", category: "ca-dao" },
+    
+    // --- Ca dao - Tục ngữ về Người Thầy (Mới bổ sung) ---
+    { title: "Muốn sang thì bắc cầu Kiều", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Muốn sang thì bắc cầu Kiều,<br>Muốn con hay chữ thì yêu lấy thầy.", category: "ca-dao" },
+    { title: "Thời gian dẫu bạc mái đầu", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Thời gian dẫu bạc mái đầu,<br>Tim trò vẫn tạc đậm câu ơn thầy.", category: "ca-dao" },
+    { title: "Mồng một Tết cha...", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Mồng một Tết cha, mồng hai Tết mẹ, mồng ba Tết thầy.", category: "ca-dao" },
+    { title: "Dạy con từ thuở tiểu sinh", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Dạy con từ thuở tiểu sinh,<br>Gần thầy gần bạn tập tành lễ nghi.<br>Học cho 'cách vật trí tri',<br>Văn chương chữ nghĩa nghề gì cũng thông.", category: "ca-dao" },
+    { title: "Ơn thầy soi lối mở đường", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Ơn thầy soi lối mở đường,<br>Cho con vững bước dặm trường tương lai.", category: "ca-dao" },
+    { title: "Chữ thầy trong cõi người ta", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Chữ thầy trong cõi người ta,<br>Dặm dài hoa nắng trời xa biển đầy.", category: "ca-dao" },
 
     // --- NHÓM 6: ĐIỂN TÍCH - ĐIỂN CỐ ---
     { title: "Sân Lai", author: "Điển cố Trung Hoa", genre: "Điển cố", era: "Thời Xuân Thu", script: "Chữ Hán", desc: "Lão Lai Tử mặc áo trẻ con để mua vui cho cha mẹ. Chỉ lòng hiếu thảo.", category: "dien-tich" },
