@@ -182,16 +182,15 @@ const ENCYCLOPEDIA_DATA = [
                 <li><b>Bình Ngô đại cáo:</b> Văn chính luận, thể cáo, chữ Hán.</li>
                 <li><b>Truyện Kiều:</b> Truyện thơ Nôm, thể lục bát.</li>
                 <li><b>Chinh phụ ngâm:</b> Ngâm khúc, bản diễn Nôm nổi tiếng dùng thể song thất lục bát.</li>
-                <li><b>Qua Đèo Ngang / Câu cá mùa thu:</b> Thơ Nôm Đường luật.</li>
                 <li><b>Tây Tiến:</b> Thơ kháng chiến chống Pháp (Không xếp vào Thơ Mới).</li>
                 <li><b>Việt Bắc:</b> Thơ trữ tình chính trị, thể lục bát.</li>
                 <li><b>Đồng chí:</b> Thơ kháng chiến, thể thơ tự do có tổ chức nhịp điệu riêng.</li>
             </ul>
             <h4>4.3. Văn học Việt Nam và Thế giới</h4>
             <ul>
-                <li><b>Việt Nam:</b> Văn học dân gian (truyền miệng, tập thể, dị bản); Văn học trung đại (yêu nước, nhân nghĩa, Nho - Phật, chữ Hán/Nôm); Văn học hiện đại (Thơ Mới, Hiện thực, Cách mạng, Đổi mới).</li>
-                <li><b>Trung Hoa:</b> Kinh Thi (tập thơ cổ), Sở Từ (Khuất Nguyên), Thơ Đường (Lý Bạch - phóng khoáng, kỳ ảo; Đỗ Phủ - hiện thực, nhân đạo).</li>
-                <li><b>Thế giới:</b> Sử thi Gilgamesh (Lưỡng Hà), Kinh Veda & Mahabharata, Ramayana (Ấn Độ), Iliad, Odyssey (Hy Lạp), Thần khúc (Dante), Hamlet (Shakespeare).</li>
+                <li><b>Việt Nam:</b> Văn học dân gian; Văn học trung đại; Văn học hiện đại.</li>
+                <li><b>Trung Hoa:</b> Kinh Thi, Sở Từ (Khuất Nguyên), Thơ Đường (Lý Bạch, Đỗ Phủ).</li>
+                <li><b>Thế giới:</b> Sử thi Gilgamesh, Kinh Veda & Mahabharata, Ramayana, Iliad, Odyssey, Thần khúc (Dante), Hamlet (Shakespeare).</li>
             </ul>
         `
     },
@@ -199,7 +198,7 @@ const ENCYCLOPEDIA_DATA = [
         title: "Quyển V. Từ Điển Biểu Tượng Và Ngôn Ngữ Nghệ Thuật",
         content: `
             <h4>5.1. Biểu tượng trong văn học</h4>
-            <p>Là hình ảnh mang ý nghĩa vượt ra ngoài sự vật trực tiếp. Một biểu tượng có thể có: Nghĩa tả thực, nghĩa văn hóa, lịch sử, tâm lý, triết học và nghĩa riêng trong tác phẩm. Không có biểu tượng nào chỉ có duy nhất một nghĩa.</p>
+            <p>Là hình ảnh mang ý nghĩa vượt ra ngoài sự vật trực tiếp. Một biểu tượng có thể có: Nghĩa tả thực, nghĩa văn hóa, lịch sử, tâm lý, triết học và nghĩa riêng trong tác phẩm.</p>
             <h4>5.2. Hệ thống biểu tượng Á Đông</h4>
             <ul>
                 <li><b>Tứ quý:</b> Tùng (bền bỉ, khí tiết), Cúc (thanh cao, nhàn dật), Trúc (ngay thẳng, thanh nhã), Mai (sức sống, thanh khiết).</li>
@@ -207,9 +206,9 @@ const ENCYCLOPEDIA_DATA = [
             </ul>
             <h4>5.3. Từ điển Hán Việt trong thi ca (Hiệu đính học thuật)</h4>
             <ul>
-                <li><b>Vọng (望):</b> Nghĩa chính là trông về, ngóng đợi, hướng đến. Không mặc nhiên đồng nghĩa với âm thanh vọng lại. (Trong nhan đề gợi hướng nhìn về quá khứ, nỗi mong đợi).</li>
-                <li><b>Khúc (曲):</b> Nghĩa là khúc nhạc, bản nhạc, đoạn, phần. Không mặc nhiên mang nghĩa chặng đường.</li>
-                <li><b>Trường (長 / 場):</b> Cần phân biệt. Trường trong "dặm trường" (長) là dài. Trường trong "mái trường" (場/學校) là nơi học tập. Sự đồng âm tạo liên tưởng nhưng không được đánh tráo khái niệm.</li>
+                <li><b>Vọng (望):</b> Nghĩa chính là trông về, ngóng đợi. Không mặc nhiên đồng nghĩa với âm thanh vọng lại.</li>
+                <li><b>Khúc (曲):</b> Nghĩa là khúc nhạc, bản nhạc. Không mặc nhiên mang nghĩa chặng đường.</li>
+                <li><b>Trường (長 / 場):</b> "Dặm trường" (長) là dài. "Mái trường" (場) là nơi học tập.</li>
                 <li><b>Mai (梅 / 明日):</b> Hoa mai và ngày mai là hai chữ khác nhau, không ghép thành quy luật chuyển hóa biểu tượng khi chưa có cơ sở văn bản.</li>
             </ul>
             <h4>5.4. Các biện pháp tu từ</h4>
@@ -295,7 +294,6 @@ const ENCYCLOPEDIA_DATA = [
                 <li>Giáo trình đại học và sách nghiên cứu.</li>
                 <li>Bài báo khoa học có phản biện.</li>
                 <li>Tài liệu phổ thông có nguồn trích dẫn rõ ràng.</li>
-                <li>Diễn giải cá nhân/tư liệu mạng cần đối chiếu.</li>
             </ol>
         `
     }
@@ -312,16 +310,7 @@ const QUOTES_DATA = [
 
 // 4. TỪ KHÓA CHẠY NGANG (MARQUEE)
 const MARQUEE_KEYWORDS = [
-    "Thơ Đường Luật", 
-    "Truyện Kiều", 
-    "Nho - Đạo - Phật", 
-    "Biểu tượng Á Đông", 
-    "Thi pháp học", 
-    "Thất ngôn bát cú", 
-    "Lục bát", 
-    "Văn học dân gian",
-    "Tản Đà",
-    "Thơ Mới",
-    "Nam Cao",
-    "Xuân Diệu"
+    "Thơ Đường Luật", "Truyện Kiều", "Nho - Đạo - Phật", "Biểu tượng Á Đông", 
+    "Thi pháp học", "Thất ngôn bát cú", "Lục bát", "Văn học dân gian",
+    "Tản Đà", "Thơ Mới", "Nam Cao", "Xuân Diệu"
 ];
