@@ -48,9 +48,9 @@ function toggleMobileMenu() {
 }
 
 /* =========================================
-   3. HIỆU ỨNG GÕ CHỮ (TYPEWRITER)
+   3. HIỆU ỨNG GÕ CHỮ (TYPEWRITER) - ĐÃ SỬA CÂU THƠ
    ========================================= */
-const textToType = "Vạn tượng trong lời,\nThiên thu trong ý.";
+const textToType = "Vạn tượng trong lời,\nÝ tại thiên thư.";
 const typeTarget = document.getElementById('typewriter-text');
 const cursor = document.getElementById('cursor');
 let typeIndex = 0;
@@ -375,8 +375,8 @@ function handleSearchClick(element) {
                 }
             }
         } else if (viewId === 'heritage') {
-            // Vì đã có bộ lọc, nếu đang ở chế độ lọc khác mà tìm kiếm, cần đưa về 'all' để thấy kết quả
-            const allBtn = document.querySelector('.filter-btn'); // Nút "Tất cả" đầu tiên
+            // Nếu đang ở chế độ lọc khác mà tìm kiếm, cần đưa về 'all' để thấy kết quả
+            const allBtn = document.querySelector('.filter-btn'); 
             if(allBtn && !allBtn.classList.contains('active')) {
                 filterHeritage('all', allBtn);
             }
