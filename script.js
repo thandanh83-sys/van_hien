@@ -1,8 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V32 - FINAL UI)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V34 - FINAL)
    Tác giả: Văn Đạo
-   Mô tả: Tối ưu hóa giao diện Thi Pháp 4 Tầng. Tự động chia 4 khung vần,
-          ẩn khung rỗng, loại bỏ tiếng Anh, tích hợp đổi Favicon và Danh ngôn.
+   Mô tả: Thuật toán bóc tách vần chính xác (tách âm tiết), giao diện Tầng 1
+          dạng danh sách dọc dễ nhìn, tích hợp toàn bộ logic đổi Theme, Favicon.
    ===================================================================== */
 
 /* =====================================================================
@@ -24,10 +24,8 @@ function toggleTheme() {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
     
-    // Lưu vào bộ nhớ
     localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
     
-    // Cập nhật giao diện
     updateCanvasColors();
     updateThemeText(isDark);
     updateFavicon(isDark); 
@@ -68,7 +66,7 @@ function updateFavicon(isDark) {
    MODULE 3: ĐIỀU HƯỚNG (ROUTING) & MENU
    ===================================================================== */
 /**
- * Chuyển đổi giữa các View (Trang chủ, Văn hiến, Bách khoa, Thi pháp).
+ * Chuyển đổi giữa các View.
  */
 function switchView(viewId) {
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
@@ -86,7 +84,7 @@ function switchView(viewId) {
 }
 
 /**
- * Bật/tắt Menu Mobile (Hamburger).
+ * Bật/tắt Menu Mobile.
  */
 function toggleMobileMenu() {
     const navMenu = document.getElementById('navMenu');
@@ -195,11 +193,13 @@ const POETRY_ANALYZER = (() => {
         return isTrac ? 'T' : 'B';
     }
 
-    // Lấy phần vần (2 ký tự cuối, bỏ dấu)
+    // Lấy chính xác phần vần (nguyên âm + phụ âm cuối), bỏ dấu
     function getRhymePart(word) {
         if (!word) return '';
         const clean = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        return clean.slice(-2);
+        // Regex tìm cụm nguyên âm và phụ âm cuối cùng
+        const match = clean.match(/[aeiouy]+[^aeiouy]*$/);
+        return match ? match[0] : clean.slice(-2);
     }
 
     // --- TẦNG 0: BÓC TÁCH BẰNG/TRẮC ---
@@ -233,7 +233,7 @@ const POETRY_ANALYZER = (() => {
         return { form: `Thơ ${c} chữ`, confidence: 'trung bình', note: `${n} câu × ${c} chữ` };
     }
 
-    // Phân tích 4 loại vần
+    // Phân tích 4 loại vần (Đã fix logic tách âm)
     function checkRhymeDetails(lines) {
         const result = { chan: [], lung: [], lien: [], cach: [] };
         const lastSyl = lines.map(l => l.lastSyllable);
@@ -243,7 +243,7 @@ const POETRY_ANALYZER = (() => {
         for (let i = 0; i < lines.length; i++) {
             for (let j = i + 1; j < lines.length; j++) {
                 if (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== '') {
-                    result.chan.push(`Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}")`);
+                    result.chan.push(`Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}") — [vần: ${rhymeParts[i]}]`);
                 }
             }
         }
@@ -255,7 +255,7 @@ const POETRY_ANALYZER = (() => {
             const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || [];
             for (let k = 0; k < nextWords.length - 1; k++) {
                 if (getRhymePart(nextWords[k]) === endPart) {
-                    result.lung.push(`Cuối câu ${i+1} ("${lastSyl[i]}") vần với chữ ${k+1} câu ${i+2} ("${nextWords[k]}")`);
+                    result.lung.push(`Cuối câu ${i+1} ("${lastSyl[i]}") vần với chữ ${k+1} câu ${i+2} ("${nextWords[k]}") — [vần: ${endPart}]`);
                 }
             }
         }
@@ -263,14 +263,14 @@ const POETRY_ANALYZER = (() => {
         // 3. Vần liền
         for (let i = 0; i < lines.length - 1; i += 2) {
             if (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== '') {
-                result.lien.push(`Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}")`);
+                result.lien.push(`Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}") — [vần: ${rhymeParts[i]}]`);
             }
         }
 
         // 4. Vần cách
         for (let i = 0; i < lines.length - 2; i += 2) {
             if (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== '') {
-                result.cach.push(`Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}")`);
+                result.cach.push(`Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}") — [vần: ${rhymeParts[i]}]`);
             }
         }
 
@@ -279,30 +279,21 @@ const POETRY_ANALYZER = (() => {
 
     // --- TẦNG 2: TỪ ĐIỂN BIỂU TƯỢNG ---
     const SYMBOLS = {
-        'trăng': { vol: 'V', sec: '5.2', mean: 'đoàn viên, nhớ quê, cô đơn, chiêm nghiệm' }, 
-        'nguyệt': { vol: 'V', sec: '5.2', mean: 'Hán Việt của "trăng"' },
-        'liễu': { vol: 'V', sec: '5.2', mean: 'chia biệt' }, 
-        'đào': { vol: 'V', sec: '5.2', mean: 'tuổi trẻ, mùa xuân' },
-        'sen': { vol: 'V', sec: '5.2', mean: 'thanh khiết' }, 
-        'hạc': { vol: 'V', sec: '5.2', mean: 'thanh cao, trường thọ' },
-        'nhạn': { vol: 'V', sec: '5.2', mean: 'tin tức' }, 
-        'mây': { vol: 'V', sec: '5.2', mean: 'phiêu du' },
-        'nước': { vol: 'V', sec: '5.2', mean: 'thời gian, mềm mại' }, 
-        'thuyền': { vol: 'V', sec: '5.2', mean: 'hành trình' },
+        'trăng': { vol: 'V', sec: '5.2', mean: 'đoàn viên, nhớ quê, cô đơn, chiêm nghiệm' }, 'nguyệt': { vol: 'V', sec: '5.2', mean: 'Hán Việt của "trăng"' },
+        'liễu': { vol: 'V', sec: '5.2', mean: 'chia biệt' }, 'đào': { vol: 'V', sec: '5.2', mean: 'tuổi trẻ, mùa xuân' },
+        'sen': { vol: 'V', sec: '5.2', mean: 'thanh khiết' }, 'hạc': { vol: 'V', sec: '5.2', mean: 'thanh cao, trường thọ' },
+        'nhạn': { vol: 'V', sec: '5.2', mean: 'tin tức' }, 'mây': { vol: 'V', sec: '5.2', mean: 'phiêu du' },
+        'nước': { vol: 'V', sec: '5.2', mean: 'thời gian, mềm mại' }, 'thuyền': { vol: 'V', sec: '5.2', mean: 'hành trình' },
         'bến đò': { vol: 'V', sec: '5.2', mean: 'gặp gỡ, chia tay' }
     };
     const DIEN_TICH = {
-        'sân lai': { vol: 'V', sec: '5.2', mean: 'lòng hiếu thảo (Lão Lai Tử)' }, 
-        'ngưu lang': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' },
-        'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 
-        'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' },
-        'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 
-        'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm, mất tự do' }
+        'sân lai': { vol: 'V', sec: '5.2', mean: 'lòng hiếu thảo (Lão Lai Tử)' }, 'ngưu lang': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' },
+        'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' },
+        'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm, mất tự do' }
     };
     const HAN_VIET = {
-        'vọng': { vol: 'V', sec: '5.3', mean: '望 — trông về, ngóng đợi.' }, 
-        'khúc': { vol: 'V', sec: '5.3', mean: '曲 — khúc nhạc, bản nhạc.' },
-        'dặm trường': { vol: 'V', sec: '5.3', mean: 'trường = 長 (dài) — đường xa.' }
+        'vọng': { vol: 'VIII', sec: '8.6', mean: '望 — trông về, ngóng đợi.' }, 'khúc': { vol: 'VIII', sec: '8.6', mean: '曲 — khúc nhạc, bản nhạc.' },
+        'dặm trường': { vol: 'VIII', sec: '8.6', mean: 'trường = 長 (dài) — đường xa.' }
     };
 
     function findSymbols(text) {
@@ -319,18 +310,21 @@ const POETRY_ANALYZER = (() => {
         const qs = [];
         if (form.confidence !== 'cao') qs.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay chỉ là ngẫu nhiên? (Xem Quyển I.3)`);
         if (rhymes.details.chan.length === 0) qs.push(`Không thấy vần chân rõ ràng giữa các câu. Tác giả có chủ ý dùng vần lỏng, hay đây là thơ tự do?`);
-        if (symbols.length > 0) qs.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này, nó đang gợi nghĩa nào? (Xem Quyển V, mục ${symbols[0].sec})`);
+        if (symbols.length > 0) qs.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này, nó đang gợi nghĩa nào? (Xem Quyển ${symbols[0].vol}, mục ${symbols[0].sec})`);
         qs.push(`Điều gì ở bài thơ này là "của riêng" tác giả — khác với những bài cùng thể?`);
         return qs.slice(0, 5);
     }
 
+    // API trả về kết quả
     function generateReport(text) {
         const bangTrac = analyzeBangTrac(text);
         if (bangTrac.length === 0) return null;
+        
         const form = detectForm(bangTrac);
         const rhymes = checkRhymeDetails(bangTrac);
         const symbols = findSymbols(text);
         const questions = buildQuestions(form, rhymes, symbols);
+        
         return { bangTrac, form, rhymes, symbols, questions };
     }
 
@@ -356,7 +350,7 @@ function executePipeline() {
 
     // SVG Icons
     const SVG_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
-    const SVG_CHECK_SMALL = (color) => `<svg viewBox="0 0 24 24" width="14" height="14" stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 3px;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    const SVG_CHECK_SMALL = (color) => `<svg viewBox="0 0 24 24" width="16" height="16" stroke="${color}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 3px;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
     // --- TẦNG 0 ---
     const tier0 = report.bangTrac.map(l => `
@@ -367,18 +361,16 @@ function executePipeline() {
         </div>
     `).join('');
 
-    // --- TẦNG 1 (CHIA 4 KHUNG RIÊNG BIỆT, TỰ ĐỘNG ẨN KHUNG RỖNG) ---
-    const renderRhymeBox = (title, arr, color) => {
-        if (arr.length === 0) return ''; // Ẩn hoàn toàn nếu không có vần
-        
-        const list = arr.map(item => `<li style="margin-bottom: 8px; display: flex; align-items: flex-start; font-size: 0.9rem; color: var(--text-muted);">
-            <span style="margin-right: 8px;">${SVG_CHECK_SMALL(color)}</span>
+    // --- TẦNG 1 (DẠNG DANH SÁCH DỌC) ---
+    const renderRhymeList = (title, arr, color) => {
+        if (arr.length === 0) return '';
+        const list = arr.map(item => `<li style="margin-bottom: 8px; display: flex; align-items: flex-start; font-size: 0.95rem; color: var(--text-muted);">
+            <span style="margin-right: 8px; color: ${color}; flex-shrink: 0;">${SVG_CHECK_SMALL(color)}</span>
             <span>${item}</span>
         </li>`).join('');
         
-        // Trả về khung có viền màu rõ ràng
-        return `<div style="background: rgba(0,0,0,0.02); border: 1px solid var(--glass-border); border-left: 4px solid ${color}; border-radius: 8px; padding: 15px; margin-bottom: 10px;">
-            <strong style="display: block; margin-bottom: 12px; color: ${color}; font-size: 0.95rem;">${title}</strong>
+        return `<div style="margin-bottom: 20px;">
+            <strong style="display: block; margin-bottom: 10px; color: ${color}; font-size: 1rem;">${title}</strong>
             <ul style="padding-left: 0; list-style: none; margin: 0;">${list}</ul>
         </div>`;
     };
@@ -389,11 +381,11 @@ function executePipeline() {
             <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span>
         </div>
         
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            ${renderRhymeBox('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}
-            ${renderRhymeBox('2. Vần lưng (chữ giữa câu)', report.rhymes.details.lung, 'var(--accent-gold)')}
-            ${renderRhymeBox('3. Vần liền (câu 1-2, 3-4)', report.rhymes.details.lien, 'var(--text-main)')}
-            ${renderRhymeBox('4. Vần cách (câu 1-3, 2-4)', report.rhymes.details.cach, 'var(--text-muted)')}
+        <div style="display: flex; flex-direction: column;">
+            ${renderRhymeList('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}
+            ${renderRhymeList('2. Vần lưng (chữ giữa câu)', report.rhymes.details.lung, 'var(--accent-gold)')}
+            ${renderRhymeList('3. Vần liền (câu 1-2, 3-4)', report.rhymes.details.lien, 'var(--text-main)')}
+            ${renderRhymeList('4. Vần cách (câu 1-3, 2-4)', report.rhymes.details.cach, 'var(--text-muted)')}
         </div>
         
         ${(report.rhymes.details.chan.length === 0 && report.rhymes.details.lung.length === 0 && report.rhymes.details.lien.length === 0 && report.rhymes.details.cach.length === 0) 
@@ -426,7 +418,7 @@ function executePipeline() {
             <div class="tier-label">TẦNG 0 — DỮ KIỆN THÔ</div>
             <div class="step-title">Bóc tách thanh điệu (Bằng / Trắc)</div>
             ${tier0}
-            <p class="tier-note">B (Bằng): không dấu, dấu huyền. T (Trắc): sắc, hỏi, ngã, nặng. Đây là dữ kiện — không phán xét.</p>
+            <p class="tier-note">B (Bằng): không dấu, dấu huyền. T (Trắc): sắc, hỏi, ngã, nặng.</p>
         </div>
         <div class="result-step tier-1">
             <div class="tier-label">TẦNG 1 — ĐỐI CHIẾU LÝ THUYẾT</div>
@@ -447,7 +439,7 @@ function executePipeline() {
 }
 
 /**
- * Hàm phụ trợ: Điều hướng tới đúng Quyển trong Bách Khoa khi click.
+ * Điều hướng tới đúng Quyển trong Bách Khoa khi click.
  */
 function gotoEncyclopedia(volNum) {
     switchView('encyclopedia');
@@ -568,5 +560,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initWaterCanvas();
     initDewdrops();
     
-    console.log("VĂN ĐẠO V32: Hệ thống đã sẵn sàng! Giao diện 4 khung vần đã hoàn thiện.");
+    console.log("VĂN ĐẠO V34: Hệ thống đã sẵn sàng! Logic Vần đã được tối ưu.");
 });
