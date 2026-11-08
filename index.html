@@ -18,15 +18,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- ========================================== -->
-    <!-- FAVICON ĐỘNG (Tự động đổi Logo khi đổi Theme) -->
+    <!-- FAVICON ĐỘNG (Tự động đổi Logo)            -->
     <!-- ========================================== -->
-    <!-- Mặc định hiển thị logo_trang.png. JS sẽ đổi thành logo_toi.png khi bật Dark Mode -->
+    <!-- Mặc định hiển thị logo_trang.png. JS sẽ tự đổi sang logo_toi.png khi bật Dark Mode -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (v=101 để ép xóa cache)  -->
+    <!-- LIÊN KẾT FILE CSS (Ép xóa Cache với v=9999)-->
     <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=">
+    <link rel="stylesheet" href="style.css?v=9999">
 </head>
 <body>
 
@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Ép xóa gạch trực tiếp bằng inline-style) -->
+            <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Đã ép xóa gạch viền) -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
@@ -194,16 +194,16 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SCRIPTS (TẢI DỮ LIỆU VÀ LOGIC XỬ LÝ)       -->
+    <!-- SCRIPTS (Ép xóa Cache với v=9999)          -->
     <!-- ========================================== -->
-    <!-- Lưu ý: Thứ tự tải file cực kỳ quan trọng. Dữ liệu phải tải trước thì Logic mới đọc được. -->
+    <!-- Thứ tự tải file cực kỳ quan trọng: Dữ liệu trước, Logic sau -->
     
     <!-- 1. Tải 3 file dữ liệu -->
-    <script src="data-heritage.js?v=999"></script>
-    <script src="data-encyclopedia.js?v=999"></script>
-    <script src="data-quotes.js?v=999"></script>
+    <script src="data-heritage.js?v=9999"></script>
+    <script src="data-encyclopedia.js?v=9999"></script>
+    <script src="data-quotes.js?v=9999"></script>
     
-    <!-- 2. Tải file logic xử lý sau cùng (Đã gộp toàn bộ não bộ bao gồm cả Thi Pháp 4 Tầng và Logic đổi Favicon) -->
-    <script src="script.js?v=999"></script>
+    <!-- 2. Tải file logic xử lý sau cùng -->
+    <script src="script.js?v=9999"></script>
 </body>
 </html>
