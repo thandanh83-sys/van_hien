@@ -52,10 +52,12 @@
                 <p class="hero-desc">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</p>
             </div>
 
-            <!-- Thanh Tìm Kiếm (Live Search) -->
-            <div class="search-box" id="search-container">
-                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="global-search" placeholder="Tìm kiếm tác phẩm, tri thức, điển tích..." autocomplete="off">
+            <!-- Thanh Tìm Kiếm (Đã sửa cấu trúc để hộp kết quả rớt xuống dưới) -->
+            <div id="search-container">
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="global-search" placeholder="Tìm kiếm tác phẩm, tri thức, điển tích..." autocomplete="off">
+                </div>
                 <!-- Hộp xổ xuống chứa kết quả tìm kiếm -->
                 <div id="search-results" class="search-results"></div>
             </div>
@@ -140,7 +142,6 @@
             
             <div class="analyze-box">
                 <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
-                <!-- ĐÃ ĐỔI CHỮ Ở NÚT BẤM THÀNH "PHÂN TÍCH" -->
                 <button class="btn-analyze" onclick="executePipeline()">Phân tích</button>
             </div>
 
@@ -149,7 +150,7 @@
 
     </main>
 
-    <!-- Nạp Javascript -->
+    <!-- Nạp Javascript (Bắt buộc Data phải nạp trước Script) -->
     <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
