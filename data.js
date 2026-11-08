@@ -1,16 +1,17 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER DATA (ULTIMATE V10)
+   VĂN ĐẠO ENGINE - MASTER DATA (ULTIMATE V13)
    Tác giả: Văn Đạo
-   Mô tả: Trái tim tri thức của hệ thống, đã fix toàn bộ lỗi học thuật.
+   Mô tả: Trái tim tri thức của hệ thống, đã bổ sung Truyện Cười Dân Gian.
    Cấu trúc: 
-   - Phần 1: HERITAGE_DATA (50+ Tác phẩm Văn học)
+   - Phần 1: HERITAGE_DATA (60+ Tác phẩm Văn học)
    - Phần 2: ENCYCLOPEDIA_DATA (8 Quyển Đại Bách Khoa)
    - Phần 3: QUOTES_DATA & MARQUEE_KEYWORDS
    ===================================================================== */
 
 /* =====================================================================
    PHẦN 1: DỮ LIỆU VĂN HIẾN (HERITAGE DATA)
-   Phân loại: Dân gian, Trung đại, Hiện đại, Thế giới, Ca dao, Điển tích.
+   Phân loại: Dân gian, Trung đại, Hiện đại, Thế giới, Ca dao, 
+              Điển tích, Truyện cười.
    ===================================================================== */
 const HERITAGE_DATA = [
     
@@ -20,9 +21,9 @@ const HERITAGE_DATA = [
     { title: "Tấm Cám", author: "Dân gian", genre: "Cổ tích", era: "Không rõ", script: "Truyền miệng", desc: "Hành trình đấu tranh giành hạnh phúc của cô Tấm, thể hiện khát vọng công lý.", category: "dan-gian" },
     { title: "Thạch Sanh", author: "Dân gian", genre: "Cổ tích", era: "Không rõ", script: "Truyền miệng", desc: "Người hùng diệt chằn tinh, đại bàng và đánh đuổi giặc ngoại xâm.", category: "dan-gian" },
     { title: "Thánh Gióng", author: "Dân gian", genre: "Truyền thuyết", era: "Thời Hùng Vương", script: "Truyền miệng", desc: "Ca ngợi tinh thần yêu nước, chống giặc ngoại xâm của người anh hùng nhỏ tuổi.", category: "dan-gian" },
-    { title: "Truyện Trê Cóc", author: "Khuyết danh", genre: "Truyện thơ Nôm", era: "TK 18", script: "Chữ Nôm", desc: "Tác phẩm trào phúng sâu sắc về xã hội phong kiến đầy bất công (Lưu ý: Là văn bản viết, không phải truyền miệng).", category: "trung-dai" },
-
+    
     // --- NHÓM 2: VĂN HỌC TRUNG ĐẠI (Chữ Hán & Chữ Nôm) ---
+    { title: "Truyện Trê Cóc", author: "Khuyết danh", genre: "Truyện thơ Nôm", era: "TK 18", script: "Chữ Nôm", desc: "Tác phẩm trào phúng sâu sắc về xã hội phong kiến đầy bất công (Lưu ý: Là văn bản viết, không phải truyền miệng).", category: "trung-dai" },
     { title: "Nam quốc sơn hà", author: "Lý Thường Kiệt", genre: "Thất ngôn tứ tuyệt", era: "Nhà Lý", script: "Chữ Hán", desc: "Bản tuyên ngôn độc lập đầu tiên, khẳng định chủ quyền lãnh thổ.", category: "trung-dai" },
     { title: "Hịch tướng sĩ", author: "Trần Quốc Tuấn", genre: "Hịch", era: "Nhà Trần", script: "Chữ Hán", desc: "Lời kêu gọi tinh thần yêu nước, quyết chiến chống quân Nguyên Mông.", category: "trung-dai" },
     { title: "Phò giá về kinh", author: "Trần Quang Khải", genre: "Ngũ ngôn tứ tuyệt", era: "Nhà Trần", script: "Chữ Hán", desc: "Hào khí chiến thắng và khát vọng thái bình thịnh trị của dân tộc.", category: "trung-dai" },
@@ -75,7 +76,17 @@ const HERITAGE_DATA = [
     { title: "Làn thu thủy, nét xuân sơn", author: "Nguyễn Du", genre: "Điển tích", era: "Truyện Kiều", script: "Chữ Nôm", desc: "Tả vẻ đẹp sắc sảo, đoan trang của Thúy Kiều (mắt trong như nước mùa thu, lông mày đẹp như núi mùa xuân).", category: "dien-tich" },
     { title: "Khuôn trăng đầy đặn, nét ngài nở nang", author: "Nguyễn Du", genre: "Điển tích", era: "Truyện Kiều", script: "Chữ Nôm", desc: "Tả vẻ đẹp phúc hậu, đoan trang của Thúy Vân.", category: "dien-tich" },
     { title: "Bèo dạt mây trôi", author: "Điển tích Việt Nam", genre: "Thành ngữ", era: "Dân gian", script: "Quốc ngữ", desc: "Chỉ thân phận trôi nổi, vô định, không biết đi về đâu.", category: "dien-tich" },
-    { title: "Chim lồng cá chậu", author: "Điển tích Việt Nam", genre: "Điển cố", era: "Dân gian", script: "Quốc ngữ", desc: "Chỉ hoàn cảnh bị giam hãm, mất tự do, không thể phát triển.", category: "dien-tich" }
+    { title: "Chim lồng cá chậu", author: "Điển tích Việt Nam", genre: "Điển cố", era: "Dân gian", script: "Quốc ngữ", desc: "Chỉ hoàn cảnh bị giam hãm, mất tự do, không thể phát triển.", category: "dien-tich" },
+
+    // --- NHÓM 7: TRUYỆN CƯỜI DÂN GIAN (Bổ sung mới) ---
+    { title: "Tam Đại Con Gà", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Chế giễu thói dốt nát hay khoe khoang của thầy đồ (Dủ dỉ là con dù dì).", category: "truyen-cuoi" },
+    { title: "Nhưng Nó Phải Bằng Hai Mày", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Đả kích sự tham nhũng, hối lộ của quan lại phong kiến (Lý trưởng, Cải, Ngô).", category: "truyen-cuoi" },
+    { title: "Lợn Cưới, Áo Mới", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Chế giễu tính hay khoe của, kệch cỡm của những kẻ giàu mới nổi.", category: "truyen-cuoi" },
+    { title: "Treo Biển", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Phê phán những người thiếu bản lĩnh, thiếu lập trường, ai nói gì cũng nghe.", category: "truyen-cuoi" },
+    { title: "Đẽo Cày Giữa Đường", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Khuyên răn con người cần có chính kiến, không nên ba phải, làm theo lời góp ý mù quáng.", category: "truyen-cuoi" },
+    { title: "Thầy Bói Xem Voi", author: "Dân gian", genre: "Truyện ngụ ngôn", era: "Không rõ", script: "Truyền miệng", desc: "Bài học về việc nhìn nhận sự vật một cách phiến diện, chỉ thấy bộ phận mà không thấy toàn thể.", category: "truyen-cuoi" },
+    { title: "Lão Miệng, Tai, Mắt, Mũi", author: "Dân gian", genre: "Truyện ngụ ngôn", era: "Không rõ", script: "Truyền miệng", desc: "Mượn câu chuyện các bộ phận cơ thể để nói về sự gắn kết, tương trợ trong cộng đồng.", category: "truyen-cuoi" },
+    { title: "Cháy Nhà Ra Mặt Chuột", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Tình huống khó khăn mới bộc lộ được bản chất, tính cách thật của con người.", category: "truyen-cuoi" }
 ];
 
 
@@ -422,5 +433,5 @@ const MARQUEE_KEYWORDS = [
     "Thơ Đường Luật", "Truyện Kiều", "Nho - Đạo - Phật", "Biểu tượng Á Đông", 
     "Thi pháp học", "Thất ngôn bát cú", "Lục bát", "Văn học dân gian",
     "Tản Đà", "Thơ Mới", "Nam Cao", "Xuân Diệu", "Ca dao", "Tục ngữ", 
-    "Điển tích", "Tứ đại giai không", "Bạch Ngọc Liên", "Thủy Mặc"
+    "Điển tích", "Tứ đại giai không", "Bạch Ngọc Liên", "Thủy Mặc", "Truyện cười"
 ];
