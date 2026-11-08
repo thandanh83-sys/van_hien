@@ -1,7 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V12)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V14)
    Tác giả: Văn Đạo
-   Mô tả: Xử lý logic, render dữ liệu, tìm kiếm và phân tích thi pháp.
+   Mô tả: Xử lý logic, render dữ liệu, tìm kiếm, danh ngôn và thi pháp.
    Cấu trúc: 7 Modules từ Icons, Theme, Routing, Rendering,
              Analysis, Visual Effects đến Initialization.
    ===================================================================== */
@@ -116,7 +116,7 @@ document.addEventListener('click', (e) => {
 });
 
 /* =====================================================================
-   MODULE 4: RENDER DỮ LIỆU (VĂN HIẾN & BÁCH KHOA)
+   MODULE 4: RENDER DỮ LIỆU (VĂN HIẾN & BÁCH KHOA & DANH NGÔN)
    ===================================================================== */
 /**
  * Hiển thị danh sách các tác phẩm Văn Hiến.
@@ -181,6 +181,31 @@ function renderEncyclopedia() {
     `).join('');
 
     container.innerHTML = htmlContent;
+}
+
+/**
+ * Hiển thị 1 câu Danh ngôn ngẫu nhiên ở Trang Chủ.
+ */
+function renderRandomQuote() {
+    const container = document.getElementById('daily-quote-container');
+    if (!container || typeof QUOTES_DATA === 'undefined') return;
+
+    // Lấy ngẫu nhiên 1 câu
+    const randomIndex = Math.floor(Math.random() * QUOTES_DATA.length);
+    const quote = QUOTES_DATA[randomIndex];
+
+    // Đổ HTML ra màn hình với icon dấu ngoặc kép
+    container.innerHTML = `
+        <svg viewBox="0 0 24 24" width="32" height="32" stroke="var(--accent)" stroke-width="1.5" fill="none" style="margin-bottom: 15px; opacity: 0.7;">
+            <path d="M10 11h-4v-4h4v4zm10 0h-4v-4h4v4zm-10 5c-2.5 0-4.5-2-4.5-4.5 0 3-1.5 5.5-4 7.5 3 0 6-1.5 8.5-3zm10 0c-2.5 0-4.5-2-4.5-4.5 0 3-1.5 5.5-4 7.5 3 0 6-1.5 8.5-3z"></path>
+        </svg>
+        <p style="font-family: var(--font-serif); font-size: 1.6rem; color: var(--text-main); font-style: italic; line-height: 1.5; max-width: 800px; margin: 0 auto;">
+            "${quote.text}"
+        </p>
+        <p style="margin-top: 15px; font-size: 0.9rem; font-weight: 600; color: var(--accent); letter-spacing: 1px;">
+            — ${quote.author} —
+        </p>
+    `;
 }
 
 /* =====================================================================
@@ -398,11 +423,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Render nội dung tĩnh ban đầu
     renderHeritage('all');
     renderEncyclopedia();
+    renderRandomQuote(); // Gọi hàm hiển thị danh ngôn
 
     // 3. Khởi tạo các hiệu ứng hình ảnh
     initCursorGlow();
     initWaterCanvas();
     initDewdrops();
 
-    console.log("VĂN ĐẠO: Hệ thống V12 đã sẵn sàng và hoạt động hoàn hảo!");
+    console.log("VĂN ĐẠO: Hệ thống V14 đã sẵn sàng và hoạt động hoàn hảo!");
 });
