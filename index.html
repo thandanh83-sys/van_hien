@@ -18,9 +18,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (v=14)                   -->
+    <!-- LIÊN KẾT FILE CSS (v=18 để ép xóa cache)   -->
     <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=14">
+    <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
 
@@ -122,14 +122,14 @@
                     </button>
                 </div>
                 
-                <!-- Khối Hình ảnh bên phải -->
+                <!-- Khối Hình ảnh bên phải (Khung vòm) -->
                 <div class="hero-visual">
                     <div class="arch-frame">
-                        <!-- GỌI ẢNH SÁNG: Từ file nen_sang.jpg trong thư mục -->
-                        <img class="light-img" src="nen_sang.jpg" alt="Tranh sơn thủy Bạch Ngọc">
+                        <!-- GỌI ẢNH KHUNG SÁNG: Từ file khung_sang.jpg -->
+                        <img class="light-img" src="khung_sang.jpg" alt="Tranh sáo trúc">
                         
-                        <!-- GỌI ẢNH TỐI: Từ file nen_toi.jpg trong thư mục -->
-                        <img class="dark-img" src="nen_toi.jpg" alt="Tranh thủy mặc">
+                        <!-- GỌI ẢNH KHUNG TỐI: Từ file khung_toi.jpg -->
+                        <img class="dark-img" src="khung_toi.jpg" alt="Tranh mây vàng">
                     </div>
                 </div>
             </div>
@@ -154,7 +154,7 @@
                 <button class="filter-btn" onclick="filterHeritage('the-gioi', this)">Thế giới</button>
                 <button class="filter-btn" onclick="filterHeritage('ca-dao', this)">Ca dao - Tục ngữ</button>
                 <button class="filter-btn" onclick="filterHeritage('dien-tich', this)">Điển tích</button>
-                <!-- NÚT MỚI BỔ SUNG: Dành cho Truyện Cười -->
+                <!-- NÚT TRUYỆN CƯỜI -->
                 <button class="filter-btn" onclick="filterHeritage('truyen-cuoi', this)">Truyện cười</button>
             </div>
             
@@ -196,11 +196,11 @@
     <!-- SCRIPTS (TẢI DỮ LIỆU VÀ LOGIC XỬ LÝ)       -->
     <!-- ========================================== -->
     <!-- TẢI DỮ LIỆU (Thứ tự rất quan trọng: Dữ liệu phải tải trước Logic) -->
-    <script src="data-heritage.js?v=14"></script>
-    <script src="data-encyclopedia.js?v=14"></script>
-    <script src="data-quotes.js?v=14"></script>
+    <script src="data-heritage.js?v=18"></script>
+    <script src="data-encyclopedia.js?v=18"></script>
+    <script src="data-quotes.js?v=18"></script>
     
     <!-- TẢI LOGIC XỬ LÝ (Tải sau cùng để DOM đã sẵn sàng) -->
-    <script src="script.js?v=14"></script>
+    <script src="script.js?v=18"></script>
 </body>
 </html>
