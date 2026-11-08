@@ -66,7 +66,7 @@ function typeWriter() {
         setTimeout(typeWriter, 100);
     } else {
         // Gõ xong thì tắt con trỏ nhấp nháy
-        cursor.style.display = 'none'; 
+        if(cursor) cursor.style.display = 'none'; 
     }
 }
 
@@ -250,7 +250,113 @@ function executePipeline() {
 }
 
 /* =========================================
-   8. KHỞI CHẠY KHI TẢI TRANG
+   8. TÍNH NĂNG TÌM KIẾM (LIVE SEARCH)
+   ========================================= */
+// Hàm loại bỏ dấu tiếng Việt để tìm kiếm không dấu dễ dàng hơn
+function removeTones(str) {
+    return str.normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/đ/g, 'd')
+              .replace(/Đ/g, 'D')
+              .toLowerCase();
+}
+
+function initSearch() {
+    const searchInput = document.getElementById('global-search');
+    const resultsBox = document.getElementById('search-results');
+    
+    if (!searchInput || !resultsBox) return;
+
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        
+        // Nếu không gõ gì thì ẩn hộp kết quả
+        if (query.length === 0) {
+            resultsBox.classList.remove('active');
+            resultsBox.innerHTML = '';
+            return;
+        }
+
+        const cleanQuery = removeTones(query);
+        let results = [];
+
+        // 1. Tìm trong Văn Hiến
+        HERITAGE_DATA.forEach(item => {
+            const textToSearch = removeTones(item.title + " " + item.author + " " + item.genre + " " + item.desc);
+            if (textToSearch.includes(cleanQuery)) {
+                results.push({
+                    type: "Văn Hiến",
+                    title: item.title,
+                    sub: item.author,
+                    view: "heritage"
+                });
+            }
+        });
+
+        // 2. Tìm trong Bách Khoa
+        ENCYCLOPEDIA_DATA.forEach(item => {
+            const textToSearch = removeTones(item.title + " " + item.content);
+            if (textToSearch.includes(cleanQuery)) {
+                results.push({
+                    type: "Bách Khoa",
+                    title: item.title,
+                    sub: "Lý thuyết văn học",
+                    view: "encyclopedia"
+                });
+            }
+        });
+
+        // 3. Hiển thị kết quả (Giới hạn 6 kết quả đầu tiên cho gọn)
+        if (results.length > 0) {
+            resultsBox.innerHTML = results.slice(0, 6).map(r => `
+                <div class="search-item" onclick="handleSearchClick('${r.view}', '${r.title}')">
+                    <span class="s-type">${r.type}</span>
+                    <h4>${r.title}</h4>
+                    <p>${r.sub}</p>
+                </div>
+            `).join('');
+        } else {
+            resultsBox.innerHTML = `<div class="no-results">Không tìm thấy kết quả cho "${query}"</div>`;
+        }
+        
+        resultsBox.classList.add('active');
+    });
+
+    // Ẩn kết quả khi click ra ngoài vùng tìm kiếm
+    document.addEventListener('click', (e) => {
+        if (!document.getElementById('search-container').contains(e.target)) {
+            resultsBox.classList.remove('active');
+        }
+    });
+}
+
+// Hàm xử lý khi click vào một kết quả tìm kiếm
+function handleSearchClick(viewId, title) {
+    // Chuyển sang trang tương ứng
+    switchView(viewId);
+    
+    // Xóa thanh tìm kiếm và ẩn hộp kết quả
+    document.getElementById('global-search').value = '';
+    document.getElementById('search-results').classList.remove('active');
+    
+    // (Tùy chọn) Nếu là Bách Khoa, tự động mở quyển sách đó ra
+    if (viewId === 'encyclopedia') {
+        const summaries = document.querySelectorAll('.accordion-item summary');
+        summaries.forEach(summary => {
+            if (summary.textContent.includes(title)) {
+                // Mở thẻ details chứa summary này
+                summary.parentElement.setAttribute('open', 'true');
+                // Cuộn xuống quyển đó
+                setTimeout(() => {
+                    summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        });
+    }
+}
+
+/* =========================================
+   9. KHỞI CHẠY KHI TẢI TRANG
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Nạp dữ liệu từ Data.js vào HTML
@@ -259,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Khởi tạo các hiệu ứng
     initTilt();
     initQuotes();
+    initSearch(); // Khởi tạo tính năng tìm kiếm
     
     // 3. Chạy hiệu ứng gõ chữ sau 0.5s
     setTimeout(typeWriter, 500);
