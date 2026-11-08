@@ -1,5 +1,8 @@
 /* =====================================================================
    VĂN ĐẠO ENGINE - DỮ LIỆU TRÍCH DẪN & DANH NGÔN (QUOTES DATA)
+   Tác giả: Văn Đạo
+   Mô tả: Bộ sưu tập 18 danh ngôn bất hủ về Văn học, Tri thức, 
+          Người Thầy và các câu thơ của Văn Đạo.
    ===================================================================== */
 const QUOTES_DATA = [
     // --- Chủ đề Văn học & Tri thức ---
@@ -10,6 +13,7 @@ const QUOTES_DATA = [
     { text: "Học rộng để nhìn thấy nhiều chân trời, học sâu để hiểu được bản chất.", author: "Văn Đạo" },
     { text: "Nho gia là đạo lý để bước vào đời; Đạo gia là một tâm thế để đi qua đời.", author: "Văn Đạo" },
     { text: "Tri thức giúp câu thơ có chiều sâu; cảm xúc giúp câu thơ có linh hồn.", author: "Văn Đạo" },
+    { text: "Nước tĩnh in bóng trăng ngà, vườn văn mở lối hương trà đợi ai.", author: "Văn Đạo" },
     
     // --- Chủ đề Người Thầy & Giáo dục ---
     { text: "Nhất tự vi sư, bán tự vi sư.", author: "Thành ngữ Hán Việt" },
@@ -25,6 +29,7 @@ const QUOTES_DATA = [
     { text: "Chúng ta hãy nhớ rằng một đứa trẻ, một giáo viên, một quyển sách và một cái bút có thể thay đổi cả thế giới.", author: "Malala Yousafzai" }
 ];
 
+// Dữ liệu từ khóa dự phòng (Có thể dùng cho tính năng thanh chữ chạy sau này)
 const MARQUEE_KEYWORDS = [
     "Thơ Đường Luật", "Truyện Kiều", "Nho - Đạo - Phật", "Biểu tượng Á Đông", 
     "Thi pháp học", "Thất ngôn bát cú", "Lục bát", "Văn học dân gian",
