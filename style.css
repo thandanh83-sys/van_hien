@@ -1,7 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V45 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V48 - FINAL)
    Tác giả: Văn Đạo
-   Cấu trúc: 13 Phân đoạn - Tối ưu hóa toàn diện, loại bỏ 100% gạch thừa.
+   Cấu trúc: 13 Phân đoạn - Tối ưu hóa toàn diện cho Thi Pháp 4 Tầng.
+   Đã xóa 100% gạch thừa, tối ưu link liên kết Bách Khoa.
    ===================================================================== */
 
 /* =====================================================================
@@ -64,7 +65,7 @@ body.dark-mode {
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 ::selection { background: var(--accent); color: #fff; }
 
-/* NỀN SÁNG: Ảnh Sáo Trúc (nen_sang.jpg) */
+/* NỀN SÁNG: Ảnh Sáo Trúc (nen_sang.jpg) + Lớp phủ mờ 85% */
 body {
     background-color: var(--bg-base);
     background-image: 
@@ -83,7 +84,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* NỀN TỐI: Ảnh Mây Vàng (nen_toi.jpg) */
+/* NỀN TỐI: Ảnh Mây Vàng (nen_toi.jpg) + Lớp phủ đen mờ 80% */
 body.dark-mode {
     background-color: var(--bg-base);
     background-image: 
@@ -117,7 +118,7 @@ body.dark-mode .dewdrop { display: none; }
    ===================================================================== */
 .container { 
     position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; 
-    padding: 100px 24px 40px 24px; 
+    padding: 100px 24px 40px 24px; /* Padding-top tránh Navbar đè nội dung */
 }
 
 .navbar {
@@ -351,7 +352,17 @@ body.dark-mode .btn .light-text { display: none !important; }
 .symbol-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; flex-wrap: wrap; border-bottom: none !important; }
 .symbol-keyword { font-family: var(--font-serif); font-weight: 600; font-size: 1.05rem; color: var(--text-main); min-width: 90px; }
 .symbol-meaning { flex: 1; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; }
-.volume-link { color: var(--accent); cursor: pointer; font-size: 0.85rem; font-weight: 500; white-space: nowrap; text-decoration: underline; }
+
+/* Link liên kết Bách Khoa (Dùng cho cả Tầng 2 và Tầng 3) */
+.volume-link { 
+    color: var(--accent); 
+    cursor: pointer; 
+    font-size: 0.85rem; 
+    font-weight: 500; 
+    white-space: nowrap; 
+    text-decoration: underline; 
+    transition: color 0.2s;
+}
 .volume-link:hover { color: var(--accent-gold); }
 
 /* Tầng 3: Câu hỏi mở */
@@ -373,7 +384,7 @@ body.dark-mode .btn .light-text { display: none !important; }
     .nav-brand { font-size: 1.3rem; }
     .mobile-menu-btn { display: block; }
     
-    /* Menu xổ xuống Mobile */
+    /* Menu xổ xuống Mobile (Đã fix nền đục, không xuyên thấu) */
     .nav-links { 
         display: flex; position: absolute; top: calc(100% + 12px); right: 0; width: 260px; 
         background: rgba(250, 249, 246, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
