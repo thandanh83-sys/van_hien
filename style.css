@@ -163,7 +163,7 @@ body.dark-mode .theme-btn .moon-icon { display: none; }
     opacity: 0.8;
 }
 
-/* Chữ hiển thị rõ nét, có hiệu ứng tỏa sáng (Không dùng Gradient trong suốt) */
+/* Chữ hiển thị rõ nét, có hiệu ứng tỏa sáng */
 .hero-title { 
     font-family: 'Playfair Display', serif; 
     font-size: 3.5rem; 
