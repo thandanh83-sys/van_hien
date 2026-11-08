@@ -52,10 +52,12 @@
                 <p class="hero-desc">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</p>
             </div>
 
-            <!-- Thanh Tìm Kiếm -->
-            <div class="search-box">
+            <!-- Thanh Tìm Kiếm (Live Search) -->
+            <div class="search-box" id="search-container">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" placeholder="Tìm kiếm tác phẩm, tri thức, điển tích...">
+                <input type="text" id="global-search" placeholder="Tìm kiếm tác phẩm, tri thức, điển tích..." autocomplete="off">
+                <!-- Hộp xổ xuống chứa kết quả tìm kiếm -->
+                <div id="search-results" class="search-results"></div>
             </div>
 
             <!-- Dải chữ chạy (Sẽ được JS nạp vào) -->
@@ -101,7 +103,7 @@
                 <p class="quote-author" id="quoteAuthor">— Khuyết danh —</p>
             </div>
 
-            <!-- Xem trước Văn Hiến (Sẽ được JS nạp vào) -->
+            <!-- Xem trước Văn Hiến -->
             <div class="section-header">
                 <h2 class="section-title">Văn Hiến Nổi Bật</h2>
                 <a class="section-link" onclick="switchView('heritage')">Xem tất cả →</a>
@@ -117,7 +119,6 @@
         <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản Văn học Việt Nam & Thế giới — Nơi tinh hoa hội tụ</p>
-            <!-- Nơi JS nạp danh sách tác phẩm -->
             <div class="heritage-grid" id="heritage-grid"></div>
         </section>
 
@@ -127,7 +128,6 @@
         <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa Toàn Thư</h1>
             <p class="page-desc">Bản Cẩm nang Học thuật và Sáng tạo Văn học – Master Edition</p>
-            <!-- Nơi JS nạp 8 Quyển Sách -->
             <div id="encyclopedia-container"></div>
         </section>
 
@@ -140,16 +140,16 @@
             
             <div class="analyze-box">
                 <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
-                <button class="btn-analyze" onclick="executePipeline()">Vận hành Tam Thanh</button>
+                <!-- ĐÃ ĐỔI CHỮ Ở NÚT BẤM THÀNH "PHÂN TÍCH" -->
+                <button class="btn-analyze" onclick="executePipeline()">Phân tích</button>
             </div>
 
-            <!-- Nơi JS nạp kết quả phân tích -->
             <div id="results-panel"></div>
         </section>
 
     </main>
 
-    <!-- Nạp Javascript (Bắt buộc Data phải nạp trước Script) -->
+    <!-- Nạp Javascript -->
     <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
