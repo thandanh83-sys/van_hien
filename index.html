@@ -18,9 +18,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (Nâng lên v=10 để xóa cache) -->
+    <!-- LIÊN KẾT FILE CSS (v=12 để ép xóa cache)   -->
     <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 
@@ -70,17 +70,18 @@
                     Thi Pháp
                 </button>
                 
-                <!-- Đường gạch ngang ngăn cách (Giống ảnh 2 bạn gửi) -->
+                <!-- Đường gạch ngang ngăn cách (Giống ảnh mẫu) -->
                 <div class="menu-divider"></div>
 
                 <!-- Nút Đổi Theme (Sáng/Tối) -->
                 <button class="nav-btn theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">
                     <span id="theme-icon-wrapper">
-                        <!-- Icon Mặt Trời (Hiện ở chế độ Tối để bấm sang Sáng) -->
+                        <!-- Icon Mặt Trời (Hiện ở chế độ Tối để bấm sang Sáng, màu Vàng Sáng) -->
                         <svg class="sun-icon nav-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                        <!-- Icon Mặt Trăng (Hiện ở chế độ Sáng để bấm sang Tối) -->
+                        <!-- Icon Mặt Trăng (Hiện ở chế độ Sáng để bấm sang Tối, màu Xanh Ngọc) -->
                         <svg class="moon-icon nav-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     </span>
+                    <!-- Chữ sẽ được JS tự động đổi thành "Chế độ Sáng" hoặc "Chế độ Tối" -->
                     <span id="theme-text">Chế độ Tối</span>
                 </button>
             </div>
@@ -186,8 +187,8 @@
     <!-- SCRIPTS (TẢI DỮ LIỆU VÀ LOGIC XỬ LÝ)       -->
     <!-- ========================================== -->
     <!-- Tải file dữ liệu trước (Phải có HERITAGE_DATA và ENCYCLOPEDIA_DATA) -->
-    <script src="data.js?v=10"></script>
+    <script src="data.js?v=12"></script>
     <!-- Tải file logic sau cùng để đảm bảo DOM đã sẵn sàng -->
-    <script src="script.js?v=10"></script>
+    <script src="script.js?v=12"></script>
 </body>
 </html>
