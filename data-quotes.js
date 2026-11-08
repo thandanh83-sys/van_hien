@@ -2,20 +2,23 @@
    VĂN ĐẠO ENGINE - DỮ LIỆU TRÍCH DẪN & DANH NGÔN (QUOTES DATA)
    Tác giả: Văn Đạo
    Mô tả: Bộ sưu tập 18 danh ngôn bất hủ về Văn học, Tri thức, 
-          Người Thầy và các câu thơ của Văn Đạo.
+          Người Thầy và các câu thơ do Văn Đạo sáng tác.
    ===================================================================== */
 const QUOTES_DATA = [
-    // --- Chủ đề Văn học & Tri thức ---
+    
+    // --- CHỦ ĐỀ 1: VĂN HỌC, THI CA & TRI THỨC ---
     { text: "Văn học là nhân học.", author: "M. Gorky" },
     { text: "Thơ là tiếng nói của tâm hồn.", author: "Khuyết danh" },
     { text: "Học nhi thời tập chi, bất diệc duyệt hồ.", author: "Khổng Tử" },
     { text: "Thi trung hữu họa, thi trung hữu nhạc.", author: "Cổ nhân" },
+    
+    // --- CHỦ ĐỀ 2: TRIẾT LÝ VĂN ĐẠO (Tự sáng tác) ---
     { text: "Học rộng để nhìn thấy nhiều chân trời, học sâu để hiểu được bản chất.", author: "Văn Đạo" },
     { text: "Nho gia là đạo lý để bước vào đời; Đạo gia là một tâm thế để đi qua đời.", author: "Văn Đạo" },
     { text: "Tri thức giúp câu thơ có chiều sâu; cảm xúc giúp câu thơ có linh hồn.", author: "Văn Đạo" },
     { text: "Nước tĩnh in bóng trăng ngà, vườn văn mở lối hương trà đợi ai.", author: "Văn Đạo" },
     
-    // --- Chủ đề Người Thầy & Giáo dục ---
+    // --- CHỦ ĐỀ 3: NGƯỜI THẦY & SỰ NGHIỆP GIÁO DỤC ---
     { text: "Nhất tự vi sư, bán tự vi sư.", author: "Thành ngữ Hán Việt" },
     { text: "Dù khó khăn đến đâu cũng phải tiếp tục thi đua dạy tốt và học tốt.", author: "Hồ Chí Minh" },
     { text: "Người thầy giáo tốt – thầy giáo xứng đáng là thầy giáo – là người vẻ vang nhất.", author: "Hồ Chí Minh" },
@@ -29,7 +32,10 @@ const QUOTES_DATA = [
     { text: "Chúng ta hãy nhớ rằng một đứa trẻ, một giáo viên, một quyển sách và một cái bút có thể thay đổi cả thế giới.", author: "Malala Yousafzai" }
 ];
 
-// Dữ liệu từ khóa dự phòng (Có thể dùng cho tính năng thanh chữ chạy sau này)
+/* =====================================================================
+   DỮ LIỆU TỪ KHÓA (MARQUEE KEYWORDS)
+   Mô tả: Dùng để tạo thanh chữ chạy (marquee) ở Trang chủ nếu muốn.
+   ===================================================================== */
 const MARQUEE_KEYWORDS = [
     "Thơ Đường Luật", "Truyện Kiều", "Nho - Đạo - Phật", "Biểu tượng Á Đông", 
     "Thi pháp học", "Thất ngôn bát cú", "Lục bát", "Văn học dân gian",
