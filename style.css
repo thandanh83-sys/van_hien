@@ -335,7 +335,7 @@ body.dark-mode .btn-analyze { background: var(--accent); color: #000; }
 .pattern-text { font-family: monospace; color: var(--accent); letter-spacing: 2px; font-weight: bold; }
 
 /* =========================================
-   6. BỘ LỌC VĂN HIẾN (FILTER BAR) - MỚI
+   6. BỘ LỌC VĂN HIẾN (FILTER BAR)
    ========================================= */
 .filter-bar {
     display: flex;
@@ -376,7 +376,7 @@ body.dark-mode .filter-btn.active {
 }
 
 /* =========================================
-   7. CSS CHO TÌM KIẾM (LIVE SEARCH) & HIGHLIGHT
+   7. CSS CHO TÌM KIẾM (LIVE SEARCH)
    ========================================= */
 #search-container {
     position: relative; 
