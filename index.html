@@ -18,15 +18,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- ========================================== -->
-    <!-- FAVICON ĐỘNG (Tự động đổi Logo)            -->
+    <!-- FAVICON ĐỘNG (Tự động đổi Logo Sáng/Tối)   -->
     <!-- ========================================== -->
     <!-- Mặc định hiển thị logo_trang.png. JS sẽ tự đổi sang logo_toi.png khi bật Dark Mode -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (Ép xóa Cache với v=9999)-->
+    <!-- LIÊN KẾT FILE CSS (v=1000)                 -->
     <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=9999">
+    <link rel="stylesheet" href="style.css?v=1000">
 </head>
 <body>
 
@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Đã ép xóa gạch viền) -->
+            <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Ép xóa gạch viền) -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
@@ -170,7 +170,7 @@
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Cẩm nang học thuật văn chương</p>
             
-            <!-- Vùng chứa động: JS sẽ tự động đổ 8 Quyển sách vào đây -->
+            <!-- Vùng chứa động: JS sẽ tự động đổ 9 Quyển sách vào đây -->
             <div id="encyclopedia-container"></div>
         </section>
 
@@ -194,16 +194,16 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SCRIPTS (Ép xóa Cache với v=9999)          -->
+    <!-- SCRIPTS (TẢI DỮ LIỆU VÀ LOGIC XỬ LÝ)       -->
     <!-- ========================================== -->
     <!-- Thứ tự tải file cực kỳ quan trọng: Dữ liệu trước, Logic sau -->
     
-    <!-- 1. Tải 3 file dữ liệu -->
-    <script src="data-heritage.js?v=9999"></script>
-    <script src="data-encyclopedia.js?v=9999"></script>
-    <script src="data-quotes.js?v=9999"></script>
+    <!-- 1. Tải 3 file dữ liệu (v=1000) -->
+    <script src="data-heritage.js?v=1000"></script>
+    <script src="data-encyclopedia.js?v=1000"></script>
+    <script src="data-quotes.js?v=1000"></script>
     
-    <!-- 2. Tải file logic xử lý sau cùng -->
-    <script src="script.js?v=9999"></script>
+    <!-- 2. Tải file logic xử lý sau cùng (v=1000) -->
+    <script src="script.js?v=1000"></script>
 </body>
 </html>
