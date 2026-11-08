@@ -1,5 +1,7 @@
 /* =====================================================================
    VĂN ĐẠO ENGINE - DỮ LIỆU ĐẠI BÁCH KHOA (ENCYCLOPEDIA DATA)
+   Tác giả: Văn Đạo
+   Mô tả: Trọn vẹn 8 Quyển tri thức từ Quyển 0 đến Quyển VII.
    ===================================================================== */
 const ENCYCLOPEDIA_DATA = [
     {
