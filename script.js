@@ -1,443 +1,376 @@
-/* =========================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT
+/* =====================================================================
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE EDITION)
    Tác giả: Văn Đạo
-   Mô tả: Xử lý logic, render dữ liệu, tìm kiếm và phân tích.
-   ========================================= */
+   Mô tả: Xử lý logic, render dữ liệu, tìm kiếm và phân tích thi pháp.
+   Cấu trúc: 6 Phân đoạn (Modules) từ Icons, Theme, Routing, Rendering,
+             Analysis đến Visual Effects.
+   ===================================================================== */
 
-/* =========================================
-   1. QUẢN LÝ THEME (SÁNG/TỐI)
-   ========================================= */
+/* =====================================================================
+   MODULE 1: HỆ THỐNG ICONS & HẰNG SỐ (CONSTANTS)
+   ===================================================================== */
+// Sử dụng SVG thay vì Emoji để đồng bộ màu sắc với theme và sắc nét hơn
+const ICON_PEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+const ICON_CLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
+
+/* =====================================================================
+   MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI) & CÀI ĐẶT
+   ===================================================================== */
+const THEME_KEY = 'vandao_theme';
 const themeBtn = document.getElementById('theme-btn');
-const currentTheme = localStorage.getItem('vandao-theme');
 
-// Khôi phục theme đã lưu khi tải lại trang
-if (currentTheme === 'dark') {
-    document.body.classList.add('dark-mode');
-}
-
-// Hàm chuyển đổi Theme
+/**
+ * Hàm chuyển đổi giao diện Sáng/Tối.
+ * Lưu trạng thái vào LocalStorage để ghi nhớ lựa chọn của người dùng.
+ */
 function toggleTheme() {
+    // 1. Đảo ngược class 'dark-mode' trên thẻ body
     document.body.classList.toggle('dark-mode');
+    
+    // 2. Kiểm tra xem hiện tại có phải Dark Mode không
     const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('vandao-theme', isDark ? 'dark' : 'light');
+    
+    // 3. Lưu vào bộ nhớ trình duyệt
+    localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+    
+    // 4. (Tùy chọn) Cập nhật lại màu nền Canvas nếu cần
+    updateCanvasColors();
 }
 
-/* =========================================
-   2. ĐIỀU HƯỚNG (NAVIGATION)
-   ========================================= */
-// Hiệu ứng đổi màu navbar khi cuộn chuột
-window.addEventListener('scroll', () => {
-    const navbar = document.getElementById('mainNavbar');
-    if (navbar) {
-        navbar.classList.toggle('scrolled', window.scrollY > 20);
+/**
+ * Khôi phục Theme khi tải lại trang.
+ */
+function loadSavedTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
     }
-});
+}
 
-// Chuyển đổi giữa các trang (View)
+/* =====================================================================
+   MODULE 3: ĐIỀU HƯỚNG (ROUTING) & CHUYỂN VIEW
+   ===================================================================== */
+/**
+ * Hàm chuyển đổi giữa các khu vực (Trang chủ, Văn Hiến, Bách Khoa, Thi Pháp).
+ * @param {string} viewId - ID của view cần chuyển đến (home, heritage, encyclopedia, analyze)
+ */
 function switchView(viewId) {
-    // 1. Ẩn tất cả các view
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    // 2. Bỏ active của tất cả các nút menu
-    document.querySelectorAll('.nav-btn').forEach(a => a.classList.remove('active'));
-    
-    // 3. Hiển thị view được chọn
+    // 1. Ẩn tất cả các View hiện tại
+    document.querySelectorAll('.view').forEach(view => {
+        view.classList.remove('active');
+    });
+
+    // 2. Xóa trạng thái Active của tất cả các nút Menu
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.classList.remove('active');
+    });
+
+    // 3. Hiển thị View mới và bật Active cho nút tương ứng
     const targetView = document.getElementById(`view-${viewId}`);
-    if (targetView) targetView.classList.add('active');
-    
-    // 4. Thêm active cho nút tương ứng
     const targetNav = document.getElementById(`nav-${viewId}`);
+    
+    if (targetView) targetView.classList.add('active');
     if (targetNav) targetNav.classList.add('active');
-    
-    // 5. Cuộn lên đầu trang
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // 6. Đóng menu mobile nếu đang mở
+
+    // 4. Đóng menu mobile (nếu đang mở)
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
+
+    // 5. Cuộn lên đầu trang một cách mượt mà
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Bật/tắt menu trên thiết bị di động
+/**
+ * Bật/tắt menu trên thiết bị di động (Mobile Hamburger Menu).
+ */
 function toggleMobileMenu() {
     const navMenu = document.getElementById('navMenu');
-    if (navMenu) navMenu.classList.toggle('show');
+    if (navMenu) {
+        navMenu.classList.toggle('show');
+    }
 }
 
-/* =========================================
-   3. HIỆU ỨNG 3D TILT CHO THẺ CHỨC NĂNG
-   ========================================= */
-function initTilt() {
-    const tiltCards = document.querySelectorAll('.tilt');
-    
-    tiltCards.forEach(card => {
-        // Khi di chuột vào thẻ
-        card.addEventListener('mousemove', e => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left; 
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2; 
-            const centerY = rect.height / 2;
-            
-            // Tính toán góc nghiêng (tối đa 10 độ)
-            const rotateX = ((y - centerY) / centerY) * -10;
-            const rotateY = ((x - centerX) / centerX) * 10;
-            
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
-        });
-        
-        // Khi chuột rời khỏi thẻ
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
-            card.style.transition = 'transform 0.5s ease';
-        });
-        
-        // Khi bắt đầu di chuột vào
-        card.addEventListener('mouseenter', () => {
-            card.style.transition = 'none'; // Tắt transition để phản hồi tức thì
-        });
-    });
-}
-
-/* =========================================
-   4. RENDER DỮ LIỆU (VĂN HIẾN & BÁCH KHOA)
-   ========================================= */
-// Các icon SVG dùng chung
-const svgUser = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
-const svgClock = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
-
-// Hàm render Văn Hiến (có hỗ trợ bộ lọc)
+/* =====================================================================
+   MODULE 4: RENDER DỮ LIỆU (VĂN HIẾN & BÁCH KHOA)
+   ===================================================================== */
+/**
+ * Hiển thị danh sách các tác phẩm Văn Hiến.
+ * @param {string} filterCategory - Nhóm cần lọc ('all', 'dan-gian', 'trung-dai'...)
+ */
 function renderHeritage(filterCategory = 'all') {
-    const fullGrid = document.getElementById('heritage-grid');
-    if (!fullGrid) return;
+    const grid = document.getElementById('heritage-grid');
+    if (!grid) return; // Nếu không tìm thấy thẻ chứa, dừng hàm
 
-    // Lọc dữ liệu từ HERITAGE_DATA
+    // 1. Lọc dữ liệu dựa trên danh mục (HERITAGE_DATA lấy từ file data.js)
     const filteredData = filterCategory === 'all' 
         ? HERITAGE_DATA 
         : HERITAGE_DATA.filter(item => item.category === filterCategory);
 
-    // Tạo HTML cho từng tác phẩm
-    fullGrid.innerHTML = filteredData.map(item => `
+    // 2. Tạo mã HTML cho từng thẻ tác phẩm
+    const htmlContent = filteredData.map(item => `
         <div class="heritage-card">
             <span class="h-tag">${item.genre}</span>
             <h3>${item.title}</h3>
-            <div class="author">${svgUser} ${item.author}</div>
+            <div class="h-author">${ICON_PEN} ${item.author}</div>
             <p>${item.desc}</p>
-            <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 10px; display: flex; gap: 15px;">
-                <div class="meta-item">${svgClock} ${item.era}</div>
-                <div class="meta-item">✍️ ${item.script}</div>
+            <div class="h-meta">
+                <span>${ICON_CLOCK} ${item.era}</span>
+                <span>${ICON_SCROLL} ${item.script}</span>
             </div>
         </div>
     `).join('');
+
+    // 3. Đổ HTML vào DOM
+    grid.innerHTML = htmlContent;
 }
 
-// Hàm xử lý khi bấm nút Bộ lọc
+/**
+ * Xử lý sự kiện khi click vào Nút Bộ Lọc.
+ */
 function filterHeritage(category, btnElement) {
-    // 1. Đổi màu nút active
+    // 1. Xóa class active của tất cả các nút
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    if (btnElement) {
-        btnElement.classList.add('active');
-    }
-    
-    // 2. Render lại danh sách theo bộ lọc mới
+    // 2. Thêm class active cho nút vừa click
+    if (btnElement) btnElement.classList.add('active');
+    // 3. Gọi hàm render với danh mục mới
     renderHeritage(category);
 }
 
-// Hàm render toàn bộ dữ liệu ban đầu
-function renderData() {
-    // 1. Render Văn Hiến (Mặc định hiện tất cả)
-    renderHeritage('all');
+/**
+ * Hiển thị 8 Quyển của Đại Bách Khoa dưới dạng Accordion.
+ */
+function renderEncyclopedia() {
+    const container = document.getElementById('encyclopedia-container');
+    if (!container) return;
 
-    // 2. Render Văn Hiến (Preview ở Trang Chủ - lấy 3 tác phẩm đầu tiên)
-    const previewGrid = document.getElementById('home-preview-grid');
-    if (previewGrid) {
-        previewGrid.innerHTML = HERITAGE_DATA.slice(0, 3).map(item => `
-            <div class="preview-card" onclick="switchView('heritage')">
-                <span class="h-tag">${item.genre}</span>
-                <h3 style="font-family: 'Playfair Display'; font-size: 1.3rem; margin-bottom: 5px;">${item.title}</h3>
-                <div style="color: var(--accent); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                    ${svgUser.replace('stroke-width="2"', 'stroke="currentColor" style="width:14px;height:14px;"')} ${item.author}
+    // Tạo HTML cho từng Quyển sách
+    const htmlContent = ENCYCLOPEDIA_DATA.map(item => `
+        <div class="accordion-item">
+            <details>
+                <summary>${item.title}</summary>
+                <div class="accordion-content">
+                    ${item.content}
                 </div>
-            </div>
-        `).join('');
-    }
+            </details>
+        </div>
+    `).join('');
 
-    // 3. Render Đại Bách Khoa (8 Quyển)
-    const encyContainer = document.getElementById('encyclopedia-container');
-    if (encyContainer) {
-        encyContainer.innerHTML = ENCYCLOPEDIA_DATA.map(item => `
-            <div class="accordion-item">
-                <details>
-                    <summary>${item.title}</summary>
-                    <div class="accordion-content">
-                        ${item.content}
-                    </div>
-                </details>
-            </div>
-        `).join('');
-    }
-
-    // 4. Render Dải chữ chạy (Marquee)
-    const marquee = document.getElementById('marquee-content');
-    if (marquee) {
-        const svgStar = `<svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg>`;
-        const marqueeHTML = MARQUEE_KEYWORDS.map(k => `<span>${k} ${svgStar}</span>`).join('');
-        // Nhân đôi chuỗi để tạo vòng lặp vô tận không bị đứt quãng
-        marquee.innerHTML = marqueeHTML + marqueeHTML; 
-    }
+    container.innerHTML = htmlContent;
 }
 
-/* =========================================
-   5. TRÍCH DẪN TỰ ĐỔI (QUOTE CAROUSEL)
-   ========================================= */
-function initQuotes() {
-    let quoteIndex = 0;
-    const qText = document.getElementById('quoteText');
-    const qAuth = document.getElementById('quoteAuthor');
-    
-    if (!qText || !qAuth) return;
-
-    setInterval(() => {
-        // Hiệu ứng mờ dần
-        qText.style.opacity = '0'; 
-        qAuth.style.opacity = '0';
-        
-        setTimeout(() => {
-            // Đổi nội dung
-            quoteIndex = (quoteIndex + 1) % QUOTES_DATA.length;
-            qText.textContent = `"${QUOTES_DATA[quoteIndex].text}"`;
-            qAuth.textContent = `— ${QUOTES_DATA[quoteIndex].author} —`;
-            
-            // Hiện lại
-            qText.style.opacity = '1'; 
-            qAuth.style.opacity = '1';
-        }, 500); // Đợi 0.5s cho hiệu ứng mờ hoàn tất
-    }, 4000); // Đổi 4 giây một lần
-}
-
-/* =========================================
-   6. THUẬT TOÁN TAM THANH (PHÂN TÍCH THƠ NFD)
-   ========================================= */
+/* =====================================================================
+   MODULE 5: PHÂN TÍCH THI PHÁP (NFD PIPELINE)
+   ===================================================================== */
+/**
+ * Thuật toán phân tích thơ: Đếm số tiếng, tách thanh điệu (Bằng/Trắc).
+ * Sử dụng chuẩn Unicode NFD để nhận diện dấu thanh chính xác 100%.
+ */
 function executePipeline() {
-    const rawText = document.getElementById('poemInput').value;
-    if (!rawText.trim()) return;
+    const inputField = document.getElementById('poemInput');
+    const resultsPanel = document.getElementById('results-panel');
     
-    // Tách các dòng thơ
-    const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    if (!inputField || !resultsPanel) return;
     
-    // Phân tích từng dòng
-    let linesHtml = lines.map((line, index) => {
-        // Tách từ bằng Regex (hỗ trợ tiếng Việt)
+    const rawText = inputField.value;
+    if (!rawText.trim()) {
+        alert("Vui lòng nhập bài thơ để phân tích.");
+        return;
+    }
+
+    // 1. Tách văn bản thành các dòng, bỏ qua dòng trống
+    const lines = rawText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+    
+    let resultHTML = '';
+    
+    // 2. Xử lý từng dòng thơ
+    lines.forEach((line, index) => {
+        // Tách các từ (âm tiết) bằng Regex (hỗ trợ cả chữ có dấu)
         const syllables = line.match(/[\p{L}\p{N}]+/gu) || [];
         
-        // Phân tích thanh điệu bằng NFD
-        const pattern = syllables.map(s => {
-            const nfd = s.normalize('NFD');
-            // Nếu chứa dấu huyền, sắc, ngã, hỏi, nặng -> Trắc (T)
-            if (nfd.includes('\u0300') || nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) {
-                return 'T';
-            }
-            // Không dấu -> Bằng (B)
-            return 'B';
-        }).join(' - ');
+        // Phân tích thanh điệu của từng âm tiết
+        const patternArray = syllables.map(syllable => {
+            // Chuyển đổi sang dạng NFD (Tách dấu ra khỏi ký tự gốc)
+            const nfdString = syllable.normalize('NFD');
+            
+            // Các mã Unicode của dấu thanh: Huyền(\u0300), Sắc(\u0301), Ngã(\u0303), Hỏi(\u0309), Nặng(\u0323)
+            const isTrac = nfdString.includes('\u0300') || nfdString.includes('\u0301') || 
+                           nfdString.includes('\u0303') || nfdString.includes('\u0309') || 
+                           nfdString.includes('\u0323');
+                           
+            return isTrac ? 'T' : 'B'; // Trắc hoặc Bằng
+        });
+
+        const patternString = patternArray.join(' - '); // Nối bằng dấu gạch ngang
         
-        return `
+        // Tạo HTML cho dòng kết quả
+        resultHTML += `
             <div class="line-row">
-                <span style="color: var(--text-muted);">${String(index+1).padStart(2, '0')}</span>
-                <span style="flex: 1; margin: 0 1rem;">${line}</span>
-                <span class="pattern-text">${pattern}</span>
+                <span style="color: var(--text-muted); font-family: var(--font-sans); font-size: 0.9rem;">${String(index + 1).padStart(2, '0')}</span>
+                <span style="flex: 1; text-align: center; padding: 0 10px;">${line}</span>
+                <span class="pattern-text">${patternString}</span>
             </div>
         `;
-    }).join('');
-    
-    // Đánh giá cấu trúc 6-8
-    const counts = lines.map(l => (l.match(/[\p{L}\p{N}]+/gu) || []).length);
-    const is68 = counts.length > 0 && counts[0] === 6 && counts.every((c, i) => c === (i % 2 === 0 ? 6 : 8));
+    });
 
-    // Xuất kết quả
-    document.getElementById('results-panel').innerHTML = `
+    // 3. Hiển thị kết quả
+    resultsPanel.innerHTML = `
         <div class="result-step">
-            <div class="step-title">Thái Thanh (Tầng 1)</div>
-            <p>Ghi nhận ${lines.length} dòng thơ.</p>
-        </div>
-        <div class="result-step thuong">
-            <div class="step-title">Thượng Thanh (Tầng 2)</div>
-            ${linesHtml}
-        </div>
-        <div class="result-step ngoc">
-            <div class="step-title">Ngọc Thanh (Tầng 3)</div>
-            <p>[Dữ kiện]: ${is68 ? "Văn bản có cấu trúc 6-8 tiếng." : "Không theo quy chuẩn 6-8."}</p>
+            <div class="step-title">Kết quả bóc tách thanh điệu (Dữ kiện)</div>
+            ${resultHTML}
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px; text-align: center; font-style: italic;">
+                * B (Bằng): Không dấu, dấu huyền. T (Trắc): Sắc, hỏi, ngã, nặng.
+            </p>
         </div>
     `;
 }
 
-/* =========================================
-   7. TÌM KIẾM THÔNG MINH (LIVE SEARCH)
-   ========================================= */
-// Hàm loại bỏ dấu tiếng Việt để tìm kiếm không dấu
-function removeTones(str) {
-    return str.normalize('NFD')
-              .replace(/[\u0300-\u036f]/g, '')
-              .replace(/đ/g, 'd')
-              .replace(/Đ/g, 'D')
-              .toLowerCase();
+/* =====================================================================
+   MODULE 6: HIỆU ỨNG ĐỘNG & VISUAL EFFECTS
+   ===================================================================== */
+let canvas, ctx;
+let ripples = [];
+let isDarkTheme = false;
+
+/**
+ * Cập nhật màu sắc cho Canvas dựa trên Theme hiện tại.
+ */
+function updateCanvasColors() {
+    isDarkTheme = document.body.classList.contains('dark-mode');
 }
 
-function initSearch() {
-    const searchInput = document.getElementById('global-search');
-    const resultsBox = document.getElementById('search-results');
-    
-    if (!searchInput || !resultsBox) return;
+/**
+ * Khởi tạo hiệu ứng Quầng sáng theo chuột (Chỉ trên Desktop).
+ */
+function initCursorGlow() {
+    // Kiểm tra xem thiết bị có chuột không (tránh lỗi trên điện thoại)
+    if (window.matchMedia('(pointer: fine)').matches) {
+        const glow = document.getElementById('cursor-glow');
+        if (!glow) return;
 
-    // Lắng nghe sự kiện gõ phím
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.trim();
-        
-        // Nếu không gõ gì thì ẩn hộp kết quả
-        if (query.length === 0) {
-            resultsBox.classList.remove('active');
-            resultsBox.innerHTML = '';
-            return;
-        }
-
-        const cleanQuery = removeTones(query);
-        let results = [];
-
-        // 1. Tìm trong Văn Hiến
-        HERITAGE_DATA.forEach(item => {
-            const textToSearch = removeTones(item.title + " " + item.author + " " + item.genre + " " + item.desc);
-            if (textToSearch.includes(cleanQuery)) {
-                results.push({
-                    type: "Văn Hiến",
-                    title: item.title,
-                    sub: item.author,
-                    view: "heritage"
-                });
-            }
+        window.addEventListener('mousemove', (e) => {
+            // Sử dụng requestAnimationFrame để tối ưu hiệu năng (không bị lag)
+            requestAnimationFrame(() => {
+                glow.style.left = `${e.clientX}px`;
+                glow.style.top = `${e.clientY}px`;
+            });
         });
+    } else {
+        // Nếu là mobile, ẩn quầng sáng đi cho nhẹ máy
+        const glow = document.getElementById('cursor-glow');
+        if (glow) glow.style.display = 'none';
+    }
+}
 
-        // 2. Tìm trong Bách Khoa (Bóc tách thẻ HTML để tìm text thuần)
-        ENCYCLOPEDIA_DATA.forEach(item => {
-            const plainContent = item.content.replace(/<[^>]*>?/gm, ' ');
-            const textToSearch = removeTones(item.title + " " + plainContent);
-            
-            if (textToSearch.includes(cleanQuery)) {
-                results.push({
-                    type: "Bách Khoa",
-                    title: item.title,
-                    sub: "Lý thuyết văn học",
-                    view: "encyclopedia"
-                });
-            }
+/**
+ * Khởi tạo hiệu ứng Gợn sóng nước trên Canvas khi click.
+ */
+function initWaterCanvas() {
+    canvas = document.getElementById('water-canvas');
+    if (!canvas) return;
+    ctx = canvas.getContext('2d');
+
+    // Cấu hình kích thước Canvas bằng kích thước cửa sổ
+    const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Bắt sự kiện click để tạo gợn sóng
+    window.addEventListener('click', (e) => {
+        ripples.push({
+            x: e.clientX,
+            y: e.clientY,
+            radius: 2,
+            alpha: 0.5,
+            growth: 1.5,
+            fade: 0.015
         });
-
-        // 3. Hiển thị kết quả (Giới hạn 6 kết quả đầu tiên cho gọn)
-        if (results.length > 0) {
-            resultsBox.innerHTML = results.slice(0, 6).map(r => `
-                <div class="search-item" data-view="${r.view}" data-title="${r.title}" data-query="${query}" onclick="handleSearchClick(this)">
-                    <span class="s-type">${r.type}</span>
-                    <h4>${r.title}</h4>
-                    <p>${r.sub}</p>
-                </div>
-            `).join('');
-        } else {
-            resultsBox.innerHTML = `<div class="no-results">Không tìm thấy kết quả cho "${query}"</div>`;
-        }
-        
-        resultsBox.classList.add('active');
     });
 
-    // Ẩn kết quả khi click ra ngoài vùng tìm kiếm
-    document.addEventListener('click', (e) => {
-        if (!document.getElementById('search-container').contains(e.target)) {
-            resultsBox.classList.remove('active');
+    // Vòng lặp vẽ Animation
+    function animateRipples() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa khung hình cũ
+        
+        // Chọn màu dựa trên theme
+        const color = isDarkTheme ? '255, 255, 255' : '125, 168, 158'; // Trắng hoặc Xanh ngọc
+        
+        // Duyệt ngược mảng để xóa phần tử an toàn
+        for (let i = ripples.length - 1; i >= 0; i--) {
+            let p = ripples[i];
+            p.radius += p.growth;
+            p.alpha -= p.fade;
+
+            // Nếu sóng mờ hẳn thì xóa khỏi mảng
+            if (p.alpha <= 0) {
+                ripples.splice(i, 1);
+                continue;
+            }
+
+            // Vẽ vòng tròn
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${color}, ${p.alpha})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
         }
-    });
+        requestAnimationFrame(animateRipples);
+    }
+    animateRipples();
 }
 
-// Hàm xử lý khi click vào một kết quả tìm kiếm
-function handleSearchClick(element) {
-    const viewId = element.getAttribute('data-view');
-    const title = element.getAttribute('data-title');
-    const query = element.getAttribute('data-query');
-    
-    // 1. Chuyển sang trang tương ứng
-    switchView(viewId);
-    
-    // 2. Xóa thanh tìm kiếm và ẩn hộp kết quả
-    document.getElementById('global-search').value = '';
-    document.getElementById('search-results').classList.remove('active');
-    
-    // 3. Đợi 0.3s để trang render xong, sau đó tìm và làm nổi bật
-    setTimeout(() => {
-        let targetContainer = null;
-        let textToHighlight = null;
+/**
+ * Khởi tạo hiệu ứng Hạt sương bay (Chỉ ở Light Mode).
+ */
+function initDewdrops() {
+    const container = document.getElementById('dewdrop-container');
+    if (!container) return;
 
-        if (viewId === 'encyclopedia') {
-            const accordions = document.querySelectorAll('.accordion-item');
-            for (let acc of accordions) {
-                const summary = acc.querySelector('summary');
-                if (summary.textContent.trim() === title) {
-                    acc.setAttribute('open', 'true'); // Mở quyển sách
-                    targetContainer = acc;
-                    
-                    // Tìm đoạn văn chính xác để highlight
-                    const cleanQuery = removeTones(query);
-                    const contentDiv = acc.querySelector('.accordion-content');
-                    const elements = contentDiv.querySelectorAll('p, li, h4');
-                    
-                    for (let el of elements) {
-                        if (removeTones(el.textContent).includes(cleanQuery)) {
-                            textToHighlight = el;
-                            break; 
-                        }
-                    }
-                    break;
-                }
-            }
-        } else if (viewId === 'heritage') {
-            // Nếu đang ở chế độ lọc khác mà tìm kiếm, cần đưa về 'all' để thấy kết quả
-            const allBtn = document.querySelector('.filter-btn'); 
-            if(allBtn && !allBtn.classList.contains('active')) {
-                filterHeritage('all', allBtn);
-            }
+    setInterval(() => {
+        // Không tạo hạt sương nếu đang ở Dark Mode
+        if (document.body.classList.contains('dark-mode')) return;
 
-            const cards = document.querySelectorAll('.heritage-card');
-            for (let card of cards) {
-                const h3 = card.querySelector('h3');
-                if (h3 && h3.textContent.trim() === title) {
-                    targetContainer = card;
-                    break;
-                }
-            }
-        }
+        const drop = document.createElement('div');
+        drop.className = 'dewdrop';
+        
+        // Kích thước ngẫu nhiên từ 2px đến 8px
+        const size = Math.random() * 6 + 2;
+        drop.style.width = `${size}px`;
+        drop.style.height = `${size}px`;
+        
+        // Vị trí ngẫu nhiên theo chiều ngang
+        drop.style.left = `${Math.random() * 100}vw`;
+        
+        // Thời gian bay ngẫu nhiên (10s - 20s)
+        drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
 
-        // Thực hiện cuộn và highlight
-        if (targetContainer) {
-            targetContainer.classList.add('highlight-target');
-            
-            if (textToHighlight) {
-                // Nếu tìm thấy đoạn văn cụ thể trong Bách Khoa, cuộn đến đoạn văn đó
-                textToHighlight.classList.add('highlight-text');
-                textToHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                setTimeout(() => textToHighlight.classList.remove('highlight-text'), 4000);
-            } else {
-                // Nếu không tìm thấy, cuộn đến đầu Quyển/Thẻ
-                targetContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            
-            setTimeout(() => targetContainer.classList.remove('highlight-target'), 3000);
-        }
-    }, 300);
+        container.appendChild(drop);
+
+        // Tự động xóa DOM sau khi bay xong để tránh rác bộ nhớ
+        setTimeout(() => {
+            drop.remove();
+        }, 20000);
+    }, 800); // Tạo hạt mới mỗi 0.8s
 }
 
-/* =========================================
-   8. KHỞI CHẠY KHI TẢI TRANG
-   ========================================= */
+/* =====================================================================
+   MODULE 7: KHỞI CHẠY (INITIALIZATION)
+   ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-    renderData();       // Nạp dữ liệu vào các khung
-    initTilt();         // Khởi tạo hiệu ứng nghiêng 3D
-    initQuotes();       // Khởi tạo trích dẫn tự đổi
-    initSearch();       // Khởi tạo tìm kiếm thông minh
-    
-    // Lưu ý: Không còn hàm typeWriter vì chữ đã được thiết kế bay bổng bằng CSS
+    // 1. Tải Theme đã lưu
+    loadSavedTheme();
+    updateCanvasColors();
+
+    // 2. Render nội dung tĩnh ban đầu
+    renderHeritage('all');
+    renderEncyclopedia();
+
+    // 3. Khởi tạo các hiệu ứng hình ảnh
+    initCursorGlow();
+    initWaterCanvas();
+    initDewdrops();
+
+    console.log("VĂN ĐẠO: Hệ thống đã sẵn sàng!");
 });
