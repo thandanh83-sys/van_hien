@@ -5,19 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VĂN ĐẠO | Vạn tượng trong lời. Ý tại thiên thư.</title>
     
-    <!-- Nạp Font chữ -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
-    
-    <!-- Nạp file CSS -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
-    <!-- Lớp nền màu nước & Hoa văn (Sen / Rồng) -->
     <div class="watercolor-bg"></div>
 
-    <!-- =========================================
-         NAVBAR (Thanh điều hướng)
-         ========================================= -->
+    <!-- NAVBAR -->
     <nav class="navbar" id="mainNavbar">
         <div class="nav-left">
             <div class="nav-brand" onclick="switchView('home')">VĂN ĐẠO</div>
@@ -30,50 +24,39 @@
             <a class="nav-btn" id="nav-encyclopedia" onclick="switchView('encyclopedia')">Bách Khoa</a>
             <a class="nav-btn" id="nav-analyze" onclick="switchView('analyze')">Phân Tích</a>
             
-            <!-- Nút đổi Theme (Mặt trăng / Mặt trời) -->
             <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">
                 <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                 <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
             </button>
         </div>
         
-        <!-- Nút Menu cho Điện thoại -->
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
     </nav>
 
-    <!-- =========================================
-         KHU VỰC NỘI DUNG CHÍNH
-         ========================================= -->
     <main class="container">
-        
-        <!-- VIEW 1: TRANG CHỦ -->
+        <!-- TRANG CHỦ -->
         <section id="view-home" class="view active">
             <div class="hero-section">
                 <h1 class="hero-title">
-                    <!-- Chữ tự gõ (Typewriter) -->
                     <span id="typewriter-text"></span><span class="typewriter" id="cursor"></span>
                 </h1>
                 <p class="hero-desc">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</p>
             </div>
 
-            <!-- Thanh Tìm Kiếm (Live Search) -->
             <div id="search-container">
                 <div class="search-box">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                     <input type="text" id="global-search" placeholder="Tìm kiếm tác phẩm, tri thức, điển tích..." autocomplete="off">
                 </div>
-                <!-- Hộp xổ xuống chứa kết quả tìm kiếm -->
                 <div id="search-results" class="search-results"></div>
             </div>
 
-            <!-- Dải chữ chạy (Marquee) -->
             <div class="marquee-container">
                 <div class="marquee-content" id="marquee-content"></div>
             </div>
 
-            <!-- 4 Thẻ chức năng (3D Tilt) -->
             <div class="feature-grid">
                 <div class="feature-card tilt" onclick="switchView('encyclopedia')">
                     <div class="inner-content">
@@ -105,13 +88,11 @@
                 </div>
             </div>
 
-            <!-- Trích dẫn tự đổi (Quote Carousel) -->
             <div class="quote-box">
                 <p class="quote-text" id="quoteText">"Thơ là tiếng nói của tâm hồn."</p>
                 <p class="quote-author" id="quoteAuthor">— Khuyết danh —</p>
             </div>
 
-            <!-- Xem trước Văn Hiến -->
             <div class="section-header">
                 <h2 class="section-title">Văn Hiến Nổi Bật</h2>
                 <a class="section-link" onclick="switchView('heritage')">Xem tất cả →</a>
@@ -121,14 +102,11 @@
             <div class="footer-text">VĂN ĐẠO ENGINE · A PERSONAL KNOWLEDGE LIBRARY</div>
         </section>
 
-        <!-- =========================================
-             VIEW 2: VĂN HIẾN (CÓ BỘ LỌC)
-             ========================================= -->
+        <!-- VĂN HIẾN -->
         <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản Văn học Việt Nam & Thế giới — Nơi tinh hoa hội tụ</p>
             
-            <!-- Thanh Bộ Lọc -->
             <div class="filter-bar">
                 <button class="filter-btn active" onclick="filterHeritage('all', this)">Tất cả</button>
                 <button class="filter-btn" onclick="filterHeritage('dan-gian', this)">Dân gian</button>
@@ -139,23 +117,17 @@
                 <button class="filter-btn" onclick="filterHeritage('dien-tich', this)">Điển tích - Điển cố</button>
             </div>
 
-            <!-- Lưới chứa tác phẩm (JS sẽ nạp vào) -->
             <div class="heritage-grid" id="heritage-grid"></div>
         </section>
 
-        <!-- =========================================
-             VIEW 3: ĐẠI BÁCH KHOA
-             ========================================= -->
+        <!-- BÁCH KHOA -->
         <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa Toàn Thư</h1>
             <p class="page-desc">Bản Cẩm nang Học thuật và Sáng tạo Văn học – Master Edition</p>
-            <!-- Khung chứa 8 Quyển (JS sẽ nạp vào) -->
             <div id="encyclopedia-container"></div>
         </section>
 
-        <!-- =========================================
-             VIEW 4: PHÂN TÍCH THI PHÁP
-             ========================================= -->
+        <!-- PHÂN TÍCH -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Phân tích Thi pháp</h1>
             <p class="page-desc">Bóc tách cấu trúc thanh điệu (Bằng / Trắc)</p>
@@ -165,17 +137,12 @@
                 <button class="btn-analyze" onclick="executePipeline()">Phân tích</button>
             </div>
 
-            <!-- Khung chứa kết quả phân tích (JS sẽ nạp vào) -->
             <div id="results-panel"></div>
         </section>
-
     </main>
 
-    <!-- =========================================
-         NẠP JAVASCRIPT
-         (Bắt buộc data.js phải nạp trước script.js)
-         ========================================= -->
-    <script src="data.js"></script>
-    <script src="script.js"></script>
+    <!-- ĐÃ THÊM ?v=2 ĐỂ CHỐNG LƯU CACHE TRÊN ĐIỆN THOẠI -->
+    <script src="data.js?v=2"></script>
+    <script src="script.js?v=2"></script>
 </body>
 </html>
