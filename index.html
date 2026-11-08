@@ -18,9 +18,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (v=13 để ép xóa cache)   -->
+    <!-- LIÊN KẾT FILE CSS (v=14)                   -->
     <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=13">
+    <link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 
@@ -133,6 +133,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Được JS tự động điền) -->
+            <div id="daily-quote-container" style="margin-top: 50px; text-align: center; padding: 40px 20px; border-top: 1px dashed var(--glass-border);"></div>
         </section>
 
         <!-- ========================================== -->
@@ -197,7 +200,7 @@
     <script src="data-encyclopedia.js?v=14"></script>
     <script src="data-quotes.js?v=14"></script>
     
-    <!-- TẢI LOGIC XỬ LÝ (Tải sau cùng) -->
+    <!-- TẢI LOGIC XỬ LÝ (Tải sau cùng để DOM đã sẵn sàng) -->
     <script src="script.js?v=14"></script>
 </body>
 </html>
