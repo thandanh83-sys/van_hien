@@ -1,7 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V44 - PURE SVG)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V45 - SMART LINKS)
    Tác giả: Văn Đạo
-   Cập nhật: 100% dùng SVG, xóa sạch gạch, Tầng 1 chia 2 cột siêu gọn.
+   Cập nhật: Tầng 3 tự động tạo link liên kết đến Bách Khoa (Regex).
+             Giao diện 4 tầng không gạch, 100% SVG.
    ===================================================================== */
 
 /* =====================================================================
@@ -178,13 +179,13 @@ const POETRY_ANALYZER = (() => {
         return { form: `Thơ ${c} chữ`, confidence: 'trung bình', note: `${n} câu × ${c} chữ` };
     }
 
-    // Hàm phân tích vần: Đánh giá Đúng/Sai
+    // Hàm phân tích vần: Đánh giá TẤT CẢ các cặp để hiển thị đúng/sai
     function checkRhymeDetails(lines) {
         const result = { chan: [], lung: [], lien: [], cach: [] };
         const lastSyl = lines.map(l => l.lastSyllable);
         const rhymeParts = lastSyl.map(s => getRhymePart(s));
 
-        // 1. Vần chân
+        // 1. Vần chân: Đánh giá các cặp (1-2, 1-3, 1-4, 2-3, 2-4, 3-4)
         for (let i = 0; i < lines.length; i++) {
             for (let j = i + 1; j < lines.length; j++) {
                 const match = (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== '');
@@ -196,7 +197,7 @@ const POETRY_ANALYZER = (() => {
             }
         }
 
-        // 2. Vần lưng
+        // 2. Vần lưng: Cuối câu i với các chữ giữa câu i+1
         for (let i = 0; i < lines.length - 1; i++) {
             const endPart = rhymeParts[i];
             const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || [];
@@ -213,6 +214,7 @@ const POETRY_ANALYZER = (() => {
                     hasMatch = true;
                 }
             }
+            // Nếu không tìm thấy vần lưng nào
             if (!hasMatch && endPart) {
                 result.lung.push({
                     text: `Cuối câu ${i+1} ("${lastSyl[i]}") không có vần lưng ở câu ${i+2}`,
@@ -222,7 +224,7 @@ const POETRY_ANALYZER = (() => {
             }
         }
 
-        // 3. Vần liền
+        // 3. Vần liền: Cặp liên tiếp (1-2, 3-4, ...)
         for (let i = 0; i < lines.length - 1; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== '');
             result.lien.push({
@@ -232,7 +234,7 @@ const POETRY_ANALYZER = (() => {
             });
         }
 
-        // 4. Vần cách
+        // 4. Vần cách: Cách 1 câu (1-3, 2-4, ...)
         for (let i = 0; i < lines.length - 2; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== '');
             result.cach.push({
@@ -274,7 +276,8 @@ const POETRY_ANALYZER = (() => {
 
     function buildQuestions(form, rhymes, symbols) {
         const qs = [];
-        if (form.confidence !== 'cao') qs.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay chỉ là ngẫu nhiên? (Xem Quyển I.3)`);
+        // Chuẩn hóa cú pháp "Xem Quyển ..., mục ..." để dễ tạo link
+        if (form.confidence !== 'cao') qs.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay chỉ là ngẫu nhiên? (Xem Quyển I, mục 1.3)`);
         if (rhymes.details.chan.length === 0) qs.push(`Không thấy vần chân rõ ràng giữa các câu. Tác giả có chủ ý dùng vần lỏng, hay đây là thơ tự do?`);
         if (symbols.length > 0) qs.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này, nó đang gợi nghĩa nào? (Xem Quyển ${symbols[0].vol}, mục ${symbols[0].sec})`);
         qs.push(`Điều gì ở bài thơ này là "của riêng" tác giả — khác với những bài cùng thể?`);
@@ -360,13 +363,20 @@ function executePipeline() {
             </div>
         `).join('');
 
-    // --- TẦNG 3 ---
-    const tier3 = report.questions.map(q => `
-        <div class="question-item" style="display: flex; align-items: flex-start; border-bottom: none !important; padding: 8px 0;">
-            <div style="margin-top: 2px;">${ICON_QUESTION}</div>
-            <div>${q}</div>
-        </div>
-    `).join('');
+    // --- TẦNG 3: TỰ ĐỘNG TẠO LINK LIÊN KẾT ---
+    const tier3 = report.questions.map(q => {
+        // Tìm cụm "(Xem Quyển ..., mục ...)" và thay bằng thẻ span có thể click
+        const formattedQ = q.replace(/\(Xem Quyển ([IVX]+), mục ([\d.]+)\)/g, (match, vol, sec) => {
+            return `(<span class="volume-link" onclick="gotoEncyclopedia('${vol}', '${sec}')">Xem Quyển ${vol}, mục ${sec}</span>)`;
+        });
+        
+        return `
+            <div class="question-item" style="display: flex; align-items: flex-start; border-bottom: none !important; padding: 8px 0;">
+                <div style="margin-top: 2px;">${ICON_QUESTION}</div>
+                <div style="line-height: 1.6;">${formattedQ}</div>
+            </div>
+        `;
+    }).join('');
 
     // --- RENDER TỔNG THỂ ---
     resultsPanel.innerHTML = `
@@ -506,5 +516,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initWaterCanvas();
     initDewdrops();
     
-    console.log("VĂN ĐẠO V44: Hệ thống đã sẵn sàng! 100% Pure SVG.");
+    console.log("VĂN ĐẠO V45: Hệ thống đã sẵn sàng! Smart Links đã được kích hoạt.");
 });
