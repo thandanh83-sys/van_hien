@@ -48,7 +48,7 @@ function toggleMobileMenu() {
 }
 
 /* =========================================
-   3. HIỆU ỨNG GÕ CHỮ (TYPEWRITER) - CÂU THƠ MỚI
+   3. HIỆU ỨNG GÕ CHỮ (TYPEWRITER)
    ========================================= */
 const textToType = "Vạn tượng trong lời,\nÝ tại thiên thư.";
 const typeTarget = document.getElementById('typewriter-text');
