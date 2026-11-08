@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V32 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V34 - FINAL)
    Tác giả: Văn Đạo
    Cấu trúc: 13 Phân đoạn - Tối ưu hóa toàn diện cho Thi Pháp 4 Tầng.
    ===================================================================== */
@@ -335,7 +335,7 @@ body.dark-mode .btn .light-text { display: none !important; }
 .step-title { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; font-weight: 600; }
 .tier-note { font-size: 0.78rem; color: var(--text-muted); font-style: italic; margin-top: 12px; text-align: center; }
 
-/* Bảng đối chiếu vần */
+/* Bảng đối chiếu vần (nếu có dùng) */
 .rhyme-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 0.9rem; }
 .rhyme-table td { padding: 6px 10px; border-bottom: 1px dashed var(--glass-border); color: var(--text-muted); }
 .rhyme-table td:first-child { color: var(--text-main); font-weight: 500; width: 70px; }
