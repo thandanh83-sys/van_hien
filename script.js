@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V10)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V11)
    Tác giả: Văn Đạo
    Mô tả: Xử lý logic, render dữ liệu, tìm kiếm và phân tích thi pháp.
    Cấu trúc: 7 Modules từ Icons, Theme, Routing, Rendering,
@@ -23,13 +23,14 @@ const THEME_KEY = 'vandao_theme';
  * Hàm chuyển đổi giao diện Sáng/Tối.
  */
 function toggleTheme() {
+    // 1. Đảo ngược class 'dark-mode' trên thẻ body
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
     
-    // Lưu vào LocalStorage
+    // 2. Lưu lựa chọn vào LocalStorage
     localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
     
-    // Cập nhật giao diện
+    // 3. Cập nhật các hiệu ứng phụ thuộc vào Theme
     updateCanvasColors();
     updateThemeText(isDark);
 }
@@ -39,7 +40,6 @@ function toggleTheme() {
  */
 function loadSavedTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
-    // Mặc định là Light Mode nếu chưa có lưu
     const isDark = savedTheme === 'dark';
     
     if (isDark) {
@@ -50,16 +50,14 @@ function loadSavedTheme() {
 }
 
 /**
- * Cập nhật text và màu sắc cho nút đổi Theme trong Menu Mobile.
+ * Cập nhật chữ hiển thị trên nút đổi Theme (Mobile Menu).
+ * Lưu ý: Màu sắc đã được CSS tự động xử lý (Xanh ngọc ở Sáng, Vàng Gold ở Tối).
  */
 function updateThemeText(isDark) {
     const textEl = document.getElementById('theme-text');
     if (textEl) {
-        // Nếu đang Tối -> Nút hiển thị "Chế độ Sáng" (để bấm sang)
+        // Nếu đang Tối -> Nút hiển thị "Chế độ Sáng" (để người dùng bấm sang)
         textEl.textContent = isDark ? 'Chế độ Sáng' : 'Chế độ Tối';
-        
-        // Đổi màu chữ: Sáng thì màu Vàng (Mặt trời), Tối thì màu Xanh (Mặt trăng)
-        textEl.style.color = isDark ? 'var(--accent-gold)' : 'var(--accent)';
     }
 }
 
@@ -295,8 +293,8 @@ function initWaterCanvas() {
     function animateRipples() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Màu sóng: Trắng (Dark mode) hoặc Xanh (Light mode)
-        const color = isDarkTheme ? '255, 255, 255' : '125, 168, 158'; 
+        // Màu sóng: Vàng Gold (Dark mode) hoặc Xanh ngọc (Light mode)
+        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; 
         
         for (let i = ripples.length - 1; i >= 0; i--) {
             let p = ripples[i];
@@ -362,5 +360,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initWaterCanvas();
     initDewdrops();
 
-    console.log("VĂN ĐẠO: Hệ thống V10 đã sẵn sàng!");
+    console.log("VĂN ĐẠO: Hệ thống V11 đã sẵn sàng và hoạt động hoàn hảo!");
 });
