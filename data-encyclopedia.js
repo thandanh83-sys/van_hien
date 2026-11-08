@@ -1,7 +1,7 @@
 /* =====================================================================
    VĂN ĐẠO ENGINE - DỮ LIỆU ĐẠI BÁCH KHOA (ENCYCLOPEDIA DATA)
    Tác giả: Văn Đạo
-   Mô tả: Trọn vẹn 8 Quyển tri thức từ Quyển 0 đến Quyển VII.
+   Mô tả: Trọn vẹn 9 Quyển tri thức từ Quyển 0 đến Quyển VIII.
    ===================================================================== */
 const ENCYCLOPEDIA_DATA = [
     {
@@ -194,13 +194,8 @@ const ENCYCLOPEDIA_DATA = [
                 <li><b>Khác:</b> Trăng (đoàn viên, nhớ, cô đơn, chiêm nghiệm), Liễu (chia biệt), Đào (tuổi trẻ, mùa xuân), Sen (thanh khiết), Hạc (thanh cao, trường thọ), Nhạn (tin tức), Mây (phiêu du), Nước (thời gian, mềm mại), Thuyền (hành trình), Bến đò (gặp gỡ, chia tay).</li>
             </ul>
 
-            <h4>5.3. Từ điển Hán Việt trong thi ca (Hiệu đính học thuật)</h4>
-            <ul>
-                <li><b>Vọng (望):</b> Nghĩa chính là trông về, ngóng đợi, hướng đến. Không mặc nhiên đồng nghĩa với âm thanh vọng lại. (Trong nhan đề gợi hướng nhìn về quá khứ, nỗi mong đợi).</li>
-                <li><b>Khúc (曲):</b> Nghĩa là khúc nhạc, bản nhạc, đoạn, phần. Không mặc nhiên mang nghĩa chặng đường.</li>
-                <li><b>Trường (長 / 場):</b> Cần phân biệt. Trường trong "dặm trường" (長) là dài. Trường trong "mái trường" (場/學校) là nơi học tập. Sự đồng âm tạo liên tưởng nhưng không được đánh tráo khái niệm.</li>
-                <li><b>Mai (梅 / 明日):</b> Hoa mai và ngày mai là hai chữ khác nhau, không ghép thành quy luật chuyển hóa biểu tượng khi chưa có cơ sở văn bản.</li>
-            </ul>
+            <h4>5.3. Từ điển Hán Việt trong thi ca</h4>
+            <p><em>Do khối lượng kiến thức đồ sộ, Từ điển Hán Việt trong thi ca đã được tách thành một Quyển riêng biệt. Mời bạn đọc tiếp <b>Quyển VIII</b> ở ngay bên dưới.</em></p>
 
             <h4>5.4. Các biện pháp tu từ</h4>
             <p>Ẩn dụ, Hoán dụ, Nhân hóa, Điệp ngữ, Đảo ngữ, Đối, Nói quá/nói giảm, Tượng trưng.</p>
@@ -320,6 +315,68 @@ const ENCYCLOPEDIA_DATA = [
             Sáng tạo tự do để kiến tạo phong cách.</p>
             <p>Thơ có xác nhờ ngôn từ, có hình nhờ hình tượng, có thanh nhờ tính nhạc, có điệu nhờ cảm xúc vận động, có thần nhờ khí chất và có hồn nhờ sự hòa quyện của tất cả những điều ấy.</p>
             <p>Đừng chỉ học cách viết một câu thơ đẹp. Hãy học cách nhìn thế giới bằng một tâm hồn có chiều sâu, một trí tuệ có chân trời và một thẩm mỹ có bản sắc.</p>
+        `
+    },
+    {
+        title: "Quyển VIII. Từ Điển Hán Việt Trong Thi Ca",
+        content: `
+            <p><em>Tiếng Việt vay mượn rất nhiều từ Hán Việt. Trong thơ ca cổ, việc hiểu đúng nghĩa gốc và nghĩa biểu đạt của từ là chìa khóa để giải mã tác phẩm. Quyển này tuyển chọn hơn 50 từ/cụm từ Hán Việt thường gặp nhất, phân loại theo chủ đề.</em></p>
+
+            <h4>8.1. Nhóm chỉ Thiên nhiên, Vũ trụ và Sự vô thường</h4>
+            <ul>
+                <li><b>Càn khôn (乾坤):</b> Trời đất. Chỉ vũ trụ, thế giới bao la. Thường dùng để nói về sự vĩ đại của tự nhiên so với sự nhỏ bé của con người.</li>
+                <li><b>Thương hải (滄海):</b> Biển xanh. Thường đi kèm với "tang điền" (ruộng dâu) để tạo thành "thương hải tang điền" (biển xanh hóa ruộng dâu), chỉ sự biến đổi khôn lường của cuộc sống.</li>
+                <li><b>Tang điền (桑田):</b> Ruộng dâu. Biểu tượng cho sự thay đổi, biến cố lớn lao của lịch sử và đời người.</li>
+                <li><b>Phù vân (浮雲):</b> Mây nổi. Chỉ sự phù du, hư ảo, những thứ đến rồi đi trong cuộc đời, không bền vững (như công danh, sự nghiệp).</li>
+                <li><b>Yên hà (煙霞):</b> Khói và ráng chiều. Chỉ cảnh đẹp thiên nhiên hoang sơ, thanh tĩnh, thường gắn với cuộc sống ẩn dật của người xưa.</li>
+                <li><b>Tuyết (雪) / Sương (霜):</b> Tuyết / Sương giá. Thường tượng trưng cho sự lạnh lẽo, khắc nghiệt, hoặc mái tóc bạc (như "sương pha mái đầu").</li>
+            </ul>
+
+            <h4>8.2. Nhóm chỉ Thời gian và Không gian</h4>
+            <ul>
+                <li><b>Thiên thu (千秋):</b> Nghìn năm. Chỉ sự trường tồn vĩnh cửu, hoặc nỗi sầu muộn kéo dài bất tận.</li>
+                <li><b>Vạn cổ (萬古):</b> Muôn đời. Tương tự thiên thu, chỉ sự vĩnh hằng.</li>
+                <li><b>Bạch câu quá khích (白駒過隙):</b> Bóng ngựa trắng lướt qua khe cửa. Thành ngữ chỉ thời gian trôi qua quá nhanh, cuộc đời ngắn ngủi.</li>
+                <li><b>Thiên nhai (天涯):</b> Chân trời. Chỉ nơi xa xôi, cách biệt (như "thiên nhai hải giác" - góc biển chân trời).</li>
+                <li><b>Cố quốc (故國):</b> Đất nước cũ, quê hương cũ. Thường gợi nỗi nhớ nước, hoài niệm của người xa xứ.</li>
+            </ul>
+
+            <h4>8.3. Nhóm chỉ Con người và Mối quan hệ</h4>
+            <ul>
+                <li><b>Tri kỷ (知己):</b> Người hiểu rõ lòng mình (Tri = biết, Kỷ = mình). Bạn tâm giao, người duy nhất có thể thấu hiểu tâm sự của tác giả.</li>
+                <li><b>Cố nhân (故人):</b> Người bạn cũ, người xưa. Thường gợi nỗi nhớ nhung, hoài niệm.</li>
+                <li><b>Hồng nhan (紅顏):</b> Má hồng. Chỉ người phụ nữ đẹp. Khi đi kèm với "bạc mệnh" (số phận hẩm hiu), nó trở thành biểu tượng cho những kiếp hồng nhan đa truân trong xã hội phong kiến (như Thúy Kiều).</li>
+                <li><b>Bạc mệnh (薄命):</b> Số phận mỏng manh, bạc bẽo, chịu nhiều đau khổ (thường dùng cho phụ nữ tài sắc).</li>
+                <li><b>Quân tử (君子):</b> Người có phẩm chất đạo đức cao thượng, chính trực (Nho giáo). Đối lập với "tiểu nhân".</li>
+                <li><b>Thư sinh (書生):</b> Người học trò, nho sĩ. Thường chỉ những người có học thức nhưng chưa đỗ đạt hoặc chưa ra làm quan.</li>
+            </ul>
+
+            <h4>8.4. Nhóm chỉ Tâm trạng và Cảm xúc</h4>
+            <ul>
+                <li><b>Sầu (愁):</b> Nỗi buồn, sự lo lắng, u uất. Là một trong những cảm xúc phổ biến nhất trong thơ cổ (như "sầu lữ thứ", "vạn cổ sầu").</li>
+                <li><b>Oán (怨):</b> Nỗi oán trách, hờn giận. Thường thấy trong thơ của phụ nữ (như Cung oán ngâm khúc).</li>
+                <li><b>Hận (恨):</b> Nỗi hận, sự tiếc nuối. Trong văn học cổ, "hận" thường không chỉ là thù hận mà còn là nỗi ân hận, tiếc nuối vì duyên phận dang dở.</li>
+                <li><b>Lệ (淚):</b> Nước mắt. Thường dùng để biểu đạt nỗi buồn, sự đau khổ tột cùng (như "lệ hoa", "hồng lệ").</li>
+                <li><b>Hoài (懷):</b> Nhớ nhung, hoài niệm (như "hoài cổ", "cảm hoài").</li>
+            </ul>
+
+            <h4>8.5. Nhóm Điển cố và Từ cổ (Lưu ý sử dụng)</h4>
+            <ul>
+                <li><b>Giai nhân (佳人) / Tài tử (才子):</b> Người con gái đẹp / Người con trai có tài. Cặp đôi "Tài tử giai nhân" là mô-típ quen thuộc trong văn học.</li>
+                <li><b>Giang sơn (江山):</b> Sông núi. Dùng để chỉ đất nước, giang san, cơ đồ của một quốc gia.</li>
+                <li><b>Xã tắc (社稷):</b> Đàn xã (thờ thần đất) và đàn tắc (thờ thần lúa). Dùng để chỉ triều đình, sự nghiệp của đất nước.</li>
+                <li><b>Tang bồng (桑蓬):</b> Cỏ tang và cỏ bồng. Thường dùng trong "tang bồng hồ thỉ" để chỉ chí làm trai tung hoành bốn phương, lập công danh.</li>
+                <li><b>Hành cước (行腳):</b> Bước chân đi. Chỉ sự lang bạt, đi đây đi đó của người lữ hành.</li>
+            </ul>
+
+            <h4>8.6. Hiệu đính: Các từ đồng âm dễ nhầm lẫn</h4>
+            <ul>
+                <li><b>Vọng (望):</b> Nghĩa chính là trông về, ngóng đợi, hướng đến. Không mặc nhiên đồng nghĩa với âm thanh vọng lại. (Trong nhan đề gợi hướng nhìn về quá khứ, nỗi mong đợi).</li>
+                <li><b>Khúc (曲):</b> Nghĩa là khúc nhạc, bản nhạc, đoạn, phần. Không mặc nhiên mang nghĩa chặng đường.</li>
+                <li><b>Trường (長 / 場):</b> Cần phân biệt. Trường trong "dặm trường" (長) là dài. Trường trong "mái trường" (場/學校) là nơi học tập. Sự đồng âm tạo liên tưởng nhưng không được đánh tráo khái niệm.</li>
+                <li><b>Mai (梅 / 明日):</b> Hoa mai và ngày mai là hai chữ khác nhau, không ghép thành quy luật chuyển hóa biểu tượng khi chưa có cơ sở văn bản.</li>
+                <li><b>Thủy (水 / 始):</b> Thủy trong "sông nước" (水). Thủy trong "bắt đầu" (始 - như thủy chung). Không nên nhầm lẫn khi phân tích biểu tượng nước.</li>
+            </ul>
         `
     }
 ];
