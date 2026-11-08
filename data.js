@@ -1,7 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER DATA (ULTIMATE FIXED EDITION)
+   VĂN ĐẠO ENGINE - MASTER DATA (ULTIMATE V10)
    Tác giả: Văn Đạo
-   Mô tả: Đã fix toàn bộ lỗi học thuật, chuẩn hóa dữ liệu và mở rộng kho tàng.
+   Mô tả: Trái tim tri thức của hệ thống, đã fix toàn bộ lỗi học thuật.
    Cấu trúc: 
    - Phần 1: HERITAGE_DATA (50+ Tác phẩm Văn học)
    - Phần 2: ENCYCLOPEDIA_DATA (8 Quyển Đại Bách Khoa)
@@ -411,7 +411,7 @@ const ENCYCLOPEDIA_DATA = [
 const QUOTES_DATA = [
     { text: "Văn học là nhân học.", author: "M. Gorky" },
     { text: "Thơ là tiếng nói của tâm hồn.", author: "Khuyết danh" },
-    { text: "Học nhi thời tập chi, bất diệc duyệt hồ.", author: "Khổng Tử" }, /* Đã fix câu nói chuẩn của Khổng Tử */
+    { text: "Học nhi thời tập chi, bất diệc duyệt hồ.", author: "Khổng Tử" },
     { text: "Thi trung hữu họa, thi trung hữu nhạc.", author: "Cổ nhân" },
     { text: "Học rộng để nhìn thấy nhiều chân trời, học sâu để hiểu được bản chất.", author: "Văn Đạo" },
     { text: "Nho gia là đạo lý để bước vào đời; Đạo gia là một tâm thế để đi qua đời.", author: "Văn Đạo" },
