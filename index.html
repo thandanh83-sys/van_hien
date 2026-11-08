@@ -67,6 +67,24 @@
         .vow-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem; }
         .vow-text { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; line-height: 1.8; color: var(--text-muted); }
 
+        /* =========================================
+           MỚI: VĂN HIẾN (HERITAGE)
+           ========================================= */
+        .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .heritage-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px;
+            padding: 1.5rem; box-shadow: var(--glass-shadow); transition: transform 0.3s, border-color 0.3s;
+            display: flex; flex-direction: column;
+        }
+        .heritage-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+        .h-tag { font-size: 0.75rem; background: var(--accent); color: #fff; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 1rem; align-self: flex-start; font-weight: 500; letter-spacing: 0.5px; }
+        .heritage-card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text-main); }
+        .heritage-card .author { font-size: 0.95rem; font-weight: 600; color: var(--accent); margin-bottom: 1rem; }
+        .heritage-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; flex-grow: 1; margin-bottom: 1rem;}
+        .meta-info { padding-top: 1rem; border-top: 1px dashed var(--glass-border); font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 10px; flex-wrap: wrap; }
+        .meta-info span { background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 6px; }
+        body.dark-mode .meta-info span { background: rgba(255,255,255,0.1); }
+
         /* PHÂN TÍCH */
         .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 2rem; text-align: center; }
         .input-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; box-shadow: var(--glass-shadow); margin-bottom: 2rem; }
@@ -106,6 +124,7 @@
         <div class="nav-brand" onclick="switchView('home')">VĂN ĐẠO</div>
         <div class="nav-links">
             <a onclick="switchView('home')" id="nav-home" class="active">Trang chủ</a>
+            <a onclick="switchView('heritage')" id="nav-heritage">Văn Hiến</a> <!-- THÊM MỚI -->
             <a onclick="switchView('encyclopedia')" id="nav-encyclopedia">Đại Bách Khoa</a>
             <a onclick="switchView('analyze')" id="nav-analyze">Phân tích</a>
         </div>
@@ -129,6 +148,12 @@
                 </div>
             </div>
             <div class="nav-grid">
+                <!-- THÊM MỚI THẺ VĂN HIẾN -->
+                <div class="nav-card" onclick="switchView('heritage')">
+                    <h3>Văn Hiến</h3>
+                    <p>Thư viện di sản: Tác giả, tác phẩm và văn bản gốc.</p>
+                </div>
+                
                 <div class="nav-card" onclick="switchView('encyclopedia')">
                     <h3>Đại Bách Khoa</h3>
                     <p>Tra cứu toàn thư về văn học, thi pháp và tri thức nhân loại.</p>
@@ -149,7 +174,18 @@
             </div>
         </section>
 
-        <!-- VIEW 2: ĐẠI BÁCH KHOA TOÀN THƯ -->
+        <!-- =========================================
+             VIEW 2: VĂN HIẾN (THÊM MỚI HOÀN TOÀN)
+             ========================================= -->
+        <section id="view-heritage" class="view">
+            <h1 class="page-title">Văn Hiến</h1>
+            <p class="intro-text" style="text-align: center; margin-bottom: 1rem;">Di sản Văn học Việt Nam & Thế giới</p>
+            <div class="heritage-grid" id="heritage-grid">
+                <!-- Dữ liệu sẽ được render bằng JS -->
+            </div>
+        </section>
+
+        <!-- VIEW 3: ĐẠI BÁCH KHOA TOÀN THƯ (GIỮ NGUYÊN) -->
         <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa Toàn Thư</h1>
             <p class="intro-text" style="text-align: center; margin-bottom: 3rem;">Bản Cẩm nang Học thuật và Sáng tạo Văn học – Master Edition</p>
@@ -330,7 +366,7 @@
             </div>
         </section>
 
-        <!-- VIEW 3: PHÂN TÍCH (TAM THANH) -->
+        <!-- VIEW 4: PHÂN TÍCH (TAM THANH) - GIỮ NGUYÊN -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Phân tích Thi pháp</h1>
             <div class="input-panel">
@@ -369,7 +405,80 @@
         }
 
         /* =========================================
-           II. NHẤT KHÍ HÓA TAM THANH (PIPELINE)
+           II. THÊM MỚI: DỮ LIỆU VÀ RENDER VĂN HIẾN
+           ========================================= */
+        const HERITAGE_DATA = [
+            {
+                title: "Truyện Kiều",
+                author: "Nguyễn Du",
+                desc: "Tác phẩm kiệt xuất nhất của văn học trung đại Việt Nam, kể về cuộc đời gian truân của Thúy Kiều.",
+                era: "Triều Nguyễn (TK 18-19)",
+                script: "Chữ Nôm",
+                genre: "Truyện thơ Lục bát"
+            },
+            {
+                title: "Qua Đèo Ngang",
+                author: "Bà Huyện Thanh Quan",
+                desc: "Bức tranh thiên nhiên và tâm trạng hoài cổ, cô đơn của tác giả khi dừng chân trên đèo.",
+                era: "Triều Nguyễn (TK 19)",
+                script: "Chữ Nôm",
+                genre: "Thất ngôn bát cú Đường luật"
+            },
+            {
+                title: "Nam quốc sơn hà",
+                author: "Lý Thường Kiệt (tương truyền)",
+                desc: "Bản tuyên ngôn độc lập đầu tiên của Việt Nam, khẳng định chủ quyền lãnh thổ.",
+                era: "Nhà Lý (TK 11)",
+                script: "Chữ Hán",
+                genre: "Thất ngôn tứ tuyệt"
+            },
+            {
+                title: "Tĩnh Dạ Tứ (Cảm nghĩ trong đêm thanh tĩnh)",
+                author: "Lý Bạch",
+                desc: "Bài thơ nổi tiếng về nỗi nhớ quê hương của thi tiên Lý Bạch.",
+                era: "Thịnh Đường (TK 8)",
+                script: "Chữ Hán",
+                genre: "Ngũ ngôn tứ tuyệt"
+            },
+            {
+                title: "Bình Ngô Đại Cáo",
+                author: "Nguyễn Trãi",
+                desc: "Áng văn chính luận mẫu mực, tuyên bố chiến thắng quân Minh và khẳng định nền độc lập.",
+                era: "Nhà Lê sơ (TK 15)",
+                script: "Chữ Hán",
+                genre: "Cáo"
+            },
+            {
+                title: "Chinh Phụ Ngâm",
+                author: "Đặng Trần Côn (nguyên tác)",
+                desc: "Khúc ngâm nói về nỗi sầu muộn, cô đơn của người vợ chờ chồng đi chinh chiến.",
+                era: "TK 18",
+                script: "Chữ Hán / Bản diễn Nôm",
+                genre: "Song thất lục bát"
+            }
+        ];
+
+        function renderHeritage() {
+            const grid = document.getElementById('heritage-grid');
+            if(!grid) return;
+            grid.innerHTML = HERITAGE_DATA.map(item => `
+                <div class="heritage-card">
+                    <span class="h-tag">${item.genre}</span>
+                    <h3>${item.title}</h3>
+                    <div class="author">Tác giả: ${item.author}</div>
+                    <p>${item.desc}</p>
+                    <div class="meta-info">
+                        <span>🕰️ ${item.era}</span>
+                        <span>✍️ ${item.script}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        // Gọi hàm render ngay khi tải trang
+        document.addEventListener('DOMContentLoaded', renderHeritage);
+
+        /* =========================================
+           III. NHẤT KHÍ HÓA TAM THANH (PIPELINE)
            ========================================= */
         const ThaiThanh = {
             receive: function(rawText) {
@@ -441,7 +550,7 @@
         }
 
         /* =========================================
-           III. TỨ ĐẠI GIAI KHÔNG (ZEN MODE)
+           IV. TỨ ĐẠI GIAI KHÔNG (ZEN MODE)
            ========================================= */
         function enterZenMode() {
             const panel = document.getElementById('results-panel');
