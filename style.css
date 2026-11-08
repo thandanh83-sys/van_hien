@@ -141,29 +141,74 @@ body.dark-mode .theme-btn .moon-icon { display: none; }
 @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 /* =========================================
-   4. TRANG CHỦ
+   4. TRANG CHỦ (ĐÃ FIX LỖI TÀNG HÌNH TRÊN MOBILE)
    ========================================= */
-.hero-section { text-align: center; margin-bottom: 4rem; padding: 2rem 0; position: relative; }
+.hero-section { 
+    text-align: center; 
+    margin-bottom: 4rem; 
+    padding: 3rem 1rem; 
+    position: relative; 
+}
+
+/* Vầng sáng (Hào quang) phía sau chữ */
 .hero-section::before {
-    content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: 300px; height: 300px; background: radial-gradient(circle, var(--border-color) 0%, transparent 70%);
-    border-radius: 50%; z-index: -1; filter: blur(20px);
+    content: ''; 
+    position: absolute; 
+    top: 50%; left: 50%; 
+    transform: translate(-50%, -50%);
+    width: 400px; height: 200px; 
+    background: radial-gradient(ellipse, var(--border-color) 0%, transparent 70%);
+    z-index: -1; 
+    filter: blur(30px);
+    opacity: 0.8;
 }
+
+/* Chữ hiển thị rõ nét, có hiệu ứng tỏa sáng (Không dùng Gradient trong suốt) */
 .hero-title { 
-    font-family: 'Playfair Display', serif; font-size: 3.5rem; line-height: 1.3; 
-    margin-bottom: 1.5rem; color: var(--text-dark); 
-    text-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 140px; 
+    font-family: 'Playfair Display', serif; 
+    font-size: 3.5rem; 
+    line-height: 1.4; 
+    margin-bottom: 1rem; 
+    min-height: 150px;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: var(--text-dark); 
+    
+    /* Hiệu ứng đổ bóng phát sáng màu vàng kim */
+    text-shadow: 0px 4px 20px rgba(197, 160, 89, 0.4);
 }
-body.dark-mode .hero-title { text-shadow: 0 4px 20px rgba(229, 184, 94, 0.15); }
+
+/* Dark Mode: Chữ sáng rực rỡ hơn */
+body.dark-mode .hero-title {
+    color: #ffffff;
+    text-shadow: 0px 4px 25px rgba(229, 184, 94, 0.6);
+}
+
+/* Dòng mô tả (Subtext) */
 .hero-desc { 
-    font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; 
-    max-width: 600px; margin: 0 auto; 
+    font-size: 1.1rem; 
+    color: var(--text-muted); 
+    line-height: 1.8; 
+    max-width: 600px; 
+    margin: 0 auto 2rem; 
+    font-weight: 500;
 }
 
-/* Hiệu ứng con trỏ gõ chữ */
-.typewriter::after { content: '|'; animation: blink 1s step-end infinite; color: var(--accent); font-weight: 300; }
-@keyframes blink { 50% { opacity: 0; } }
+/* Con trỏ gõ chữ màu vàng kim */
+.typewriter::after { 
+    content: '|'; 
+    animation: blink 1s step-end infinite; 
+    color: var(--accent); 
+    font-weight: 300; 
+}
 
+@keyframes blink { 
+    50% { opacity: 0; } 
+}
+
+/* =========================================
+   5. CÁC THÀNH PHẦN TRANG CHỦ KHÁC
+   ========================================= */
 /* Dải chữ chạy (Marquee) */
 .marquee-container { 
     width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; 
@@ -240,7 +285,7 @@ body.dark-mode .f-icon { background: rgba(255,255,255,0.05); color: var(--accent
 }
 
 /* =========================================
-   5. CÁC TRANG PHỤ (Văn Hiến, Bách Khoa, Phân Tích)
+   6. CÁC TRANG PHỤ (Văn Hiến, Bách Khoa, Phân Tích)
    ========================================= */
 .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
 .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 3rem; }
@@ -297,7 +342,7 @@ body.dark-mode .f-icon { background: rgba(255,255,255,0.05); color: var(--accent
     font-family: 'Playfair Display', serif; font-size: 1.05rem; 
 }
 .accordion-content p { margin-bottom: 0.8rem; }
-.accordion-content ul { margin-left: 1.5rem; margin-bottom: 1rem; }
+.accordion-content ul, .accordion-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
 
 /* Phân tích (Tam Thanh) */
 .analyze-box { 
@@ -335,7 +380,7 @@ body.dark-mode .btn-analyze { background: var(--accent); color: #000; }
 .pattern-text { font-family: monospace; color: var(--accent); letter-spacing: 2px; font-weight: bold; }
 
 /* =========================================
-   6. BỘ LỌC VĂN HIẾN (FILTER BAR)
+   7. BỘ LỌC VĂN HIẾN (FILTER BAR)
    ========================================= */
 .filter-bar {
     display: flex;
@@ -376,7 +421,7 @@ body.dark-mode .filter-btn.active {
 }
 
 /* =========================================
-   7. CSS CHO TÌM KIẾM (LIVE SEARCH)
+   8. CSS CHO TÌM KIẾM (LIVE SEARCH)
    ========================================= */
 #search-container {
     position: relative; 
@@ -502,7 +547,7 @@ body.dark-mode .search-box:focus-within {
 }
 
 /* =========================================
-   8. RESPONSIVE (ĐIỆN THOẠI)
+   9. RESPONSIVE (ĐIỆN THOẠI)
    ========================================= */
 @media (max-width: 768px) {
     .hero-title { font-size: 2.5rem; min-height: 100px; }
