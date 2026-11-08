@@ -4,572 +4,576 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VĂN ĐẠO ENGINE — Đại Thành</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         /* =========================================
-           1. HỆ THỐNG MÀU SẮC (THỦY MẶC / NGỌC SẮC)
+           1. HỆ THỐNG MÀU SẮC (SEN NGỌC & HẮC LONG)
            ========================================= */
         :root {
-            --bg-base: #eaf3f0; --text-main: #1e3b34; --text-muted: #5a7a72;
-            --accent: #c5a059; --glass-bg: rgba(255, 255, 255, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.8); --glass-shadow: 0 8px 32px rgba(30, 59, 52, 0.05);
-            --nav-bg: rgba(234, 243, 240, 0.85);
+            /* LIGHT MODE: Khoa Sen Thanh Lịch */
+            --bg-base: #f2f9f7;
+            --text-dark: #0d362e;
+            --text-muted: #5a7a72;
+            --accent: #c5a059;
+            --accent-light: #e2c78e;
+            --card-bg: #ffffff;
+            --border-color: rgba(13, 54, 46, 0.08);
+            --shadow: 0 4px 20px rgba(13, 54, 46, 0.05);
+            --glass-bg: rgba(242, 249, 247, 0.85);
         }
+
         body.dark-mode {
-            --bg-base: #0f1715; --text-main: #d1e0db; --text-muted: #8ba39b;
-            --accent: #d4af6a; --glass-bg: rgba(26, 40, 36, 0.65);
-            --glass-border: rgba(255, 255, 255, 0.08); --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            --nav-bg: rgba(15, 23, 21, 0.85);
+            /* DARK MODE: Hắc Long Ánh Kim */
+            --bg-base: #080808;
+            --text-dark: #e8f3f1;
+            --text-muted: #889a96;
+            --accent: #e5b85e;
+            --accent-light: #ffd700;
+            --card-bg: #121212;
+            --border-color: rgba(229, 184, 94, 0.15);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+            --glass-bg: rgba(8, 8, 8, 0.85);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.4s, color 0.4s; }
-        body { background-color: var(--bg-base); color: var(--text-main); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
-        
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease; }
+        body { background-color: var(--bg-base); color: var(--text-dark); min-height: 100vh; overflow-x: hidden; }
+
+        /* Nền màu nước chuyển đổi */
         .watercolor-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; filter: blur(25px);
-            background: radial-gradient(circle at 15% 20%, rgba(168, 216, 202, 0.4) 0%, transparent 40%), radial-gradient(circle at 85% 80%, rgba(135, 206, 235, 0.2) 0%, transparent 50%);
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; filter: blur(30px); opacity: 0.7;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(168, 216, 202, 0.5) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.9) 0%, transparent 50%);
+            transition: background 0.8s ease;
         }
         body.dark-mode .watercolor-bg {
-            background: radial-gradient(circle at 15% 20%, rgba(42, 77, 69, 0.4) 0%, transparent 40%), radial-gradient(circle at 85% 80%, rgba(20, 50, 60, 0.3) 0%, transparent 50%);
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(30, 30, 30, 0.8) 0%, transparent 60%),
+                radial-gradient(circle at 80% 70%, rgba(80, 60, 10, 0.2) 0%, transparent 50%);
         }
-        .jade-glow { position: fixed; top: -20vh; left: 50%; transform: translateX(-50%); width: 80vw; height: 80vh; z-index: -1; pointer-events: none; background: radial-gradient(circle, rgba(197, 160, 89, 0.08) 0%, transparent 70%); }
-
-        /* NAVBAR & LAYOUT */
-        .navbar { position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 1rem 3rem; background: var(--nav-bg); backdrop-filter: blur(16px); border-bottom: 1px solid var(--glass-border); z-index: 100; }
-        .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; letter-spacing: 2px; cursor: pointer; }
-        .nav-links a { text-decoration: none; color: var(--text-muted); font-size: 0.9rem; margin-left: 2rem; cursor: pointer; font-weight: 500; }
-        .nav-links a.active { color: var(--accent); }
-        .theme-btn { background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; }
-        
-        .container { max-width: 900px; margin: 0 auto; padding: 8rem 2rem 4rem; min-height: 80vh; }
-        .view { display: none; animation: fadeIn 0.6s ease forwards; }
-        .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* TRANG CHỦ */
-        .hero { text-align: center; margin-bottom: 3rem; }
-        .subtitle { font-size: 0.85rem; letter-spacing: 3px; color: var(--accent); margin-bottom: 1rem; text-transform: uppercase; }
-        .poetic-quote { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 400; line-height: 1.3; margin-bottom: 1rem; }
-        .intro-text { color: var(--text-muted); font-size: 1.1rem; }
-        
-        .nho-giao-section { margin: 3rem 0; text-align: center; }
-        .nho-giao-inner { display: inline-block; text-align: left; padding: 2rem 4rem; border-left: 2px solid var(--accent); border-right: 2px solid var(--accent); background: var(--glass-bg); backdrop-filter: blur(8px); border-radius: 4px; box-shadow: var(--glass-shadow); }
-        .nho-line { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 600; line-height: 2; color: var(--text-main); padding-left: 20px; position: relative; opacity: 0; animation: fadeInLine 1s ease forwards; }
-        .nho-line::before { content: '•'; position: absolute; left: 0; color: var(--accent); font-size: 2rem; line-height: 1.2; }
-        .nho-line:nth-child(1) { animation-delay: 0.2s; } .nho-line:nth-child(2) { animation-delay: 0.4s; } .nho-line:nth-child(3) { animation-delay: 0.6s; } .nho-line:nth-child(4) { animation-delay: 0.8s; }
-        @keyframes fadeInLine { to { opacity: 1; } }
-        
-        .nav-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 3rem 0; }
-        .nav-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 2rem; box-shadow: var(--glass-shadow); cursor: pointer; transition: transform 0.3s; }
-        .nav-card:hover { transform: translateY(-5px); border-color: var(--accent); }
-        .nav-card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.5rem; }
-        
-        .vow-section { text-align: center; padding: 2rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; box-shadow: var(--glass-shadow); }
-        .vow-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem; }
-        .vow-text { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; line-height: 1.8; color: var(--text-muted); }
 
         /* =========================================
-           MỚI: VĂN HIẾN (HERITAGE)
+           2. NAVBAR
            ========================================= */
-        .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-        .heritage-card {
-            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px;
-            padding: 1.5rem; box-shadow: var(--glass-shadow); transition: transform 0.3s, border-color 0.3s;
-            display: flex; flex-direction: column;
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem; background: var(--glass-bg);
+            backdrop-filter: blur(12px); z-index: 100; border-bottom: 1px solid transparent;
+            transition: all 0.4s ease;
         }
-        .heritage-card:hover { transform: translateY(-4px); border-color: var(--accent); }
-        .h-tag { font-size: 0.75rem; background: var(--accent); color: #fff; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 1rem; align-self: flex-start; font-weight: 500; letter-spacing: 0.5px; }
-        .heritage-card h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text-main); }
-        .heritage-card .author { font-size: 0.95rem; font-weight: 600; color: var(--accent); margin-bottom: 1rem; }
-        .heritage-card p { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; flex-grow: 1; margin-bottom: 1rem;}
-        .meta-info { padding-top: 1rem; border-top: 1px dashed var(--glass-border); font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 10px; flex-wrap: wrap; }
-        .meta-info span { background: rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 6px; }
-        body.dark-mode .meta-info span { background: rgba(255,255,255,0.1); }
+        .navbar.scrolled {
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow); padding: 0.8rem 2rem;
+        }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .nav-brand { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 600; color: var(--text-dark); cursor: pointer; letter-spacing: 1px; }
+        .nav-subtitle { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; display: none; margin-top: 4px; }
+        @media (min-width: 768px) { .nav-subtitle { display: block; } }
+        
+        .nav-right { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-btn { position: relative; text-decoration: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; cursor: pointer; padding-bottom: 5px; }
+        .nav-btn::after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; background-color: var(--accent); transition: width 0.3s ease, left 0.3s ease; }
+        .nav-btn:hover::after, .nav-btn.active::after { width: 100%; left: 0; }
+        .nav-btn:hover, .nav-btn.active { color: var(--text-dark); }
+        
+        /* NÚT THEME VỚI SVG */
+        .theme-btn { background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; transition: transform 0.3s ease, background 0.3s; }
+        .theme-btn:hover { transform: scale(1.1); background: var(--border-color); }
+        .theme-btn svg { width: 20px; height: 20px; stroke: var(--text-dark); transition: stroke 0.5s; }
+        
+        /* Ẩn/Hiện Mặt Trời - Mặt Trăng */
+        .theme-btn .sun-icon { display: none; }
+        .theme-btn .moon-icon { display: block; }
+        body.dark-mode .theme-btn .sun-icon { display: block; stroke: var(--accent); }
+        body.dark-mode .theme-btn .moon-icon { display: none; }
 
-        /* PHÂN TÍCH */
-        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 2rem; text-align: center; }
-        .input-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; box-shadow: var(--glass-shadow); margin-bottom: 2rem; }
-        textarea { width: 100%; height: 150px; background: transparent; border: none; outline: none; resize: vertical; font-family: 'Playfair Display', serif; font-size: 1.2rem; line-height: 1.8; color: var(--text-main); }
-        .btn { display: block; width: 100%; padding: 1rem; background: var(--text-main); color: var(--bg-base); border: none; border-radius: 8px; font-weight: 500; cursor: pointer; transition: background 0.3s; }
-        .btn:hover { background: var(--accent); }
-        .pipeline-step { margin-bottom: 1.5rem; }
-        .step-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
-        .step-badge { font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-        .badge-thai { background: #2c3e50; } .badge-thuong { background: #c5a059; } .badge-ngoc { background: #16a085; }
-        .result-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.5rem; box-shadow: var(--glass-shadow); }
-        .line-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed var(--glass-border); font-family: 'Playfair Display', serif; }
-        .pattern { font-family: monospace; color: var(--accent); letter-spacing: 2px; }
-        .epistemic-note { font-size: 0.85rem; font-style: italic; color: var(--text-muted); padding: 10px; background: rgba(0,0,0,0.03); border-left: 3px solid var(--accent); margin-top: 10px; }
+        /* NÚT MOBILE VỚI SVG */
+        .mobile-menu-btn { display: none; background: transparent; border: none; cursor: pointer; padding: 5px; }
+        .mobile-menu-btn svg { width: 24px; height: 24px; stroke: var(--text-dark); }
 
-        /* ĐẠI BÁCH KHOA TOÀN THƯ (BOOK UI) */
-        .book-container { display: flex; flex-direction: column; gap: 1rem; }
-        .book-volume { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; box-shadow: var(--glass-shadow); overflow: hidden; transition: all 0.3s ease; }
-        .book-volume[open] { border-left: 4px solid var(--accent); }
-        .book-volume summary { padding: 1.5rem; cursor: pointer; font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; color: var(--text-main); list-style: none; display: flex; justify-content: space-between; align-items: center; }
-        .book-volume summary::-webkit-details-marker { display: none; }
-        .book-volume summary::after { content: '❯'; color: var(--accent); transition: transform 0.3s; font-size: 0.9rem; }
-        .book-volume[open] summary::after { transform: rotate(90deg); }
-        .book-content { padding: 0 1.5rem 1.5rem 1.5rem; font-family: 'Inter', sans-serif; font-size: 0.95rem; line-height: 1.8; color: var(--text-main); border-top: 1px dashed var(--glass-border); }
-        .book-content h3 { font-family: 'Playfair Display', serif; color: var(--accent); margin: 1.5rem 0 0.5rem; font-size: 1.1rem; }
-        .book-content p { margin-bottom: 1rem; text-align: justify; }
-        .book-content ul, .book-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
-        .book-content li { margin-bottom: 0.5rem; }
-        .highlight-text { font-style: italic; color: var(--text-muted); border-left: 2px solid var(--accent); padding-left: 10px; margin: 1rem 0; display: block; }
+        /* =========================================
+           3. CONTAINER & ANIMATION
+           ========================================= */
+        .container { max-width: 1000px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+        .view { display: none; }
+        .view.active { display: block; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* =========================================
+           4. TRANG CHỦ
+           ========================================= */
+        .hero-section { display: flex; flex-direction: column-reverse; gap: 2rem; align-items: center; margin-bottom: 3rem; }
+        @media (min-width: 768px) {
+            .hero-section { flex-direction: row; justify-content: space-between; }
+            .hero-text-content { flex: 1; padding-right: 2rem; }
+            .hero-image-wrapper { flex: 1; }
+        }
+        
+        .hero-title { font-family: 'Playfair Display', serif; font-size: 3rem; line-height: 1.2; margin-bottom: 1rem; color: var(--text-dark); }
+        .hero-desc { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; }
+        
+        .hero-image-wrapper img {
+            width: 100%; max-width: 450px; border-radius: 20px; box-shadow: var(--shadow);
+            animation: floatImage 6s ease-in-out infinite; transition: filter 0.8s ease;
+        }
+        body.dark-mode .hero-image-wrapper img { filter: brightness(0.7) contrast(1.2) sepia(0.3) hue-rotate(10deg); }
+        @keyframes floatImage { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        .typewriter::after { content: '|'; animation: blink 1s step-end infinite; color: var(--accent); font-weight: 300; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Thanh tìm kiếm */
+        .search-box { display: flex; align-items: center; background: var(--card-bg); border-radius: 12px; padding: 1rem 1.2rem; margin: 0 auto 3rem; max-width: 700px; box-shadow: var(--shadow); border: 1px solid var(--border-color); transition: all 0.3s ease; }
+        .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); transform: scale(1.02); }
+        body.dark-mode .search-box:focus-within { box-shadow: 0 0 25px rgba(229, 184, 94, 0.15); }
+        .search-icon { color: var(--text-muted); margin-right: 10px; width: 20px; height: 20px; }
+        .search-box input { border: none; outline: none; width: 100%; font-size: 1rem; color: var(--text-dark); background: transparent; }
+        .search-box input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+        /* Marquee */
+        .marquee-container { width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; background: var(--card-bg); padding: 1rem 0; overflow: hidden; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); margin-bottom: 3rem; }
+        .marquee-content { display: flex; white-space: nowrap; animation: marquee 20s linear infinite; font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--text-muted); font-style: italic; }
+        .marquee-content span { margin: 0 2rem; display: flex; align-items: center; gap: 10px; }
+        .marquee-content svg { width: 14px; height: 14px; fill: var(--accent); }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        /* Feature Cards */
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 4rem; perspective: 1000px; }
+        @media (max-width: 600px) { .feature-grid { grid-template-columns: 1fr; } }
+        .feature-card { background: var(--card-bg); border-radius: 16px; padding: 2rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); cursor: pointer; display: flex; flex-direction: column; justify-content: center; transform-style: preserve-3d; transition: box-shadow 0.3s, border-color 0.3s; }
+        .feature-card:hover { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); border-color: var(--accent-light); }
+        body.dark-mode .feature-card:hover { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8); border-color: var(--accent); }
+        .feature-card .inner-content { transform: translateZ(30px); }
+        
+        .f-icon { margin-bottom: 1rem; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: var(--border-color); color: var(--text-dark); }
+        .f-icon svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.5; fill: none; }
+        body.dark-mode .f-icon { background: rgba(255,255,255,0.05); color: var(--accent); }
+        
+        .feature-card:hover .f-icon svg { animation: wobble 0.5s ease; }
+        @keyframes wobble { 0% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } 100% { transform: rotate(0deg); } }
+        .feature-card h3 { font-size: 1.1rem; font-weight: 600; }
+
+        /* Quote Carousel */
+        .quote-box { text-align: center; padding: 3rem 1rem; margin-bottom: 4rem; background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow); }
+        .quote-text { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; color: var(--text-dark); transition: opacity 0.5s ease; margin-bottom: 1rem; }
+        .quote-author { font-size: 0.9rem; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; transition: opacity 0.5s ease; }
+
+        /* Preview Văn Hiến */
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; }
+        .section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; }
+        .section-link { color: var(--accent); font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+        .section-link:hover { text-decoration: underline; }
+        
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+        .preview-card { background: var(--card-bg); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); cursor: pointer; transition: transform 0.3s, border-color 0.3s; }
+        .preview-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+        /* Footer */
+        .footer-text { text-align: center; font-size: 0.75rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 3rem; text-transform: uppercase; }
+
+        /* =========================================
+           5. CÁC TRANG PHỤ
+           ========================================= */
+        .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
+        .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 3rem; }
+        
+        .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .heritage-card { background: var(--card-bg); border-radius: 16px; padding: 2rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); position: relative; transition: transform 0.4s; }
+        .heritage-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); }
+        .heritage-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-light)); }
+        .h-tag { font-size: 0.7rem; background: var(--border-color); padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 1rem; font-weight: 600; }
+        .heritage-card h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+        .heritage-card .author { font-size: 0.95rem; color: var(--accent); font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; }
+        
+        .meta-item { display: flex; align-items: center; gap: 6px; }
+        .meta-item svg { width: 14px; height: 14px; stroke: var(--text-muted); }
+        .author svg { width: 16px; height: 16px; stroke: var(--accent); }
+
+        /* Bách Khoa Accordion */
+        .accordion-item { background: var(--card-bg); border-radius: 12px; margin-bottom: 1rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); overflow: hidden; }
+        .accordion-item summary { padding: 1.2rem 1.5rem; font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; color: var(--text-dark); }
+        .accordion-item summary::-webkit-details-marker { display: none; }
+        .accordion-item summary::after { content: '+'; font-size: 1.5rem; color: var(--accent); transition: transform 0.3s; }
+        .accordion-item[open] summary::after { transform: rotate(45deg); }
+        .accordion-content { padding: 0 1.5rem 1.5rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border-color); }
+        .accordion-content h4 { color: var(--text-dark); margin: 1rem 0 0.5rem; font-family: 'Playfair Display', serif; }
+
+        /* Phân Tích */
+        .analyze-box { background: var(--card-bg); border-radius: 16px; padding: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--border-color); margin-bottom: 2rem; }
+        .analyze-box textarea { width: 100%; height: 120px; border: none; outline: none; resize: vertical; font-size: 1rem; font-family: 'Playfair Display', serif; line-height: 1.8; background: transparent; color: var(--text-dark); }
+        .btn-analyze { width: 100%; padding: 1rem; background: var(--text-dark); color: var(--bg-base); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 1rem; transition: background 0.3s, color 0.3s; }
+        body.dark-mode .btn-analyze { background: var(--accent); color: #000; }
+        .btn-analyze:hover { opacity: 0.9; }
+
+        .result-step { margin-bottom: 1rem; background: var(--card-bg); border-radius: 12px; padding: 1.5rem; border-left: 4px solid var(--text-dark); animation: slideUpFade 0.5s ease forwards; }
+        .result-step.thuong { border-left-color: var(--accent); }
+        .result-step.ngoc { border-left-color: #16a085; }
+        .step-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .line-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed var(--border-color); font-family: 'Playfair Display', serif; }
+        .pattern-text { font-family: monospace; color: var(--accent); letter-spacing: 2px; font-weight: bold; }
+
+        /* =========================================
+           6. RESPONSIVE
+           ========================================= */
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+            .nav-right { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: var(--card-bg); flex-direction: column; padding: 1rem; gap: 1rem; box-shadow: var(--shadow); border-bottom: 1px solid var(--border-color); }
+            .nav-right.show { display: flex; }
+            .nav-btn { margin: 0.5rem 0; font-size: 1.1rem; }
+        }
     </style>
 </head>
 <body>
     <div class="watercolor-bg"></div>
-    <div class="jade-glow"></div>
 
-    <nav class="navbar">
-        <div class="nav-brand" onclick="switchView('home')">VĂN ĐẠO</div>
-        <div class="nav-links">
-            <a onclick="switchView('home')" id="nav-home" class="active">Trang chủ</a>
-            <a onclick="switchView('heritage')" id="nav-heritage">Văn Hiến</a> <!-- THÊM MỚI -->
-            <a onclick="switchView('encyclopedia')" id="nav-encyclopedia">Đại Bách Khoa</a>
-            <a onclick="switchView('analyze')" id="nav-analyze">Phân tích</a>
+    <!-- NAVBAR -->
+    <nav class="navbar" id="mainNavbar">
+        <div class="nav-left">
+            <div class="nav-brand" onclick="switchView('home')">VĂN ĐẠO</div>
+            <div class="nav-subtitle">TRI THỨC · MỸ HỌC · VĂN CHƯƠNG</div>
         </div>
-        <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☾</button>
+        
+        <div class="nav-right" id="navMenu">
+            <a class="nav-btn active" id="nav-home" onclick="switchView('home')">Trang chủ</a>
+            <a class="nav-btn" id="nav-heritage" onclick="switchView('heritage')">Văn Hiến</a>
+            <a class="nav-btn" id="nav-encyclopedia" onclick="switchView('encyclopedia')">Bách Khoa</a>
+            <a class="nav-btn" id="nav-analyze" onclick="switchView('analyze')">Phân Tích</a>
+            
+            <!-- NÚT THEME SVG -->
+            <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+            </button>
+        </div>
+        
+        <!-- NÚT MOBILE SVG -->
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
     </nav>
 
     <main class="container">
-        <!-- VIEW 1: TRANG CHỦ -->
+        <!-- =========================================
+             TRANG CHỦ
+             ========================================= -->
         <section id="view-home" class="view active">
-            <header class="hero">
-                <div class="subtitle">THỦY MẶC · NGỌC SẮC HOA KHAI</div>
-                <h1 class="poetic-quote">Vạn tượng trong lời.<br>Thiên thu trong ý.</h1>
-                <p class="intro-text">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.</p>
-            </header>
-            <div class="nho-giao-section">
-                <div class="nho-giao-inner">
-                    <div class="nho-line">Vi thiên địa lập tâm,</div>
-                    <div class="nho-line">Vi sinh dân lập mệnh,</div>
-                    <div class="nho-line">Vi vãng thánh kế tuyệt học,</div>
-                    <div class="nho-line">Vi vạn thế khai thái bình.</div>
+            
+            <div class="hero-section">
+                <div class="hero-text-content">
+                    <h1 class="hero-title">
+                        <span id="typewriter-text"></span><span class="typewriter"></span>
+                    </h1>
+                    <p class="hero-desc">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</p>
+                </div>
+                <div class="hero-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1596510432170-3785b7243a9c?q=80&w=800&auto=format&fit=crop" alt="Hoa mộc lan">
                 </div>
             </div>
-            <div class="nav-grid">
-                <!-- THÊM MỚI THẺ VĂN HIẾN -->
-                <div class="nav-card" onclick="switchView('heritage')">
-                    <h3>Văn Hiến</h3>
-                    <p>Thư viện di sản: Tác giả, tác phẩm và văn bản gốc.</p>
-                </div>
-                
-                <div class="nav-card" onclick="switchView('encyclopedia')">
-                    <h3>Đại Bách Khoa</h3>
-                    <p>Tra cứu toàn thư về văn học, thi pháp và tri thức nhân loại.</p>
-                </div>
-                <div class="nav-card" onclick="switchView('analyze')">
-                    <h3>Phân tích Thi pháp</h3>
-                    <p>Vận hành Tam Thanh: Bóc tách cấu trúc, thanh điệu bài thơ.</p>
+
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" placeholder="Tìm kiếm tác phẩm, tri thức, điển tích...">
+            </div>
+
+            <div class="marquee-container">
+                <div class="marquee-content">
+                    <span>Thơ Đường Luật <svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg></span>
+                    <span>Truyện Kiều <svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg></span>
+                    <span>Nho - Đạo - Phật <svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg></span>
+                    <span>Biểu tượng Á Đông <svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg></span>
+                    <span>Thi pháp học <svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg></span>
+                    <span>Thất ngôn bát cú <svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg></span>
                 </div>
             </div>
-            <div class="vow-section">
-                <div class="vow-title">Hồng Nguyện</div>
-                <p class="vow-text">
-                    "Nguyện cho văn chương không bị mai một bởi thời gian.<br>
-                    Nguyện cho người đọc tìm thấy sự tĩnh lặng giữa muôn vàn ngôn từ.<br>
-                    Nguyện cho tri thức được truyền thừa bằng sự trung thực tuyệt đối.<br>
-                    Hệ thống này là phương tiện. Còn vẻ đẹp của văn chương là vĩnh cửu."
-                </p>
+
+            <div class="feature-grid">
+                <div class="feature-card tilt" onclick="switchView('encyclopedia')">
+                    <div class="inner-content">
+                        <div class="f-icon">
+                            <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                        </div>
+                        <h3>Bách khoa tri thức</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Tra cứu hệ thống lý thuyết.</p>
+                    </div>
+                </div>
+                <div class="feature-card tilt" onclick="switchView('analyze')">
+                    <div class="inner-content">
+                        <div class="f-icon">
+                            <svg viewBox="0 0 24 24"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
+                        </div>
+                        <h3>Thi pháp học</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Bóc tách vần điệu bài thơ.</p>
+                    </div>
+                </div>
+                <div class="feature-card tilt" onclick="switchView('heritage')">
+                    <div class="inner-content">
+                        <div class="f-icon">
+                            <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                        </div>
+                        <h3>Văn học sử</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Di sản văn chương Việt Nam.</p>
+                    </div>
+                </div>
+                <div class="feature-card tilt" onclick="alert('Không gian sáng tác đang được xây dựng!')">
+                    <div class="inner-content">
+                        <div class="f-icon">
+                            <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                        </div>
+                        <h3>Không gian sáng tác</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">Nơi ươm mầm những vần thơ.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quote-box">
+                <p class="quote-text" id="quoteText">"Thơ là tiếng nói của tâm hồn."</p>
+                <p class="quote-author" id="quoteAuthor">— Khuyết danh —</p>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">Văn Hiến Nổi Bật</h2>
+                <a class="section-link" onclick="switchView('heritage')">Xem tất cả →</a>
+            </div>
+            <div class="preview-grid" id="home-preview-grid"></div>
+
+            <div class="footer-text">VĂN ĐẠO ENGINE · A PERSONAL KNOWLEDGE LIBRARY</div>
+        </section>
+
+        <!-- =========================================
+             VĂN HIẾN
+             ========================================= -->
+        <section id="view-heritage" class="view">
+            <h1 class="page-title">Văn Hiến</h1>
+            <p class="page-desc">Di sản Văn học Việt Nam & Thế giới — Nơi tinh hoa hội tụ</p>
+            <div class="heritage-grid" id="heritage-grid"></div>
+        </section>
+
+        <!-- =========================================
+             BÁCH KHOA
+             ========================================= -->
+        <section id="view-encyclopedia" class="view">
+            <h1 class="page-title">Đại Bách Khoa</h1>
+            <p class="page-desc">Cẩm nang Học thuật và Sáng tạo Văn học</p>
+            
+            <div class="accordion-item">
+                <details>
+                    <summary>Quyển I. Sáu Nguyên Tắc Cốt Lõi</summary>
+                    <div class="accordion-content">
+                        <h4>1. Phân định văn tự và bối cảnh</h4>
+                        <p>Không đồng nhất tác phẩm có hình thức gần nhau nhưng khác truyền thống (Hán, Nôm, Đường luật). Cùng dùng niêm luật không có nghĩa là cùng một nền văn học.</p>
+                        <h4>2. Phân biệt thể loại, thể thơ, luật thơ</h4>
+                        <p>Thể loại (Tự sự, Trữ tình) - Thể thơ (Lục bát, Thất ngôn) - Luật thơ (Bằng trắc, niêm, đối).</p>
+                    </div>
+                </details>
+            </div>
+
+            <div class="accordion-item">
+                <details>
+                    <summary>Quyển II. Thi Pháp Học & Mỹ Học</summary>
+                    <div class="accordion-content">
+                        <h4>Bốn tầng phân tích</h4>
+                        <p><b>Tầng 1 - Tính nhạc:</b> Thanh điệu, Vần, Nhịp, Phối âm.</p>
+                        <p><b>Tầng 2 - Điệu thơ:</b> Sắc điệu cảm xúc (Trang trọng, U hoài...).</p>
+                        <p><b>Tầng 3 - Thần thái:</b> Khí chất nghệ thuật (Cổ phong, Thanh tân...).</p>
+                    </div>
+                </details>
+            </div>
+            
+            <div class="accordion-item">
+                <details>
+                    <summary>Quyển III. Chuyên Đề Tam Giáo</summary>
+                    <div class="accordion-content">
+                        <p><b>Nho gia:</b> Ngũ thường (Nhân, Nghĩa, Lễ, Trí, Tín). Nhập thế, trách nhiệm.</p>
+                        <p><b>Đạo gia:</b> Vô vi, Tự nhiên, Tiêu dao. "Thượng thiện nhược thủy".</p>
+                        <p><b>Phật giáo:</b> Vô thường, Vô ngã, Duyên khởi, Từ bi.</p>
+                    </div>
+                </details>
             </div>
         </section>
 
         <!-- =========================================
-             VIEW 2: VĂN HIẾN (THÊM MỚI HOÀN TOÀN)
+             PHÂN TÍCH
              ========================================= -->
-        <section id="view-heritage" class="view">
-            <h1 class="page-title">Văn Hiến</h1>
-            <p class="intro-text" style="text-align: center; margin-bottom: 1rem;">Di sản Văn học Việt Nam & Thế giới</p>
-            <div class="heritage-grid" id="heritage-grid">
-                <!-- Dữ liệu sẽ được render bằng JS -->
-            </div>
-        </section>
-
-        <!-- VIEW 3: ĐẠI BÁCH KHOA TOÀN THƯ (GIỮ NGUYÊN) -->
-        <section id="view-encyclopedia" class="view">
-            <h1 class="page-title">Đại Bách Khoa Toàn Thư</h1>
-            <p class="intro-text" style="text-align: center; margin-bottom: 3rem;">Bản Cẩm nang Học thuật và Sáng tạo Văn học – Master Edition</p>
-            
-            <div class="book-container">
-                <details class="book-volume">
-                    <summary>Quyển 0. Tâm Thư – Tuyên Ngôn Nền Tảng</summary>
-                    <div class="book-content">
-                        <h3>0.1. Tuyên ngôn học tập và sáng tạo</h3>
-                        <p>"Học rộng để có nhiều chân trời, học sâu để thấu bản chất, cảm thụ tinh tế để nhận ra vẻ đẹp, sáng tạo độc lập để hình thành phong cách."</p>
-                        <span class="highlight-text">"Điều đáng quý nhất ở một thi nhân không phải là họ nhìn thấy bao nhiêu điều trong một ánh trăng, mà là họ có thể khiến người đọc nhìn thấy một ánh trăng chưa từng được cảm nhận theo cách ấy."</span>
-                        <p>"Tri thức giúp câu thơ có chiều sâu; cảm xúc giúp câu thơ có linh hồn; sự tiết chế giúp câu thơ sống lâu trong lòng người đọc. Đừng biến kho điển tích thành nơi phô diễn kiến thức. Một ánh trăng đúng chỗ đôi khi có sức gợi hơn mười điển cố được đặt cạnh nhau."</p>
-                        <p>"Nho gia là đạo lý để bước vào đời; Đạo gia là một tâm thế để đi qua đời."</p>
-                        <h3>0.2. Quan niệm về người sáng tác (5 năng lực cốt lõi)</h3>
-                        <ul>
-                            <li><strong>Năng lực quan sát:</strong> Nhìn thấy những chi tiết, sắc thái và biến chuyển mà người khác dễ bỏ qua.</li>
-                            <li><strong>Năng lực cảm thụ:</strong> Nhận biết vẻ đẹp, nỗi buồn, sự tinh tế và những rung động của con người, thiên nhiên, văn hóa.</li>
-                            <li><strong>Năng lực tri thức:</strong> Hiểu biết về lịch sử, văn học, triết học, tôn giáo, mỹ học và đời sống.</li>
-                            <li><strong>Năng lực liên tưởng:</strong> Kết nối những sự vật, hình tượng và hệ tư tưởng tưởng như xa cách.</li>
-                            <li><strong>Năng lực sáng tạo:</strong> Biến những gì đã học và đã cảm nhận thành một thế giới nghệ thuật có dấu ấn riêng.</li>
-                        </ul>
-                        <h3>0.3. Nguyên lý sáng tạo</h3>
-                        <p>Tri thức là phương tiện mở rộng khả năng sáng tạo, không phải vật trang sức cho câu thơ. Cảm xúc là nguồn năng lượng của tác phẩm, còn kỹ thuật nghệ thuật là phương tiện giúp cảm xúc đạt đến hình thức biểu đạt tinh tế.</p>
-                    </div>
-                </details>
-
-                <details class="book-volume">
-                    <summary>Quyển I. Sáu Nguyên Tắc Học Thuật Cốt Lõi</summary>
-                    <div class="book-content">
-                        <p><em>(Bộ lọc bắt buộc trong mọi hoạt động đọc hiểu, phân tích và sáng tác)</em></p>
-                        <h3>1.1. Phân định văn tự và bối cảnh văn học</h3>
-                        <p>Không đồng nhất những tác phẩm có hình thức gần nhau nhưng thuộc những truyền thống văn học khác nhau (Văn học chữ Hán của Việt Nam, Văn học chữ Nôm của Việt Nam, Văn học chữ Hán của Trung Hoa, Thơ Đường Trung Hoa, Thơ Nôm Đường luật Việt Nam). Cùng sử dụng niêm, luật, vần và đối không có nghĩa là các tác phẩm thuộc cùng một truyền thống văn học hoặc cùng một ngôn ngữ.</p>
-                        <h3>1.2. Phân biệt thể loại, thể thơ và luật thơ</h3>
-                        <p>Tuyệt đối không dùng ba khái niệm này thay thế cho nhau. Thể loại (Tự sự, Trữ tình, Kịch, Văn chính luận) - Thể thơ (Lục bát, Song thất lục bát, Ngũ ngôn...) - Luật thơ (Hệ thống quy tắc về thanh điệu, vần, niêm, đối).</p>
-                        <h3>1.3. Thận trọng khi sử dụng khái niệm phá cách</h3>
-                        <p>Một tác phẩm không tuân thủ quy tắc truyền thống chưa đương nhiên là một tác phẩm phá cách có chủ ý. Nếu chưa đủ căn cứ, nên dùng các cách diễn đạt trung tính như: hình thức biến thể, cách tổ chức phóng khoáng.</p>
-                        <h3>1.4. Tiết chế điển tích và điển cố</h3>
-                        <p>Một điển tích có giá trị khi nó tạo thêm chiều sâu cho hình tượng, chứ không chỉ chứng minh người viết có nhiều kiến thức.</p>
-                        <h3>1.5. Tôn trọng tính đa nghĩa của biểu tượng</h3>
-                        <p>Biểu tượng nghệ thuật không phải một công thức giải mã cố định. Ý nghĩa cụ thể phải được xác định từ văn cảnh, chủ thể trữ tình, truyền thống văn hóa và cấu trúc tác phẩm.</p>
-                        <h3>1.6. Phân biệt sự thật, giả thuyết và diễn giải</h3>
-                        <p>Mọi nhận định học thuật nên được phân thành bốn cấp: Dữ kiện (có căn cứ văn bản/lịch sử) -> Giả thuyết (có khả năng đúng nhưng cần chứng cứ) -> Diễn giải (cách đọc dựa trên lập luận) -> Cảm nhận (phản ứng thẩm mỹ). Không trình bày một liên tưởng cá nhân như một sự thật lịch sử.</p>
-                    </div>
-                </details>
-
-                <details class="book-volume">
-                    <summary>Quyển II. Thi Pháp Học Và Mỹ Học</summary>
-                    <div class="book-content">
-                        <h3>2.1. Khái niệm thi pháp học</h3>
-                        <p>Là lĩnh vực nghiên cứu những nguyên tắc, phương thức và đặc điểm tổ chức nghệ thuật của tác phẩm văn học.</p>
-                        <h3>2.2. Hệ thống bốn tầng phân tích âm hưởng và sức sống thi ca</h3>
-                        <ul>
-                            <li><strong>Tầng 1. Tính nhạc – Vẻ đẹp âm thanh:</strong> Thanh điệu (Bằng/Trắc), Vần (chân, lưng, liền, cách...), Nhịp (2/2/2, 3/3...), Phối âm, Điệp âm, điệp từ.</li>
-                            <li><strong>Tầng 2. Điệu thơ – Nhịp vận động cảm xúc:</strong> Sắc điệu (Trang trọng, Trữ tình, U hoài, Bi tráng...). Một bài thơ có thể chuyển điệu trong quá trình phát triển.</li>
-                            <li><strong>Tầng 3. Thần thái – Khí chất nghệ thuật:</strong> Cổ phong, Thanh tân, Thanh nhã, Hào sảng... Thần thái không chỉ nằm trong từ ngữ mà còn ở hình tượng, cấu trúc, giọng điệu.</li>
-                            <li><strong>Tầng 4. Hồn thơ – Sức sống tinh thần:</strong> Khảo sát qua 5 thành tố: Tình, Ý, Cảnh, Điệu, Thần.</li>
-                        </ul>
-                        <h3>2.3. Các cặp phạm trù thi pháp</h3>
-                        <ul>
-                            <li><strong>Tĩnh và Động:</strong> Dĩ động tả tĩnh (Dùng chuyển động/âm thanh nhỏ để làm nổi bật sự tĩnh lặng).</li>
-                            <li><strong>Không gian & Thời gian nghệ thuật:</strong> Thực, tâm tưởng, tuyến tính, đồng hiện, hồi tưởng...</li>
-                            <li><strong>Tả cảnh ngụ tình:</strong> Cảnh vật được lựa chọn để biểu đạt tâm trạng.</li>
-                            <li><strong>Hàm súc và ý tại ngôn ngoại:</strong> Ý vượt ra ngoài lớp nghĩa trực tiếp.</li>
-                            <li><strong>Thi trung hữu họa / Thi trung hữu nhạc.</strong></li>
-                        </ul>
-                    </div>
-                </details>
-
-                <details class="book-volume">
-                    <summary>Quyển III. Chuyên Đề Tam Giáo – Nho, Đạo, Phật</summary>
-                    <div class="book-content">
-                        <h3>3.1. Nguyên tắc nghiên cứu</h3>
-                        <p>Không đóng khung Nho là nhập thế, Đạo là xuất thế, Phật là giải thoát như ba định nghĩa tuyệt đối. Cần phân biệt sự tương đồng, ảnh hưởng, tiếp nhận và dung hợp.</p>
-                        <h3>3.2. Nho gia – Đạo lý để bước vào đời</h3>
-                        <p><strong>Cốt lõi:</strong> Ngũ thường (Nhân, Nghĩa, Lễ, Trí, Tín). Chuỗi Cách vật - Trí tri - Thành ý - Chính tâm - Tu thân - Tề gia - Trị quốc - Bình thiên hạ. Không đồng nhất công danh với danh vọng cá nhân.</p>
-                        <h3>3.3. Đạo gia – Tâm thế để đi qua đời</h3>
-                        <p><strong>Cốt lõi:</strong> Đạo, Vô vi, Tự nhiên, Tiêu dao, Tề vật. "Thượng thiện nhược thủy". Tâm thế nhàn dật, hòa hợp thiên nhiên, chất vấn danh lợi.</p>
-                        <h3>3.4. Phật giáo – Chiêm nghiệm, từ bi và giải thoát</h3>
-                        <p><strong>Cốt lõi:</strong> Tứ diệu đế, Duyên khởi, Vô thường, Vô ngã, Nghiệp, Từ bi, Bát chính đạo. Không đồng nhất vô thường với bi quan. Cảm thức vô thường, tinh thần buông bỏ.</p>
-                        <h3>3.5. Sự giao thoa Tam giáo</h3>
-                        <p>Không hiểu "Tam giáo đồng nguyên" theo nghĩa ba truyền thống hoàn toàn giống nhau hoặc có chung một nguồn gốc lịch sử.</p>
-                    </div>
-                </details>
-
-                <details class="book-volume">
-                    <summary>Quyển IV. Văn Học Sử Và Phân Định Thể Loại</summary>
-                    <div class="book-content">
-                        <h3>4.1. Hệ thống thể loại văn học</h3>
-                        <p><strong>Tự sự:</strong> Truyện ngắn, Tiểu thuyết, Truyện thơ, Sử thi...<br><strong>Trữ tình:</strong> Thơ trữ tình, Khúc ngâm, Thơ triết lý...<br><strong>Kịch:</strong> Bi kịch, Hài kịch, Chính kịch.<br><strong>Văn chính luận:</strong> Cáo, Hịch, Chiếu, Biểu, Tấu, Sớ.</p>
-                        <h3>4.3. Phân định các tác phẩm tiêu biểu</h3>
-                        <ul>
-                            <li><strong>Nam quốc sơn hà:</strong> Thơ chữ Hán, thất ngôn tứ tuyệt.</li>
-                            <li><strong>Bình Ngô đại cáo:</strong> Văn chính luận, thể cáo, chữ Hán.</li>
-                            <li><strong>Truyện Kiều:</strong> Truyện thơ Nôm, lục bát.</li>
-                            <li><strong>Chinh phụ ngâm:</strong> Ngâm khúc, bản diễn Nôm dùng song thất lục bát.</li>
-                            <li><strong>Qua Đèo Ngang / Câu cá mùa thu:</strong> Thơ Nôm Đường luật.</li>
-                            <li><strong>Tây Tiến:</strong> Thơ kháng chiến chống Pháp (Không xếp vào Thơ Mới).</li>
-                        </ul>
-                    </div>
-                </details>
-
-                <details class="book-volume">
-                    <summary>Quyển V. Từ Điển Biểu Tượng Và Ngôn Ngữ Nghệ Thuật</summary>
-                    <div class="book-content">
-                        <h3>5.2. Hệ thống biểu tượng Á Đông</h3>
-                        <p><strong>Tứ quý:</strong> Tùng (bền bỉ, khí tiết), Cúc (thanh cao, nhàn dật), Trúc (ngay thẳng, thanh nhã), Mai (sức sống, thanh khiết).</p>
-                        <p><strong>Khác:</strong> Trăng (đoàn viên, nhớ, cô đơn, chiêm nghiệm), Liễu (chia biệt), Đào (tuổi trẻ), Sen (thanh khiết), Hạc (thanh cao), Nhạn (tin tức), Mây (phiêu du), Nước (thời gian), Thuyền (hành trình), Bến đò (gặp gỡ, chia tay).</p>
-                        <h3>5.3. Từ điển Hán Việt trong thi ca (Hiệu đính học thuật)</h3>
-                        <ul>
-                            <li><strong>Vọng (望):</strong> Trông về, ngóng đợi, hướng đến. Không mặc nhiên đồng nghĩa với âm thanh vọng lại.</li>
-                            <li><strong>Khúc (曲):</strong> Khúc nhạc, bản nhạc, đoạn, phần. Không mặc nhiên mang nghĩa chặng đường.</li>
-                            <li><strong>Trường (長 / 場):</strong> "Dặm trường" (長) là dài. "Mái trường" (場) là nơi học tập.</li>
-                        </ul>
-                        <h3>5.5. Phương pháp giải mã biểu tượng (5 câu hỏi)</h3>
-                        <ol>
-                            <li>Nghĩa tả thực là gì?</li>
-                            <li>Lịch sử biểu tượng trong văn hóa?</li>
-                            <li>Bối cảnh xuất hiện?</li>
-                            <li>Liên hệ với cảm xúc chủ thể?</li>
-                            <li>Ý nghĩa riêng tác phẩm tạo ra?</li>
-                        </ol>
-                    </div>
-                </details>
-
-                <details class="book-volume">
-                    <summary>Quyển VI. Thực Hành Phân Tích – Vọng Khúc Thanh Xuân</summary>
-                    <div class="book-content">
-                        <span class="highlight-text">
-                            Quạt giấy khép lại mùa thi,<br>
-                            Áo dài bay giữa kinh kỳ sắc xuân.<br>
-                            Thầy cô tựa ánh trăng ngần,<br>
-                            Dắt em qua những thăng trầm thế gian.<br>
-                            Lời ru thuở trước vọng vang,<br>
-                            Điển xưa tích cũ, hành trang em mang.<br>
-                            Nón nghiêng che nắng đường làng,<br>
-                            Mai này xa, vẫn ngỡ ngàng nhớ ơn.<br>
-                            Dẫu đi muôn nẻo dặm trường,<br>
-                            Cội nguồn văn hóa, tình thương thầy cô.
-                        </span>
-                        <h3>6.3. Phân tích hình thức</h3>
-                        <p>Bài thơ có 10 dòng, luân phiên 6 và 8 tiếng. Gọi chính xác là hình thức sáu-tám, gần với lục bát. Cần kiểm tra hệ thống vần trước khi kết luận là lục bát chuẩn hay biến thể. Không tự động gọi chỗ chưa đúng luật là phá cách.</p>
-                        <h3>6.4. Hệ thống hình tượng</h3>
-                        <p>Quạt giấy (văn hóa, khép lại), Áo dài (vẻ đẹp tuổi trẻ), Ánh trăng (người thầy soi sáng, thanh khiết), Lời ru (cội nguồn dân gian), Điển xưa (tri thức truyền thống), Nón nghiêng/đường làng (không gian làng quê, bình dị).</p>
-                        <h3>6.6. Dưới lăng kính Nho gia</h3>
-                        <p>Tình thầy trò, Tôn sư trọng đạo, Kế thừa truyền thống, Trách nhiệm. "Điển xưa tích cũ" là tiếp nhận di sản. "Cội nguồn văn hóa" là ý thức gìn giữ.</p>
-                        <h3>6.7. Dưới lăng kính Đạo gia</h3>
-                        <p>Sự chuyển mùa, vẻ đẹp tự nhiên, áo dài bay, ánh trăng thanh tĩnh, không gian làng quê. Mỹ cảm thuận tự nhiên, thanh thoát, tự tại.</p>
-                        <h3>6.8. Mở rộng Phật giáo</h3>
-                        <p>Thời gian, vô thường, gặp gỡ chia xa, lòng biết ơn, sự trao truyền tình thương. (Hướng đọc mở rộng, không phải bằng chứng trực tiếp).</p>
-                        <h3>6.9. Tổng hợp tư tưởng</h3>
-                        <p>Nho gia làm nổi bật trách nhiệm, tri ân, kế thừa; Đạo gia mở ra mỹ cảm thanh thoát, tự tại. "Đi xa mà chẳng lìa nguồn cội, trưởng thành mà không quên người dẫn dắt, nhập thế mà vẫn giữ được tâm hồn thanh thoát."</p>
-                    </div>
-                </details>
-                
-                <details class="book-volume">
-                    <summary>Quyển VII. Cẩm Nang Vận Dụng Và Phương Pháp Nghiên Cứu</summary>
-                    <div class="book-content">
-                        <h3>7.1. Quy trình đọc hiểu văn bản (7 bước)</h3>
-                        <ol>
-                            <li>Nhận diện văn bản (Tác giả, thời đại, văn tự, thể loại).</li>
-                            <li>Khảo sát cấu trúc (Bố cục, mạch cảm xúc, điểm nhìn).</li>
-                            <li>Phân tích ngôn ngữ (Từ ngữ, điển tích, tu từ, nhịp vần).</li>
-                            <li>Giải mã hình tượng (Nghĩa tả thực, biểu tượng, bối cảnh).</li>
-                            <li>Khảo sát thi pháp (Tính nhạc, điệu, thần thái, hồn thơ).</li>
-                            <li>Đánh giá tư tưởng (Nho, Đạo, Phật, nhân đạo...).</li>
-                            <li>Đánh giá nghệ thuật (Thành công, hạn chế, độc đáo).</li>
-                        </ol>
-                        <h3>7.4. Nguồn tri thức ưu tiên</h3>
-                        <ol>
-                            <li>Văn bản gốc và bản dịch có chú giải.</li>
-                            <li>Từ điển chuyên ngành và công trình khảo cứu.</li>
-                            <li>Giáo trình đại học và sách nghiên cứu.</li>
-                            <li>Bài báo khoa học có phản biện.</li>
-                            <li>Tài liệu phổ thông có nguồn trích dẫn rõ ràng.</li>
-                        </ol>
-                    </div>
-                </details>
-            </div>
-        </section>
-
-        <!-- VIEW 4: PHÂN TÍCH (TAM THANH) - GIỮ NGUYÊN -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Phân tích Thi pháp</h1>
-            <div class="input-panel">
-                <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân."></textarea>
-                <button class="btn" onclick="executePipeline()" style="margin-top: 1rem;">Vận hành Tam Thanh</button>
+            <p class="page-desc">Bóc tách cấu trúc thanh điệu (Bằng / Trắc)</p>
+            
+            <div class="analyze-box">
+                <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
+                <button class="btn-analyze" onclick="executePipeline()">Vận hành Tam Thanh</button>
             </div>
+
             <div id="results-panel"></div>
-            <div id="zen-controls" style="display: none; text-align: center; margin-top: 2rem;">
-                <button class="btn" onclick="enterZenMode()" style="background: transparent; color: var(--text-muted); border: 1px solid var(--text-muted); width: auto; padding: 0.8rem 2rem;">
-                    ☸ Tứ Đại Giai Không (Nhập Định)
-                </button>
-            </div>
         </section>
     </main>
 
     <script>
         /* =========================================
-           I. ĐIỀU HƯỚNG & THEME
+           1. LOGIC ĐỔI THEME (SEN NGỌC / HẮC LONG)
            ========================================= */
-        function switchView(viewId) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-            document.getElementById(`view-${viewId}`).classList.add('active');
-            document.getElementById(`nav-${viewId}`).classList.add('active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        const themeBtn = document.getElementById('theme-btn');
+        const currentTheme = localStorage.getItem('vandao-theme');
+        
+        if (currentTheme === 'dark') {
+            document.body.classList.add('dark-mode');
         }
 
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
-            document.getElementById('theme-btn').innerHTML = document.body.classList.contains('dark-mode') ? '☀' : '☾';
-            localStorage.setItem('vandao-theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-        }
-        if (localStorage.getItem('vandao-theme') === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('theme-btn').innerHTML = '☀';
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('vandao-theme', isDark ? 'dark' : 'light');
         }
 
         /* =========================================
-           II. THÊM MỚI: DỮ LIỆU VÀ RENDER VĂN HIẾN
+           2. CÁC HIỆU ỨNG & ĐIỀU HƯỚNG
+           ========================================= */
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('mainNavbar');
+            navbar.classList.toggle('scrolled', window.scrollY > 20);
+        });
+
+        function switchView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(a => a.classList.remove('active'));
+            document.getElementById(`view-${viewId}`).classList.add('active');
+            document.getElementById(`nav-${viewId}`).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('navMenu').classList.remove('show');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('navMenu').classList.toggle('show');
+        }
+
+        // Hiệu ứng gõ chữ
+        const textToType = "Vạn tượng trong lời.\nThiên thu trong ý.";
+        const typeTarget = document.getElementById('typewriter-text');
+        let typeIndex = 0;
+        function typeWriter() {
+            if (typeIndex < textToType.length) {
+                if (textToType.charAt(typeIndex) === '\n') typeTarget.innerHTML += '<br>';
+                else typeTarget.innerHTML += textToType.charAt(typeIndex);
+                typeIndex++;
+                setTimeout(typeWriter, 100);
+            }
+        }
+        setTimeout(typeWriter, 500);
+
+        /* =========================================
+           3. DỮ LIỆU & RENDER VĂN HIẾN
            ========================================= */
         const HERITAGE_DATA = [
-            {
-                title: "Truyện Kiều",
-                author: "Nguyễn Du",
-                desc: "Tác phẩm kiệt xuất nhất của văn học trung đại Việt Nam, kể về cuộc đời gian truân của Thúy Kiều.",
-                era: "Triều Nguyễn (TK 18-19)",
-                script: "Chữ Nôm",
-                genre: "Truyện thơ Lục bát"
-            },
-            {
-                title: "Qua Đèo Ngang",
-                author: "Bà Huyện Thanh Quan",
-                desc: "Bức tranh thiên nhiên và tâm trạng hoài cổ, cô đơn của tác giả khi dừng chân trên đèo.",
-                era: "Triều Nguyễn (TK 19)",
-                script: "Chữ Nôm",
-                genre: "Thất ngôn bát cú Đường luật"
-            },
-            {
-                title: "Nam quốc sơn hà",
-                author: "Lý Thường Kiệt (tương truyền)",
-                desc: "Bản tuyên ngôn độc lập đầu tiên của Việt Nam, khẳng định chủ quyền lãnh thổ.",
-                era: "Nhà Lý (TK 11)",
-                script: "Chữ Hán",
-                genre: "Thất ngôn tứ tuyệt"
-            },
-            {
-                title: "Tĩnh Dạ Tứ (Cảm nghĩ trong đêm thanh tĩnh)",
-                author: "Lý Bạch",
-                desc: "Bài thơ nổi tiếng về nỗi nhớ quê hương của thi tiên Lý Bạch.",
-                era: "Thịnh Đường (TK 8)",
-                script: "Chữ Hán",
-                genre: "Ngũ ngôn tứ tuyệt"
-            },
-            {
-                title: "Bình Ngô Đại Cáo",
-                author: "Nguyễn Trãi",
-                desc: "Áng văn chính luận mẫu mực, tuyên bố chiến thắng quân Minh và khẳng định nền độc lập.",
-                era: "Nhà Lê sơ (TK 15)",
-                script: "Chữ Hán",
-                genre: "Cáo"
-            },
-            {
-                title: "Chinh Phụ Ngâm",
-                author: "Đặng Trần Côn (nguyên tác)",
-                desc: "Khúc ngâm nói về nỗi sầu muộn, cô đơn của người vợ chờ chồng đi chinh chiến.",
-                era: "TK 18",
-                script: "Chữ Hán / Bản diễn Nôm",
-                genre: "Song thất lục bát"
-            }
+            { title: "Truyện Kiều", author: "Nguyễn Du", genre: "Lục bát", era: "Triều Nguyễn", script: "Chữ Nôm", desc: "Tác phẩm kiệt xuất nhất của văn học trung đại Việt Nam." },
+            { title: "Qua Đèo Ngang", author: "Bà Huyện Thanh Quan", genre: "Đường luật", era: "Triều Nguyễn", script: "Chữ Nôm", desc: "Bức tranh thiên nhiên và tâm trạng hoài cổ." },
+            { title: "Nam quốc sơn hà", author: "Lý Thường Kiệt", genre: "Thất ngôn tứ tuyệt", era: "Nhà Lý", script: "Chữ Hán", desc: "Bản tuyên ngôn độc lập đầu tiên của Việt Nam." },
+            { title: "Tĩnh Dạ Tứ", author: "Lý Bạch", genre: "Ngũ ngôn tứ tuyệt", era: "Thịnh Đường", script: "Chữ Hán", desc: "Bài thơ nổi tiếng về nỗi nhớ quê hương của thi tiên." }
         ];
 
+        // SVG templates cho Văn Hiến
+        const svgUser = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+        const svgClock = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+
         function renderHeritage() {
-            const grid = document.getElementById('heritage-grid');
-            if(!grid) return;
-            grid.innerHTML = HERITAGE_DATA.map(item => `
-                <div class="heritage-card">
-                    <span class="h-tag">${item.genre}</span>
-                    <h3>${item.title}</h3>
-                    <div class="author">Tác giả: ${item.author}</div>
-                    <p>${item.desc}</p>
-                    <div class="meta-info">
-                        <span>🕰️ ${item.era}</span>
-                        <span>✍️ ${item.script}</span>
+            // Render trang Văn Hiến đầy đủ
+            const fullGrid = document.getElementById('heritage-grid');
+            if(fullGrid) {
+                fullGrid.innerHTML = HERITAGE_DATA.map(item => `
+                    <div class="heritage-card">
+                        <span class="h-tag">${item.genre}</span>
+                        <h3>${item.title}</h3>
+                        <div class="author">${svgUser} ${item.author}</div>
+                        <p>${item.desc}</p>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 10px; display: flex; gap: 15px;">
+                            <div class="meta-item">${svgClock} ${item.era}</div>
+                            <div class="meta-item">✍️ ${item.script}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+            }
+            // Render Preview trên Trang Chủ
+            const previewGrid = document.getElementById('home-preview-grid');
+            if(previewGrid) {
+                previewGrid.innerHTML = HERITAGE_DATA.slice(0, 3).map(item => `
+                    <div class="preview-card" onclick="switchView('heritage')">
+                        <span class="h-tag">${item.genre}</span>
+                        <h3 style="font-family: 'Playfair Display'; font-size: 1.3rem; margin-bottom: 5px;">${item.title}</h3>
+                        <div style="color: var(--accent); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                            ${svgUser.replace('stroke-width="2"', 'stroke="currentColor" style="width:14px;height:14px;"')} ${item.author}
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
-        // Gọi hàm render ngay khi tải trang
         document.addEventListener('DOMContentLoaded', renderHeritage);
 
         /* =========================================
-           III. NHẤT KHÍ HÓA TAM THANH (PIPELINE)
+           4. HIỆU ỨNG 3D TILT
            ========================================= */
-        const ThaiThanh = {
-            receive: function(rawText) {
-                const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-                return { lines: lines, status: "Bảo tồn nguyên vẹn" };
-            }
-        };
+        const tiltCards = document.querySelectorAll('.tilt');
+        tiltCards.forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                const centerX = rect.width / 2; const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+                card.style.transition = 'transform 0.5s ease';
+            });
+            card.addEventListener('mouseenter', () => card.style.transition = 'none');
+        });
 
-        const ThuongThanh = {
-            process: function(corpusData) {
-                const analyzedLines = corpusData.lines.map((line, index) => {
-                    const syllables = line.match(/[\p{L}\p{N}]+/gu) || [];
-                    const pattern = syllables.map(s => {
-                        const nfd = s.normalize('NFD');
-                        if (nfd.includes('\u0300') || nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) return 'T';
-                        return 'B';
-                    }).join(' - ');
-                    
-                    return { n: String(index + 1).padStart(2, '0'), text: line, count: syllables.length, pattern: pattern };
-                });
-                return { lines: analyzedLines, status: "Đã bóc tách cấu trúc" };
-            }
-        };
+        /* =========================================
+           5. QUOTE CAROUSEL
+           ========================================= */
+        const quotes = [
+            { text: "Văn học là nhân học.", author: "M. Gorky" },
+            { text: "Thơ là tiếng nói của tâm hồn.", author: "Khuyết danh" },
+            { text: "Đọc sách không chỉ để lấy kiến thức, mà để học cách làm người.", author: "Khổng Tử" }
+        ];
+        let quoteIndex = 0;
+        setInterval(() => {
+            const qText = document.getElementById('quoteText');
+            const qAuth = document.getElementById('quoteAuthor');
+            qText.style.opacity = '0'; qAuth.style.opacity = '0';
+            setTimeout(() => {
+                quoteIndex = (quoteIndex + 1) % quotes.length;
+                qText.textContent = `"${quotes[quoteIndex].text}"`;
+                qAuth.textContent = `— ${quotes[quoteIndex].author} —`;
+                qText.style.opacity = '1'; qAuth.style.opacity = '1';
+            }, 500);
+        }, 4000);
 
-        const NgocThanh = {
-            evaluate: function(formalData) {
-                const counts = formalData.lines.map(l => l.count);
-                const is68 = counts.length > 0 && counts[0] === 6 && counts.every((c, i) => c === (i % 2 === 0 ? 6 : 8));
-                let fact = is68 ? "Văn bản có cấu trúc luân phiên 6-8 tiếng." : "Văn bản không tuân theo quy chuẩn 6-8 cố định.";
-                let caution = is68 ? "Có cấu trúc 6-8 không đồng nghĩa đây là Lục Bát chuẩn (cần kiểm tra vần và niêm luật)." : "Hình thức không đồng nhất với thể thơ truyền thống.";
-                return { fact_level: fact, epistemic_caution: caution, status: "Đã thẩm định" };
-            }
-        };
-
+        /* =========================================
+           6. THUẬT TOÁN TAM THANH (PHÂN TÍCH)
+           ========================================= */
         function executePipeline() {
             const rawText = document.getElementById('poemInput').value;
             if (!rawText.trim()) return;
-
-            const corpus = ThaiThanh.receive(rawText);
-            const formal = ThuongThanh.process(corpus);
-            const epistemic = NgocThanh.evaluate(formal);
-
-            let linesHtml = formal.lines.map(l => `
-                <div class="line-row">
-                    <span style="color: var(--text-muted); font-size: 0.9rem;">${l.n}</span>
-                    <span style="flex: 1; margin: 0 1rem;">${l.text}</span>
-                    <span class="pattern">${l.pattern}</span>
-                </div>
-            `).join('');
+            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            let linesHtml = lines.map((line, index) => {
+                const syllables = line.match(/[\p{L}\p{N}]+/gu) || [];
+                const pattern = syllables.map(s => {
+                    const nfd = s.normalize('NFD');
+                    // Kiểm tra dấu thanh (huyền, sắc, ngã, hỏi, nặng)
+                    if (nfd.includes('\u0300') || nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) return 'T';
+                    return 'B';
+                }).join(' - ');
+                return `<div class="line-row"><span style="color: var(--text-muted);">${String(index+1).padStart(2, '0')}</span><span style="flex: 1; margin: 0 1rem;">${line}</span><span class="pattern-text">${pattern}</span></div>`;
+            }).join('');
+            
+            const counts = lines.map(l => (l.match(/[\p{L}\p{N}]+/gu) || []).length);
+            const is68 = counts.length > 0 && counts[0] === 6 && counts.every((c, i) => c === (i % 2 === 0 ? 6 : 8));
 
             document.getElementById('results-panel').innerHTML = `
-                <div class="pipeline-step">
-                    <div class="step-header"><span class="step-badge badge-thai">Thái Thanh (Tầng 1)</span></div>
-                    <div class="result-card"><p>Ghi nhận <strong>${corpus.lines.length} dòng</strong> văn bản thô. ${corpus.status}.</p></div>
-                </div>
-                <div class="pipeline-step">
-                    <div class="step-header"><span class="step-badge badge-thuong">Thượng Thanh (Tầng 2)</span></div>
-                    <div class="result-card"><h3 style="font-family: 'Playfair Display'; margin-bottom: 1rem;">Bóc tách Thanh điệu (B/T)</h3>${linesHtml}</div>
-                </div>
-                <div class="pipeline-step">
-                    <div class="step-header"><span class="step-badge badge-ngoc">Ngọc Thanh (Tầng 3)</span></div>
-                    <div class="result-card">
-                        <p><strong>[Dữ kiện]:</strong> ${epistemic.fact_level}</p>
-                        <div class="epistemic-note">⚠ ${epistemic.epistemic_caution}</div>
-                    </div>
-                </div>
+                <div class="result-step"><div class="step-title">Thái Thanh (Tầng 1)</div><p>Ghi nhận ${lines.length} dòng thơ.</p></div>
+                <div class="result-step thuong"><div class="step-title">Thượng Thanh (Tầng 2)</div>${linesHtml}</div>
+                <div class="result-step ngoc"><div class="step-title">Ngọc Thanh (Tầng 3)</div><p>[Dữ kiện]: ${is68 ? "Cấu trúc 6-8." : "Không theo quy chuẩn 6-8."}</p></div>
             `;
-            document.getElementById('zen-controls').style.display = 'block';
-        }
-
-        /* =========================================
-           IV. TỨ ĐẠI GIAI KHÔNG (ZEN MODE)
-           ========================================= */
-        function enterZenMode() {
-            const panel = document.getElementById('results-panel');
-            panel.style.transition = 'opacity 1s ease, filter 1s ease';
-            panel.style.opacity = '0';
-            panel.style.filter = 'blur(10px)';
-            document.getElementById('zen-controls').style.opacity = '0';
-
-            setTimeout(() => {
-                panel.innerHTML = `
-                    <div style="text-align: center; padding: 4rem 0; color: var(--text-muted); font-family: 'Playfair Display', serif; font-style: italic;">
-                        <p style="font-size: 1.5rem; margin-bottom: 1rem;">Sắc tức thị không, không tức thị sắc.</p>
-                        <p>Mọi phân tích chỉ là phương tiện. Hồn thơ nằm ngoài con chữ.</p>
-                    </div>
-                `;
-                panel.style.opacity = '1';
-                panel.style.filter = 'blur(0)';
-                document.getElementById('zen-controls').style.display = 'none';
-            }, 1000);
         }
     </script>
 </body>
