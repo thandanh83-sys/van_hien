@@ -1,9 +1,12 @@
 /* =========================================
-   KHO DỮ LIỆU VĂN ĐẠO ENGINE
-   (Bản dịch HTML 100% từ văn bản gốc - Tuyệt đối khách quan)
+   VĂN ĐẠO ENGINE - MASTER DATA
+   Tác giả: Văn Đạo
+   Mô tả: Trái tim tri thức của hệ thống, chứa toàn bộ Văn Hiến và Bách Khoa.
    ========================================= */
 
-// 1. DỮ LIỆU VĂN HIẾN (24 TÁC PHẨM & PHÂN LOẠI)
+// =========================================
+// 1. DỮ LIỆU VĂN HIẾN (40+ TÁC PHẨM PHÂN LOẠI)
+// =========================================
 const HERITAGE_DATA = [
     // --- VĂN HỌC DÂN GIAN ---
     { title: "Con Rồng Cháu Tiên", author: "Dân gian", genre: "Truyền thuyết", era: "Thời Hồng Bàng", script: "Truyền miệng", desc: "Giải thích nguồn gốc cao quý của dân tộc Việt Nam, phản ánh ý thức cộng đồng.", category: "dan-gian" },
@@ -22,40 +25,50 @@ const HERITAGE_DATA = [
     { title: "Qua Đèo Ngang", author: "Bà Huyện Thanh Quan", genre: "Đường luật", era: "Triều Nguyễn", script: "Chữ Nôm", desc: "Bức tranh thiên nhiên và tâm trạng hoài cổ, cô đơn của tác giả khi dừng chân trên đèo.", category: "trung-dai" },
     { title: "Bánh Trôi Nước", author: "Hồ Xuân Hương", genre: "Thất ngôn tứ tuyệt", era: "Cuối Lê - Đầu Nguyễn", script: "Chữ Nôm", desc: "Tiếng nói bênh vực và ca ngợi vẻ đẹp, phẩm chất của người phụ nữ.", category: "trung-dai" },
     { title: "Nhàn", author: "Nguyễn Bỉnh Khiêm", genre: "Đường luật", era: "Nhà Mạc", script: "Chữ Nôm", desc: "Vẻ đẹp thanh cao, tâm thế nhàn dật của kẻ sĩ trước thời cuộc.", category: "trung-dai" },
+    { title: "Lục Vân Tiên", author: "Nguyễn Đình Chiểu", genre: "Truyện thơ Nôm", era: "TK 19", script: "Chữ Nôm", desc: "Truyện thơ ca ngợi tinh thần nghĩa hiệp, đạo lý làm người.", category: "trung-dai" },
 
     // --- VĂN HỌC HIỆN ĐẠI ---
     { title: "Chí Phèo", author: "Nam Cao", genre: "Truyện ngắn", era: "1941", script: "Quốc ngữ", desc: "Bi kịch của người nông dân bị tha hóa bởi xã hội phong kiến nửa thực dân.", category: "hien-dai" },
+    { title: "Lão Hạc", author: "Nam Cao", genre: "Truyện ngắn", era: "1943", script: "Quốc ngữ", desc: "Số phận bi thảm của người nông dân nghèo nhưng giàu lòng tự trọng.", category: "hien-dai" },
+    { title: "Tắt Đèn", author: "Ngô Tất Tố", genre: "Tiểu thuyết", era: "1939", script: "Quốc ngữ", desc: "Bức tranh hiện thực về nạn sưu thuế và nỗi khổ của người nông dân.", category: "hien-dai" },
     { title: "Số Đỏ", author: "Vũ Trọng Phụng", genre: "Tiểu thuyết", era: "1936", script: "Quốc ngữ", desc: "Bức tranh trào phúng sâu sắc về xã hội tư sản thành thị những năm 1930.", category: "hien-dai" },
     { title: "Vội Vàng", author: "Xuân Diệu", genre: "Thơ tự do", era: "Thơ Mới (1938)", script: "Quốc ngữ", desc: "Khát vọng sống mãnh liệt, cuồng nhiệt trước vẻ đẹp cuộc đời.", category: "hien-dai" },
     { title: "Đây Thôn Vĩ Dạ", author: "Hàn Mặc Tử", genre: "Thất ngôn bát cú", era: "Thơ Mới (1938)", script: "Quốc ngữ", desc: "Bức tranh xứ Huế mộng mơ và nỗi niềm thi sĩ.", category: "hien-dai" },
+    { title: "Tràng Giang", author: "Huy Cận", genre: "Thất ngôn bát cú", era: "Thơ Mới (1939)", script: "Quốc ngữ", desc: "Nỗi sầu vũ trụ, vẻ đẹp cổ điển và hiện đại của sông nước mênh mang.", category: "hien-dai" },
     { title: "Tây Tiến", author: "Quang Dũng", genre: "Thơ tự do", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Bài thơ lãng mạn, bi tráng về người lính và núi rừng Tây Bắc.", category: "hien-dai" },
     { title: "Đồng Chí", author: "Chính Hữu", genre: "Thơ tự do", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Tình đồng đội thiêng liêng, gắn bó keo sơn nơi chiến hào.", category: "hien-dai" },
     { title: "Nhật Ký Trong Tù", author: "Hồ Chí Minh", genre: "Thất ngôn tứ tuyệt", era: "1942-1943", script: "Chữ Hán", desc: "Tinh thần lạc quan, ý chí kiên cường của người tù cách mạng.", category: "hien-dai" },
+    { title: "Việt Bắc", author: "Tố Hữu", genre: "Lục bát", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Khúc tình ca về cách mạng, kháng chiến và con người kháng chiến.", category: "hien-dai" },
+    { title: "Bài thơ về tiểu đội xe không kính", author: "Phạm Tiến Duật", genre: "Thơ tự do", era: "Kháng chiến Mỹ", script: "Quốc ngữ", desc: "Hình ảnh người lính lái xe Trường Sơn lạc quan, dũng cảm.", category: "hien-dai" },
+    { title: "Đoàn thuyền đánh cá", author: "Huy Cận", genre: "Thất ngôn trường thiên", era: "1958", script: "Quốc ngữ", desc: "Vẻ đẹp tráng lệ của biển cả và người lao động mới.", category: "hien-dai" },
 
     // --- VĂN HỌC THẾ GIỚI ---
     { title: "Tĩnh Dạ Tứ", author: "Lý Bạch", genre: "Ngũ ngôn tứ tuyệt", era: "Thịnh Đường", script: "Chữ Hán", desc: "Nỗi nhớ quê hương da diết của thi tiên Lý Bạch.", category: "the-gioi" },
+    { title: "Đăng Cao", author: "Đỗ Phủ", genre: "Thất ngôn bát cú", era: "Thịnh Đường", script: "Chữ Hán", desc: "Nỗi buồn thời cuộc, thân phận con người trước thiên nhiên rộng lớn.", category: "the-gioi" },
     { title: "Thần Khúc", author: "Dante", genre: "Trường ca", era: "Thời Phục Hưng", script: "Tiếng Ý", desc: "Hành trình qua Địa ngục, Luyện ngục và Thiên đường.", category: "the-gioi" },
     { title: "Hamlet", author: "Shakespeare", genre: "Bi kịch", era: "TK 16-17", script: "Tiếng Anh", desc: "Vở kịch kinh điển về sự trả thù và những trăn trở triết học.", category: "the-gioi" },
     { title: "Hoàng Tử Bé", author: "Antoine de Saint-Exupéry", genre: "Tiểu thuyết", era: "1943", script: "Tiếng Pháp", desc: "Câu chuyện triết lý sâu sắc dành cho cả người lớn và trẻ em.", category: "the-gioi" },
 
     // --- CA DAO - TỤC NGỮ ---
-    { title: "Tục ngữ về thời tiết", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Kinh nghiệm dự báo thời tiết của ông cha (VD: 'Chuồn chuồn bay thấp thì mưa...').", category: "ca-dao" },
-    { title: "Tục ngữ về đạo lý", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Bài học về cách sống, ứng xử (VD: 'Uống nước nhớ nguồn', 'Lá lành đùm lá rách').", category: "ca-dao" },
-    { title: "Ca dao về quê hương", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tình yêu và niềm tự hào về cảnh đẹp, con người các vùng miền.", category: "ca-dao" },
-    { title: "Ca dao về tình yêu đôi lứa", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Những lời tỏ tình, than thở, nhớ nhung trong tình yêu.", category: "ca-dao" },
-    { title: "Ca dao than thân", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tiếng nói phản kháng, than thở về số phận bất hạnh của người phụ nữ, nông dân.", category: "ca-dao" },
+    { title: "Tục ngữ về thiên nhiên", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Kinh nghiệm dự báo thời tiết, quan sát tự nhiên (VD: 'Chuồn chuồn bay thấp...').", category: "ca-dao" },
+    { title: "Tục ngữ về đạo lý", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Bài học ứng xử, triết lý sống (VD: 'Uống nước nhớ nguồn').", category: "ca-dao" },
+    { title: "Ca dao than thân", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tiếng nói phản kháng, than thở về số phận bất hạnh (VD: 'Thân em như tấm lụa đào...').", category: "ca-dao" },
+    { title: "Ca dao yêu thương tình nghĩa", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tình cảm gia đình, tình yêu đôi lứa, tình bạn.", category: "ca-dao" },
+    { title: "Ca dao hài hước", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tiếng cười tự trào, phê phán thói hư tật xấu.", category: "ca-dao" },
 
     // --- ĐIỂN TÍCH - ĐIỂN CỐ ---
-    { title: "Sân Lai", author: "Điển tích Trung Hoa", genre: "Điển cố", era: "Thời Xuân Thu", script: "Chữ Hán", desc: "Chỉ sự hiếu thảo với cha mẹ (Lão Lai Tử mặc áo trẻ con để mua vui cho cha mẹ).", category: "dien-tich" },
+    { title: "Sân Lai", author: "Điển cố Trung Hoa", genre: "Điển cố", era: "Thời Xuân Thu", script: "Chữ Hán", desc: "Lão Lai Tử mặc áo trẻ con để mua vui cho cha mẹ. Chỉ lòng hiếu thảo.", category: "dien-tich" },
     { title: "Ngưu Lang - Chức Nữ", author: "Điển tích Trung Hoa", genre: "Điển tích", era: "Truyền thuyết", script: "Chữ Hán", desc: "Biểu tượng của tình yêu đôi lứa bị ngăn cách, gặp nhau ngày Thất tịch.", category: "dien-tich" },
-    { title: "Gót sen ba tấc", author: "Điển tích Trung Hoa", genre: "Điển cố", era: "Thời Nam Tề", script: "Chữ Hán", desc: "Chỉ đôi chân nhỏ của người phụ nữ thời phong kiến (tục bó chân).", category: "dien-tich" },
+    { title: "Gót sen ba tấc", author: "Điển cố Trung Hoa", genre: "Điển cố", era: "Thời Nam Tề", script: "Chữ Hán", desc: "Chỉ đôi chân nhỏ của người phụ nữ thời phong kiến (tục bó chân).", category: "dien-tich" },
     { title: "Mày ngài mắt phượng", author: "Nguyễn Du", genre: "Điển tích", era: "Truyện Kiều", script: "Chữ Nôm", desc: "Tả vẻ đẹp sắc sảo, đoan trang của Thúy Kiều (mày rậm như con tằm, mắt đẹp như mắt chim phượng).", category: "dien-tich" },
     { title: "Trướng rủ màn che", author: "Nguyễn Du", genre: "Điển tích", era: "Truyện Kiều", script: "Chữ Nôm", desc: "Chỉ sự gặp gỡ, chung chăn gối trong chốn phòng the (chỉ việc Thúy Kiều và Kim Trọng).", category: "dien-tich" },
     { title: "Bèo dạt mây trôi", author: "Điển tích Việt Nam", genre: "Thành ngữ", era: "Dân gian", script: "Quốc ngữ", desc: "Chỉ thân phận trôi nổi, vô định, không biết đi về đâu.", category: "dien-tich" },
     { title: "Chim lồng cá chậu", author: "Điển tích Việt Nam", genre: "Điển cố", era: "Dân gian", script: "Quốc ngữ", desc: "Chỉ hoàn cảnh bị giam hãm, mất tự do, không thể phát triển.", category: "dien-tich" }
 ];
 
-// 2. DỮ LIỆU ĐẠI BÁCH KHOA (BẢN DỊCH HTML 100% TỪ VĂN BẢN GỐC)
+// =========================================
+// 2. DỮ LIỆU ĐẠI BÁCH KHOA (HTML 100% TỪ VĂN BẢN GỐC)
+// =========================================
 const ENCYCLOPEDIA_DATA = [
     {
         title: "Quyển 0. Tâm Thư – Tuyên Ngôn Nền Tảng",
@@ -138,19 +151,16 @@ const ENCYCLOPEDIA_DATA = [
                 <li><b>Phối âm:</b> Lựa chọn nguyên âm, phụ âm, âm mở (ngân dài), âm khép (dứt khoát).</li>
                 <li><b>Điệp âm, điệp từ:</b> Nhấn mạnh, tạo nhạc tính, liên kết hình tượng.</li>
             </ul>
-            
             <p><b>Tầng 2. Điệu thơ – Nhịp vận động cảm xúc</b></p>
             <ul>
                 <li><b>Sắc điệu:</b> Trang trọng, Trữ tình, U hoài, Bi tráng, Hào sảng, Thanh thoát, Châm biếm, Thiền vị.</li>
                 <li>Một bài thơ có thể chuyển điệu trong quá trình phát triển (từ thanh tân đến hoài niệm, từ phấn khởi đến lắng đọng).</li>
             </ul>
-
             <p><b>Tầng 3. Thần thái – Khí chất nghệ thuật</b></p>
             <ul>
                 <li><b>Các phẩm chất:</b> Cổ phong, Thanh tân, Thanh nhã, Hào sảng, Bi tráng, U nhã, Phóng khoáng, Dân gian.</li>
                 <li>Thần thái không chỉ nằm trong từ ngữ mà còn ở hình tượng, cấu trúc, giọng điệu.</li>
             </ul>
-
             <p><b>Tầng 4. Hồn thơ – Sức sống tinh thần</b></p>
             <ul>
                 <li>Khảo sát qua 5 thành tố: Tình (cảm xúc), Ý (tư tưởng), Cảnh (hình tượng), Điệu (nhịp vận động), Thần (khí chất). Hồn thơ là sự hòa quyện của toàn bộ chỉnh thể.</li>
@@ -380,18 +390,21 @@ const ENCYCLOPEDIA_DATA = [
     }
 ];
 
-// 3. DỮ LIỆU TRÍCH DẪN (QUOTES)
+// =========================================
+// 3. DỮ LIỆU TRÍCH DẪN (QUOTES) & MARQUEE
+// =========================================
 const QUOTES_DATA = [
     { text: "Văn học là nhân học.", author: "M. Gorky" },
     { text: "Thơ là tiếng nói của tâm hồn.", author: "Khuyết danh" },
     { text: "Đọc sách không chỉ để lấy kiến thức, mà để học cách làm người.", author: "Khổng Tử" },
     { text: "Thi trung hữu họa, thi trung hữu nhạc.", author: "Cổ nhân" },
-    { text: "Học rộng để nhìn thấy nhiều chân trời, học sâu để hiểu được bản chất.", author: "Văn Đạo Tuyên Ngôn" }
+    { text: "Học rộng để nhìn thấy nhiều chân trời, học sâu để hiểu được bản chất.", author: "Văn Đạo Tuyên Ngôn" },
+    { text: "Nho gia là đạo lý để bước vào đời; Đạo gia là một tâm thế để đi qua đời.", author: "Văn Đạo Tâm Thư" }
 ];
 
-// 4. TỪ KHÓA CHẠY NGANG (MARQUEE)
 const MARQUEE_KEYWORDS = [
     "Thơ Đường Luật", "Truyện Kiều", "Nho - Đạo - Phật", "Biểu tượng Á Đông", 
     "Thi pháp học", "Thất ngôn bát cú", "Lục bát", "Văn học dân gian",
-    "Tản Đà", "Thơ Mới", "Nam Cao", "Xuân Diệu", "Ca dao", "Tục ngữ", "Điển tích"
+    "Tản Đà", "Thơ Mới", "Nam Cao", "Xuân Diệu", "Ca dao", "Tục ngữ", 
+    "Điển tích", "Tứ đại giai không", "Ngọc sắc hoa khai", "Thủy mặc"
 ];
