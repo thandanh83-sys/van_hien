@@ -54,17 +54,17 @@ body {
     top: 0; left: 0; 
     width: 100vw; height: 100vh; 
     z-index: -2; 
-    filter: blur(20px); /* Làm mờ hoa văn một chút để không rối mắt */
+    filter: blur(20px);
     opacity: 0.9;
     background-color: var(--bg-base);
-    background-image: var(--pattern-bg); /* Nạp hoa văn Sen/Rồng */
-    background-position: bottom right; /* Đặt ở góc dưới phải */
+    background-image: var(--pattern-bg); 
+    background-position: bottom right;
     background-repeat: no-repeat;
-    background-size: 40vw; /* Kích thước hoa văn */
+    background-size: 40vw; 
     transition: background 0.8s ease;
 }
 
-/* Thêm một lớp gradient loang màu nước đè lên trên hoa văn */
+/* Lớp gradient loang màu đè lên trên hoa văn */
 .watercolor-bg::after {
     content: '';
     position: absolute;
@@ -253,12 +253,12 @@ body.dark-mode .f-icon { background: rgba(255,255,255,0.05); color: var(--accent
 }
 
 /* =========================================
-   5. CÁC TRANG PHỤ
+   5. CÁC TRANG PHỤ (Văn Hiến, Bách Khoa, Phân Tích)
    ========================================= */
 .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
 .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 3rem; }
 
-/* Văn Hiến */
+/* Văn Hiến Grid */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
 .heritage-card { 
     background: var(--card-bg); border-radius: 16px; padding: 2rem; 
