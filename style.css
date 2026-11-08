@@ -245,7 +245,7 @@ body.dark-mode .f-icon { background: rgba(255,255,255,0.05); color: var(--accent
 .page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
 .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 3rem; }
 
-/* Văn Hiến */
+/* Văn Hiến Grid */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
 .heritage-card { 
     background: var(--card-bg); border-radius: 16px; padding: 2rem; 
@@ -335,7 +335,48 @@ body.dark-mode .btn-analyze { background: var(--accent); color: #000; }
 .pattern-text { font-family: monospace; color: var(--accent); letter-spacing: 2px; font-weight: bold; }
 
 /* =========================================
-   6. CSS CHO TÌM KIẾM (LIVE SEARCH) - ĐÃ NÂNG CẤP
+   6. BỘ LỌC VĂN HIẾN (FILTER BAR) - MỚI
+   ========================================= */
+.filter-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--text-dark);
+}
+
+.filter-btn.active {
+    background: var(--text-dark);
+    color: var(--bg-base);
+    border-color: var(--text-dark);
+}
+
+body.dark-mode .filter-btn.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+}
+
+/* =========================================
+   7. CSS CHO TÌM KIẾM (LIVE SEARCH) & HIGHLIGHT
    ========================================= */
 #search-container {
     position: relative; 
@@ -461,7 +502,7 @@ body.dark-mode .search-box:focus-within {
 }
 
 /* =========================================
-   7. RESPONSIVE (ĐIỆN THOẠI)
+   8. RESPONSIVE (ĐIỆN THOẠI)
    ========================================= */
 @media (max-width: 768px) {
     .hero-title { font-size: 2.5rem; min-height: 100px; }
