@@ -7,18 +7,20 @@
     <meta name="author" content="Văn Đạo">
     <title>VĂN ĐẠO — Tinh Hoa Văn Chương & Tri Thức</title>
     
-    <!-- Nhúng Font chữ từ Google Fonts -->
+    <!-- ========================================== -->
+    <!-- NHÚNG FONT CHỮ TỪ GOOGLE FONTS             -->
+    <!-- ========================================== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
-    <!-- Liên kết file CSS (Thêm ?v=8 để ép trình duyệt tải bản mới, tránh cache) -->
-    <link rel="stylesheet" href="style.css?v=8">
+    <!-- Liên kết file CSS (Đã nâng lên v=9 để ép trình duyệt tải bản mới nhất) -->
+    <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
     <!-- ========================================== -->
-    <!-- LỚP NỀN & HIỆU ỨNG ĐỘNG                     -->
+    <!-- LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT)    -->
     <!-- ========================================== -->
     <canvas id="water-canvas" aria-hidden="true"></canvas>
     <div id="cursor-glow" aria-hidden="true"></div>
@@ -36,7 +38,7 @@
             <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
             
             <div class="nav-links" id="navMenu">
-                <!-- Đã đổi thẻ <a> thành <button> để chuẩn Accessibility (dùng được phím Tab) -->
+                <!-- Dùng thẻ <button> để hỗ trợ điều hướng bằng bàn phím (Accessibility) -->
                 <button class="nav-btn active" onclick="switchView('home')" id="nav-home">Trang Chủ</button>
                 <button class="nav-btn" onclick="switchView('heritage')" id="nav-heritage">Văn Hiến</button>
                 <button class="nav-btn" onclick="switchView('encyclopedia')" id="nav-encyclopedia">Bách Khoa</button>
@@ -44,14 +46,14 @@
                 
                 <!-- Nút Đổi Theme (Sáng/Tối) -->
                 <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Chuyển đổi giao diện Sáng/Tối">
-                    <!-- Icon Mặt Trời (Light Mode) -->
+                    <!-- Icon Mặt Trời (Hiển thị ở Light Mode) -->
                     <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    <!-- Icon Mặt Trăng (Dark Mode) -->
+                    <!-- Icon Mặt Trăng (Hiển thị ở Dark Mode) -->
                     <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                 </button>
             </div>
 
-            <!-- Nút Menu Hamburger (Chỉ hiển thị trên Mobile) -->
+            <!-- Nút Menu Hamburger (Chỉ hiển thị trên điện thoại) -->
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Mở Menu">
                 <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
@@ -83,16 +85,12 @@
                 
                 <div class="hero-visual">
                     <div class="arch-frame">
-                        <!-- Ảnh Hoa Sen (Light Mode) - Đã thêm onerror fallback -->
-                        <img class="light-img" 
-                             src="https://images.unsplash.com/photo-1596510432170-3785b7243a9c?q=80&w=800&auto=format&fit=crop" 
-                             alt="Hoa sen trắng" 
-                             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Lotus_Flower_in_China.jpg/800px-Lotus_Flower_in_China.jpg'">
+                        <!-- ĐÃ FIX: Gọi trực tiếp file nen.jpg từ thư mục của bạn -->
+                        <img class="light-img" src="nen.jpg" alt="Tranh sơn thủy Bạch Ngọc">
                         
-                        <!-- Ảnh Thủy Mặc (Dark Mode) -->
-                        <img class="dark-img" 
-                             src="https://images.unsplash.com/photo-1542359573-7c855ee77b9c?q=80&w=800&auto=format&fit=crop" 
-                             alt="Tranh thủy mặc">
+                        <!-- Dùng chung file nen.jpg cho Dark Mode. 
+                             CSS sẽ tự động dùng bộ lọc (filter) biến nó thành tranh đen trắng (Thủy Mặc) -->
+                        <img class="dark-img" src="nen.jpg" alt="Tranh thủy mặc">
                     </div>
                 </div>
             </div>
@@ -105,7 +103,7 @@
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản văn học nước nhà & Thế giới</p>
             
-            <!-- Thanh Bộ Lọc -->
+            <!-- Thanh Bộ Lọc Tác Phẩm -->
             <div class="filter-bar">
                 <button class="filter-btn active" onclick="filterHeritage('all', this)">Tất cả</button>
                 <button class="filter-btn" onclick="filterHeritage('dan-gian', this)">Dân gian</button>
@@ -139,7 +137,9 @@
             <p class="page-desc">Phân tích thanh điệu (Bằng / Trắc)</p>
             
             <div class="analyze-box">
+                <!-- Khung nhập bài thơ -->
                 <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
+                <!-- Nút kích hoạt phân tích -->
                 <button onclick="executePipeline()">Phân Tích Ngay</button>
             </div>
             
@@ -150,11 +150,11 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SCRIPTS                                    -->
+    <!-- SCRIPTS (TẢI DỮ LIỆU VÀ LOGIC)             -->
     <!-- ========================================== -->
     <!-- Tải dữ liệu trước -->
-    <script src="data.js?v=8"></script>
-    <!-- Tải logic sau cùng để đảm bảo DOM đã sẵn sàng -->
-    <script src="script.js?v=8"></script>
+    <script src="data.js?v=9"></script>
+    <!-- Tải logic xử lý sau cùng để đảm bảo DOM đã sẵn sàng -->
+    <script src="script.js?v=9"></script>
 </body>
 </html>
