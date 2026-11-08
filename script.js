@@ -50,7 +50,7 @@ function toggleMobileMenu() {
 /* =========================================
    3. HIỆU ỨNG GÕ CHỮ (TYPEWRITER)
    ========================================= */
-const textToType = "Vạn tượng trong lời.\nThiên thu trong ý.";
+const textToType = "Vạn tượng trong lời,\nThiên thu trong ý.";
 const typeTarget = document.getElementById('typewriter-text');
 const cursor = document.getElementById('cursor');
 let typeIndex = 0;
