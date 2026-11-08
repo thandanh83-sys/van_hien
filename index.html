@@ -192,9 +192,12 @@
     <!-- ========================================== -->
     <!-- SCRIPTS (TẢI DỮ LIỆU VÀ LOGIC XỬ LÝ)       -->
     <!-- ========================================== -->
-    <!-- Tải file dữ liệu trước (Phải có HERITAGE_DATA và ENCYCLOPEDIA_DATA) -->
-    <script src="data.js?v=13"></script>
-    <!-- Tải file logic sau cùng để đảm bảo DOM đã sẵn sàng -->
-    <script src="script.js?v=13"></script>
+    <!-- TẢI DỮ LIỆU (Thứ tự rất quan trọng: Dữ liệu phải tải trước Logic) -->
+    <script src="data-heritage.js?v=14"></script>
+    <script src="data-encyclopedia.js?v=14"></script>
+    <script src="data-quotes.js?v=14"></script>
+    
+    <!-- TẢI LOGIC XỬ LÝ (Tải sau cùng) -->
+    <script src="script.js?v=14"></script>
 </body>
 </html>
