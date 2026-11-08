@@ -141,7 +141,7 @@ body.dark-mode .theme-btn .moon-icon { display: none; }
 @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 /* =========================================
-   4. TRANG CHỦ (ĐÃ FIX LỖI TÀNG HÌNH TRÊN MOBILE)
+   4. TRANG CHỦ (NÂNG CẤP MÀU MÈ - GOLD GRADIENT)
    ========================================= */
 .hero-section { 
     text-align: center; 
@@ -150,38 +150,58 @@ body.dark-mode .theme-btn .moon-icon { display: none; }
     position: relative; 
 }
 
-/* Vầng sáng (Hào quang) phía sau chữ */
+/* Vầng sáng (Hào quang) động phía sau chữ */
 .hero-section::before {
     content: ''; 
     position: absolute; 
     top: 50%; left: 50%; 
     transform: translate(-50%, -50%);
-    width: 400px; height: 200px; 
-    background: radial-gradient(ellipse, var(--border-color) 0%, transparent 70%);
+    width: 500px; height: 250px; 
+    background: radial-gradient(ellipse, rgba(197, 160, 89, 0.2) 0%, transparent 60%);
     z-index: -1; 
-    filter: blur(30px);
-    opacity: 0.8;
+    filter: blur(40px);
+    animation: pulseGlow 4s infinite alternate ease-in-out;
 }
 
-/* Chữ hiển thị rõ nét, có hiệu ứng tỏa sáng */
+body.dark-mode .hero-section::before {
+    background: radial-gradient(ellipse, rgba(229, 184, 94, 0.2) 0%, transparent 60%);
+}
+
+@keyframes pulseGlow {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+
+/* CHỮ GRADIENT VÀNG KIM & PHÁT SÁNG */
 .hero-title { 
     font-family: 'Playfair Display', serif; 
-    font-size: 3.5rem; 
+    font-size: 3.8rem; 
     line-height: 1.4; 
     margin-bottom: 1rem; 
     min-height: 150px;
     letter-spacing: 1px;
     font-weight: 700;
-    color: var(--text-dark); 
     
-    /* Hiệu ứng đổ bóng phát sáng màu vàng kim */
-    text-shadow: 0px 4px 20px rgba(197, 160, 89, 0.4);
+    /* Fallback màu chữ (Tránh lỗi tàng hình trên iOS cũ) */
+    color: var(--accent);
+    
+    /* Hiệu ứng Gradient Vàng Kim */
+    background: linear-gradient(135deg, #f5d061 0%, #c5a059 50%, #f5d061 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    
+    /* Hiệu ứng đổ bóng nhiều lớp tạo cảm giác phát sáng (Neon) */
+    filter: drop-shadow(0px 0px 15px rgba(197, 160, 89, 0.4));
 }
 
-/* Dark Mode: Chữ sáng rực rỡ hơn */
+/* Dark Mode: Rực rỡ hơn */
 body.dark-mode .hero-title {
-    color: #ffffff;
-    text-shadow: 0px 4px 25px rgba(229, 184, 94, 0.6);
+    background: linear-gradient(135deg, #ffffff 0%, #e5b85e 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0px 0px 20px rgba(229, 184, 94, 0.6));
 }
 
 /* Dòng mô tả (Subtext) */
@@ -343,6 +363,9 @@ body.dark-mode .f-icon { background: rgba(255,255,255,0.05); color: var(--accent
 }
 .accordion-content p { margin-bottom: 0.8rem; }
 .accordion-content ul, .accordion-content ol { margin-left: 1.5rem; margin-bottom: 1rem; }
+.accordion-content blockquote {
+    border-left: 3px solid var(--accent); padding-left: 15px; font-style: italic; margin: 15px 0; color: var(--text-dark);
+}
 
 /* Phân tích (Tam Thanh) */
 .analyze-box { 
@@ -550,7 +573,7 @@ body.dark-mode .search-box:focus-within {
    9. RESPONSIVE (ĐIỆN THOẠI)
    ========================================= */
 @media (max-width: 768px) {
-    .hero-title { font-size: 2.5rem; min-height: 100px; }
+    .hero-title { font-size: 2.8rem; min-height: 120px; }
     .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
     
     /* Menu xổ xuống trên mobile */
