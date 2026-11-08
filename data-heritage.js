@@ -53,14 +53,14 @@ const HERITAGE_DATA = [
     { title: "Hoàng Tử Bé", author: "Antoine de Saint-Exupéry", genre: "Tiểu thuyết", era: "1943", script: "Tiếng Pháp", desc: "Câu chuyện triết lý sâu sắc dành cho cả người lớn và trẻ em.", category: "the-gioi" },
     { title: "Chiến tranh và Hòa bình", author: "Lev Tolstoy", genre: "Tiểu thuyết sử thi", era: "1869", script: "Tiếng Nga", desc: "Bức tranh hoành tráng về xã hội Nga trong cuộc chiến tranh Napoleon.", category: "the-gioi" },
 
-    // --- NHÓM 5: CA DAO - TỤC NGỮ (Bổ sung chủ đề Người Thầy) ---
+    // --- NHÓM 5: CA DAO - TỤC NGỮ ---
     { title: "Tục ngữ về thiên nhiên", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Kinh nghiệm dự báo thời tiết, quan sát tự nhiên (VD: 'Chuồn chuồn bay thấp...').", category: "ca-dao" },
     { title: "Tục ngữ về đạo lý", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Bài học ứng xử, triết lý sống (VD: 'Uống nước nhớ nguồn').", category: "ca-dao" },
     { title: "Ca dao than thân", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tiếng nói phản kháng, than thở về số phận bất hạnh (VD: 'Thân em như tấm lụa đào...').", category: "ca-dao" },
     { title: "Ca dao yêu thương tình nghĩa", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tình cảm gia đình, tình yêu đôi lứa, tình bạn.", category: "ca-dao" },
     { title: "Ca dao hài hước", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Tiếng cười tự trào, phê phán thói hư tật xấu.", category: "ca-dao" },
     
-    // --- Ca dao - Tục ngữ về Người Thầy (Mới bổ sung) ---
+    // --- Ca dao - Tục ngữ về Người Thầy ---
     { title: "Muốn sang thì bắc cầu Kiều", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Muốn sang thì bắc cầu Kiều,<br>Muốn con hay chữ thì yêu lấy thầy.", category: "ca-dao" },
     { title: "Thời gian dẫu bạc mái đầu", author: "Dân gian", genre: "Ca dao", era: "Truyền miệng", script: "Quốc ngữ", desc: "Thời gian dẫu bạc mái đầu,<br>Tim trò vẫn tạc đậm câu ơn thầy.", category: "ca-dao" },
     { title: "Mồng một Tết cha...", author: "Dân gian", genre: "Tục ngữ", era: "Truyền miệng", script: "Quốc ngữ", desc: "Mồng một Tết cha, mồng hai Tết mẹ, mồng ba Tết thầy.", category: "ca-dao" },
