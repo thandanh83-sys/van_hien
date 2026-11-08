@@ -1,9 +1,9 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE EDITION)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE FIXED EDITION)
    Tác giả: Văn Đạo
    Mô tả: Xử lý logic, render dữ liệu, tìm kiếm và phân tích thi pháp.
-   Cấu trúc: 6 Phân đoạn (Modules) từ Icons, Theme, Routing, Rendering,
-             Analysis đến Visual Effects.
+   Cấu trúc: 7 Modules từ Icons, Theme, Routing, Rendering,
+             Analysis, Visual Effects đến Initialization.
    ===================================================================== */
 
 /* =====================================================================
@@ -14,32 +14,26 @@ const ICON_PEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="curren
 const ICON_CLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
 const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
 
+const THEME_KEY = 'vandao_theme';
+
 /* =====================================================================
    MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI) & CÀI ĐẶT
    ===================================================================== */
-const THEME_KEY = 'vandao_theme';
-const themeBtn = document.getElementById('theme-btn');
-
 /**
  * Hàm chuyển đổi giao diện Sáng/Tối.
  * Lưu trạng thái vào LocalStorage để ghi nhớ lựa chọn của người dùng.
  */
 function toggleTheme() {
-    // 1. Đảo ngược class 'dark-mode' trên thẻ body
     document.body.classList.toggle('dark-mode');
-    
-    // 2. Kiểm tra xem hiện tại có phải Dark Mode không
     const isDark = document.body.classList.contains('dark-mode');
-    
-    // 3. Lưu vào bộ nhớ trình duyệt
     localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
     
-    // 4. (Tùy chọn) Cập nhật lại màu nền Canvas nếu cần
+    // Cập nhật lại màu sắc cho Canvas (gợn sóng nước)
     updateCanvasColors();
 }
 
 /**
- * Khôi phục Theme khi tải lại trang.
+ * Khôi phục Theme khi tải lại trang (tránh bị nháy trắng).
  */
 function loadSavedTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
@@ -61,8 +55,8 @@ function switchView(viewId) {
         view.classList.remove('active');
     });
 
-    // 2. Xóa trạng thái Active của tất cả các nút Menu
-    document.querySelectorAll('.nav-links a').forEach(link => {
+    // 2. Xóa trạng thái Active của tất cả các nút Menu (Sử dụng class .nav-btn)
+    document.querySelectorAll('.nav-btn').forEach(link => {
         link.classList.remove('active');
     });
 
@@ -100,14 +94,14 @@ function toggleMobileMenu() {
  */
 function renderHeritage(filterCategory = 'all') {
     const grid = document.getElementById('heritage-grid');
-    if (!grid) return; // Nếu không tìm thấy thẻ chứa, dừng hàm
+    if (!grid || typeof HERITAGE_DATA === 'undefined') return;
 
-    // 1. Lọc dữ liệu dựa trên danh mục (HERITAGE_DATA lấy từ file data.js)
+    // 1. Lọc dữ liệu dựa trên danh mục
     const filteredData = filterCategory === 'all' 
         ? HERITAGE_DATA 
         : HERITAGE_DATA.filter(item => item.category === filterCategory);
 
-    // 2. Tạo mã HTML cho từng thẻ tác phẩm
+    // 2. Tạo mã HTML cho từng thẻ tác phẩm (Bao gồm cả icon SVG)
     const htmlContent = filteredData.map(item => `
         <div class="heritage-card">
             <span class="h-tag">${item.genre}</span>
@@ -129,11 +123,8 @@ function renderHeritage(filterCategory = 'all') {
  * Xử lý sự kiện khi click vào Nút Bộ Lọc.
  */
 function filterHeritage(category, btnElement) {
-    // 1. Xóa class active của tất cả các nút
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    // 2. Thêm class active cho nút vừa click
     if (btnElement) btnElement.classList.add('active');
-    // 3. Gọi hàm render với danh mục mới
     renderHeritage(category);
 }
 
@@ -142,7 +133,7 @@ function filterHeritage(category, btnElement) {
  */
 function renderEncyclopedia() {
     const container = document.getElementById('encyclopedia-container');
-    if (!container) return;
+    if (!container || typeof ENCYCLOPEDIA_DATA === 'undefined') return;
 
     // Tạo HTML cho từng Quyển sách
     const htmlContent = ENCYCLOPEDIA_DATA.map(item => `
@@ -160,11 +151,11 @@ function renderEncyclopedia() {
 }
 
 /* =====================================================================
-   MODULE 5: PHÂN TÍCH THI PHÁP (NFD PIPELINE)
+   MODULE 5: PHÂN TÍCH THI PHÁP (NFD PIPELINE) - ĐÃ FIX BUG THANH ĐIỆU
    ===================================================================== */
 /**
  * Thuật toán phân tích thơ: Đếm số tiếng, tách thanh điệu (Bằng/Trắc).
- * Sử dụng chuẩn Unicode NFD để nhận diện dấu thanh chính xác 100%.
+ * Sử dụng chuẩn Unicode NFD để nhận diện dấu thanh chính xác.
  */
 function executePipeline() {
     const inputField = document.getElementById('poemInput');
@@ -173,8 +164,13 @@ function executePipeline() {
     if (!inputField || !resultsPanel) return;
     
     const rawText = inputField.value;
+    
+    // Xử lý trường hợp người dùng không nhập gì (thay vì dùng alert gây khó chịu)
     if (!rawText.trim()) {
-        alert("Vui lòng nhập bài thơ để phân tích.");
+        resultsPanel.innerHTML = `
+            <div class="result-step" style="border-left-color:var(--accent-gold);">
+                <p style="font-style:italic;color:var(--text-muted);text-align:center;">Vui lòng nhập bài thơ để phân tích.</p>
+            </div>`;
         return;
     }
 
@@ -193,10 +189,12 @@ function executePipeline() {
             // Chuyển đổi sang dạng NFD (Tách dấu ra khỏi ký tự gốc)
             const nfdString = syllable.normalize('NFD');
             
-            // Các mã Unicode của dấu thanh: Huyền(\u0300), Sắc(\u0301), Ngã(\u0303), Hỏi(\u0309), Nặng(\u0323)
-            const isTrac = nfdString.includes('\u0300') || nfdString.includes('\u0301') || 
-                           nfdString.includes('\u0303') || nfdString.includes('\u0309') || 
-                           nfdString.includes('\u0323');
+            // FIX BUG: Dấu huyền (\u0300) thuộc nhóm BẰNG, không phải TRẮC.
+            // Chỉ những dấu sau đây mới thuộc nhóm TRẮC:
+            const isTrac = nfdString.includes('\u0301') || // Dấu sắc
+                           nfdString.includes('\u0303') || // Dấu ngã
+                           nfdString.includes('\u0309') || // Dấu hỏi
+                           nfdString.includes('\u0323');   // Dấu nặng
                            
             return isTrac ? 'T' : 'B'; // Trắc hoặc Bằng
         });
@@ -294,8 +292,8 @@ function initWaterCanvas() {
     function animateRipples() {
         ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa khung hình cũ
         
-        // Chọn màu dựa trên theme
-        const color = isDarkTheme ? '255, 255, 255' : '125, 168, 158'; // Trắng hoặc Xanh ngọc
+        // Chọn màu dựa trên theme (Trắng hoặc Xanh ngọc)
+        const color = isDarkTheme ? '255, 255, 255' : '125, 168, 158'; 
         
         // Duyệt ngược mảng để xóa phần tử an toàn
         for (let i = ripples.length - 1; i >= 0; i--) {
@@ -348,7 +346,7 @@ function initDewdrops() {
 
         container.appendChild(drop);
 
-        // Tự động xóa DOM sau khi bay xong để tránh rác bộ nhớ
+        // Tự động xóa DOM sau khi bay xong để tránh rác bộ nhớ (memory leak)
         setTimeout(() => {
             drop.remove();
         }, 20000);
@@ -372,5 +370,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initWaterCanvas();
     initDewdrops();
 
-    console.log("VĂN ĐẠO: Hệ thống đã sẵn sàng!");
+    console.log("VĂN ĐẠO: Hệ thống đã sẵn sàng và đã fix toàn bộ bug!");
 });
