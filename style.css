@@ -1,0 +1,368 @@
+/* =========================================
+   1. HỆ THỐNG MÀU SẮC (SEN NGỌC & HẮC LONG)
+   ========================================= */
+:root {
+    /* LIGHT MODE: Khoa Sen Thanh Lịch */
+    --bg-base: #f2f9f7;
+    --text-dark: #0d362e;
+    --text-muted: #5a7a72;
+    --accent: #c5a059;
+    --accent-light: #e2c78e;
+    --card-bg: #ffffff;
+    --border-color: rgba(13, 54, 46, 0.08);
+    --shadow: 0 4px 20px rgba(13, 54, 46, 0.05);
+    --glass-bg: rgba(242, 249, 247, 0.85);
+    
+    /* Hoa văn Sen (SVG Data URI) */
+    --pattern-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="300" height="300"><path d="M50 85 C30 85 15 65 15 45 C35 45 50 65 50 85 Z" fill="%23a8d8ca" opacity="0.15"/><path d="M50 85 C70 85 85 65 85 45 C65 45 50 65 50 85 Z" fill="%23a8d8ca" opacity="0.15"/><path d="M50 85 C40 55 40 25 50 15 C60 25 60 55 50 85 Z" fill="%23ffffff" opacity="0.3"/><path d="M50 85 C35 70 20 70 10 60 C25 55 40 60 50 85 Z" fill="%23e2c78e" opacity="0.1"/><path d="M50 85 C65 70 80 70 90 60 C75 55 60 60 50 85 Z" fill="%23e2c78e" opacity="0.1"/></svg>');
+}
+
+body.dark-mode {
+    /* DARK MODE: Hắc Long Ánh Kim */
+    --bg-base: #080808;
+    --text-dark: #e8f3f1;
+    --text-muted: #889a96;
+    --accent: #e5b85e;
+    --accent-light: #ffd700;
+    --card-bg: #121212;
+    --border-color: rgba(229, 184, 94, 0.15);
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    --glass-bg: rgba(8, 8, 8, 0.85);
+    
+    /* Hoa văn Hắc Long - Vân mây (SVG Data URI) */
+    --pattern-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="200" height="200"><path d="M10 50 Q 25 30 50 50 T 90 50" stroke="%23e5b85e" fill="none" stroke-width="1" opacity="0.15"/><path d="M10 60 Q 25 80 50 60 T 90 60" stroke="%23e5b85e" fill="none" stroke-width="0.5" opacity="0.1"/><circle cx="50" cy="50" r="3" fill="%23e5b85e" opacity="0.2"/><circle cx="20" cy="40" r="2" fill="%23e5b85e" opacity="0.1"/><circle cx="80" cy="70" r="2" fill="%23e5b85e" opacity="0.1"/></svg>');
+}
+
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Inter', sans-serif; 
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease; 
+}
+
+body { 
+    background-color: var(--bg-base); 
+    color: var(--text-dark); 
+    min-height: 100vh; 
+    overflow-x: hidden; 
+}
+
+/* Lớp nền Màu nước + Hoa văn */
+.watercolor-bg {
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100vw; height: 100vh; 
+    z-index: -2; 
+    filter: blur(20px); /* Làm mờ hoa văn một chút để không rối mắt */
+    opacity: 0.9;
+    background-color: var(--bg-base);
+    background-image: var(--pattern-bg); /* Nạp hoa văn Sen/Rồng */
+    background-position: bottom right; /* Đặt ở góc dưới phải */
+    background-repeat: no-repeat;
+    background-size: 40vw; /* Kích thước hoa văn */
+    transition: background 0.8s ease;
+}
+
+/* Thêm một lớp gradient loang màu nước đè lên trên hoa văn */
+.watercolor-bg::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: 
+        radial-gradient(circle at 10% 20%, rgba(168, 216, 202, 0.2) 0%, transparent 50%), 
+        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.6) 0%, transparent 50%);
+}
+body.dark-mode .watercolor-bg::after {
+    background: 
+        radial-gradient(circle at 10% 20%, rgba(30, 30, 30, 0.8) 0%, transparent 60%), 
+        radial-gradient(circle at 80% 70%, rgba(60, 45, 10, 0.2) 0%, transparent 50%);
+}
+
+/* =========================================
+   2. NAVBAR (THANH ĐIỀU HƯỚNG)
+   ========================================= */
+.navbar {
+    position: fixed; top: 0; left: 0; width: 100%;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 2rem; background: var(--glass-bg);
+    backdrop-filter: blur(12px); z-index: 100; border-bottom: 1px solid transparent;
+    transition: all 0.4s ease;
+}
+.navbar.scrolled { 
+    border-bottom: 1px solid var(--border-color); 
+    box-shadow: var(--shadow); 
+    padding: 0.8rem 2rem; 
+}
+.nav-left { display: flex; align-items: center; gap: 15px; }
+.nav-brand { 
+    font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 600; 
+    color: var(--text-dark); cursor: pointer; letter-spacing: 1px; 
+}
+.nav-subtitle { 
+    font-size: 0.75rem; letter-spacing: 2px; color: var(--text-muted); 
+    text-transform: uppercase; display: none; margin-top: 4px; 
+}
+@media (min-width: 768px) { .nav-subtitle { display: block; } }
+
+.nav-right { display: flex; gap: 1.5rem; align-items: center; }
+.nav-btn { 
+    position: relative; text-decoration: none; color: var(--text-muted); 
+    font-size: 0.9rem; font-weight: 500; cursor: pointer; padding-bottom: 5px; 
+}
+.nav-btn::after { 
+    content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px; 
+    background-color: var(--accent); transition: width 0.3s ease, left 0.3s ease; 
+}
+.nav-btn:hover::after, .nav-btn.active::after { width: 100%; left: 0; }
+.nav-btn:hover, .nav-btn.active { color: var(--text-dark); }
+
+.theme-btn { 
+    background: transparent; border: none; cursor: pointer; display: flex; 
+    align-items: center; justify-content: center; padding: 5px; 
+    border-radius: 50%; transition: transform 0.3s ease, background 0.3s; 
+}
+.theme-btn:hover { transform: scale(1.1) rotate(15deg); background: var(--border-color); }
+.theme-btn svg { width: 20px; height: 20px; stroke: var(--text-dark); transition: stroke 0.5s; }
+.theme-btn .sun-icon { display: none; }
+.theme-btn .moon-icon { display: block; }
+body.dark-mode .theme-btn .sun-icon { display: block; stroke: var(--accent); }
+body.dark-mode .theme-btn .moon-icon { display: none; }
+
+.mobile-menu-btn { display: none; background: transparent; border: none; cursor: pointer; padding: 5px; }
+.mobile-menu-btn svg { width: 24px; height: 24px; stroke: var(--text-dark); }
+
+/* =========================================
+   3. CONTAINER & HIỆU ỨNG CHUYỂN TRANG
+   ========================================= */
+.container { max-width: 1000px; margin: 0 auto; padding: 8rem 1.5rem 4rem; }
+.view { display: none; }
+.view.active { display: block; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   4. TRANG CHỦ
+   ========================================= */
+.hero-section { text-align: center; margin-bottom: 4rem; padding: 2rem 0; position: relative; }
+.hero-section::before {
+    content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 300px; height: 300px; background: radial-gradient(circle, var(--border-color) 0%, transparent 70%);
+    border-radius: 50%; z-index: -1; filter: blur(20px);
+}
+.hero-title { 
+    font-family: 'Playfair Display', serif; font-size: 3.5rem; line-height: 1.3; 
+    margin-bottom: 1.5rem; color: var(--text-dark); 
+    text-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 140px; 
+}
+body.dark-mode .hero-title { text-shadow: 0 4px 20px rgba(229, 184, 94, 0.15); }
+.hero-desc { 
+    font-size: 1.1rem; color: var(--text-muted); line-height: 1.8; 
+    max-width: 600px; margin: 0 auto; 
+}
+
+/* Hiệu ứng con trỏ gõ chữ */
+.typewriter::after { content: '|'; animation: blink 1s step-end infinite; color: var(--accent); font-weight: 300; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Thanh tìm kiếm */
+.search-box { 
+    display: flex; align-items: center; background: var(--card-bg); 
+    border-radius: 12px; padding: 1rem 1.2rem; margin: 0 auto 3rem; 
+    max-width: 700px; box-shadow: var(--shadow); border: 1px solid var(--border-color); 
+    transition: all 0.3s ease; 
+}
+.search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); transform: scale(1.02); }
+body.dark-mode .search-box:focus-within { box-shadow: 0 0 25px rgba(229, 184, 94, 0.15); }
+.search-icon { color: var(--text-muted); margin-right: 10px; width: 20px; height: 20px; }
+.search-box input { border: none; outline: none; width: 100%; font-size: 1rem; color: var(--text-dark); background: transparent; }
+.search-box input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+/* Dải chữ chạy (Marquee) */
+.marquee-container { 
+    width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; 
+    background: var(--card-bg); padding: 1rem 0; overflow: hidden; 
+    border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); 
+    margin-bottom: 3rem; display: flex; 
+}
+.marquee-content { 
+    display: flex; white-space: nowrap; animation: marquee 30s linear infinite; 
+    font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--text-muted); 
+    font-style: italic; width: max-content; 
+}
+.marquee-content span { margin: 0 2rem; display: flex; align-items: center; gap: 10px; }
+.marquee-content svg { width: 14px; height: 14px; fill: var(--accent); }
+@keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* Thẻ chức năng (Feature Cards) */
+.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 4rem; perspective: 1000px; }
+@media (max-width: 600px) { .feature-grid { grid-template-columns: 1fr; } }
+.feature-card { 
+    background: var(--card-bg); border-radius: 16px; padding: 2rem; 
+    box-shadow: var(--shadow); border: 1px solid var(--border-color); 
+    cursor: pointer; display: flex; flex-direction: column; justify-content: center; 
+    transform-style: preserve-3d; transition: box-shadow 0.3s, border-color 0.3s; 
+}
+.feature-card:hover { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); border-color: var(--accent-light); }
+body.dark-mode .feature-card:hover { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8); border-color: var(--accent); }
+.feature-card .inner-content { transform: translateZ(30px); }
+
+.f-icon { 
+    margin-bottom: 1rem; display: inline-flex; align-items: center; justify-content: center; 
+    width: 48px; height: 48px; border-radius: 12px; background: var(--border-color); color: var(--text-dark); 
+}
+.f-icon svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.5; fill: none; }
+body.dark-mode .f-icon { background: rgba(255,255,255,0.05); color: var(--accent); }
+
+.feature-card:hover .f-icon svg { animation: wobble 0.5s ease; }
+@keyframes wobble { 0% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } 100% { transform: rotate(0deg); } }
+.feature-card h3 { font-size: 1.1rem; font-weight: 600; }
+
+/* Trích dẫn tự đổi (Quote Carousel) */
+.quote-box { 
+    text-align: center; padding: 3rem 1rem; margin-bottom: 4rem; 
+    background: var(--card-bg); border-radius: 20px; 
+    border: 1px solid var(--border-color); box-shadow: var(--shadow); 
+}
+.quote-text { 
+    font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic; 
+    color: var(--text-dark); transition: opacity 0.5s ease; margin-bottom: 1rem; 
+}
+.quote-author { 
+    font-size: 0.9rem; letter-spacing: 2px; color: var(--accent); 
+    text-transform: uppercase; transition: opacity 0.5s ease; 
+}
+
+/* Preview Văn Hiến */
+.section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; }
+.section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; }
+.section-link { color: var(--accent); font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.section-link:hover { text-decoration: underline; }
+
+.preview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.preview-card { 
+    background: var(--card-bg); border-radius: 12px; padding: 1.5rem; 
+    box-shadow: var(--shadow); border: 1px solid var(--border-color); 
+    cursor: pointer; transition: transform 0.3s, border-color 0.3s; 
+}
+.preview-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
+/* Footer */
+.footer-text { 
+    text-align: center; font-size: 0.75rem; color: var(--text-muted); 
+    letter-spacing: 1px; margin-top: 3rem; text-transform: uppercase; 
+}
+
+/* =========================================
+   5. CÁC TRANG PHỤ
+   ========================================= */
+.page-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; text-align: center; margin-bottom: 1rem; }
+.page-desc { text-align: center; color: var(--text-muted); margin-bottom: 3rem; }
+
+/* Văn Hiến */
+.heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.heritage-card { 
+    background: var(--card-bg); border-radius: 16px; padding: 2rem; 
+    box-shadow: var(--shadow); border: 1px solid var(--border-color); 
+    position: relative; transition: transform 0.4s; display: flex; flex-direction: column; 
+}
+.heritage-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); }
+.heritage-card::before { 
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; 
+    background: linear-gradient(90deg, var(--accent), var(--accent-light)); 
+}
+.h-tag { 
+    font-size: 0.7rem; background: var(--border-color); padding: 4px 12px; 
+    border-radius: 20px; display: inline-block; margin-bottom: 1rem; 
+    font-weight: 600; align-self: flex-start; 
+}
+.heritage-card h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+.heritage-card .author { 
+    font-size: 0.95rem; color: var(--accent); font-weight: 600; 
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 6px; 
+}
+.heritage-card p { flex-grow: 1; font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem; }
+
+.meta-item { display: flex; align-items: center; gap: 6px; }
+.meta-item svg { width: 14px; height: 14px; stroke: var(--text-muted); }
+.author svg { width: 16px; height: 16px; stroke: var(--accent); }
+
+/* Bách Khoa (Accordion) */
+.accordion-item { 
+    background: var(--card-bg); border-radius: 12px; margin-bottom: 1rem; 
+    box-shadow: var(--shadow); border: 1px solid var(--border-color); overflow: hidden; 
+}
+.accordion-item summary { 
+    padding: 1.2rem 1.5rem; font-family: 'Playfair Display', serif; font-size: 1.1rem; 
+    font-weight: 600; cursor: pointer; list-style: none; display: flex; 
+    justify-content: space-between; color: var(--text-dark); 
+}
+.accordion-item summary::-webkit-details-marker { display: none; }
+.accordion-item summary::after { 
+    content: '+'; font-size: 1.5rem; color: var(--accent); transition: transform 0.3s; 
+}
+.accordion-item[open] summary::after { transform: rotate(45deg); }
+.accordion-content { 
+    padding: 0 1.5rem 1.5rem; font-size: 0.95rem; line-height: 1.8; 
+    color: var(--text-muted); border-top: 1px solid var(--border-color); 
+}
+.accordion-content h4 { 
+    color: var(--text-dark); margin: 1rem 0 0.5rem; 
+    font-family: 'Playfair Display', serif; font-size: 1.05rem; 
+}
+.accordion-content p { margin-bottom: 0.8rem; }
+.accordion-content ul { margin-left: 1.5rem; margin-bottom: 1rem; }
+
+/* Phân tích (Tam Thanh) */
+.analyze-box { 
+    background: var(--card-bg); border-radius: 16px; padding: 1.5rem; 
+    box-shadow: var(--shadow); border: 1px solid var(--border-color); margin-bottom: 2rem; 
+}
+.analyze-box textarea { 
+    width: 100%; height: 120px; border: none; outline: none; resize: vertical; 
+    font-size: 1rem; font-family: 'Playfair Display', serif; line-height: 1.8; 
+    background: transparent; color: var(--text-dark); 
+}
+.btn-analyze { 
+    width: 100%; padding: 1rem; background: var(--text-dark); color: var(--bg-base); 
+    border: none; border-radius: 8px; font-weight: 600; cursor: pointer; 
+    margin-top: 1rem; transition: background 0.3s, color 0.3s; 
+}
+body.dark-mode .btn-analyze { background: var(--accent); color: #000; }
+.btn-analyze:hover { opacity: 0.9; }
+
+.result-step { 
+    margin-bottom: 1rem; background: var(--card-bg); border-radius: 12px; 
+    padding: 1.5rem; border-left: 4px solid var(--text-dark); 
+    animation: slideUpFade 0.5s ease forwards; 
+}
+.result-step.thuong { border-left-color: var(--accent); }
+.result-step.ngoc { border-left-color: #16a085; }
+.step-title { 
+    font-size: 0.8rem; font-weight: 600; text-transform: uppercase; 
+    color: var(--text-muted); margin-bottom: 0.5rem; 
+}
+.line-row { 
+    display: flex; justify-content: space-between; padding: 0.5rem 0; 
+    border-bottom: 1px dashed var(--border-color); font-family: 'Playfair Display', serif; 
+}
+.pattern-text { font-family: monospace; color: var(--accent); letter-spacing: 2px; font-weight: bold; }
+
+/* =========================================
+   6. RESPONSIVE (ĐIỆN THOẠI)
+   ========================================= */
+@media (max-width: 768px) {
+    .hero-title { font-size: 2.5rem; min-height: 100px; }
+    .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+    
+    /* Menu xổ xuống trên mobile */
+    .nav-right { 
+        display: none; position: absolute; top: 100%; left: 0; width: 100%; 
+        background: var(--card-bg); flex-direction: column; padding: 1rem; 
+        gap: 1rem; box-shadow: var(--shadow); border-bottom: 1px solid var(--border-color); 
+    }
+    .nav-right.show { display: flex; }
+    .nav-btn { margin: 0.5rem 0; font-size: 1.1rem; }
+    
+    /* Chỉnh lại kích thước hoa văn trên điện thoại cho vừa mắt */
+    .watercolor-bg { background-size: 80vw; }
+}
