@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Văn</title>
+    <title>VĂN ĐẠO ENGINE — Đại Thành</title>
     <!-- Nạp Font chữ -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <!-- Nạp CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Lớp nền màu nước & Hoa văn -->
     <div class="watercolor-bg"></div>
 
     <!-- NAVBAR (Thanh điều hướng) -->
@@ -52,7 +53,7 @@
                 <p class="hero-desc">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</p>
             </div>
 
-            <!-- Thanh Tìm Kiếm (Đã sửa cấu trúc để hộp kết quả rớt xuống dưới) -->
+            <!-- Thanh Tìm Kiếm (Live Search) -->
             <div id="search-container">
                 <div class="search-box">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -116,11 +117,21 @@
         </section>
 
         <!-- =========================================
-             VIEW 2: VĂN HIẾN
+             VIEW 2: VĂN HIẾN (ĐÃ THÊM BỘ LỌC)
              ========================================= -->
         <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản Văn học Việt Nam & Thế giới — Nơi tinh hoa hội tụ</p>
+            
+            <!-- Bộ lọc phân loại -->
+            <div class="filter-bar">
+                <button class="filter-btn active" onclick="filterHeritage('all', this)">Tất cả</button>
+                <button class="filter-btn" onclick="filterHeritage('dan-gian', this)">Dân gian</button>
+                <button class="filter-btn" onclick="filterHeritage('trung-dai', this)">Trung đại</button>
+                <button class="filter-btn" onclick="filterHeritage('hien-dai', this)">Hiện đại</button>
+                <button class="filter-btn" onclick="filterHeritage('the-gioi', this)">Thế giới</button>
+            </div>
+
             <div class="heritage-grid" id="heritage-grid"></div>
         </section>
 
