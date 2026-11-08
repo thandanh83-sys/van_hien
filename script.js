@@ -1,8 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V30 - FINAL CLEAN UI)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V31 - CLEAN UI)
    Tác giả: Văn Đạo
-   Mô tả: Giao diện Thi Pháp 4 Tầng đã được tinh gọn, xóa tiếng Anh,
-          tự động ẩn các mục vần không có, mang lại trải nghiệm thanh lịch.
+   Mô tả: Tối ưu hóa UI Tầng 1 (chia 4 khung vần riêng biệt, tự động ẩn khung rỗng).
    ===================================================================== */
 
 /* =====================================================================
@@ -150,7 +149,7 @@ function renderRandomQuote() {
 }
 
 /* =====================================================================
-   MODULE 5: ĐỘNG CƠ PHÂN TÍCH THI PHÁP (4 TẦNG - NO AI)
+   MODULE 5: ĐỘNG CƠ PHÂN TÍCH THI PHÁP (4 TẦNG)
    ===================================================================== */
 const POETRY_ANALYZER = (() => {
     function getTone(syllable) {
@@ -287,7 +286,7 @@ const POETRY_ANALYZER = (() => {
 })();
 
 /* =====================================================================
-   MODULE 6: HIỂN THỊ BÁO CÁO 4 TẦNG (GIAO DIỆN ĐÃ ĐƯỢC TINH GỌN)
+   MODULE 6: HIỂN THỊ BÁO CÁO 4 TẦNG (GIAO DIỆN TINH GỌN)
    ===================================================================== */
 function executePipeline() {
     const inputField = document.getElementById('poemInput');
@@ -304,7 +303,6 @@ function executePipeline() {
     if (!report) { resultsPanel.innerHTML = ''; return; }
 
     const SVG_CHECK = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-    const SVG_DOT = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-muted)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px; display: inline-block;"><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
     const SVG_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
     // --- TẦNG 0 ---
@@ -316,51 +314,41 @@ function executePipeline() {
         </div>
     `).join('');
 
-    // --- TẦNG 1 (ĐÃ TINH GỌN - XÓA TIẾNG ANH, TỰ ĐỘNG ẨN MỤC RỖNG) ---
-    const renderRhymeList = (arr) => {
+    // --- TẦNG 1 (CHIA 4 KHUNG RIÊNG BIỆT) ---
+    const renderRhymeBox = (title, arr, color) => {
+        // Nếu không có vần nào thuộc loại này thì ẩn luôn khung
         if (arr.length === 0) return '';
-        return arr.map(item => `<li style="margin-bottom: 6px; padding-left: 15px; position: relative;">
-            <span style="position: absolute; left: 0; color: var(--accent);">•</span>${item}
+        
+        const list = arr.map(item => `<li style="margin-bottom: 8px; display: flex; align-items: flex-start; font-size: 0.9rem; color: var(--text-muted);">
+            <span style="margin-right: 8px; color: ${color}; flex-shrink: 0; margin-top: 2px;">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+            <span>${item}</span>
         </li>`).join('');
+        
+        return `<div style="background: var(--glass-bg); border: 1px solid var(--glass-border); border-left: 3px solid ${color}; border-radius: 8px; padding: 15px;">
+            <strong style="display: block; margin-bottom: 12px; color: ${color}; font-size: 0.95rem;">${title}</strong>
+            <ul style="padding-left: 0; list-style: none; margin: 0;">${list}</ul>
+        </div>`;
     };
 
-    const chanList = renderRhymeList(report.rhymes.details.chan);
-    const lungList = renderRhymeList(report.rhymes.details.lung);
-    const lienList = renderRhymeList(report.rhymes.details.lien);
-    const cachList = renderRhymeList(report.rhymes.details.cach);
-
     const tier1 = `
-        <div style="margin-bottom:15px;">
+        <div style="margin-bottom:20px;">
             <strong>Thể thơ nhận diện:</strong> ${report.form.form} 
             <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span>
         </div>
         
-        <div style="margin-top: 15px; background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px;">
-            <ul style="padding-left: 0; list-style: none; margin: 0; font-size: 0.95rem; display: flex; flex-direction: column; gap: 15px;">
-                
-                ${chanList ? `<li>
-                    <strong style="color: var(--accent); display: block; margin-bottom: 5px;">Vần chân (cuối câu):</strong>
-                    <ul style="padding-left: 0; list-style: none; color: var(--text-muted);">${chanList}</ul>
-                </li>` : ''}
-
-                ${lienList ? `<li>
-                    <strong style="color: var(--text-main); display: block; margin-bottom: 5px;">Vần liền (câu 1-2, 3-4):</strong>
-                    <ul style="padding-left: 0; list-style: none; color: var(--text-muted);">${lienList}</ul>
-                </li>` : ''}
-
-                ${cachList ? `<li>
-                    <strong style="color: var(--text-main); display: block; margin-bottom: 5px;">Vần cách (câu 1-3, 2-4):</strong>
-                    <ul style="padding-left: 0; list-style: none; color: var(--text-muted);">${cachList}</ul>
-                </li>` : ''}
-
-                ${lungList ? `<li>
-                    <strong style="color: var(--accent-gold); display: block; margin-bottom: 5px;">Vần lưng (chữ giữa câu):</strong>
-                    <ul style="padding-left: 0; list-style: none; color: var(--text-muted);">${lungList}</ul>
-                </li>` : ''}
-
-                ${(!chanList && !lienList && !cachList && !lungList) ? `<li style="color:var(--text-muted); font-style:italic;">Không phát hiện quy luật gieo vần rõ ràng.</li>` : ''}
-            </ul>
-        </div>`;
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+            ${renderRhymeBox('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}
+            ${renderRhymeBox('2. Vần lưng (chữ giữa câu)', report.rhymes.details.lung, 'var(--accent-gold)')}
+            ${renderRhymeBox('3. Vần liền (câu 1-2, 3-4)', report.rhymes.details.lien, 'var(--text-main)')}
+            ${renderRhymeBox('4. Vần cách (câu 1-3, 2-4)', report.rhymes.details.cach, 'var(--text-muted)')}
+        </div>
+        
+        ${(report.rhymes.details.chan.length === 0 && report.rhymes.details.lung.length === 0 && report.rhymes.details.lien.length === 0 && report.rhymes.details.cach.length === 0) 
+            ? '<p style="color:var(--text-muted);font-style:italic;text-align:center;padding:20px;">Không phát hiện quy tắc gieo vần nào trong bài thơ này.</p>' 
+            : ''}
+    `;
 
     // --- TẦNG 2 ---
     const tier2 = report.symbols.length === 0
@@ -526,5 +514,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initWaterCanvas();
     initDewdrops();
     
-    console.log("VĂN ĐẠO V30: Hệ thống đã sẵn sàng! Giao diện Thi Pháp đã được thanh lọc.");
+    console.log("VĂN ĐẠO V31: Giao diện Thi Pháp 4 Tầng đã được tối ưu hóa!");
 });
