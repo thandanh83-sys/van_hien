@@ -1,129 +1,112 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <!-- =====================================================================
-         1. THIẾT LẬP CƠ BẢN & SEO (META TAGS)
-         ===================================================================== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="VĂN ĐẠO - Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi hội tụ của Bạch Ngọc Liên và Thủy Mặc.">
-    <meta name="keywords" content="văn học, thi pháp, thủy mặc, hoa sen, tri thức, bách khoa, văn hiến">
+    <meta name="description" content="VĂN ĐẠO - Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
     <title>VĂN ĐẠO — Tinh Hoa Văn Chương & Tri Thức</title>
-
-    <!-- =====================================================================
-         2. NHÚNG FONTS (GOOGLE FONTS)
-         - Cormorant Garamond & Montserrat: Dùng cho Light Mode (Bạch Ngọc)
-         - Playfair Display & Inter: Dùng cho Dark Mode (Thủy Mặc)
-         ===================================================================== -->
+    
+    <!-- Nhúng Font chữ từ Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
-    <!-- =====================================================================
-         3. NHÚNG FILE CSS CHÍNH
-         (Thêm ?v=6 để chống lưu cache trên trình duyệt)
-         ===================================================================== -->
-    <link rel="stylesheet" href="style.css?v=6">
+    <!-- Liên kết file CSS (Thêm ?v=8 để ép trình duyệt tải bản mới, tránh cache) -->
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
-    <!-- =====================================================================
-         4. LỚP NỀN & HIỆU ỨNG ĐỘNG (BACKGROUND & VISUAL EFFECTS)
-         ===================================================================== -->
-    <!-- Canvas để vẽ hiệu ứng gợn sóng nước -->
+    <!-- ========================================== -->
+    <!-- LỚP NỀN & HIỆU ỨNG ĐỘNG                     -->
+    <!-- ========================================== -->
     <canvas id="water-canvas" aria-hidden="true"></canvas>
-    
-    <!-- Quầng sáng di chuyển theo chuột (Chỉ hiện trên Desktop) -->
     <div id="cursor-glow" aria-hidden="true"></div>
-    
-    <!-- Hạt sương bay lơ lửng (Chỉ hiện ở Light Mode) -->
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
 
-    <!-- =====================================================================
-         5. KHUNG CHỨA CHÍNH (MAIN CONTAINER)
-         ===================================================================== -->
+    <!-- ========================================== -->
+    <!-- CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG      -->
+    <!-- ========================================== -->
     <div class="container">
-
-        <!-- =================================================================
-             PHẦN 5.1: THANH ĐIỀU HƯỚNG (NAVBAR)
-             ================================================================= -->
-        <nav class="navbar" role="navigation" aria-label="Thanh điều hướng chính">
-            <!-- Logo -->
-            <div class="nav-brand" onclick="switchView('home')" role="button" tabindex="0" aria-label="Về trang chủ">
-                VĂN ĐẠO
-            </div>
+        
+        <!-- ========================================== -->
+        <!-- NAVBAR (THANH ĐIỀU HƯỚNG)                  -->
+        <!-- ========================================== -->
+        <nav class="navbar">
+            <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
             
-            <!-- Menu Links -->
             <div class="nav-links" id="navMenu">
-                <a onclick="switchView('home')" id="nav-home" class="active" role="button" tabindex="0">Trang Chủ</a>
-                <a onclick="switchView('heritage')" id="nav-heritage" role="button" tabindex="0">Văn Hiến</a>
-                <a onclick="switchView('encyclopedia')" id="nav-encyclopedia" role="button" tabindex="0">Bách Khoa</a>
-                <a onclick="switchView('analyze')" id="nav-analyze" role="button" tabindex="0">Thi Pháp</a>
+                <!-- Đã đổi thẻ <a> thành <button> để chuẩn Accessibility (dùng được phím Tab) -->
+                <button class="nav-btn active" onclick="switchView('home')" id="nav-home">Trang Chủ</button>
+                <button class="nav-btn" onclick="switchView('heritage')" id="nav-heritage">Văn Hiến</button>
+                <button class="nav-btn" onclick="switchView('encyclopedia')" id="nav-encyclopedia">Bách Khoa</button>
+                <button class="nav-btn" onclick="switchView('analyze')" id="nav-analyze">Thi Pháp</button>
                 
-                <!-- Nút chuyển đổi Sáng/Tối (Theme Toggle) -->
-                <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Chuyển đổi chế độ Sáng/Tối">
-                    <!-- Icon Mặt Trời (Hiển thị khi ở chế độ Tối) -->
-                    <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                    <!-- Icon Mặt Trăng (Hiển thị khi ở chế độ Sáng) -->
-                    <svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <!-- Nút Đổi Theme (Sáng/Tối) -->
+                <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Chuyển đổi giao diện Sáng/Tối">
+                    <!-- Icon Mặt Trời (Light Mode) -->
+                    <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <!-- Icon Mặt Trăng (Dark Mode) -->
+                    <svg class="moon-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                 </button>
             </div>
 
-            <!-- Nút Menu Hamburger (Chỉ hiện trên Mobile) -->
-            <button class="mobile-menu-btn" onclick="document.getElementById('navMenu').classList.toggle('show')" aria-label="Mở menu">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <line x1="3" y1="12" x2="21" y2="12"/>
-                    <line x1="3" y1="6" x2="21" y2="6"/>
-                    <line x1="3" y1="18" x2="21" y2="18"/>
-                </svg>
+            <!-- Nút Menu Hamburger (Chỉ hiển thị trên Mobile) -->
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Mở Menu">
+                <svg viewBox="0 0 24 24" fill="none"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
         </nav>
 
-        <!-- =================================================================
-             PHẦN 5.2: VIEW 1 - TRANG CHỦ (HOME VIEW)
-             ================================================================= -->
-        <section id="view-home" class="view active" aria-label="Trang chủ">
+        <!-- ========================================== -->
+        <!-- VIEW 1: TRANG CHỦ (HOME)                   -->
+        <!-- ========================================== -->
+        <section id="view-home" class="view active">
             <div class="hero">
-                <!-- Nội dung chữ (Chuyển đổi theo Theme) -->
                 <div class="hero-content">
                     <h1>
-                        <!-- Bạch Ngọc Liên (Light Mode) -->
-                        <span class="light-text" style="display:block;">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
-                        <!-- Thủy Mặc (Dark Mode) -->
-                        <span class="dark-text" style="display:none;">Vạn Tượng<br>Trong <i>Lời</i></span>
+                        <!-- Light Mode Text -->
+                        <span class="light-text">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
+                        <!-- Dark Mode Text -->
+                        <span class="dark-text">Vạn Tượng<br>Trong <i>Lời</i></span>
                     </h1>
                     <p>
-                        <span class="light-text" style="display:block;">Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</span>
-                        <span class="dark-text" style="display:none;">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</span>
+                        <!-- Light Mode Text -->
+                        <span class="light-text">Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</span>
+                        <!-- Dark Mode Text -->
+                        <span class="dark-text">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</span>
                     </p>
-                    <a class="btn" onclick="switchView('heritage')" role="button" tabindex="0">
+                    <button class="btn" onclick="switchView('heritage')">
                         <span class="light-text">Khám Phá Tuyệt Tác</span>
-                        <span class="dark-text" style="display:none;">Thưởng Lãm</span>
-                    </a>
+                        <span class="dark-text">Thưởng Lãm</span>
+                    </button>
                 </div>
                 
-                <!-- Hình ảnh vòm cánh sen (Chuyển đổi theo Theme) -->
                 <div class="hero-visual">
                     <div class="arch-frame">
-                        <!-- Ảnh Hoa Sen (Light Mode) -->
-                        <img class="light-img" src="https://images.unsplash.com/photo-1596510432170-3785b7243a9c?q=80&w=800&auto=format&fit=crop" alt="Hoa sen thanh khiết" loading="lazy">
+                        <!-- Ảnh Hoa Sen (Light Mode) - Đã thêm onerror fallback -->
+                        <img class="light-img" 
+                             src="https://images.unsplash.com/photo-1596510432170-3785b7243a9c?q=80&w=800&auto=format&fit=crop" 
+                             alt="Hoa sen trắng" 
+                             onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Lotus_Flower_in_China.jpg/800px-Lotus_Flower_in_China.jpg'">
+                        
                         <!-- Ảnh Thủy Mặc (Dark Mode) -->
-                        <img class="dark-img" src="https://images.unsplash.com/photo-1542359573-7c855ee77b9c?q=80&w=800&auto=format&fit=crop" alt="Tranh thủy mặc núi non" style="display:none;" loading="lazy">
+                        <img class="dark-img" 
+                             src="https://images.unsplash.com/photo-1542359573-7c855ee77b9c?q=80&w=800&auto=format&fit=crop" 
+                             alt="Tranh thủy mặc">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- =================================================================
-             PHẦN 5.3: VIEW 2 - VĂN HIẾN (HERITAGE VIEW)
-             ================================================================= -->
-        <section id="view-heritage" class="view" aria-label="Kho tàng văn hiến">
+        <!-- ========================================== -->
+        <!-- VIEW 2: VĂN HIẾN (HERITAGE)                -->
+        <!-- ========================================== -->
+        <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
-            <p class="page-desc">Di sản văn học nước nhà</p>
+            <p class="page-desc">Di sản văn học nước nhà & Thế giới</p>
             
             <!-- Thanh Bộ Lọc -->
-            <div class="filter-bar" role="toolbar" aria-label="Bộ lọc tác phẩm">
+            <div class="filter-bar">
                 <button class="filter-btn active" onclick="filterHeritage('all', this)">Tất cả</button>
                 <button class="filter-btn" onclick="filterHeritage('dan-gian', this)">Dân gian</button>
                 <button class="filter-btn" onclick="filterHeritage('trung-dai', this)">Trung đại</button>
@@ -132,47 +115,46 @@
                 <button class="filter-btn" onclick="filterHeritage('ca-dao', this)">Ca dao - Tục ngữ</button>
                 <button class="filter-btn" onclick="filterHeritage('dien-tich', this)">Điển tích</button>
             </div>
-
-            <!-- Nơi chứa các thẻ tác phẩm (Được render bởi JS) -->
+            
+            <!-- Nơi chứa các thẻ tác phẩm (JS sẽ tự động render vào đây) -->
             <div class="heritage-grid" id="heritage-grid"></div>
         </section>
 
-        <!-- =================================================================
-             PHẦN 5.4: VIEW 3 - ĐẠI BÁCH KHOA (ENCYCLOPEDIA VIEW)
-             ================================================================= -->
-        <section id="view-encyclopedia" class="view" aria-label="Đại bách khoa toàn thư">
+        <!-- ========================================== -->
+        <!-- VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)       -->
+        <!-- ========================================== -->
+        <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Cẩm nang học thuật văn chương</p>
             
-            <!-- Nơi chứa 8 Quyển sách (Được render bởi JS dưới dạng Accordion) -->
+            <!-- Nơi chứa 8 Quyển Sách (JS sẽ tự động render vào đây) -->
             <div id="encyclopedia-container"></div>
         </section>
 
-        <!-- =================================================================
-             PHẦN 5.5: VIEW 4 - THI PHÁP (ANALYZE VIEW)
-             ================================================================= -->
-        <section id="view-analyze" class="view" aria-label="Phân tích thi pháp">
+        <!-- ========================================== -->
+        <!-- VIEW 4: THI PHÁP (ANALYZE)                 -->
+        <!-- ========================================== -->
+        <section id="view-analyze" class="view">
             <h1 class="page-title">Thi Pháp Học</h1>
-            <p class="page-desc">Bóc tách thanh điệu (Bằng / Trắc)</p>
+            <p class="page-desc">Phân tích thanh điệu (Bằng / Trắc)</p>
             
-            <!-- Khung nhập liệu -->
             <div class="analyze-box">
-                <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian." aria-label="Nhập bài thơ cần phân tích"></textarea>
-                <button onclick="executePipeline()" aria-label="Bắt đầu phân tích">Phân Tích</button>
+                <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
+                <button onclick="executePipeline()">Phân Tích Ngay</button>
             </div>
             
-            <!-- Nơi chứa kết quả phân tích (Được render bởi JS) -->
-            <div id="results-panel" aria-live="polite"></div>
+            <!-- Nơi hiển thị kết quả phân tích -->
+            <div id="results-panel"></div>
         </section>
 
-    </div> <!-- Kết thúc .container -->
+    </div>
 
-    <!-- =====================================================================
-         6. NHÚNG JAVASCRIPT
-         (Bắt buộc data.js phải nạp trước script.js)
-         (Thêm ?v=6 để chống lưu cache)
-         ===================================================================== -->
-    <script src="data.js?v=6"></script>
-    <script src="script.js?v=6"></script>
+    <!-- ========================================== -->
+    <!-- SCRIPTS                                    -->
+    <!-- ========================================== -->
+    <!-- Tải dữ liệu trước -->
+    <script src="data.js?v=8"></script>
+    <!-- Tải logic sau cùng để đảm bảo DOM đã sẵn sàng -->
+    <script src="script.js?v=8"></script>
 </body>
 </html>
