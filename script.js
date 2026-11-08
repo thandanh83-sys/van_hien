@@ -1,7 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V36 - SMART SCROLL)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V38 - PERFECT LAYOUT)
    Tác giả: Văn Đạo
-   Cập nhật: Tự động cuộn và highlight chính xác đến mục (vd 8.6) trong Bách Khoa.
+   Cập nhật: Tầng 1 chia khối 2 cột, dấu tích bên trái, [vần chung] bên phải.
    ===================================================================== */
 
 /* =====================================================================
@@ -293,16 +293,24 @@ function executePipeline() {
         </div>
     `).join('');
 
-    // --- TẦNG 1 (DẠNG DANH SÁCH DỌC) ---
-    const renderRhymeList = (title, arr, color) => {
+    // --- TẦNG 1 (DẠNG BẢNG CHIA 2 CỘT, TÍCH BÊN TRÁI, VẦN BÊN PHẢI) ---
+    const renderRhymeBlock = (title, arr, color) => {
         if (arr.length === 0) return '';
-        const list = arr.map(item => `<li style="margin-bottom: 8px; display: flex; align-items: flex-start; font-size: 0.95rem; color: var(--text-muted);">
-            <span style="margin-right: 8px; color: ${color}; flex-shrink: 0;">${SVG_CHECK_SMALL(color)}</span>
-            <span>${item}</span>
-        </li>`).join('');
+        const list = arr.map(item => {
+            const parts = item.split(' — ');
+            const text = parts[0];
+            const rhyme = parts[1] || '';
+            return `<li style="margin-bottom: 8px; display: flex; align-items: flex-start; justify-content: space-between; font-size: 0.95rem; color: var(--text-muted); border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">
+                <span style="display: flex; align-items: flex-start; gap: 8px; padding-right: 10px;">
+                    <span style="color: ${color}; flex-shrink: 0;">${SVG_CHECK_SMALL(color)}</span>
+                    <span>${text}</span>
+                </span>
+                <span style="color: ${color}; font-weight: 500; white-space: nowrap; font-family: monospace;">- ${rhyme}</span>
+            </li>`;
+        }).join('');
         
-        return `<div style="margin-bottom: 20px;">
-            <strong style="display: block; margin-bottom: 10px; color: ${color}; font-size: 1rem;">${title}</strong>
+        return `<div style="flex: 1; min-width: 280px; background: rgba(0,0,0,0.02); padding: 15px; border-radius: 8px; border: 1px solid var(--glass-border);">
+            <strong style="display: block; margin-bottom: 15px; color: ${color}; font-size: 1rem; text-transform: uppercase;">${title}</strong>
             <ul style="padding-left: 0; list-style: none; margin: 0;">${list}</ul>
         </div>`;
     };
@@ -313,11 +321,11 @@ function executePipeline() {
             <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span>
         </div>
         
-        <div style="display: flex; flex-direction: column;">
-            ${renderRhymeList('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}
-            ${renderRhymeList('2. Vần lưng (chữ giữa câu)', report.rhymes.details.lung, 'var(--accent-gold)')}
-            ${renderRhymeList('3. Vần liền (câu 1-2, 3-4)', report.rhymes.details.lien, 'var(--text-main)')}
-            ${renderRhymeList('4. Vần cách (câu 1-3, 2-4)', report.rhymes.details.cach, 'var(--text-muted)')}
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+            ${renderRhymeBlock('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}
+            ${renderRhymeBlock('2. Vần lưng (chữ giữa câu)', report.rhymes.details.lung, 'var(--accent-gold)')}
+            ${renderRhymeBlock('3. Vần liền (câu 1-2, 3-4)', report.rhymes.details.lien, 'var(--text-main)')}
+            ${renderRhymeBlock('4. Vần cách (câu 1-3, 2-4)', report.rhymes.details.cach, 'var(--text-muted)')}
         </div>
         
         ${(report.rhymes.details.chan.length === 0 && report.rhymes.details.lung.length === 0 && report.rhymes.details.lien.length === 0 && report.rhymes.details.cach.length === 0) 
@@ -373,7 +381,6 @@ function executePipeline() {
 
 /**
  * Hàm phụ trợ: Điều hướng tới đúng Quyển và đúng Mục trong Bách Khoa.
- * NÂNG CẤP: Cuộn mượt tới thẻ h4 (vd: 8.6) và highlight nó.
  */
 function gotoEncyclopedia(volNum, secNum) {
     switchView('encyclopedia');
@@ -384,33 +391,24 @@ function gotoEncyclopedia(volNum, secNum) {
             if (!summary) continue;
             const text = summary.textContent.trim();
             
-            // Kiểm tra xem có phải Quyển cần tìm không (VD: "Quyển VIII.")
             if (text.startsWith(`Quyển ${volNum}.`) || text.startsWith(`Quyển ${volNum} `)) {
-                d.open = true; // Mở Quyển ra trước
-                
-                // Nếu có số mục cụ thể (VD: 8.6)
+                d.open = true;
                 if (secNum) {
                     const headings = d.querySelectorAll('h4');
                     for (const h of headings) {
-                        // Tìm thẻ h4 có chứa số mục (VD: "8.6.")
                         if (h.textContent.includes(secNum)) {
                             setTimeout(() => {
                                 h.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                // Highlight màu vàng nhạt để mắt dễ nhận ra
                                 h.style.backgroundColor = 'rgba(212, 175, 55, 0.2)';
                                 h.style.padding = '5px 10px';
                                 h.style.borderRadius = '4px';
                                 h.style.transition = 'background-color 1.5s ease';
-                                setTimeout(() => {
-                                    h.style.backgroundColor = 'transparent';
-                                }, 2000);
+                                setTimeout(() => { h.style.backgroundColor = 'transparent'; }, 2000);
                             }, 300);
                             return;
                         }
                     }
                 }
-                
-                // Nếu không có secNum hoặc không tìm thấy, chỉ cuộn tới đầu Quyển
                 d.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
@@ -493,5 +491,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initWaterCanvas();
     initDewdrops();
     
-    console.log("VĂN ĐẠO V36: Hệ thống đã sẵn sàng! Smart Scroll đã được kích hoạt.");
+    console.log("VĂN ĐẠO V38: Hệ thống đã sẵn sàng! Layout Tầng 1 đã được hoàn thiện.");
 });
