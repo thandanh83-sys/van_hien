@@ -237,9 +237,8 @@ function executePipeline() {
 }
 
 /* =========================================
-   8. TÍNH NĂNG TÌM KIẾM (LIVE SEARCH) - ĐÃ SỬA HOÀN CHỈNH
+   8. TÍNH NĂNG TÌM KIẾM (LIVE SEARCH) - HOÀN CHỈNH
    ========================================= */
-// Hàm loại bỏ dấu tiếng Việt để tìm kiếm không dấu dễ dàng hơn
 function removeTones(str) {
     return str.normalize('NFD')
               .replace(/[\u0300-\u036f]/g, '')
@@ -257,7 +256,6 @@ function initSearch() {
     searchInput.addEventListener('input', (e) => {
         const query = e.target.value.trim();
         
-        // Nếu không gõ gì thì ẩn hộp kết quả
         if (query.length === 0) {
             resultsBox.classList.remove('active');
             resultsBox.innerHTML = '';
@@ -280,9 +278,11 @@ function initSearch() {
             }
         });
 
-        // 2. Tìm trong Bách Khoa
+        // 2. Tìm trong Bách Khoa (Tìm cả trong nội dung)
         ENCYCLOPEDIA_DATA.forEach(item => {
-            const textToSearch = removeTones(item.title + " " + item.content);
+            const plainContent = item.content.replace(/<[^>]*>?/gm, ' ');
+            const textToSearch = removeTones(item.title + " " + plainContent);
+            
             if (textToSearch.includes(cleanQuery)) {
                 results.push({
                     type: "Bách Khoa",
@@ -293,11 +293,9 @@ function initSearch() {
             }
         });
 
-        // 3. Hiển thị kết quả (Giới hạn 6 kết quả đầu tiên cho gọn)
         if (results.length > 0) {
-            // DÙNG data-view và data-title ĐỂ LƯU TRỮ THAY VÌ TRUYỀN CHUỖI
             resultsBox.innerHTML = results.slice(0, 6).map(r => `
-                <div class="search-item" data-view="${r.view}" data-title="${r.title}" onclick="handleSearchClick(this)">
+                <div class="search-item" data-view="${r.view}" data-title="${r.title}" data-query="${query}" onclick="handleSearchClick(this)">
                     <span class="s-type">${r.type}</span>
                     <h4>${r.title}</h4>
                     <p>${r.sub}</p>
@@ -310,7 +308,6 @@ function initSearch() {
         resultsBox.classList.add('active');
     });
 
-    // Ẩn kết quả khi click ra ngoài vùng tìm kiếm
     document.addEventListener('click', (e) => {
         if (!document.getElementById('search-container').contains(e.target)) {
             resultsBox.classList.remove('active');
@@ -318,28 +315,38 @@ function initSearch() {
     });
 }
 
-// Hàm xử lý khi click vào một kết quả tìm kiếm
 function handleSearchClick(element) {
     const viewId = element.getAttribute('data-view');
     const title = element.getAttribute('data-title');
+    const query = element.getAttribute('data-query');
     
-    // Chuyển sang trang tương ứng
     switchView(viewId);
-    
-    // Xóa thanh tìm kiếm và ẩn hộp kết quả
     document.getElementById('global-search').value = '';
     document.getElementById('search-results').classList.remove('active');
     
-    // Đợi 1 chút để trang render xong, sau đó tìm và làm nổi bật
     setTimeout(() => {
-        let targetElement = null;
+        let targetContainer = null;
+        let textToHighlight = null;
 
         if (viewId === 'encyclopedia') {
-            const summaries = document.querySelectorAll('.accordion-item summary');
-            for (let summary of summaries) {
-                if (summary.textContent.includes(title)) {
-                    targetElement = summary.closest('.accordion-item');
-                    targetElement.setAttribute('open', 'true'); // Mở nắp ra
+            const accordions = document.querySelectorAll('.accordion-item');
+            for (let acc of accordions) {
+                const summary = acc.querySelector('summary');
+                if (summary.textContent.trim() === title) {
+                    acc.setAttribute('open', 'true');
+                    targetContainer = acc;
+                    
+                    // TÌM CHÍNH XÁC ĐOẠN VĂN CHỨA TỪ KHÓA
+                    const cleanQuery = removeTones(query);
+                    const contentDiv = acc.querySelector('.accordion-content');
+                    const elements = contentDiv.querySelectorAll('p, li, h4');
+                    
+                    for (let el of elements) {
+                        if (removeTones(el.textContent).includes(cleanQuery)) {
+                            textToHighlight = el;
+                            break; 
+                        }
+                    }
                     break;
                 }
             }
@@ -347,24 +354,30 @@ function handleSearchClick(element) {
             const cards = document.querySelectorAll('.heritage-card');
             for (let card of cards) {
                 const h3 = card.querySelector('h3');
-                if (h3 && h3.textContent.includes(title)) {
-                    targetElement = card;
+                if (h3 && h3.textContent.trim() === title) {
+                    targetContainer = card;
                     break;
                 }
             }
         }
 
-        // Nếu tìm thấy mục tiêu, cuộn đến và làm phát sáng
-        if (targetElement) {
-            targetElement.classList.add('highlight-target');
-            targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (targetContainer) {
+            targetContainer.classList.add('highlight-target');
             
-            // Xóa viền phát sáng sau 3 giây
-            setTimeout(() => {
-                targetElement.classList.remove('highlight-target');
-            }, 3000);
+            if (textToHighlight) {
+                // Cuộn đến đúng đoạn văn và bôi vàng
+                textToHighlight.classList.add('highlight-text');
+                textToHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                setTimeout(() => textToHighlight.classList.remove('highlight-text'), 4000);
+            } else {
+                // Nếu không tìm thấy đoạn văn cụ thể, cuộn đến đầu Quyển/Thẻ
+                targetContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            setTimeout(() => targetContainer.classList.remove('highlight-target'), 3000);
         }
-    }, 300); // Đợi 0.3s
+    }, 300);
 }
 
 /* =========================================
