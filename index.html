@@ -24,7 +24,7 @@
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (v=1000)                 -->
+    <!-- LIÊN KẾT FILE CSS (v=1000 để ép xóa cache) -->
     <!-- ========================================== -->
     <link rel="stylesheet" href="style.css?v=1000">
 </head>
@@ -76,7 +76,7 @@
                     Thi Pháp
                 </button>
                 
-                <!-- Đường gạch ngang ngăn cách -->
+                <!-- Đường gạch ngang ngăn cách (chỉ hiện trên mobile) -->
                 <div class="menu-divider"></div>
 
                 <!-- Nút Đổi Theme (Sáng/Tối) -->
@@ -136,7 +136,8 @@
                 </div>
             </div>
 
-            <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Ép xóa gạch viền) -->
+            <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
+            <!-- Đã gắn inline-style để xóa sạch 100% đường gạch ngang -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
@@ -198,12 +199,12 @@
     <!-- ========================================== -->
     <!-- Thứ tự tải file cực kỳ quan trọng: Dữ liệu trước, Logic sau -->
     
-    <!-- 1. Tải 3 file dữ liệu (v=1000) -->
+    <!-- 1. Tải 3 file dữ liệu (v=1000 để ép xóa cache) -->
     <script src="data-heritage.js?v=1000"></script>
     <script src="data-encyclopedia.js?v=1000"></script>
     <script src="data-quotes.js?v=1000"></script>
     
-    <!-- 2. Tải file logic xử lý sau cùng (v=1000) -->
+    <!-- 2. Tải file logic xử lý sau cùng (v=1000 để ép xóa cache) -->
     <script src="script.js?v=1000"></script>
 </body>
 </html>
