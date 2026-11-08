@@ -3,7 +3,7 @@
    (Trái tim tri thức - Bảo vệ dữ liệu tuyệt đối)
    ========================================= */
 
-// 1. DỮ LIỆU VĂN HIẾN (MỞ RỘNG 24 TÁC PHẨM & PHÂN LOẠI)
+// 1. DỮ LIỆU VĂN HIẾN (24 TÁC PHẨM & PHÂN LOẠI)
 const HERITAGE_DATA = [
     // --- VĂN HỌC DÂN GIAN ---
     { title: "Con Rồng Cháu Tiên", author: "Dân gian", genre: "Truyền thuyết", era: "Thời Hồng Bàng", script: "Truyền miệng", desc: "Giải thích nguồn gốc cao quý của dân tộc Việt Nam.", category: "dan-gian" },
