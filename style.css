@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V11)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V12)
    Tác giả: Văn Đạo
    Mô tả: Hệ thống CSS Lưỡng cực (Bạch Ngọc Liên & Thủy Mặc).
    Cấu trúc: 11 Phân đoạn từ Biến hệ thống đến Responsive.
@@ -18,8 +18,8 @@
     --accent-gold: #cbb882;       /* Vàng kim nhạt (điểm nhấn phụ) */
     
     /* Hiệu ứng kính mờ (Glassmorphism) */
-    --glass-bg: rgba(255, 255, 255, 0.45); 
-    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-bg: rgba(255, 255, 255, 0.55); 
+    --glass-border: rgba(255, 255, 255, 0.9);
     --glass-shadow: 0 15px 35px rgba(44, 66, 61, 0.06);
     
     /* Typography & Layout */
@@ -31,20 +31,20 @@
     /* Nền họa tiết (Hiệu ứng màu nước loang) */
     --pattern-bg: 
         radial-gradient(circle at 15% 20%, rgba(163, 198, 190, 0.25) 0%, transparent 45%),
-        radial-gradient(circle at 85% 75%, rgba(203, 184, 130, 0.15) 0%, transparent 40%);
+        radial-gradient(circle at 85% 75%, rgba(212, 175, 55, 0.1) 0%, transparent 40%);
 }
 
 body.dark-mode {
     /* --- [DARK MODE] THỦY MẶC (ĐEN - VÀNG GOLD) --- */
-    --bg-base: #050505;           /* Nền đen tuyền sâu thẳm */
-    --text-main: #e8e8e8;         /* Chữ trắng ngà */
-    --text-muted: #999999;        /* Chữ xám khói */
+    --bg-base: #0a0a0a;           /* Nền đen tuyền sâu thẳm */
+    --text-main: #e0e0e0;         /* Chữ trắng ngà */
+    --text-muted: #8c8c8c;        /* Chữ xám khói */
     
     --accent: #d4af37;            /* Vàng Gold hoàng gia (Điểm nhấn chính) */
-    --accent-gold: #c5a059;       /* ĐÃ XÓA ĐỎ SON, thay bằng Vàng Đồng trầm */
+    --accent-gold: #c5a059;       /* Vàng Đồng trầm (Điểm nhấn phụ) */
     
     /* Hiệu ứng kính mờ (Glassmorphism tối) */
-    --glass-bg: rgba(15, 15, 15, 0.7);
+    --glass-bg: rgba(20, 20, 20, 0.75);
     --glass-border: rgba(212, 175, 55, 0.2); /* Viền ánh vàng nhẹ */
     --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
     
@@ -54,7 +54,7 @@ body.dark-mode {
     
     /* Nền họa tiết (Mực loang) */
     --pattern-bg: 
-        radial-gradient(ellipse at 20% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 90%, rgba(255, 255, 255, 0.02) 0%, transparent 60%);
 }
 
@@ -98,8 +98,8 @@ body {
     position: fixed; width: 400px; height: 400px; border-radius: 50%; pointer-events: none; 
     transform: translate(-50%, -50%); z-index: 0; transition: background 0.8s;
 }
-body:not(.dark-mode) #cursor-glow { background: radial-gradient(circle, rgba(163, 198, 190, 0.15) 0%, transparent 70%); }
-body.dark-mode #cursor-glow { background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%); }
+body:not(.dark-mode) #cursor-glow { background: radial-gradient(circle, rgba(163, 198, 190, 0.15) 0%, rgba(255, 255, 255, 0) 70%); }
+body.dark-mode #cursor-glow { background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, rgba(0, 0, 0, 0) 70%); }
 
 .dewdrop-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
 .dewdrop { position: absolute; background: #fff; border-radius: 50%; box-shadow: 0 0 10px 2px rgba(255,255,255,0.6); animation: floatUp 15s linear infinite; opacity: 0; }
@@ -114,7 +114,7 @@ body.dark-mode .dewdrop { display: none; }
     z-index: 10; 
     max-width: 1100px; 
     margin: 0 auto; 
-    padding: 100px 24px 40px 24px; 
+    padding: 100px 24px 40px 24px; /* Padding-top để Navbar không đè nội dung */
 }
 
 .navbar {
@@ -161,15 +161,22 @@ body.dark-mode .dewdrop { display: none; }
 .menu-divider { display: none; }
 
 /* Nút đổi Theme (Desktop) */
-.theme-btn { background: transparent; border: none; cursor: pointer; padding: 8px; color: var(--text-main); transition: transform 0.4s ease, color 0.4s; display: flex; align-items: center; justify-content: center;}
-.theme-btn:hover { transform: scale(1.1) rotate(15deg); color: var(--accent); }
-.theme-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
+.theme-toggle-btn { font-weight: 600; }
+.theme-toggle-btn .nav-icon { display: block; }
 
-/* Ẩn hiện icon Sáng/Tối */
+/* Ẩn/Hiện icon Sáng/Tối */
 .sun-icon { display: none; } 
 .moon-icon { display: block; }
 body.dark-mode .sun-icon { display: block; } 
 body.dark-mode .moon-icon { display: none; }
+
+/* Màu Icon & Chữ cho Chế độ Sáng (Mặt trăng - Xanh ngọc) */
+body:not(.dark-mode) .theme-toggle-btn .moon-icon { stroke: var(--accent) !important; }
+body:not(.dark-mode) #theme-text { color: var(--accent) !important; }
+
+/* Màu Icon & Chữ cho Chế độ Tối (Mặt trời - Vàng Sáng rực rỡ) */
+body.dark-mode .theme-toggle-btn .sun-icon { stroke: #fbbf24 !important; }
+body.dark-mode #theme-text { color: #fbbf24 !important; }
 
 /* Nút Hamburger */
 .mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 4px; }
@@ -435,26 +442,6 @@ body.dark-mode .btn .light-text { display: none !important; }
         background: var(--glass-border);
         margin: 8px 0;
     }
-
-    /* FIX LỖI ICON BỊ CHỒNG CHÉO & SAI MÀU */
-    .theme-toggle-btn {
-        background: transparent !important;
-        color: var(--text-main) !important;
-    }
-    
-    /* Màu chữ và icon của Light Mode (Xanh ngọc) */
-    #theme-text { color: #7da89e !important; font-weight: 600; font-size: 0.95rem; }
-    .theme-toggle-btn .moon-icon { stroke: #7da89e !important; }
-
-    /* Màu chữ và icon của Dark Mode (Vàng Gold) */
-    body.dark-mode #theme-text { color: #d4af37 !important; }
-    body.dark-mode .theme-toggle-btn .sun-icon { stroke: #d4af37 !important; }
-
-    /* Ẩn hiện icon chuẩn xác (Chỉ hiện 1 cái) */
-    .sun-icon { display: none; } 
-    .moon-icon { display: block; }
-    body.dark-mode .sun-icon { display: block; } 
-    body.dark-mode .moon-icon { display: none; }
 
     #cursor-glow { display: none; }
     
