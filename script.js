@@ -4,7 +4,6 @@
 const themeBtn = document.getElementById('theme-btn');
 const currentTheme = localStorage.getItem('vandao-theme');
 
-// Khôi phục theme đã lưu khi tải lại trang
 if (currentTheme === 'dark') {
     document.body.classList.add('dark-mode');
 }
@@ -18,31 +17,22 @@ function toggleTheme() {
 /* =========================================
    2. ĐIỀU HƯỚNG & HIỆU ỨNG NAVBAR
    ========================================= */
-// Hiệu ứng đổi màu navbar khi cuộn
 window.addEventListener('scroll', () => {
     const navbar = document.getElementById('mainNavbar');
     navbar.classList.toggle('scrolled', window.scrollY > 20);
 });
 
-// Chuyển đổi giữa các trang (View)
 function switchView(viewId) {
-    // Ẩn tất cả các view
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    // Bỏ active của tất cả các nút menu
     document.querySelectorAll('.nav-btn').forEach(a => a.classList.remove('active'));
     
-    // Hiển thị view được chọn và thêm active cho nút tương ứng
     document.getElementById(`view-${viewId}`).classList.add('active');
     document.getElementById(`nav-${viewId}`).classList.add('active');
     
-    // Cuộn lên đầu trang
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Đóng menu mobile nếu đang mở
     document.getElementById('navMenu').classList.remove('show');
 }
 
-// Bật/tắt menu mobile
 function toggleMobileMenu() {
     document.getElementById('navMenu').classList.toggle('show');
 }
@@ -65,13 +55,12 @@ function typeWriter() {
         typeIndex++;
         setTimeout(typeWriter, 100);
     } else {
-        // Gõ xong thì tắt con trỏ nhấp nháy
         if(cursor) cursor.style.display = 'none'; 
     }
 }
 
 /* =========================================
-   4. HIỆU ỨNG 3D TILT CHO THẺ CHỨC NĂNG
+   4. HIỆU ỨNG 3D TILT
    ========================================= */
 function initTilt() {
     const tiltCards = document.querySelectorAll('.tilt');
@@ -83,7 +72,7 @@ function initTilt() {
             const centerX = rect.width / 2; 
             const centerY = rect.height / 2;
             
-            const rotateX = ((y - centerY) / centerY) * -10; // Nghiêng tối đa 10 độ
+            const rotateX = ((y - centerY) / centerY) * -10;
             const rotateY = ((x - centerX) / centerX) * 10;
             
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
@@ -101,31 +90,50 @@ function initTilt() {
 }
 
 /* =========================================
-   5. RENDER DỮ LIỆU TỪ FILE DATA.JS
+   5. RENDER DỮ LIỆU & BỘ LỌC VĂN HIẾN
    ========================================= */
-// Các icon SVG dùng chung
 const svgUser = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
 const svgClock = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
 
-function renderData() {
-    // 5.1. Render Văn Hiến (Trang chính)
+// Hàm render Văn Hiến (có hỗ trợ lọc)
+function renderHeritage(filterCategory = 'all') {
     const fullGrid = document.getElementById('heritage-grid');
-    if(fullGrid) {
-        fullGrid.innerHTML = HERITAGE_DATA.map(item => `
-            <div class="heritage-card">
-                <span class="h-tag">${item.genre}</span>
-                <h3>${item.title}</h3>
-                <div class="author">${svgUser} ${item.author}</div>
-                <p>${item.desc}</p>
-                <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 10px; display: flex; gap: 15px;">
-                    <div class="meta-item">${svgClock} ${item.era}</div>
-                    <div class="meta-item">✍️ ${item.script}</div>
-                </div>
-            </div>
-        `).join('');
-    }
+    if(!fullGrid) return;
 
-    // 5.2. Render Văn Hiến (Preview ở Trang Chủ - chỉ lấy 3 cái đầu)
+    // Lọc dữ liệu nếu không phải 'all'
+    const filteredData = filterCategory === 'all' 
+        ? HERITAGE_DATA 
+        : HERITAGE_DATA.filter(item => item.category === filterCategory);
+
+    fullGrid.innerHTML = filteredData.map(item => `
+        <div class="heritage-card">
+            <span class="h-tag">${item.genre}</span>
+            <h3>${item.title}</h3>
+            <div class="author">${svgUser} ${item.author}</div>
+            <p>${item.desc}</p>
+            <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 10px; display: flex; gap: 15px;">
+                <div class="meta-item">${svgClock} ${item.era}</div>
+                <div class="meta-item">✍️ ${item.script}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Hàm xử lý khi bấm nút Bộ lọc
+function filterHeritage(category, btnElement) {
+    // Đổi màu nút active
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    btnElement.classList.add('active');
+    
+    // Render lại danh sách theo bộ lọc
+    renderHeritage(category);
+}
+
+function renderData() {
+    // 1. Render Văn Hiến (Mặc định hiện tất cả)
+    renderHeritage('all');
+
+    // 2. Render Văn Hiến (Preview ở Trang Chủ - lấy 3 tác phẩm đầu)
     const previewGrid = document.getElementById('home-preview-grid');
     if(previewGrid) {
         previewGrid.innerHTML = HERITAGE_DATA.slice(0, 3).map(item => `
@@ -139,7 +147,7 @@ function renderData() {
         `).join('');
     }
 
-    // 5.3. Render Đại Bách Khoa (8 Quyển)
+    // 3. Render Đại Bách Khoa (8 Quyển)
     const encyContainer = document.getElementById('encyclopedia-container');
     if(encyContainer) {
         encyContainer.innerHTML = ENCYCLOPEDIA_DATA.map(item => `
@@ -154,7 +162,7 @@ function renderData() {
         `).join('');
     }
 
-    // 5.4. Render Dải chữ chạy (Marquee)
+    // 4. Render Dải chữ chạy (Marquee)
     const marquee = document.getElementById('marquee-content');
     if(marquee) {
         const svgStar = `<svg viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg>`;
@@ -237,7 +245,7 @@ function executePipeline() {
 }
 
 /* =========================================
-   8. TÍNH NĂNG TÌM KIẾM (LIVE SEARCH) - HOÀN CHỈNH
+   8. TÍNH NĂNG TÌM KIẾM (LIVE SEARCH)
    ========================================= */
 function removeTones(str) {
     return str.normalize('NFD')
@@ -278,7 +286,7 @@ function initSearch() {
             }
         });
 
-        // 2. Tìm trong Bách Khoa (Tìm cả trong nội dung)
+        // 2. Tìm trong Bách Khoa
         ENCYCLOPEDIA_DATA.forEach(item => {
             const plainContent = item.content.replace(/<[^>]*>?/gm, ' ');
             const textToSearch = removeTones(item.title + " " + plainContent);
@@ -293,6 +301,7 @@ function initSearch() {
             }
         });
 
+        // 3. Hiển thị kết quả
         if (results.length > 0) {
             resultsBox.innerHTML = results.slice(0, 6).map(r => `
                 <div class="search-item" data-view="${r.view}" data-title="${r.title}" data-query="${query}" onclick="handleSearchClick(this)">
@@ -308,6 +317,7 @@ function initSearch() {
         resultsBox.classList.add('active');
     });
 
+    // Ẩn kết quả khi click ra ngoài
     document.addEventListener('click', (e) => {
         if (!document.getElementById('search-container').contains(e.target)) {
             resultsBox.classList.remove('active');
@@ -336,7 +346,7 @@ function handleSearchClick(element) {
                     acc.setAttribute('open', 'true');
                     targetContainer = acc;
                     
-                    // TÌM CHÍNH XÁC ĐOẠN VĂN CHỨA TỪ KHÓA
+                    // Tìm đoạn văn chính xác để highlight
                     const cleanQuery = removeTones(query);
                     const contentDiv = acc.querySelector('.accordion-content');
                     const elements = contentDiv.querySelectorAll('p, li, h4');
@@ -365,13 +375,10 @@ function handleSearchClick(element) {
             targetContainer.classList.add('highlight-target');
             
             if (textToHighlight) {
-                // Cuộn đến đúng đoạn văn và bôi vàng
                 textToHighlight.classList.add('highlight-text');
                 textToHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
                 setTimeout(() => textToHighlight.classList.remove('highlight-text'), 4000);
             } else {
-                // Nếu không tìm thấy đoạn văn cụ thể, cuộn đến đầu Quyển/Thẻ
                 targetContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
             
