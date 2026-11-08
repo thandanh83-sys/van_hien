@@ -1,8 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE EDITION)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (FULLY FIXED EDITION)
    Tác giả: Văn Đạo
-   Mô tả: Hệ thống CSS Lưỡng cực (Bạch Ngọc Liên & Thủy Mặc)
-   Cấu trúc: 10 Phân đoạn từ Biến hệ thống đến Responsive.
+   Mô tả: Đã fix toàn bộ lỗi UI/UX trên Mobile (Menu xuyên thấu, Nút đè chữ, Navbar che nội dung).
    ===================================================================== */
 
 /* =====================================================================
@@ -18,14 +17,14 @@
     --accent-gold: #cbb882;       /* Vàng kim nhạt (điểm nhấn phụ) */
     
     /* Hiệu ứng kính mờ (Glassmorphism) */
-    --glass-bg: rgba(255, 255, 255, 0.45); 
-    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-bg: rgba(255, 255, 255, 0.65); 
+    --glass-border: rgba(255, 255, 255, 0.9);
     --glass-shadow: 0 15px 35px rgba(44, 66, 61, 0.06);
     
     /* Typography & Layout */
     --font-serif: 'Cormorant Garamond', serif;
     --font-sans: 'Montserrat', sans-serif;
-    --radius-pill: 50px;
+    --radius-pill: 50px;          /* Bo tròn cho Light Mode */
     --radius-card: 16px;
     
     /* Nền họa tiết (Hiệu ứng màu nước loang) */
@@ -40,12 +39,12 @@ body.dark-mode {
     --text-main: #e0e0e0;         /* Trắng xám (giấy cũ) */
     --text-muted: #8c8c8c;        /* Xám khói */
     
-    --accent: #c5a059;            /* Vàng kim trầm (ánh sáng mờ) */
-    --accent-gold: #b83b3b;       /* Đỏ son (mặt trời) */
+    --accent: #c5a059;            /* Vàng kim trầm */
+    --accent-gold: #b83b3b;       /* Đỏ son */
     
     /* Hiệu ứng kính mờ (Glassmorphism tối) */
-    --glass-bg: rgba(20, 20, 20, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(20, 20, 20, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.1);
     --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
     
     /* Typography & Layout */
@@ -67,11 +66,10 @@ body.dark-mode {
     margin: 0; 
     padding: 0; 
     box-sizing: border-box; 
-    /* Hiệu ứng chuyển đổi mượt mà khi đổi Theme */
     transition: background-color 0.8s ease, color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease; 
 }
 
-/* Tùy chỉnh thanh cuộn (Scrollbar) thanh lịch */
+/* Tùy chỉnh thanh cuộn thanh lịch */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
@@ -83,373 +81,188 @@ body.dark-mode {
 body {
     background-color: var(--bg-base);
     background-image: var(--pattern-bg);
-    background-attachment: fixed; /* Nền đứng yên khi cuộn */
+    background-attachment: fixed;
     color: var(--text-main);
     font-family: var(--font-sans);
     line-height: 1.6;
     min-height: 100vh;
-    overflow-x: hidden; /* Chặn cuộn ngang */
-    -webkit-font-smoothing: antialiased; /* Chữ mượt trên Mac/iOS */
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* =====================================================================
    3. LỚP NỀN & HIỆU ỨNG ĐỘNG (BACKGROUND & EFFECTS)
    ===================================================================== */
-/* Canvas vẽ gợn sóng nước */
-#water-canvas { 
-    position: fixed; 
-    top: 0; left: 0; 
-    width: 100%; height: 100%; 
-    pointer-events: none; 
-    z-index: 1; 
-}
+#water-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
 
-/* Quầng sáng theo chuột */
 #cursor-glow {
-    position: fixed; 
-    width: 400px; height: 400px; 
-    border-radius: 50%; 
-    pointer-events: none; 
-    transform: translate(-50%, -50%); 
-    z-index: 0; 
-    transition: background 0.8s;
+    position: fixed; width: 400px; height: 400px; border-radius: 50%; pointer-events: none; 
+    transform: translate(-50%, -50%); z-index: 0; transition: background 0.8s;
 }
 body:not(.dark-mode) #cursor-glow { background: radial-gradient(circle, rgba(163, 198, 190, 0.15) 0%, transparent 70%); }
 body.dark-mode #cursor-glow { background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%); }
 
-/* Hạt sương bay lơ lửng (Chỉ hiện ở Light Mode) */
-.dewdrop-container { 
-    position: fixed; top: 0; left: 0; 
-    width: 100%; height: 100%; 
-    pointer-events: none; 
-    z-index: 0; overflow: hidden; 
-}
-.dewdrop { 
-    position: absolute; 
-    background: #fff; 
-    border-radius: 50%; 
-    box-shadow: 0 0 10px 2px rgba(255,255,255,0.6); 
-    animation: floatUp 15s linear infinite; 
-    opacity: 0; 
-}
+.dewdrop-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+.dewdrop { position: absolute; background: #fff; border-radius: 50%; box-shadow: 0 0 10px 2px rgba(255,255,255,0.6); animation: floatUp 15s linear infinite; opacity: 0; }
 body.dark-mode .dewdrop { display: none; }
-@keyframes floatUp { 
-    0% { transform: translateY(100vh) scale(0.5); opacity: 0; } 
-    10% { opacity: 0.8; } 
-    90% { opacity: 0.8; } 
-    100% { transform: translateY(-10vh) scale(1); opacity: 0; } 
-}
+@keyframes floatUp { 0% { transform: translateY(100vh) scale(0.5); opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1); opacity: 0; } }
 
 /* =====================================================================
-   4. NAVBAR (THANH ĐIỀU HƯỚNG)
+   4. NAVBAR (THANH ĐIỀU HƯỚNG) - ĐÃ FIX KHOẢNG CÁCH
    ===================================================================== */
 .container { 
     position: relative; 
     z-index: 10; 
     max-width: 1100px; 
     margin: 0 auto; 
-    padding: 30px 24px; 
+    /* FIX: Thêm padding-top 90px để Navbar không đè lên nội dung */
+    padding: 90px 24px 40px 24px; 
 }
 
 .navbar {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    padding: 16px 32px; 
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 32px; 
     background: var(--glass-bg); 
-    backdrop-filter: blur(12px); /* Hiệu ứng kính mờ */
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border); 
     border-radius: var(--radius-pill); 
     box-shadow: var(--glass-shadow);
-    position: sticky; 
-    top: 20px; 
+    position: fixed; /* FIX: Đổi thành fixed để luôn nổi trên cùng */
+    top: 15px; 
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 1050px;
     z-index: 100; 
-    margin-bottom: 40px;
 }
 
-.nav-brand { 
-    font-family: var(--font-serif); 
-    font-size: 1.6rem; 
-    font-weight: 600; 
-    letter-spacing: 4px; 
-    cursor: pointer; 
-    color: var(--text-main);
-}
-
-.nav-links { 
-    display: flex; 
-    align-items: center; 
-    gap: 30px; 
-}
+.nav-brand { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 600; letter-spacing: 4px; cursor: pointer; color: var(--text-main); }
+.nav-links { display: flex; align-items: center; gap: 25px; }
 
 .nav-links a { 
-    text-decoration: none; 
-    color: var(--text-muted); 
-    font-size: 0.85rem; 
-    letter-spacing: 1.5px; 
-    text-transform: uppercase; 
-    cursor: pointer; 
-    transition: color 0.3s; 
-    position: relative; 
+    text-decoration: none; color: var(--text-muted); font-size: 0.85rem; 
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer; 
+    transition: color 0.3s; position: relative; 
 }
-
 .nav-links a:hover, .nav-links a.active { color: var(--text-main); }
-
-/* Dấu chấm nhỏ bên dưới nút Active */
 .nav-links a::after { 
-    content: ''; 
-    position: absolute; 
-    bottom: -6px; 
-    left: 50%; 
-    width: 4px; height: 4px; 
-    border-radius: 50%; 
-    background: var(--accent-gold); 
-    transform: translateX(-50%) scale(0); 
-    transition: transform 0.3s; 
+    content: ''; position: absolute; bottom: -6px; left: 50%; width: 4px; height: 4px; 
+    border-radius: 50%; background: var(--accent-gold); 
+    transform: translateX(-50%) scale(0); transition: transform 0.3s; 
 }
-.nav-links a:hover::after, .nav-links a.active::after { 
-    transform: translateX(-50%) scale(1); 
-}
+.nav-links a:hover::after, .nav-links a.active::after { transform: translateX(-50%) scale(1); }
 
 /* Nút đổi Theme */
-.theme-btn { 
-    background: transparent; 
-    border: none; 
-    cursor: pointer; 
-    padding: 8px; 
-    color: var(--text-main); 
-    transition: transform 0.4s ease, color 0.4s; 
-}
+.theme-btn { background: transparent; border: none; cursor: pointer; padding: 8px; color: var(--text-main); transition: transform 0.4s ease, color 0.4s; display: flex; align-items: center; justify-content: center;}
 .theme-btn:hover { transform: scale(1.1) rotate(15deg); color: var(--accent); }
 .theme-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
-
-/* Ẩn/Hiện Icon Sáng/Tối */
 .sun-icon { display: block; } .moon-icon { display: none; }
 body.dark-mode .sun-icon { display: none; } body.dark-mode .moon-icon { display: block; }
 
-.mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; }
-.mobile-menu-btn svg { width: 28px; height: 28px; stroke: currentColor; }
+/* Nút Hamburger Mobile - ĐÃ FIX ĐỘ ĐẬM CỦA ICON */
+.mobile-menu-btn { 
+    display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 5px;
+}
+.mobile-menu-btn svg { 
+    width: 28px; height: 28px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; 
+}
 
 /* =====================================================================
    5. VIEW & TRANSITIONS (CHUYỂN TRANG)
    ===================================================================== */
 .view { display: none; }
-.view.active { 
-    display: block; 
-    /* Hiệu ứng nở hoa (Bloom) khi chuyển trang */
-    animation: bloomReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-}
-@keyframes bloomReveal { 
-    0% { opacity: 0; transform: scale(0.98) translateY(20px); } 
-    100% { opacity: 1; transform: scale(1) translateY(0); } 
-}
+.view.active { display: block; animation: bloomReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes bloomReveal { 0% { opacity: 0; transform: scale(0.98) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
 /* =====================================================================
-   6. TRANG CHỦ: HERO SECTION
+   6. TRANG CHỦ: HERO SECTION - ĐÃ FIX LỖI NÚT ĐÈ CHỮ
    ===================================================================== */
-.hero { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    min-height: 70vh; 
-    gap: 50px; 
-}
+.hero { display: flex; align-items: center; justify-content: space-between; min-height: 65vh; gap: 50px; }
 .hero-content { flex: 1; }
 
 .hero-content h1 { 
-    font-family: var(--font-serif); 
-    font-size: 4.2rem; 
-    font-weight: 400; 
-    line-height: 1.15; 
-    margin-bottom: 24px; 
-    color: var(--text-main); 
+    font-family: var(--font-serif); font-size: 4rem; font-weight: 400; 
+    line-height: 1.15; margin-bottom: 24px; color: var(--text-main); 
 }
-.hero-content h1 i { 
-    font-style: italic; 
-    color: var(--accent); 
-    /* Đổ bóng nhẹ cho chữ nghiêng */
-    text-shadow: 2px 2px 8px rgba(125, 168, 158, 0.2);
-}
-.hero-content p { 
-    font-size: 1.05rem; 
-    color: var(--text-muted); 
-    max-width: 480px; 
-    margin-bottom: 40px; 
-    font-weight: 300; 
-}
+.hero-content h1 i { font-style: italic; color: var(--accent); text-shadow: 2px 2px 8px rgba(125, 168, 158, 0.2); }
+.hero-content p { font-size: 1.05rem; color: var(--text-muted); max-width: 480px; margin-bottom: 40px; font-weight: 300; }
 
 /* Nút bấm (Button) */
 .btn {
-    display: inline-block; 
-    padding: 16px 40px; 
-    background: var(--glass-bg); 
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--glass-border); 
-    border-radius: var(--radius-pill); 
-    color: var(--text-main);
-    text-decoration: none; 
-    font-size: 0.85rem; 
-    letter-spacing: 2.5px; 
-    text-transform: uppercase; 
-    font-weight: 500;
-    box-shadow: var(--glass-shadow); 
-    position: relative; 
-    overflow: hidden; 
-    transition: transform 0.4s; 
-    cursor: pointer;
+    display: inline-block; padding: 16px 40px; background: var(--glass-bg); backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-pill); color: var(--text-main);
+    text-decoration: none; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 500;
+    box-shadow: var(--glass-shadow); position: relative; overflow: hidden; transition: transform 0.4s; cursor: pointer;
+    text-align: center;
 }
 .btn:hover { transform: translateY(-3px); }
-
-/* Hiệu ứng ánh sáng lướt qua nút (Shimmer) */
 .btn::before { 
-    content: ''; 
-    position: absolute; 
-    top: 0; left: -100%; 
-    width: 60%; height: 100%; 
+    content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; 
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent); 
-    transform: skewX(-25deg); 
-    transition: left 0.7s; 
+    transform: skewX(-25deg); transition: left 0.7s; 
 }
 .btn:hover::before { left: 150%; }
 
-/* Khung vòm cánh sen (Arch Frame) */
+/* Khung vòm cánh sen */
 .hero-visual { flex: 1; display: flex; justify-content: flex-end; }
 .arch-frame {
-    position: relative; 
-    width: 380px; height: 480px; 
-    border-radius: 200px 200px 20px 20px; 
-    padding: 12px;
-    background: var(--glass-bg); 
-    backdrop-filter: blur(10px); 
-    border: 1px solid var(--glass-border); 
-    box-shadow: var(--glass-shadow);
+    position: relative; width: 360px; height: 460px; border-radius: 180px 180px 20px 20px; padding: 12px;
+    background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+    /* FIX LỖI ẢNH BỊ VỠ: Thêm màu nền fallback nếu ảnh không tải được */
+    background-color: var(--text-muted); 
 }
 .arch-frame img { 
-    width: 100%; height: 100%; 
-    object-fit: cover; 
-    border-radius: 190px 190px 14px 14px; 
-    filter: brightness(1.04) contrast(0.95) saturate(0.85); 
-    transition: transform 1.5s ease; 
+    width: 100%; height: 100%; object-fit: cover; border-radius: 170px 170px 14px 14px; 
+    filter: brightness(1.04) contrast(0.95) saturate(0.85); transition: transform 1.5s ease; 
 }
 .arch-frame:hover img { transform: scale(1.05); }
 
 /* Ghi đè góc vuông cho Dark Mode (Thủy mặc) */
-body.dark-mode .navbar, 
-body.dark-mode .btn, 
 body.dark-mode .arch-frame { border-radius: 4px; }
-body.dark-mode .arch-frame img { 
-    border-radius: 4px; 
-    filter: grayscale(100%) contrast(120%); 
-}
+body.dark-mode .arch-frame img { border-radius: 4px; filter: grayscale(100%) contrast(120%); }
 
 /* =====================================================================
    7. VĂN HIẾN (HERITAGE)
    ===================================================================== */
-.page-title { 
-    font-family: var(--font-serif); 
-    font-size: 3rem; 
-    text-align: center; 
-    margin-bottom: 10px; 
-    font-weight: 400; 
-}
-.page-desc { 
-    text-align: center; 
-    color: var(--text-muted); 
-    margin-bottom: 40px; 
-    font-style: italic; 
-}
+.page-title { font-family: var(--font-serif); font-size: 3rem; text-align: center; margin-bottom: 10px; font-weight: 400; }
+.page-desc { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-style: italic; }
 
-/* Bộ lọc (Filter Bar) */
-.filter-bar { 
-    display: flex; 
-    justify-content: center; 
-    gap: 12px; 
-    margin-bottom: 40px; 
-    flex-wrap: wrap; 
-}
+.filter-bar { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
 .filter-btn {
-    background: var(--glass-bg); 
-    border: 1px solid var(--glass-border); 
-    color: var(--text-main);
-    padding: 10px 24px; 
-    border-radius: 30px; 
-    cursor: pointer; 
-    font-size: 0.85rem; 
-    font-family: var(--font-sans);
-    transition: all 0.3s ease;
+    background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main);
+    padding: 10px 24px; border-radius: var(--radius-pill); cursor: pointer; font-size: 0.85rem; 
+    font-family: var(--font-sans); transition: all 0.3s ease;
 }
 .filter-btn:hover, .filter-btn.active { 
-    background: var(--accent); 
-    color: #fff; 
-    border-color: var(--accent); 
-    box-shadow: 0 4px 15px rgba(125, 168, 158, 0.3);
+    background: var(--accent); color: #fff; border-color: var(--accent); 
+    box-shadow: 0 4px 15px rgba(125, 168, 158, 0.3); 
+}
+body.dark-mode .filter-btn:hover, body.dark-mode .filter-btn.active {
+    box-shadow: 0 4px 15px rgba(197, 160, 89, 0.25);
 }
 
-/* Lưới tác phẩm */
-.heritage-grid { 
-    display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-    gap: 30px; 
-}
-
-/* Thẻ tác phẩm */
+.heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
 .heritage-card {
-    background: var(--glass-bg); 
-    backdrop-filter: blur(10px); 
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-card); 
-    padding: 30px; 
-    box-shadow: var(--glass-shadow); 
-    transition: transform 0.4s, border-color 0.4s, box-shadow 0.4s;
-    display: flex; 
-    flex-direction: column;
+    background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card); padding: 30px; box-shadow: var(--glass-shadow); 
+    transition: transform 0.4s, border-color 0.4s, box-shadow 0.4s; display: flex; flex-direction: column;
 }
-.heritage-card:hover { 
-    transform: translateY(-8px); 
-    border-color: var(--accent); 
-    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-}
+.heritage-card:hover { transform: translateY(-8px); border-color: var(--accent); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
 
 .h-tag { 
-    font-size: 0.7rem; 
-    background: rgba(125, 168, 158, 0.15); 
-    color: var(--text-main); 
-    padding: 4px 12px; 
-    border-radius: 20px; 
-    align-self: flex-start; 
-    margin-bottom: 15px; 
-    font-weight: 600; 
-    text-transform: uppercase; 
+    font-size: 0.7rem; background: rgba(125, 168, 158, 0.15); color: var(--text-main); 
+    padding: 4px 12px; border-radius: 20px; align-self: flex-start; margin-bottom: 15px; 
+    font-weight: 600; text-transform: uppercase; 
 }
 body.dark-mode .h-tag { background: rgba(255,255,255,0.1); }
 
-.heritage-card h3 { 
-    font-family: var(--font-serif); 
-    font-size: 1.6rem; 
-    margin-bottom: 8px; 
-}
-.h-author { 
-    font-size: 0.9rem; 
-    color: var(--accent); 
-    font-weight: 500; 
-    margin-bottom: 15px; 
-    display: flex; 
-    align-items: center; 
-    gap: 6px; 
-}
-.heritage-card p { 
-    font-size: 0.95rem; 
-    color: var(--text-muted); 
-    flex-grow: 1; 
-    margin-bottom: 20px; 
-}
+.heritage-card h3 { font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 8px; line-height: 1.3; }
+.h-author { font-size: 0.9rem; color: var(--accent); font-weight: 500; margin-bottom: 15px; display: flex; align-items: center; gap: 6px; }
+.heritage-card p { font-size: 0.95rem; color: var(--text-muted); flex-grow: 1; margin-bottom: 20px; }
 .h-meta { 
-    font-size: 0.8rem; 
-    color: var(--text-muted); 
-    border-top: 1px dashed var(--glass-border); 
-    padding-top: 15px; 
-    display: flex; 
-    gap: 15px; 
+    font-size: 0.8rem; color: var(--text-muted); border-top: 1px dashed var(--glass-border); 
+    padding-top: 15px; display: flex; flex-wrap: wrap; gap: 15px; 
 }
 .h-meta span { display: flex; align-items: center; gap: 5px; }
 
@@ -457,134 +270,61 @@ body.dark-mode .h-tag { background: rgba(255,255,255,0.1); }
    8. ĐẠI BÁCH KHOA (ENCYCLOPEDIA)
    ===================================================================== */
 .accordion-item { 
-    background: var(--glass-bg); 
-    backdrop-filter: blur(10px); 
-    border: 1px solid var(--glass-border); 
-    border-radius: var(--radius-card); 
-    margin-bottom: 15px; 
-    overflow: hidden; 
+    background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); 
+    border-radius: var(--radius-card); margin-bottom: 15px; overflow: hidden; 
 }
-
 .accordion-item summary { 
-    padding: 20px 30px; 
-    font-family: var(--font-serif); 
-    font-size: 1.2rem; 
-    font-weight: 600; 
-    cursor: pointer; 
-    display: flex; 
-    justify-content: space-between; 
-    list-style: none; 
-    transition: background 0.3s;
+    padding: 20px 25px; font-family: var(--font-serif); font-size: 1.2rem; font-weight: 600; 
+    cursor: pointer; display: flex; justify-content: space-between; list-style: none; transition: background 0.3s;
 }
 .accordion-item summary:hover { background: rgba(255,255,255,0.1); }
 .accordion-item summary::-webkit-details-marker { display: none; }
-.accordion-item summary::after { 
-    content: '+'; 
-    font-size: 1.5rem; 
-    color: var(--accent); 
-    transition: transform 0.3s ease; 
-}
+.accordion-item summary::after { content: '+'; font-size: 1.5rem; color: var(--accent); transition: transform 0.3s ease; }
 .accordion-item[open] summary::after { transform: rotate(45deg); }
 
 .accordion-content { 
-    padding: 0 30px 30px; 
-    color: var(--text-muted); 
-    font-size: 0.95rem; 
-    border-top: 1px solid var(--glass-border); 
+    padding: 0 25px 25px; color: var(--text-muted); font-size: 0.95rem; border-top: 1px solid var(--glass-border); 
+    line-height: 1.7;
 }
-.accordion-content h4 { 
-    color: var(--text-main); 
-    margin: 20px 0 10px; 
-    font-family: var(--font-serif); 
-    font-size: 1.1rem; 
-}
+.accordion-content h4 { color: var(--text-main); margin: 20px 0 10px; font-family: var(--font-serif); font-size: 1.15rem; }
+.accordion-content ul, .accordion-content ol { padding-left: 20px; margin-bottom: 10px;}
+.accordion-content li { margin-bottom: 5px; }
 .accordion-content blockquote { 
-    border-left: 2px solid var(--accent); 
-    padding-left: 15px; 
-    font-style: italic; 
-    margin: 15px 0; 
-    background: rgba(125, 168, 158, 0.05);
-    padding: 10px 15px;
-    border-radius: 0 4px 4px 0;
+    border-left: 3px solid var(--accent); padding: 10px 15px; font-style: italic; 
+    margin: 15px 0; background: rgba(125, 168, 158, 0.05); border-radius: 0 4px 4px 0;
 }
 
 /* =====================================================================
    9. THI PHÁP (ANALYZE)
    ===================================================================== */
 .analyze-box { 
-    background: var(--glass-bg); 
-    backdrop-filter: blur(10px); 
-    border: 1px solid var(--glass-border); 
-    border-radius: var(--radius-card); 
-    padding: 30px; 
-    margin-bottom: 30px; 
-    box-shadow: var(--glass-shadow);
+    background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); 
+    border-radius: var(--radius-card); padding: 25px; margin-bottom: 30px; box-shadow: var(--glass-shadow);
 }
 .analyze-box textarea { 
-    width: 100%; 
-    height: 150px; 
-    background: transparent; 
-    border: none; 
-    outline: none; 
-    resize: vertical; 
-    font-family: var(--font-serif); 
-    font-size: 1.2rem; 
-    color: var(--text-main); 
-    line-height: 1.8; 
+    width: 100%; height: 150px; background: transparent; border: none; outline: none; resize: vertical; 
+    font-family: var(--font-serif); font-size: 1.2rem; color: var(--text-main); line-height: 1.8; 
 }
 .analyze-box button { 
-    margin-top: 15px; 
-    width: 100%; 
-    padding: 15px; 
-    background: var(--text-main); 
-    color: var(--bg-base); 
-    border: none; 
-    border-radius: 8px; 
-    cursor: pointer; 
-    font-weight: 600; 
-    letter-spacing: 1px; 
-    transition: 0.3s; 
+    margin-top: 15px; width: 100%; padding: 15px; background: var(--text-main); color: var(--bg-base); 
+    border: none; border-radius: var(--radius-card); cursor: pointer; font-weight: 600; 
+    letter-spacing: 1px; transition: 0.3s; font-family: var(--font-sans);
 }
-.analyze-box button:hover { 
-    background: var(--accent); 
-    color: #fff; 
-    box-shadow: 0 4px 15px rgba(125, 168, 158, 0.3);
-}
+.analyze-box button:hover { background: var(--accent); color: #fff; box-shadow: 0 4px 15px rgba(125, 168, 158, 0.3); }
 
-/* Kết quả phân tích */
 .result-step { 
-    background: var(--glass-bg); 
-    border-left: 4px solid var(--accent); 
-    border-radius: 8px; 
-    padding: 25px; 
-    margin-bottom: 15px; 
-    box-shadow: var(--glass-shadow);
+    background: var(--glass-bg); border-left: 4px solid var(--accent); border-radius: var(--radius-card); 
+    padding: 20px; margin-bottom: 15px; box-shadow: var(--glass-shadow); overflow-x: auto; /* Cho phép cuộn ngang trên mobile */
 }
-.step-title { 
-    font-size: 0.8rem; 
-    text-transform: uppercase; 
-    color: var(--text-muted); 
-    margin-bottom: 15px; 
-    letter-spacing: 1px; 
-    font-weight: 600; 
-}
+.step-title { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; font-weight: 600; }
 .line-row { 
-    display: flex; 
-    justify-content: space-between; 
-    border-bottom: 1px dashed var(--glass-border); 
-    padding: 10px 0; 
-    font-family: var(--font-serif); 
-    font-size: 1.1rem; 
+    display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--glass-border); 
+    padding: 10px 0; font-family: var(--font-serif); font-size: 1.1rem; white-space: nowrap;
 }
-.pattern-text { 
-    font-family: monospace; 
-    color: var(--accent); 
-    font-weight: bold; 
-    letter-spacing: 2px; 
-}
+.pattern-text { font-family: monospace; color: var(--accent); font-weight: bold; letter-spacing: 2px; margin-left: 15px;}
 
 /* =====================================================================
-   10. XỬ LÝ CHUYỂN ĐỔI TEXT THEO THEME (LIGHT/DARK TEXT)
+   10. FIX LỖI TEXT ĐÈ NHAU (LIGHT/DARK TEXT TOGGLE)
    ===================================================================== */
 /* Mặc định ẩn text tối, hiện text sáng */
 .dark-text, .dark-img { display: none; }
@@ -593,44 +333,87 @@ body.dark-mode .h-tag { background: rgba(255,255,255,0.1); }
 body.dark-mode .light-text, body.dark-mode .light-img { display: none !important; }
 body.dark-mode .dark-text, body.dark-mode .dark-img { display: block !important; }
 
-/* Riêng nút bấm (Button) cho phép hiển thị inline */
-.btn .light-text, .btn .dark-text { display: inline !important; }
+/* FIX LỖI NÚT BẤM BỊ ĐÈ CHỮ (Chỉ hiển thị đúng text của theme hiện tại) */
+body:not(.dark-mode) .btn .dark-text { display: none !important; }
+body.dark-mode .btn .dark-text { display: inline-block !important; }
+body.dark-mode .btn .light-text { display: none !important; }
 
 /* =====================================================================
-   11. RESPONSIVE (ĐIỆN THOẠI & MÁY TÍNH BẢNG)
+   11. RESPONSIVE (MOBILE) - FIX TOÀN BỘ LỖI MENU XUYÊN THẤU
    ===================================================================== */
 @media (max-width: 850px) {
+    /* Chỉnh lại Container trên mobile */
+    .container { padding: 80px 16px 30px 16px; }
+
     /* Hero: Chuyển sang bố cục dọc */
-    .hero { 
-        flex-direction: column; 
-        text-align: center; 
-        padding-top: 20px;
-    }
-    .hero-content h1 { font-size: 3rem; }
-    .hero-content p { margin: 0 auto 30px; }
+    .hero { flex-direction: column; text-align: center; padding-top: 10px; gap: 30px;}
+    .hero-content h1 { font-size: 2.8rem; }
+    .hero-content p { margin: 0 auto 30px; font-size: 1rem; }
     
     /* Ảnh vòm: Thu nhỏ lại */
-    .hero-visual { justify-content: center; }
-    .arch-frame { width: 300px; height: 400px; }
+    .hero-visual { justify-content: center; width: 100%;}
+    .arch-frame { width: 280px; height: 380px; }
     
-    /* Menu Mobile */
+    /* Navbar trên Mobile */
+    .navbar { 
+        top: 10px; 
+        padding: 10px 20px; 
+        width: calc(100% - 32px);
+    }
+    .nav-brand { font-size: 1.3rem; }
+    
+    /* Nút Hamburger hiện lên */
     .mobile-menu-btn { display: block; }
+    
+    /* FIX LỖI MENU XUYÊN THẤU VÀ ĐÈ CHỮ (Giống form của Ảnh 3) */
     .nav-links { 
         display: none; 
         position: absolute; 
-        top: 100%; left: 0; 
-        width: 100%; 
-        background: var(--glass-bg); 
+        top: calc(100% + 15px); /* Nằm ngay dưới navbar */
+        right: 0; 
+        width: 240px; /* Khung vuông vắn bên phải */
+        background: var(--bg-base); /* NỀN ĐỤC 100% ĐỂ CHE CHỮ BÊN DƯỚI */
         flex-direction: column; 
-        padding: 20px; 
-        border-radius: 12px; 
-        margin-top: 10px; 
-        border: 1px solid var(--glass-border); 
-        backdrop-filter: blur(20px); 
-        box-shadow: var(--glass-shadow);
+        align-items: flex-start;
+        padding: 15px; 
+        border-radius: var(--radius-card); 
+        border: 1px solid var(--accent); /* Viền màu điểm nhấn */
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+        z-index: 999;
     }
-    .nav-links.show { display: flex; }
     
+    /* Hiệu ứng trượt xuống khi mở menu */
+    .nav-links.show { 
+        display: flex; 
+        animation: fadeDown 0.3s ease forwards;
+    }
+
+    /* Căn lề trái cho các mục menu */
+    .nav-links a {
+        width: 100%;
+        padding: 12px 10px;
+        border-bottom: 1px dashed var(--glass-border);
+        font-size: 0.95rem;
+        text-align: left;
+    }
+    .nav-links a::after { display: none; } /* Bỏ dấu chấm trên mobile */
+    .nav-links a:last-child { border-bottom: none; }
+    
+    /* Nút đổi theme trong menu */
+    .theme-btn { margin-top: 10px; margin-left: 10px; }
+
     /* Ẩn quầng sáng chuột trên mobile (vì không có chuột) */
     #cursor-glow { display: none; }
+    
+    /* Bộ lọc Văn Hiến trên mobile */
+    .filter-bar { justify-content: flex-start; overflow-x: auto; padding-bottom: 10px; flex-wrap: nowrap; -webkit-overflow-scrolling: touch;}
+    .filter-btn { white-space: nowrap; }
+    
+    /* Kết quả phân tích thơ */
+    .line-row { font-size: 1rem; }
+}
+
+@keyframes fadeDown {
+    0% { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
