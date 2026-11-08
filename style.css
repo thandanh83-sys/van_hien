@@ -1,8 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V28 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V32 - FINAL)
    Tác giả: Văn Đạo
-   Cấu trúc: 13 Phân đoạn - Tối ưu hóa cho giao diện Lưỡng cực
-             (Bạch Ngọc & Thủy Mặc) và Báo cáo Thi pháp 4 Tầng.
+   Cấu trúc: 13 Phân đoạn - Tối ưu hóa toàn diện cho Thi Pháp 4 Tầng.
    ===================================================================== */
 
 /* =====================================================================
@@ -10,14 +9,14 @@
    ===================================================================== */
 :root {
     /* --- [LIGHT MODE] BẠCH NGỌC LIÊN --- */
-    --bg-base: #faf9f6;           
-    --text-main: #2c423d;         
-    --text-muted: #5c706b;        
+    --bg-base: #faf9f6;
+    --text-main: #2c423d;
+    --text-muted: #5c706b;
     
     --accent: #7da89e;            /* Xanh ngọc bích */
     --accent-gold: #cbb882;       /* Vàng kim nhạt */
     
-    /* Hiệu ứng kính mờ (Glassmorphism) */
+    /* Hiệu ứng kính mờ */
     --glass-bg: rgba(255, 255, 255, 0.65); 
     --glass-border: rgba(255, 255, 255, 0.9);
     --glass-shadow: 0 15px 35px rgba(44, 66, 61, 0.06);
@@ -56,14 +55,13 @@ body.dark-mode {
     transition: background-color 0.8s ease, color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease; 
 }
 
-/* Thanh cuộn thanh lịch */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 ::selection { background: var(--accent); color: #fff; }
 
-/* NỀN SÁNG: Ảnh Sáo Trúc + Lớp phủ mờ 85% */
+/* NỀN SÁNG: Ảnh Sáo Trúc (nen_sang.jpg) */
 body {
     background-color: var(--bg-base);
     background-image: 
@@ -82,7 +80,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* NỀN TỐI: Ảnh Mây Vàng + Lớp phủ đen mờ 80% */
+/* NỀN TỐI: Ảnh Mây Vàng (nen_toi.jpg) */
 body.dark-mode {
     background-color: var(--bg-base);
     background-image: 
@@ -95,7 +93,7 @@ body.dark-mode {
 }
 
 /* =====================================================================
-   3. LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CURSOR, DEWDROPS)
+   3. HIỆU ỨNG ĐỘNG (CANVAS, CURSOR, DEWDROPS)
    ===================================================================== */
 #water-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
 
@@ -116,7 +114,7 @@ body.dark-mode .dewdrop { display: none; }
    ===================================================================== */
 .container { 
     position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; 
-    padding: 100px 24px 40px 24px; /* Padding-top tránh navbar đè nội dung */
+    padding: 100px 24px 40px 24px; 
 }
 
 .navbar {
@@ -132,7 +130,6 @@ body.dark-mode .dewdrop { display: none; }
 .nav-brand { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 600; letter-spacing: 4px; cursor: pointer; color: var(--text-main); }
 .nav-links { display: flex; align-items: center; gap: 30px; }
 
-/* Nút điều hướng chung */
 .nav-btn { 
     background: transparent; border: none; padding: 0;
     font-family: var(--font-sans); color: var(--text-muted); 
@@ -142,7 +139,6 @@ body.dark-mode .dewdrop { display: none; }
 }
 .nav-btn:hover, .nav-btn.active { color: var(--text-main); }
 
-/* Dấu chấm nhỏ dưới nút Active (chỉ desktop) */
 .nav-btn::after { 
     content: ''; position: absolute; bottom: -6px; left: 50%; width: 4px; height: 4px; 
     border-radius: 50%; background: var(--accent-gold); 
@@ -150,37 +146,29 @@ body.dark-mode .dewdrop { display: none; }
 }
 .nav-btn:hover::after, .nav-btn.active::after { transform: translateX(-50%) scale(1); }
 
-/* Icon mặc định ẩn trên Desktop */
 .nav-icon { width: 18px; height: 18px; stroke-width: 2; display: none; } 
 .menu-divider { display: none; }
 
-/* Nút đổi Theme */
+/* Nút Đổi Theme */
 .theme-toggle-btn { font-weight: 600; }
 .theme-toggle-btn .nav-icon { display: block; }
 
-/* Logic ẩn/hiện icon Sáng/Tối */
 .sun-icon { display: none !important; } 
 .moon-icon { display: block !important; }
 body.dark-mode .sun-icon { display: block !important; } 
 body.dark-mode .moon-icon { display: none !important; }
 
-/* Màu cho chế độ Sáng (Mặt trăng - Xanh ngọc) */
 body:not(.dark-mode) .theme-toggle-btn .moon-icon { stroke: var(--accent) !important; }
 body:not(.dark-mode) #theme-text { color: var(--accent) !important; }
-
-/* Màu cho chế độ Tối (Mặt trời - Vàng sáng) */
 body.dark-mode .theme-toggle-btn .sun-icon { stroke: #fbbf24 !important; }
 body.dark-mode #theme-text { color: #fbbf24 !important; }
-
-/* Xóa dấu chấm dưới nút đổi theme */
 .theme-toggle-btn::after { display: none !important; }
 
-/* Nút Hamburger */
 .mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 4px; }
 .mobile-menu-btn svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
-   5. VIEW & TRANSITIONS (CHUYỂN TRANG)
+   5. VIEW & TRANSITIONS
    ===================================================================== */
 .view { display: none; }
 .view.active { display: block; animation: bloomReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -302,32 +290,9 @@ body.dark-mode .btn .light-text { display: none !important; }
     border-top: none !important;
 }
 
-.quote-mark {
-    font-family: var(--font-serif);
-    font-size: 5rem;
-    color: var(--accent);
-    line-height: 0.8;
-    margin-bottom: 10px;
-    opacity: 0.6;
-}
-
-.quote-text {
-    font-family: var(--font-serif);
-    font-size: 1.6rem;
-    color: var(--text-main);
-    font-style: italic;
-    line-height: 1.6;
-    max-width: 800px;
-    margin: 0 auto 25px;
-}
-
-.quote-author {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
+.quote-mark { font-family: var(--font-serif); font-size: 5rem; color: var(--accent); line-height: 0.8; margin-bottom: 10px; opacity: 0.6; }
+.quote-text { font-family: var(--font-serif); font-size: 1.6rem; color: var(--text-main); font-style: italic; line-height: 1.6; max-width: 800px; margin: 0 auto 25px; }
+.quote-author { font-size: 0.95rem; font-weight: 600; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
 
 /* =====================================================================
    12. THI PHÁP HỌC — BÁO CÁO 4 TẦNG (PHẦN MỚI)
@@ -378,16 +343,7 @@ body.dark-mode .btn .light-text { display: none !important; }
 .rhyme-part { font-family: monospace; color: var(--accent); font-weight: bold; letter-spacing: 1px; }
 
 /* Các dòng chữ trong Tầng 0 */
-.line-row { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    border-bottom: 1px dashed var(--glass-border); 
-    padding: 10px 0; 
-    font-family: var(--font-serif); 
-    font-size: 1.1rem; 
-    white-space: nowrap; 
-}
+.line-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--glass-border); padding: 10px 0; font-family: var(--font-serif); font-size: 1.1rem; white-space: nowrap; }
 .pattern-text { font-family: monospace; color: var(--accent); font-weight: bold; letter-spacing: 2px; margin-left: 15px; }
 
 /* Các khối trong Tầng 2 (Biểu tượng / Điển tích) */
@@ -399,13 +355,7 @@ body.dark-mode .btn .light-text { display: none !important; }
 .volume-link:hover { color: var(--accent-gold); }
 
 /* Các câu hỏi trong Tầng 3 */
-.question-item { 
-    padding: 12px 0; 
-    border-bottom: 1px dashed var(--glass-border); 
-    line-height: 1.6; 
-    color: var(--text-muted); 
-    font-size: 0.95rem; 
-}
+.question-item { padding: 12px 0; border-bottom: 1px dashed var(--glass-border); line-height: 1.6; color: var(--text-muted); font-size: 0.95rem; }
 .question-item:last-child { border-bottom: none; }
 
 /* =====================================================================
