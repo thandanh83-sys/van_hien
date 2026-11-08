@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE FIXED EDITION)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V10)
    Tác giả: Văn Đạo
    Mô tả: Xử lý logic, render dữ liệu, tìm kiếm và phân tích thi pháp.
    Cấu trúc: 7 Modules từ Icons, Theme, Routing, Rendering,
@@ -21,24 +21,45 @@ const THEME_KEY = 'vandao_theme';
    ===================================================================== */
 /**
  * Hàm chuyển đổi giao diện Sáng/Tối.
- * Lưu trạng thái vào LocalStorage để ghi nhớ lựa chọn của người dùng.
  */
 function toggleTheme() {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
+    
+    // Lưu vào LocalStorage
     localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
     
-    // Cập nhật lại màu sắc cho Canvas (gợn sóng nước)
+    // Cập nhật giao diện
     updateCanvasColors();
+    updateThemeText(isDark);
 }
 
 /**
- * Khôi phục Theme khi tải lại trang (tránh bị nháy trắng).
+ * Khôi phục Theme khi tải lại trang.
  */
 function loadSavedTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
-    if (savedTheme === 'dark') {
+    // Mặc định là Light Mode nếu chưa có lưu
+    const isDark = savedTheme === 'dark';
+    
+    if (isDark) {
         document.body.classList.add('dark-mode');
+    }
+    
+    updateThemeText(isDark);
+}
+
+/**
+ * Cập nhật text và màu sắc cho nút đổi Theme trong Menu Mobile.
+ */
+function updateThemeText(isDark) {
+    const textEl = document.getElementById('theme-text');
+    if (textEl) {
+        // Nếu đang Tối -> Nút hiển thị "Chế độ Sáng" (để bấm sang)
+        textEl.textContent = isDark ? 'Chế độ Sáng' : 'Chế độ Tối';
+        
+        // Đổi màu chữ: Sáng thì màu Vàng (Mặt trời), Tối thì màu Xanh (Mặt trăng)
+        textEl.style.color = isDark ? 'var(--accent-gold)' : 'var(--accent)';
     }
 }
 
@@ -46,7 +67,7 @@ function loadSavedTheme() {
    MODULE 3: ĐIỀU HƯỚNG (ROUTING) & CHUYỂN VIEW
    ===================================================================== */
 /**
- * Hàm chuyển đổi giữa các khu vực (Trang chủ, Văn Hiến, Bách Khoa, Thi Pháp).
+ * Hàm chuyển đổi giữa các khu vực.
  * @param {string} viewId - ID của view cần chuyển đến (home, heritage, encyclopedia, analyze)
  */
 function switchView(viewId) {
@@ -55,7 +76,7 @@ function switchView(viewId) {
         view.classList.remove('active');
     });
 
-    // 2. Xóa trạng thái Active của tất cả các nút Menu (Sử dụng class .nav-btn)
+    // 2. Xóa trạng thái Active của tất cả các nút Menu
     document.querySelectorAll('.nav-btn').forEach(link => {
         link.classList.remove('active');
     });
@@ -76,7 +97,7 @@ function switchView(viewId) {
 }
 
 /**
- * Bật/tắt menu trên thiết bị di động (Mobile Hamburger Menu).
+ * Bật/tắt menu trên thiết bị di động.
  */
 function toggleMobileMenu() {
     const navMenu = document.getElementById('navMenu');
@@ -85,23 +106,33 @@ function toggleMobileMenu() {
     }
 }
 
+// Sự kiện: Click ra ngoài vùng Menu thì tự động đóng Menu lại
+document.addEventListener('click', (e) => {
+    const navMenu = document.getElementById('navMenu');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    
+    // Nếu menu đang mở, và click KHÔNG nằm trong menu, và KHÔNG nằm trên nút Hamburger
+    if (navMenu && navMenu.classList.contains('show') && !navMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+        navMenu.classList.remove('show');
+    }
+});
+
 /* =====================================================================
    MODULE 4: RENDER DỮ LIỆU (VĂN HIẾN & BÁCH KHOA)
    ===================================================================== */
 /**
  * Hiển thị danh sách các tác phẩm Văn Hiến.
- * @param {string} filterCategory - Nhóm cần lọc ('all', 'dan-gian', 'trung-dai'...)
  */
 function renderHeritage(filterCategory = 'all') {
     const grid = document.getElementById('heritage-grid');
     if (!grid || typeof HERITAGE_DATA === 'undefined') return;
 
-    // 1. Lọc dữ liệu dựa trên danh mục
+    // Lọc dữ liệu
     const filteredData = filterCategory === 'all' 
         ? HERITAGE_DATA 
         : HERITAGE_DATA.filter(item => item.category === filterCategory);
 
-    // 2. Tạo mã HTML cho từng thẻ tác phẩm (Bao gồm cả icon SVG)
+    // Tạo HTML
     const htmlContent = filteredData.map(item => `
         <div class="heritage-card">
             <span class="h-tag">${item.genre}</span>
@@ -115,7 +146,6 @@ function renderHeritage(filterCategory = 'all') {
         </div>
     `).join('');
 
-    // 3. Đổ HTML vào DOM
     grid.innerHTML = htmlContent;
 }
 
@@ -135,7 +165,6 @@ function renderEncyclopedia() {
     const container = document.getElementById('encyclopedia-container');
     if (!container || typeof ENCYCLOPEDIA_DATA === 'undefined') return;
 
-    // Tạo HTML cho từng Quyển sách
     const htmlContent = ENCYCLOPEDIA_DATA.map(item => `
         <div class="accordion-item">
             <details>
@@ -151,12 +180,8 @@ function renderEncyclopedia() {
 }
 
 /* =====================================================================
-   MODULE 5: PHÂN TÍCH THI PHÁP (NFD PIPELINE) - ĐÃ FIX BUG THANH ĐIỆU
+   MODULE 5: PHÂN TÍCH THI PHÁP (NFD PIPELINE) - CHUẨN XÁC 100%
    ===================================================================== */
-/**
- * Thuật toán phân tích thơ: Đếm số tiếng, tách thanh điệu (Bằng/Trắc).
- * Sử dụng chuẩn Unicode NFD để nhận diện dấu thanh chính xác.
- */
 function executePipeline() {
     const inputField = document.getElementById('poemInput');
     const resultsPanel = document.getElementById('results-panel');
@@ -165,7 +190,7 @@ function executePipeline() {
     
     const rawText = inputField.value;
     
-    // Xử lý trường hợp người dùng không nhập gì (thay vì dùng alert gây khó chịu)
+    // Xử lý trường hợp không nhập gì
     if (!rawText.trim()) {
         resultsPanel.innerHTML = `
             <div class="result-step" style="border-left-color:var(--accent-gold);">
@@ -174,44 +199,37 @@ function executePipeline() {
         return;
     }
 
-    // 1. Tách văn bản thành các dòng, bỏ qua dòng trống
     const lines = rawText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-    
     let resultHTML = '';
     
-    // 2. Xử lý từng dòng thơ
     lines.forEach((line, index) => {
-        // Tách các từ (âm tiết) bằng Regex (hỗ trợ cả chữ có dấu)
+        // Tách âm tiết bằng Regex
         const syllables = line.match(/[\p{L}\p{N}]+/gu) || [];
         
-        // Phân tích thanh điệu của từng âm tiết
+        // Phân tích thanh điệu (NFD)
         const patternArray = syllables.map(syllable => {
-            // Chuyển đổi sang dạng NFD (Tách dấu ra khỏi ký tự gốc)
             const nfdString = syllable.normalize('NFD');
             
-            // FIX BUG: Dấu huyền (\u0300) thuộc nhóm BẰNG, không phải TRẮC.
-            // Chỉ những dấu sau đây mới thuộc nhóm TRẮC:
-            const isTrac = nfdString.includes('\u0301') || // Dấu sắc
-                           nfdString.includes('\u0303') || // Dấu ngã
-                           nfdString.includes('\u0309') || // Dấu hỏi
-                           nfdString.includes('\u0323');   // Dấu nặng
+            // CHUẨN THI PHÁP VIỆT NAM: 
+            // Bằng (B) = Không dấu + Dấu huyền (\u0300)
+            // Trắc (T) = Sắc (\u0301), Ngã (\u0303), Hỏi (\u0309), Nặng (\u0323)
+            const isTrac = nfdString.includes('\u0301') || 
+                           nfdString.includes('\u0303') || 
+                           nfdString.includes('\u0309') || 
+                           nfdString.includes('\u0323');   
                            
-            return isTrac ? 'T' : 'B'; // Trắc hoặc Bằng
+            return isTrac ? 'T' : 'B'; 
         });
 
-        const patternString = patternArray.join(' - '); // Nối bằng dấu gạch ngang
-        
-        // Tạo HTML cho dòng kết quả
         resultHTML += `
             <div class="line-row">
                 <span style="color: var(--text-muted); font-family: var(--font-sans); font-size: 0.9rem;">${String(index + 1).padStart(2, '0')}</span>
                 <span style="flex: 1; text-align: center; padding: 0 10px;">${line}</span>
-                <span class="pattern-text">${patternString}</span>
+                <span class="pattern-text">${patternArray.join(' - ')}</span>
             </div>
         `;
     });
 
-    // 3. Hiển thị kết quả
     resultsPanel.innerHTML = `
         <div class="result-step">
             <div class="step-title">Kết quả bóc tách thanh điệu (Dữ kiện)</div>
@@ -230,45 +248,38 @@ let canvas, ctx;
 let ripples = [];
 let isDarkTheme = false;
 
-/**
- * Cập nhật màu sắc cho Canvas dựa trên Theme hiện tại.
- */
 function updateCanvasColors() {
     isDarkTheme = document.body.classList.contains('dark-mode');
 }
 
 /**
- * Khởi tạo hiệu ứng Quầng sáng theo chuột (Chỉ trên Desktop).
+ * Khởi tạo Quầng sáng chuột (Chỉ desktop)
  */
 function initCursorGlow() {
-    // Kiểm tra xem thiết bị có chuột không (tránh lỗi trên điện thoại)
     if (window.matchMedia('(pointer: fine)').matches) {
         const glow = document.getElementById('cursor-glow');
         if (!glow) return;
 
         window.addEventListener('mousemove', (e) => {
-            // Sử dụng requestAnimationFrame để tối ưu hiệu năng (không bị lag)
             requestAnimationFrame(() => {
                 glow.style.left = `${e.clientX}px`;
                 glow.style.top = `${e.clientY}px`;
             });
         });
     } else {
-        // Nếu là mobile, ẩn quầng sáng đi cho nhẹ máy
         const glow = document.getElementById('cursor-glow');
         if (glow) glow.style.display = 'none';
     }
 }
 
 /**
- * Khởi tạo hiệu ứng Gợn sóng nước trên Canvas khi click.
+ * Khởi tạo Gợn sóng nước (Canvas)
  */
 function initWaterCanvas() {
     canvas = document.getElementById('water-canvas');
     if (!canvas) return;
     ctx = canvas.getContext('2d');
 
-    // Cấu hình kích thước Canvas bằng kích thước cửa sổ
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -276,38 +287,27 @@ function initWaterCanvas() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Bắt sự kiện click để tạo gợn sóng
+    // Sự kiện click tạo sóng
     window.addEventListener('click', (e) => {
-        ripples.push({
-            x: e.clientX,
-            y: e.clientY,
-            radius: 2,
-            alpha: 0.5,
-            growth: 1.5,
-            fade: 0.015
-        });
+        ripples.push({ x: e.clientX, y: e.clientY, radius: 2, alpha: 0.5, growth: 1.5, fade: 0.015 });
     });
 
-    // Vòng lặp vẽ Animation
     function animateRipples() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Xóa khung hình cũ
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Chọn màu dựa trên theme (Trắng hoặc Xanh ngọc)
+        // Màu sóng: Trắng (Dark mode) hoặc Xanh (Light mode)
         const color = isDarkTheme ? '255, 255, 255' : '125, 168, 158'; 
         
-        // Duyệt ngược mảng để xóa phần tử an toàn
         for (let i = ripples.length - 1; i >= 0; i--) {
             let p = ripples[i];
             p.radius += p.growth;
             p.alpha -= p.fade;
 
-            // Nếu sóng mờ hẳn thì xóa khỏi mảng
-            if (p.alpha <= 0) {
-                ripples.splice(i, 1);
-                continue;
+            if (p.alpha <= 0) { 
+                ripples.splice(i, 1); 
+                continue; 
             }
 
-            // Vẽ vòng tròn
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             ctx.strokeStyle = `rgba(${color}, ${p.alpha})`;
@@ -320,55 +320,47 @@ function initWaterCanvas() {
 }
 
 /**
- * Khởi tạo hiệu ứng Hạt sương bay (Chỉ ở Light Mode).
+ * Khởi tạo Hạt sương bay (Chỉ Sáng)
  */
 function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container) return;
 
     setInterval(() => {
-        // Không tạo hạt sương nếu đang ở Dark Mode
         if (document.body.classList.contains('dark-mode')) return;
 
         const drop = document.createElement('div');
         drop.className = 'dewdrop';
         
-        // Kích thước ngẫu nhiên từ 2px đến 8px
         const size = Math.random() * 6 + 2;
         drop.style.width = `${size}px`;
         drop.style.height = `${size}px`;
-        
-        // Vị trí ngẫu nhiên theo chiều ngang
         drop.style.left = `${Math.random() * 100}vw`;
-        
-        // Thời gian bay ngẫu nhiên (10s - 20s)
         drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
 
         container.appendChild(drop);
 
-        // Tự động xóa DOM sau khi bay xong để tránh rác bộ nhớ (memory leak)
-        setTimeout(() => {
-            drop.remove();
-        }, 20000);
-    }, 800); // Tạo hạt mới mỗi 0.8s
+        // Xóa DOM sau khi bay xong để tránh tràn RAM
+        setTimeout(() => drop.remove(), 20000);
+    }, 800);
 }
 
 /* =====================================================================
    MODULE 7: KHỞI CHẠY (INITIALIZATION)
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Tải Theme đã lưu
+    // 1. Tải Theme
     loadSavedTheme();
     updateCanvasColors();
 
-    // 2. Render nội dung tĩnh ban đầu
+    // 2. Render dữ liệu
     renderHeritage('all');
     renderEncyclopedia();
 
-    // 3. Khởi tạo các hiệu ứng hình ảnh
+    // 3. Khởi tạo hiệu ứng
     initCursorGlow();
     initWaterCanvas();
     initDewdrops();
 
-    console.log("VĂN ĐẠO: Hệ thống đã sẵn sàng và đã fix toàn bộ bug!");
+    console.log("VĂN ĐẠO: Hệ thống V10 đã sẵn sàng!");
 });
