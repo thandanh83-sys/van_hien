@@ -339,20 +339,43 @@ function handleSearchClick(viewId, title) {
     document.getElementById('global-search').value = '';
     document.getElementById('search-results').classList.remove('active');
     
-    // (Tùy chọn) Nếu là Bách Khoa, tự động mở quyển sách đó ra
-    if (viewId === 'encyclopedia') {
-        const summaries = document.querySelectorAll('.accordion-item summary');
-        summaries.forEach(summary => {
-            if (summary.textContent.includes(title)) {
-                // Mở thẻ details chứa summary này
-                summary.parentElement.setAttribute('open', 'true');
-                // Cuộn xuống quyển đó
-                setTimeout(() => {
+    // Đợi 1 chút để trang chuyển xong, sau đó cuộn và highlight
+    setTimeout(() => {
+        if (viewId === 'encyclopedia') {
+            const summaries = document.querySelectorAll('.accordion-item summary');
+            summaries.forEach(summary => {
+                if (summary.textContent.includes(title)) {
+                    const parentItem = summary.parentElement;
+                    parentItem.setAttribute('open', 'true'); // Mở quyển sách ra
+                    
+                    // Thêm hiệu ứng phát sáng
+                    parentItem.classList.add('highlight-target');
+                    
+                    // Cuộn đến giữa màn hình
                     summary.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
-            }
-        });
-    }
+                    
+                    // Xóa hiệu ứng sau 3 giây
+                    setTimeout(() => parentItem.classList.remove('highlight-target'), 3000);
+                }
+            });
+        } else if (viewId === 'heritage') {
+            const cards = document.querySelectorAll('.heritage-card h3');
+            cards.forEach(h3 => {
+                if (h3.textContent.includes(title)) {
+                    const card = h3.closest('.heritage-card');
+                    
+                    // Thêm hiệu ứng phát sáng
+                    card.classList.add('highlight-target');
+                    
+                    // Cuộn đến giữa màn hình
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Xóa hiệu ứng sau 3 giây
+                    setTimeout(() => card.classList.remove('highlight-target'), 3000);
+                }
+            });
+        }
+    }, 300);
 }
 
 /* =========================================
