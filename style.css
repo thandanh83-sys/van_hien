@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V10)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V11)
    Tác giả: Văn Đạo
    Mô tả: Hệ thống CSS Lưỡng cực (Bạch Ngọc Liên & Thủy Mặc).
    Cấu trúc: 11 Phân đoạn từ Biến hệ thống đến Responsive.
@@ -25,7 +25,7 @@
     /* Typography & Layout */
     --font-serif: 'Cormorant Garamond', serif;
     --font-sans: 'Montserrat', sans-serif;
-    --radius-pill: 50px;          /* Bo tròn cho Light Mode */
+    --radius-pill: 50px;          /* Bo tròn mềm mại */
     --radius-card: 16px;
     
     /* Nền họa tiết (Hiệu ứng màu nước loang) */
@@ -35,13 +35,13 @@
 }
 
 body.dark-mode {
-    /* --- [DARK MODE] THỦY MẶC (ĐEN - VÀNG) --- */
+    /* --- [DARK MODE] THỦY MẶC (ĐEN - VÀNG GOLD) --- */
     --bg-base: #050505;           /* Nền đen tuyền sâu thẳm */
     --text-main: #e8e8e8;         /* Chữ trắng ngà */
     --text-muted: #999999;        /* Chữ xám khói */
     
-    --accent: #d4af37;            /* Vàng Gold hoàng gia */
-    --accent-gold: #b83b3b;       /* Đỏ son */
+    --accent: #d4af37;            /* Vàng Gold hoàng gia (Điểm nhấn chính) */
+    --accent-gold: #c5a059;       /* ĐÃ XÓA ĐỎ SON, thay bằng Vàng Đồng trầm */
     
     /* Hiệu ứng kính mờ (Glassmorphism tối) */
     --glass-bg: rgba(15, 15, 15, 0.7);
@@ -51,7 +51,6 @@ body.dark-mode {
     /* Typography & Layout */
     --font-serif: 'Playfair Display', serif;
     --font-sans: 'Inter', sans-serif;
-    /* ĐÃ XÓA ép góc vuông, giữ nguyên bo tròn từ Light Mode */
     
     /* Nền họa tiết (Mực loang) */
     --pattern-bg: 
@@ -115,7 +114,7 @@ body.dark-mode .dewdrop { display: none; }
     z-index: 10; 
     max-width: 1100px; 
     margin: 0 auto; 
-    padding: 100px 24px 40px 24px; /* Padding-top để Navbar không đè nội dung */
+    padding: 100px 24px 40px 24px; 
 }
 
 .navbar {
@@ -157,16 +156,20 @@ body.dark-mode .dewdrop { display: none; }
 }
 .nav-btn:hover::after, .nav-btn.active::after { transform: translateX(-50%) scale(1); }
 
-/* Định dạng icon SVG trong nút */
-.nav-icon { width: 18px; height: 18px; stroke-width: 2; display: none; } /* Mặc định ẩn trên Desktop, chỉ hiện trên Mobile */
+/* Định dạng icon SVG trong nút (Mặc định ẩn trên Desktop) */
+.nav-icon { width: 18px; height: 18px; stroke-width: 2; display: none; } 
 .menu-divider { display: none; }
 
-/* Nút đổi Theme */
+/* Nút đổi Theme (Desktop) */
 .theme-btn { background: transparent; border: none; cursor: pointer; padding: 8px; color: var(--text-main); transition: transform 0.4s ease, color 0.4s; display: flex; align-items: center; justify-content: center;}
 .theme-btn:hover { transform: scale(1.1) rotate(15deg); color: var(--accent); }
 .theme-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
-.sun-icon { display: block; } .moon-icon { display: none; }
-body.dark-mode .sun-icon { display: none; } body.dark-mode .moon-icon { display: block; }
+
+/* Ẩn hiện icon Sáng/Tối */
+.sun-icon { display: none; } 
+.moon-icon { display: block; }
+body.dark-mode .sun-icon { display: block; } 
+body.dark-mode .moon-icon { display: none; }
 
 /* Nút Hamburger */
 .mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 4px; }
@@ -228,6 +231,7 @@ body.dark-mode .hero-content h1 i { text-shadow: 2px 2px 8px rgba(212, 175, 55, 
 .page-title { font-family: var(--font-serif); font-size: 3rem; text-align: center; margin-bottom: 10px; font-weight: 400; }
 .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-style: italic; }
 
+/* Thanh bộ lọc */
 .filter-bar { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
 .filter-btn {
     background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-main);
@@ -343,7 +347,7 @@ body.dark-mode .btn .dark-text { display: inline-block !important; }
 body.dark-mode .btn .light-text { display: none !important; }
 
 /* =====================================================================
-   11. RESPONSIVE (MOBILE) - MENU GLASSMORPHISM CHUẨN
+   11. RESPONSIVE (MOBILE) - FIX TOÀN BỘ LỖI GIAO DIỆN
    ===================================================================== */
 @media (max-width: 850px) {
     .container { padding: 80px 16px 30px 16px; }
@@ -360,16 +364,19 @@ body.dark-mode .btn .light-text { display: none !important; }
     .nav-brand { font-size: 1.3rem; }
     .mobile-menu-btn { display: block; }
     
-    /* HIỆU ỨNG MENU XỔ XUỐNG (Giống ảnh 2 bạn gửi) */
+    /* FIX LỖI: MENU XỔ XUỐNG (CHỐNG XUYÊN THẤU) */
     .nav-links { 
         display: flex;
         position: absolute; 
         top: calc(100% + 12px); 
         right: 0; 
         width: 260px; 
-        background: var(--glass-bg); 
+        
+        /* Tăng độ đục lên 95% để không bị nhìn xuyên qua */
+        background: rgba(250, 249, 246, 0.95); 
         backdrop-filter: blur(20px); 
         -webkit-backdrop-filter: blur(20px);
+        
         flex-direction: column; 
         align-items: stretch;
         padding: 12px; 
@@ -378,11 +385,15 @@ body.dark-mode .btn .light-text { display: none !important; }
         box-shadow: 0 15px 40px rgba(0,0,0,0.2); 
         z-index: 999;
         
-        /* Ẩn/Hiện bằng opacity để tạo hiệu ứng mượt */
         opacity: 0;
         transform: scale(0.95) translateY(-10px);
         pointer-events: none;
         transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    /* Nền cho Dark Mode */
+    body.dark-mode .nav-links {
+        background: rgba(10, 10, 10, 0.95);
     }
     
     .nav-links.show { 
@@ -404,7 +415,7 @@ body.dark-mode .btn .light-text { display: none !important; }
         color: var(--text-main);
         text-align: left;
         transition: background 0.2s, color 0.2s;
-        text-transform: none; /* Bỏ viết hoa cho giống app */
+        text-transform: none;
         letter-spacing: 0.5px;
     }
 
@@ -415,8 +426,8 @@ body.dark-mode .btn .light-text { display: none !important; }
         background: rgba(212, 175, 55, 0.15);
     }
 
-    .nav-btn::after { display: none; } /* Ẩn dấu chấm */
-    .nav-icon { display: block; } /* Hiện icon trên mobile */
+    .nav-btn::after { display: none; } 
+    .nav-icon { display: block; } 
 
     .menu-divider {
         display: block;
@@ -425,20 +436,39 @@ body.dark-mode .btn .light-text { display: none !important; }
         margin: 8px 0;
     }
 
+    /* FIX LỖI ICON BỊ CHỒNG CHÉO & SAI MÀU */
     .theme-toggle-btn {
-        color: var(--accent);
-        font-weight: 600;
+        background: transparent !important;
+        color: var(--text-main) !important;
     }
     
-    #theme-text {
-        font-size: 0.95rem;
-    }
+    /* Màu chữ và icon của Light Mode (Xanh ngọc) */
+    #theme-text { color: #7da89e !important; font-weight: 600; font-size: 0.95rem; }
+    .theme-toggle-btn .moon-icon { stroke: #7da89e !important; }
+
+    /* Màu chữ và icon của Dark Mode (Vàng Gold) */
+    body.dark-mode #theme-text { color: #d4af37 !important; }
+    body.dark-mode .theme-toggle-btn .sun-icon { stroke: #d4af37 !important; }
+
+    /* Ẩn hiện icon chuẩn xác (Chỉ hiện 1 cái) */
+    .sun-icon { display: none; } 
+    .moon-icon { display: block; }
+    body.dark-mode .sun-icon { display: block; } 
+    body.dark-mode .moon-icon { display: none; }
 
     #cursor-glow { display: none; }
     
-    /* Thanh lọc vuốt ngang */
-    .filter-bar { justify-content: flex-start; overflow-x: auto; padding-bottom: 10px; flex-wrap: nowrap; -webkit-overflow-scrolling: touch;}
-    .filter-btn { white-space: nowrap; }
+    /* FIX LỖI THANH LỌC VĂN HIẾN BỊ CẮT XÉN */
+    .filter-bar { 
+        justify-content: flex-start; 
+        overflow-x: auto; 
+        padding-bottom: 10px; 
+        flex-wrap: nowrap; 
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; 
+    }
+    .filter-bar::-webkit-scrollbar { display: none; } 
+    .filter-btn { white-space: nowrap; margin-right: 5px; }
     
     .line-row { font-size: 1rem; }
 }
