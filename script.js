@@ -1,8 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V28 - ALL-IN-ONE)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V29 - ALL-IN-ONE)
    Tác giả: Văn Đạo
-   Mô tả: Bộ não trung tâm xử lý Theme, Routing, Data Render, 
-          Random Quotes, Đổi Favicon động và Động cơ Thi Pháp 4 Tầng.
+   Mô tả: Bộ não trung tâm xử lý Theme, Routing, Data, Danh ngôn tự động,
+          Đổi Favicon động và Động cơ Thi Pháp 4 Tầng (Phân tích 4 loại vần).
    ===================================================================== */
 
 /* =====================================================================
@@ -54,7 +54,6 @@ function updateThemeText(isDark) {
 
 /**
  * Hàm tự động đổi Favicon (Logo) dựa trên chế độ Sáng/Tối.
- * Sử dụng đúng tên file ảnh bạn đã up lên GitHub.
  */
 function updateFavicon(isDark) {
     const favicon = document.getElementById('dynamic-favicon');
@@ -67,7 +66,7 @@ function updateFavicon(isDark) {
    MODULE 3: ĐIỀU HƯỚNG (ROUTING) & MENU
    ===================================================================== */
 /**
- * Chuyển đổi giữa các View.
+ * Chuyển đổi giữa các View (Trang chủ, Văn hiến, Bách khoa, Thi pháp).
  */
 function switchView(viewId) {
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
@@ -85,7 +84,7 @@ function switchView(viewId) {
 }
 
 /**
- * Bật/tắt Menu Mobile.
+ * Bật/tắt Menu Mobile (Hamburger).
  */
 function toggleMobileMenu() {
     const navMenu = document.getElementById('navMenu');
@@ -163,11 +162,9 @@ function renderRandomQuote() {
     const container = document.getElementById('daily-quote-container');
     if (!container || typeof QUOTES_DATA === 'undefined') return;
 
-    // Hiệu ứng mờ dần
     container.style.opacity = 0;
     setTimeout(() => {
         let newIndex;
-        // Đảm bảo không lặp lại câu cũ
         do { newIndex = Math.floor(Math.random() * QUOTES_DATA.length); } 
         while (QUOTES_DATA.length > 1 && newIndex === currentQuoteIndex);
 
@@ -187,12 +184,18 @@ function renderRandomQuote() {
    MODULE 5: ĐỘNG CƠ PHÂN TÍCH THI PHÁP (4 TẦNG - NO AI)
    ===================================================================== */
 const POETRY_ANALYZER = (() => {
-    // Hàm phụ trợ: Lấy thanh điệu (B/T)
+    // Lấy thanh điệu (B/T)
     function getTone(syllable) {
         const nfd = syllable.normalize('NFD');
-        // Dấu sắc, ngã, hỏi, nặng là Trắc (T). Còn lại (không dấu, huyền) là Bằng (B).
         const isTrac = nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323');
         return isTrac ? 'T' : 'B';
+    }
+
+    // Lấy phần vần (2 ký tự cuối, bỏ dấu)
+    function getRhymePart(word) {
+        if (!word) return '';
+        const clean = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return clean.slice(-2);
     }
 
     // --- TẦNG 0: BÓC TÁCH BẰNG/TRẮC ---
@@ -202,10 +205,7 @@ const POETRY_ANALYZER = (() => {
             const syllables = line.match(/[\p{L}\p{N}]+/gu) || [];
             const pattern = syllables.map(s => getTone(s)).join(' - ');
             return { 
-                lineNum: i + 1, 
-                text: line, 
-                count: syllables.length, 
-                pattern, 
+                lineNum: i + 1, text: line, count: syllables.length, pattern, 
                 lastSyllable: syllables[syllables.length - 1] || '' 
             };
         });
@@ -218,6 +218,7 @@ const POETRY_ANALYZER = (() => {
         const uniform = counts.every(c => c === counts[0]);
         const c = counts[0];
 
+        if (n === 2 && c === 7) return { form: 'Thất ngôn (2 câu)', confidence: 'trung bình', note: '2 câu × 7 chữ' };
         if (n === 4 && c === 7) return { form: 'Thất ngôn tứ tuyệt', confidence: 'cao', note: '4 câu × 7 chữ' };
         if (n === 8 && c === 7) return { form: 'Thất ngôn bát cú Đường luật', confidence: 'cao', note: '8 câu × 7 chữ' };
         if (n >= 2 && counts[0] === 6 && counts[1] === 8) {
@@ -228,24 +229,51 @@ const POETRY_ANALYZER = (() => {
         return { form: `Thơ ${c} chữ`, confidence: 'trung bình', note: `${n} câu × ${c} chữ` };
     }
 
-    function checkRhyme(lines) {
+    // Phân tích 4 loại vần
+    function checkRhymeDetails(lines) {
+        const result = { chan: [], lung: [], lien: [], cach: [] };
         const lastSyl = lines.map(l => l.lastSyllable);
-        // Lấy 2 ký tự cuối, bỏ dấu để so sánh vần tương đối
-        const rhymeParts = lastSyl.map(s => {
-            const clean = s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-            return clean.slice(-2);
-        });
-        const groups = {};
-        rhymeParts.forEach((r, i) => { if (!groups[r]) groups[r] = []; groups[r].push(i + 1); });
-        
-        let dominant = { key: null, lines: [] };
-        for (const [k, v] of Object.entries(groups)) { 
-            if (v.length > dominant.lines.length) dominant = { key: k, lines: v }; 
+        const rhymeParts = lastSyl.map(s => getRhymePart(s));
+
+        // 1. Vần chân (End Rhyme)
+        for (let i = 0; i < lines.length; i++) {
+            for (let j = i + 1; j < lines.length; j++) {
+                if (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== '') {
+                    result.chan.push(`Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}")`);
+                }
+            }
         }
-        return { lastSyllables: lastSyl, rhymeParts, groups, dominantRhyme: dominant.key, dominantLines: dominant.lines, hasRhyme: dominant.lines.length >= 2 };
+
+        // 2. Vần lưng (Internal Rhyme)
+        for (let i = 0; i < lines.length - 1; i++) {
+            const endPart = rhymeParts[i];
+            if (!endPart) continue;
+            const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || [];
+            for (let k = 0; k < nextWords.length - 1; k++) {
+                if (getRhymePart(nextWords[k]) === endPart) {
+                    result.lung.push(`Cuối câu ${i+1} ("${lastSyl[i]}") vần với chữ ${k+1} câu ${i+2} ("${nextWords[k]}")`);
+                }
+            }
+        }
+
+        // 3. Vần liền (Consecutive Rhyme)
+        for (let i = 0; i < lines.length - 1; i += 2) {
+            if (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== '') {
+                result.lien.push(`Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}")`);
+            }
+        }
+
+        // 4. Vần cách (Alternate Rhyme)
+        for (let i = 0; i < lines.length - 2; i += 2) {
+            if (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== '') {
+                result.cach.push(`Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}")`);
+            }
+        }
+
+        return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
 
-    // --- TẦNG 2: CHIẾU RỌI (TỪ ĐIỂN BIỂU TƯỢNG) ---
+    // --- TẦNG 2: TỪ ĐIỂN BIỂU TƯỢNG ---
     const SYMBOLS = {
         'trăng': { vol: 'V', sec: '5.2', mean: 'đoàn viên, nhớ quê, cô đơn, chiêm nghiệm' }, 
         'nguyệt': { vol: 'V', sec: '5.2', mean: 'Hán Việt của "trăng"' },
@@ -282,27 +310,23 @@ const POETRY_ANALYZER = (() => {
         return out;
     }
 
-    // --- TẦNG 3: MỞ NGỎ (CÂU HỎI GỢI MỞ) ---
+    // --- TẦNG 3: CÂU HỎI GỢI MỞ ---
     function buildQuestions(form, rhymes, symbols) {
         const qs = [];
         if (form.confidence !== 'cao') qs.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay chỉ là ngẫu nhiên? (Xem Quyển I.3)`);
-        if (!rhymes.hasRhyme) qs.push(`Không thấy vần chân rõ ràng giữa các câu. Tác giả có chủ ý dùng vần lỏng, hay đây là thơ tự do?`);
-        else if (rhymes.dominantLines.length < rhymes.lastSyllables.length) qs.push(`Có ${rhymes.lastSyllables.length - rhymes.dominantLines.length} câu không cùng vần "${rhymes.dominantRhyme}". Việc đổi vần có phải để chuyển ý? (Xem Quyển II.2)`);
+        if (rhymes.details.chan.length === 0) qs.push(`Không thấy vần chân rõ ràng giữa các câu. Tác giả có chủ ý dùng vần lỏng, hay đây là thơ tự do?`);
         if (symbols.length > 0) qs.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này, nó đang gợi nghĩa nào? (Xem Quyển V, mục ${symbols[0].sec})`);
         qs.push(`Điều gì ở bài thơ này là "của riêng" tác giả — khác với những bài cùng thể?`);
         return qs.slice(0, 5);
     }
 
-    // API trả về kết quả
     function generateReport(text) {
         const bangTrac = analyzeBangTrac(text);
         if (bangTrac.length === 0) return null;
-        
         const form = detectForm(bangTrac);
-        const rhymes = checkRhyme(bangTrac);
+        const rhymes = checkRhymeDetails(bangTrac);
         const symbols = findSymbols(text);
         const questions = buildQuestions(form, rhymes, symbols);
-        
         return { bangTrac, form, rhymes, symbols, questions };
     }
 
@@ -319,22 +343,19 @@ function executePipeline() {
 
     const rawText = inputField.value;
     if (!rawText.trim()) {
-        resultsPanel.innerHTML = `
-            <div class="result-step" style="border-left-color:var(--accent-gold);">
-                <p style="font-style:italic;color:var(--text-muted);text-align:center;">Vui lòng nhập bài thơ để phân tích.</p>
-            </div>`;
+        resultsPanel.innerHTML = `<div class="result-step" style="border-left-color:var(--accent-gold);"><p style="font-style:italic;color:var(--text-muted);text-align:center;">Vui lòng nhập bài thơ để phân tích.</p></div>`;
         return;
     }
 
     const report = POETRY_ANALYZER.generateReport(rawText);
     if (!report) { resultsPanel.innerHTML = ''; return; }
 
-    // Định nghĩa các SVG nhỏ dùng trong báo cáo (Không dùng emoji)
+    // SVG Icons
     const SVG_CHECK = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
     const SVG_DOT = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="var(--text-muted)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px; display: inline-block;"><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
     const SVG_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
-    // --- TẦNG 0 HTML ---
+    // TẦNG 0
     const tier0 = report.bangTrac.map(l => `
         <div class="line-row">
             <span style="color:var(--text-muted);font-family:var(--font-sans);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span>
@@ -343,30 +364,36 @@ function executePipeline() {
         </div>
     `).join('');
 
-    // --- TẦNG 1 HTML ---
-    const rhymeRows = report.bangTrac.map((l, i) => `
-        <tr>
-            <td>Câu ${l.lineNum}</td>
-            <td>${l.lastSyllable}</td>
-            <td class="rhyme-part">[${report.rhymes.rhymeParts[i] || '—'}]</td>
-            <td>${report.rhymes.dominantLines.includes(l.lineNum) ? `${SVG_CHECK} cùng vần` : `${SVG_DOT} khác`}</td>
-        </tr>
-    `).join('');
+    // TẦNG 1
+    const renderRhymeList = (arr) => arr.length > 0 
+        ? arr.map(item => `<li style="margin-bottom: 5px;">${SVG_CHECK} ${item}</li>`).join('')
+        : `<li style="color:var(--text-muted); font-style:italic;">${SVG_DOT} Không tìm thấy</li>`;
 
     const tier1 = `
         <div style="margin-bottom:15px;">
             <strong>Thể thơ nhận diện:</strong> ${report.form.form} 
             <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span>
         </div>
-        <div style="margin-bottom:10px;"><strong>Đối chiếu vần chân:</strong></div>
-        <table class="rhyme-table">${rhymeRows}</table>
-        <div style="font-size:0.85rem;color:var(--text-muted);margin-top:10px;">
-            ${report.rhymes.hasRhyme 
-                ? `Vần chủ đạo: <span class="rhyme-part">[${report.rhymes.dominantRhyme}]</span> xuất hiện ở câu ${report.rhymes.dominantLines.join(', ')}.` 
-                : 'Không có vần chân lặp lại từ 2 câu trở lên.'}
+        <div style="margin-top: 20px; display: grid; gap: 15px;">
+            <div style="background: rgba(0,0,0,0.02); padding: 10px 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
+                <strong style="display:block; margin-bottom: 5px; color: var(--accent);">1. Vần chân (End Rhyme)</strong>
+                <ul style="padding-left: 0; list-style: none; font-size: 0.9rem;">${renderRhymeList(report.rhymes.details.chan)}</ul>
+            </div>
+            <div style="background: rgba(0,0,0,0.02); padding: 10px 15px; border-radius: 8px; border-left: 3px solid var(--accent-gold);">
+                <strong style="display:block; margin-bottom: 5px; color: var(--accent-gold);">2. Vần lưng (Internal Rhyme)</strong>
+                <ul style="padding-left: 0; list-style: none; font-size: 0.9rem;">${renderRhymeList(report.rhymes.details.lung)}</ul>
+            </div>
+            <div style="background: rgba(0,0,0,0.02); padding: 10px 15px; border-radius: 8px; border-left: 3px solid var(--text-main);">
+                <strong style="display:block; margin-bottom: 5px; color: var(--text-main);">3. Vần liền (Consecutive Rhyme)</strong>
+                <ul style="padding-left: 0; list-style: none; font-size: 0.9rem;">${renderRhymeList(report.rhymes.details.lien)}</ul>
+            </div>
+            <div style="background: rgba(0,0,0,0.02); padding: 10px 15px; border-radius: 8px; border-left: 3px solid var(--text-muted);">
+                <strong style="display:block; margin-bottom: 5px; color: var(--text-muted);">4. Vần cách (Alternate Rhyme)</strong>
+                <ul style="padding-left: 0; list-style: none; font-size: 0.9rem;">${renderRhymeList(report.rhymes.details.cach)}</ul>
+            </div>
         </div>`;
 
-    // --- TẦNG 2 HTML ---
+    // TẦNG 2
     const tier2 = report.symbols.length === 0
         ? `<p style="font-style:italic;color:var(--text-muted);">Không phát hiện biểu tượng / điển tích / từ Hán Việt đặc biệt.</p>`
         : report.symbols.map(s => `
@@ -377,7 +404,7 @@ function executePipeline() {
             </div>
         `).join('');
 
-    // --- TẦNG 3 HTML (Dùng Flexbox để căn icon SVG và chữ) ---
+    // TẦNG 3
     const tier3 = report.questions.map(q => `
         <div class="question-item" style="display: flex; align-items: flex-start;">
             <div style="margin-top: 2px;">${SVG_QUESTION}</div>
@@ -385,7 +412,6 @@ function executePipeline() {
         </div>
     `).join('');
 
-    // --- RENDER TỔNG THỂ ---
     resultsPanel.innerHTML = `
         <div class="result-step tier-0">
             <div class="tier-label">TẦNG 0 — DỮ KIỆN THÔ</div>
@@ -395,7 +421,7 @@ function executePipeline() {
         </div>
         <div class="result-step tier-1">
             <div class="tier-label">TẦNG 1 — ĐỐI CHIẾU LÝ THUYẾT</div>
-            <div class="step-title">Thể thơ và vần chân</div>
+            <div class="step-title">Thể thơ và Hệ thống Vần</div>
             ${tier1}
         </div>
         <div class="result-step tier-2">
@@ -411,9 +437,6 @@ function executePipeline() {
     `;
 }
 
-/**
- * Hàm phụ trợ: Điều hướng tới đúng Quyển trong Bách Khoa khi click.
- */
 function gotoEncyclopedia(volNum) {
     switchView('encyclopedia');
     setTimeout(() => {
@@ -442,9 +465,6 @@ function updateCanvasColors() {
     isDarkTheme = document.body.classList.contains('dark-mode'); 
 }
 
-/**
- * Hiệu ứng quầng sáng theo chuột (Desktop).
- */
 function initCursorGlow() {
     if (window.matchMedia('(pointer: fine)').matches) {
         const glow = document.getElementById('cursor-glow');
@@ -461,9 +481,6 @@ function initCursorGlow() {
     }
 }
 
-/**
- * Hiệu ứng gợn sóng nước (Canvas).
- */
 function initWaterCanvas() {
     canvas = document.getElementById('water-canvas');
     if (!canvas) return;
@@ -482,7 +499,6 @@ function initWaterCanvas() {
 
     function animateRipples() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Màu Vàng Gold (Tối) hoặc Xanh Ngọc (Sáng)
         const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; 
         
         for (let i = ripples.length - 1; i >= 0; i--) {
@@ -502,9 +518,6 @@ function initWaterCanvas() {
     animateRipples();
 }
 
-/**
- * Hiệu ứng hạt sương bay (Chỉ Sáng).
- */
 function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container) return;
@@ -522,7 +535,6 @@ function initDewdrops() {
         drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
         
         container.appendChild(drop);
-        // Xóa DOM sau khi bay xong tránh rác bộ nhớ
         setTimeout(() => drop.remove(), 20000); 
     }, 800);
 }
@@ -531,22 +543,18 @@ function initDewdrops() {
    MODULE 8: KHỞI CHẠY (INITIALIZATION)
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Tải Theme & Favicon
     loadSavedTheme();
     updateCanvasColors();
     
-    // 2. Render dữ liệu tĩnh
     renderHeritage('all');
     renderEncyclopedia();
     
-    // 3. Khởi tạo Danh ngôn tự động
     renderRandomQuote(); 
     setInterval(renderRandomQuote, 6000); 
     
-    // 4. Khởi tạo hiệu ứng hình ảnh
     initCursorGlow();
     initWaterCanvas();
     initDewdrops();
     
-    console.log("VĂN ĐẠO V28: Hệ thống đã sẵn sàng!");
+    console.log("VĂN ĐẠO V29: Hệ thống đã sẵn sàng! Phân tích 4 loại vần đã được kích hoạt.");
 });
