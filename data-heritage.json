@@ -784,9 +784,180 @@
         "category": "ca-dao"
     },
     {
+        "title": "Gót sen ba tấc",
+        "author": "Điển cố Trung Hoa",
+        "genre": "Điển cố",
+        "era": "Thời Nam Tề",
+        "script": "Chữ Hán",
+        "desc": "Chỉ đôi chân nhỏ của người phụ nữ thời phong kiến (tục bó chân). Thường dùng để tả vẻ đẹp yểu điệu.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Mày ngài mắt phượng",
+        "author": "Điển cố Trung Hoa",
+        "genre": "Điển cố",
+        "era": "Cổ đại",
+        "script": "Chữ Hán",
+        "desc": "Mày ngài (lông mày rậm, đẹp), mắt phượng (mắt sắc sảo). Tả vẻ đẹp đoan trang, quý phái của người phụ nữ.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Tóc mây",
+        "author": "Điển cố Trung Hoa",
+        "genre": "Điển cố",
+        "era": "Cổ đại",
+        "script": "Chữ Hán",
+        "desc": "Mái tóc đen, dày và mượt như mây. Tả vẻ đẹp thanh xuân của người thiếu nữ.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Má phấn môi son",
+        "author": "Điển cố Trung Hoa",
+        "genre": "Điển cố",
+        "era": "Cổ đại",
+        "script": "Chữ Hán",
+        "desc": "Chỉ người phụ nữ trang điểm đẹp, da trắng như phấn, môi đỏ như son.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Làn thu thủy, nét xuân sơn",
+        "author": "Nguyễn Du",
+        "genre": "Điển cố",
+        "era": "Truyện Kiều",
+        "script": "Chữ Nôm",
+        "desc": "Mắt trong như nước mùa thu, lông mày đẹp như núi mùa xuân. Tả vẻ đẹp sắc sảo của Thúy Kiều.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Khuôn trăng đầy đặn, nét ngài nở nang",
+        "author": "Nguyễn Du",
+        "genre": "Điển cố",
+        "era": "Truyện Kiều",
+        "script": "Chữ Nôm",
+        "desc": "Khuôn mặt tròn đầy như trăng, lông mày rậm đẹp. Tả vẻ đẹp phúc hậu của Thúy Vân.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Bèo dạt mây trôi",
+        "author": "Điển cố Việt Nam",
+        "genre": "Thành ngữ",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Chỉ thân phận trôi nổi, vô định của con người (nhất là người phụ nữ) trong xã hội cũ.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Chim lồng cá chậu",
+        "author": "Điển cố Việt Nam",
+        "genre": "Thành ngữ",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Chỉ hoàn cảnh bị giam hãm, mất tự do, không thể phát triển.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Đá nát vàng phai",
+        "author": "Điển cố Việt Nam",
+        "genre": "Thành ngữ",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Chỉ sự thay đổi, phai tàn của mọi thứ theo thời gian, hoặc sự thủy chung son sắt (dù đá nát, vàng phai).",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Lòng son",
+        "author": "Điển cố Việt Nam",
+        "genre": "Điển cố",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Chỉ tấm lòng trung thành, son sắt, không thay đổi.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Tấc lòng",
+        "author": "Điển cố Việt Nam",
+        "genre": "Điển cố",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Chỉ tấm lòng, tình cảm chân thành (thường dùng trong thơ ca để nói về nỗi niềm riêng).",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Bến đò xưa",
+        "author": "Điển cố Việt Nam",
+        "genre": "Điển cố",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Biểu tượng cho những cuộc gặp gỡ, chia tay và nỗi hoài niệm về quá khứ.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Trăng tàn",
+        "author": "Điển cố Việt Nam",
+        "genre": "Điển cố",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Trăng lặn về đêm, chỉ sự tàn lụi, chia ly, hoặc thời gian đã muộn.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Hoa tàn",
+        "author": "Điển cố Việt Nam",
+        "genre": "Điển cố",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Biểu tượng cho sắc đẹp phai tàn, tuổi xuân trôi qua nhanh chóng.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Sương pha mái đầu",
+        "author": "Điển cố Việt Nam",
+        "genre": "Điển cố",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Mái tóc điểm bạc (sương). Chỉ tuổi già, sự trôi chảy của thời gian.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Gót hồng",
+        "author": "Điển cố Trung Hoa",
+        "genre": "Điển cố",
+        "era": "Cổ đại",
+        "script": "Chữ Hán",
+        "desc": "Chỉ bước chân nhẹ nhàng, yểu điệu của người phụ nữ.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Cành hoa điểm tuyết",
+        "author": "Điển cố Trung Hoa",
+        "genre": "Điển cố",
+        "era": "Cổ đại",
+        "script": "Chữ Hán",
+        "desc": "Hình ảnh cành hoa điểm tuyết trắng. Biểu tượng cho vẻ đẹp thanh tao, trong sáng, vượt qua khó khăn.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Rồng mây",
+        "author": "Điển cố Trung Hoa",
+        "genre": "Điển cố",
+        "era": "Cổ đại",
+        "script": "Chữ Hán",
+        "desc": "Rồng và mây. Biểu tượng cho sự gặp gỡ của bậc quân vương và hiền tài, hoặc sự may mắn, thịnh vượng.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Ngựa hồng bụi trần",
+        "author": "Điển cố Việt Nam",
+        "genre": "Điển cố",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Hình ảnh ngựa hồng phi nhanh cuốn theo bụi. Biểu tượng cho sự hối hả, vội vã của cuộc sống hoặc chí khí tung hoành.",
+        "category": "dien-tich"
+    },
+    {
         "title": "Sân Lai",
         "author": "Điển cố Trung Hoa",
-        "genre": "Điển tích",
+        "genre": "Điển cố",
         "era": "Xuân Thu",
         "script": "Chữ Hán",
         "desc": "Lòng hiếu thảo.",
@@ -799,24 +970,6 @@
         "era": "Truyền thuyết",
         "script": "Chữ Hán",
         "desc": "Tình yêu bị ngăn cách.",
-        "category": "dien-tich"
-    },
-    {
-        "title": "Làn thu thủy, nét xuân sơn",
-        "author": "Nguyễn Du",
-        "genre": "Điển tích",
-        "era": "Truyện Kiều",
-        "script": "Chữ Nôm",
-        "desc": "Tả vẻ đẹp Thúy Kiều.",
-        "category": "dien-tich"
-    },
-    {
-        "title": "Bèo dạt mây trôi",
-        "author": "Điển tích Việt Nam",
-        "genre": "Điển tích",
-        "era": "Dân gian",
-        "script": "Quốc ngữ",
-        "desc": "Thân phận trôi nổi.",
         "category": "dien-tich"
     },
     {
