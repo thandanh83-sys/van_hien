@@ -28,11 +28,11 @@
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ================================================================= -->
-    <!-- 4. LIÊN KẾT FILE CSS (?v=1450 để ép xóa cache)                    -->
-    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 1450 thành số khác  -->
+    <!-- 4. LIÊN KẾT FILE CSS (?v=2400 để ép xóa cache)                    -->
+    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 2400 thành số khác  -->
     <!-- để trình duyệt không lấy code cũ trong bộ nhớ đệm.                 -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=1450">
+    <link rel="stylesheet" href="style.css?v=2400">
 </head>
 <body>
 
@@ -75,13 +75,13 @@
                     Trang Chủ
                 </button>
                 
-                <!-- Nút Văn Hiến (Icon cuốn sách - Chứa danh mục Tác phẩm & Thể loại) -->
+                <!-- Nút Văn Hiến (Icon cuốn sách - Chứa danh mục Tác phẩm) -->
                 <button class="nav-btn" onclick="switchView('heritage')" id="nav-heritage">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                     Văn Hiến
                 </button>
                 
-                <!-- Nút Đại Bách Khoa (Icon sách mở - Chứa các Chuyên khảo chi tiết) -->
+                <!-- Nút Đại Bách Khoa (Icon sách mở - Chứa Lý thuyết & Tinh hoa tác phẩm) -->
                 <button class="nav-btn" onclick="switchView('encyclopedia')" id="nav-encyclopedia">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     Bách Khoa
@@ -163,12 +163,12 @@
         <!-- ============================================================= -->
         <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
-            <p class="page-desc">Danh mục Tác phẩm & Thể loại</p>
+            <p class="page-desc">Danh mục Tác phẩm</p>
             
             <!-- THANH TÌM KIẾM VĂN HIẾN -->
             <!-- oninput="searchHeritage()" giúp lọc dữ liệu ngay khi gõ phím -->
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="Tìm tên tác phẩm, thể loại..." oninput="searchHeritage()">
+                <input type="text" id="search-input" placeholder="Tìm tên tác phẩm..." oninput="searchHeritage()">
             </div>
 
             <!-- TẦNG 1: LỌC THEO 8 ĐẠI MÔN LOẠI (JS tự động điền các nút) -->
@@ -191,12 +191,18 @@
         <!-- ============================================================= -->
         <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa</h1>
-            <p class="page-desc">Chuyên khảo chi tiết</p>
+            <p class="page-desc">Hệ thống tri thức</p>
             
-            <!-- THANH TÌM KIẾM BÁCH KHOA (Thay thế cho Mục lục cũ) -->
-            <!-- oninput="searchEncyclopedia()" giúp tìm nhanh Quyển hoặc nội dung -->
+            <!-- THANH TÌM KIẾM BÁCH KHOA -->
             <div class="search-container">
                 <input type="text" id="encyclopedia-search" placeholder="Tìm tên Quyển hoặc nội dung chi tiết..." oninput="searchEncyclopedia()">
+            </div>
+
+            <!-- THANH LỌC 2 NHÓM: LÝ THUYẾT & TINH HOA TÁC PHẨM -->
+            <!-- Đã xóa nút "Tất cả", chỉ để đúng 2 nút -->
+            <div class="filter-bar" id="encyclopedia-filter-bar">
+                <button class="filter-btn active" onclick="filterEncyclopediaGroup('ly-thuyet', this)">Lý Thuyết</button>
+                <button class="filter-btn" onclick="filterEncyclopediaGroup('tinh-hoa', this)">Tinh Hoa Tác Phẩm</button>
             </div>
 
             <!-- NỘI DUNG CÁC QUYỂN (JS sẽ render nội dung dạng Accordion độc quyền) -->
@@ -226,8 +232,8 @@
 
     <!-- ================================================================= -->
     <!-- 7. SCRIPTS (BỘ NÃO XỬ LÝ LOGIC CỦA TOÀN BỘ TRANG WEB)             -->
-    <!-- (?v=1450 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
+    <!-- (?v=2400 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
     <!-- ================================================================= -->
-    <script src="script.js?v=1450"></script>
+    <script src="script.js?v=2400"></script>
 </body>
 </html>
