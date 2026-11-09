@@ -1,29 +1,39 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V95 - FULL FEATURES)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V96 - PWA READY)
    Tác giả: Văn Đạo
-   Mô tả: Đã sửa lỗi Smart Link (Quyển V, VIII) và xóa Biểu đồ Bằng/Trắc.
+   Mô tả: Tương thích 100% với PWA, 4 file JSON mới, sửa lỗi Smart Link,
+          tự động cuộn khi mở Bách Khoa, không dùng Bookmark/Chart.
    ===================================================================== */
 
 /* =====================================================================
    MODULE 1: HỆ THỐNG ICONS (SVG) & HẰNG SỐ
    ===================================================================== */
+// Icon cây bút (Tác phẩm)
 const ICON_PEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+// Icon cuốn sách (Thể loại / Chuyên khảo)
 const ICON_BOOK = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
+// Icon đồng hồ (Thời gian)
 const ICON_CLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+// Icon cuộn giấy (Văn tự)
 const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
+// Icon dấu tích xanh (Kết quả phân tích)
 const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+// Icon dấu hỏi (Gợi mở)
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+// Icon mũi tên phải (Thay thế ký tự →)
 const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
 
 const THEME_KEY = 'vandao_theme';
-const CACHE_KEY = 'vandao_cache_v15'; // Tăng version để xóa cache cũ
+const CACHE_KEY = 'vandao_cache_v16'; // Tăng version để xóa cache cũ
 const ITEMS_PER_PAGE = 20;
 
-let THEORY_DATA = [];    
-let AUTHOR_DATA = [];    
-let WORKS_DATA = [];     
-let QUOTES_DATA = [];    
+// Biến toàn cục chứa dữ liệu của 4 file
+let THEORY_DATA = [];    // data-ly-thuyet.json
+let AUTHOR_DATA = [];    // data-tac-gia.json
+let WORKS_DATA = [];     // data-tac-pham.json
+let QUOTES_DATA = [];    // data-danh-ngon.json
 
+// Biến trạng thái
 let currentMainCat = 'all', currentGenre = 'all', currentPage = 1;
 let currentEncyGroup = 'ly-thuyet'; 
 
@@ -478,7 +488,7 @@ function executePipeline() {
     
     const report = POETRY_ANALYZER.generateReport(rawText); if (!report) { resultsPanel.innerHTML = ''; return; }
 
-    // ĐÃ XÓA PHẦN TÍNH TOÁN BIỂU ĐỒ BẰNG TRẮC TẠI ĐÂY THEO YÊU CẦU
+    // Không còn sinh Biểu đồ Bằng/Trắc (Theo yêu cầu)
     const tier0 = report.bangTrac.map(l => `<div class="line-row" style="border-bottom: none !important; padding: 8px 0;"><span style="color:var(--text-muted);font-family:var(--font-sans);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${l.text}</span><span class="pattern-text">${l.pattern}</span></div>`).join('');
     
     const renderRhymeList = (title, arr, color) => {
