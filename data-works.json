@@ -1,0 +1,194 @@
+[
+    {
+        "id": "tac-gia-nguyen-du",
+        "type": "tac-gia",
+        "title": "Quyển. Chân Dung Tác Giả Nguyễn Du",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Du (1765-1820), tự Tố Như, hiệu Thanh Hiên, quê ở Nghi Xuân, Hà Tĩnh. Sinh ra trong gia đình đại quý tộc phong kiến, cha là Nguyễn Nghiễm (Tể tướng). Ông sống trong thời kỳ loạn lạc (Lê mạt, Tây Sơn, Nguyễn).</p><h4>II. Sự nghiệp sáng tác</h4><p>Để lại nhiều tác phẩm chữ Hán (Thanh Hiên thi tập, Nam trung tạp ngâm, Bắc hành tạp lục) và chữ Nôm (Truyện Kiều, Văn chiêu hồn).</p><h4>III. Vị trí</h4><p>Được UNESCO vinh danh là Danh nhân văn hóa thế giới. Đỉnh cao của văn học cổ điển Việt Nam, người đặt nền móng cho sự phát triển của chữ Nôm và tinh thần nhân đạo trong văn học.</p>"
+    },
+    {
+        "id": "tac-gia-nam-cao",
+        "type": "tac-gia",
+        "title": "Quyển. Chân Dung Tác Giả Nam Cao",
+        "content": "<h4>I. Tiểu sử</h4><p>Nam Cao (1915-1951), tên thật là Trần Hữu Tri, quê ở Hà Nam. Là nhà văn hiện thực phê phán xuất sắc và cũng là một chiến sĩ cách mạng.</p><h4>II. Sự nghiệp sáng tác</h4><p>Trước Cách mạng tháng Tám, ông viết về người nông dân nghèo bị tha hóa (Chí Phèo) và trí thức tiểu tư sản (Sống mòn). Sau cách mạng, ông viết về người nông dân tham gia kháng chiến (Đôi mắt).</p><h4>III. Phong cách</h4><p>Ngòi bút lạnh lùng, tỉnh táo nhưng ẩn chứa tình yêu thương sâu sắc. Luôn trăn trở về nhân phẩm và khát vọng làm người.</p>"
+    },
+    {
+        "id": "tac-gia-xuan-dieu",
+        "type": "tac-gia",
+        "title": "Quyển. Chân Dung Tác Giả Xuân Diệu",
+        "content": "<h4>I. Tiểu sử</h4><p>Xuân Diệu (1916-1985), quê ở Hà Tĩnh. Được mệnh danh là \"Ông hoàng thơ tình\" Việt Nam, là nhà thơ lớn của phong trào Thơ Mới.</p><h4>II. Phong cách</h4><p>Thơ ông là sự kết hợp nhuần nhuyễn giữa cổ điển và hiện đại. Đề cao khát vọng sống mãnh liệt, giao cảm với thiên nhiên và tình yêu cuồng nhiệt.</p><h4>III. Tác phẩm</h4><p>Thơ thơ, Gửi hương cho gió, Riêng chung, Mũi Cà Mau...</p>"
+    },
+    {
+        "id": "tac-gia-ho-chi-minh",
+        "type": "tac-gia",
+        "title": "Quyển. Chân Dung Tác Giả Hồ Chí Minh",
+        "content": "<h4>I. Tiểu sử</h4><p>Hồ Chí Minh (1890-1969), vị lãnh tụ vĩ đại của dân tộc, đồng thời là một nhà văn, nhà thơ lớn.</p><h4>II. Sự nghiệp văn học</h4><p>Để lại di sản văn học phong phú: Truyện và ký (Vi hành, Lời than vãn của bà Trưng Trắc), Thơ (Nhật ký trong tù), Văn chính luận (Tuyên ngôn độc lập, Lời kêu gọi toàn quốc kháng chiến).</p><h4>III. Phong cách</h4><p>Đa dạng, sâu sắc. Từ những áng văn chính luận hùng hồn đến những vần thơ Đường luật thâm trầm, giàu triết lý.</p>"
+    },
+    {
+        "id": "tac-gia-shakespeare",
+        "type": "tac-gia",
+        "title": "Quyển. Chân Dung Tác Giả William Shakespeare",
+        "content": "<h4>I. Tiểu sử</h4><p>William Shakespeare (1564-1616), nhà viết kịch, nhà thơ vĩ đại người Anh, được xem là một trong những nhà văn có ảnh hưởng nhất lịch sử nhân loại.</p><h4>II. Sự nghiệp</h4><p>Ông để lại 38 vở kịch, 154 bài sonnet, 2 trường ca. Các thể loại: Bi kịch (Hamlet, Othello, Macbeth, King Lear), Hài kịch (Giấc mộng đêm hè), Kịch lịch sử.</p><h4>III. Vị trí</h4><p>Đỉnh cao của kịch nghệ Phục Hưng, bậc thầy về ngôn từ và thấu hiểu tâm lý con người.</p>"
+    },
+    {
+        "id": "than-tru-troi",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Thần Trụ Trời",
+        "content": "<h4>I. Xuất xứ và Thể loại</h4><p>Thần thoại sáng thế của người Việt cổ, giải thích sự hình thành vũ trụ.</p><h4>II. Nội dung</h4><p>Thần khổng lồ dùng đầu đội trời, đắp đất thành cột chống trời. Khi trời cao, thần phá cột, đất đá văng ra tạo thành núi đồi, sông biển.</p><h4>III. Nghệ thuật</h4><p>Trí tưởng tượng phong phú, hình tượng thần linh mang tầm vóc vũ trụ.</p>"
+    },
+    {
+        "id": "con-rong-chau-tien",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Con Rồng Cháu Tiên",
+        "content": "<h4>I. Thể loại</h4><p>Truyền thuyết nguồn gốc dân tộc.</p><h4>II. Nội dung</h4><p>Lạc Long Quân (Rồng) kết duyên Âu Cơ (Tiên), sinh bọc trăm trứng nở thành 100 người con. 50 con lên núi, 50 con xuống biển thể hiện sự phân bố địa lý và tinh thần đoàn kết dân tộc.</p><h4>III. Ý nghĩa</h4><p>Ca ngợi nguồn gốc cao quý, thể hiện ý thức cộng đồng, tinh thần đoàn kết của nhân dân ta.</p>"
+    },
+    {
+        "id": "son-tinh-thuy-tinh",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Sơn Tinh Thủy Tinh",
+        "content": "<h4>I. Nội dung</h4><p>Sơn Tinh (Thần Núi) và Thủy Tinh (Thần Nước) cùng đến cầu hôn Mị Nương. Vua Hùng ra điều kiện sính lễ. Sơn Tinh đến trước cưới được vợ, Thủy Tinh nổi giận dâng nước đánh. Trận chiến diễn ra hàng năm.</p><h4>II. Giá trị</h4><p>Giải thích hiện tượng lũ lụt hàng năm ở đồng bằng Bắc Bộ. Ca ngợi công cuộc trị thủy và bảo vệ đất nước của người Việt cổ.</p>"
+    },
+    {
+        "id": "thanh-giong",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Thánh Gióng",
+        "content": "<h4>I. Nội dung</h4><p>Cậu bé làng Gióng lên 3 tuổi không nói, nghe sứ giả liền đòi đi đánh giặc. Cậu lớn nhanh như thổi, cưỡi ngựa sắt đánh tan giặc Ân rồi bay về trời.</p><h4>II. Ý nghĩa</h4><p>Biểu tượng của tinh thần yêu nước, sức mạnh đoàn kết chống ngoại xâm.</p>"
+    },
+    {
+        "id": "tam-cam",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Tấm Cám",
+        "content": "<h4>I. Thể loại</h4><p>Cổ tích thần kỳ.</p><h4>II. Nội dung</h4><p>Tấm hiền lành bị mẹ con Cám hãm hại. Tấm chết hóa thành chim vàng anh, cây xoan đào, quả thị để trở về bên vua. Cuối cùng giành lại hạnh phúc.</p><h4>III. Ý nghĩa</h4><p>Khát vọng công lý, tinh thần đấu tranh kiên cường của cái thiện chống lại cái ác.</p>"
+    },
+    {
+        "id": "thach-sanh",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Thạch Sanh",
+        "content": "<h4>I. Nội dung</h4><p>Thạch Sanh giết chằn tinh, đại bàng cứu công chúa. Bị Lý Thông lừa dối. Nhờ tiếng đàn thần và niêu cơm thần, chàng minh oan, được cưới công chúa.</p><h4>II. Ý nghĩa</h4><p>Ca ngợi phẩm chất dũng cảm, thật thà. Ước mơ cái thiện thắng cái ác.</p>"
+    },
+    {
+        "id": "ech-ngoi-day-gieng",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Ếch Ngồi Đáy Giếng",
+        "content": "<h4>I. Nội dung</h4><p>Ếch sống lâu ngày trong giếng, tưởng trời chỉ bằng cái vung, tự cho mình là vua. Khi ra khỏi giếng, bị trâu giẫm bẹp.</p><h4>II. Bài học</h4><p>Phê phán thói tự phụ, kiêu ngạo, hiểu biết hạn hẹp nhưng lại huênh hoang.</p>"
+    },
+    {
+        "id": "thay-boi-xem-voi",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Thầy Bói Xem Voi",
+        "content": "<h4>I. Nội dung</h4><p>Các thầy bói mù cùng sờ voi và mỗi người đưa ra một nhận định phiến diện (như cái quạt, cái cột). Cuối cùng họ tranh cãi và đánh nhau.</p><h4>II. Bài học</h4><p>Cần nhìn nhận sự vật một cách toàn diện, khách quan, tránh chủ nghĩa phiến diện.</p>"
+    },
+    {
+        "id": "treo-bien",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Treo Biển",
+        "content": "<h4>I. Nội dung</h4><p>Chủ quán treo biển \"Ở đây có bán cá tươi\", nghe mọi người góp ý (bỏ chữ \"tươi\", \"ở đây\", \"có bán\") và cuối cùng cất luôn biển.</p><h4>II. Bài học</h4><p>Phê phán những người thiếu bản lĩnh, thiếu lập trường, ba phải, không có chính kiến.</p>"
+    },
+    {
+        "id": "dam-san",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Sử Thi Đăm Săn",
+        "content": "<h4>I. Thể loại và Xuất xứ</h4><p>Sử thi anh hùng của người Ê-đê (Tây Nguyên).</p><h4>II. Tóm tắt</h4><p>Đăm Săn là tù trưởng dũng mãnh, trải qua nhiều cuộc chiến tranh bảo vệ buôn làng, giành lại vợ.</p><h4>III. Giá trị Nghệ thuật</h4><p>Ngôn ngữ trang trọng, giàu hình ảnh phóng đại. Miêu tả cảnh chiến trận và lễ hội hoành tráng.</p>"
+    },
+    {
+        "id": "mo-muong",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Mo Mường",
+        "content": "<h4>I. Khái niệm</h4><p>Hệ thống nghi lễ và diễn xướng dân gian nguyên hợp của người Mường, thực hành trong tang lễ.</p><h4>II. Nội dung</h4><p>Chứa đựng trường ca sử thi (Đẻ đất đẻ nước), dẫn dắt linh hồn người chết về Mường Ma.</p>"
+    },
+    {
+        "id": "truyen-kieu",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Truyện Kiều (Nguyễn Du)",
+        "content": "<h4>I. Tác giả và Hoàn cảnh</h4><p>Nguyễn Du (1765-1820). Truyện Kiều viết bằng chữ Nôm, thể lục bát, dựa trên cốt truyện Kim Vân Kiều truyện.</p><h4>II. Giá trị Nội dung</h4><ul><li><b>Hiện thực:</b> Bức tranh xã hội phong kiến tàn bạo. Số phận bi kịch của người phụ nữ tài hoa bạc mệnh.</li><li><b>Nhân đạo:</b> Đồng cảm, xót thương. Trân trọng vẻ đẹp tài năng, khát vọng tình yêu tự do.</li></ul><h4>III. Giá trị Nghệ thuật</h4><p>Thể thơ lục bát điêu luyện. Nghệ thuật tả cảnh ngụ tình bậc thầy. Ngôn ngữ kết hợp bình dân và bác học.</p>"
+    },
+    {
+        "id": "chinh-phu-ngam-khuc",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Chinh Phụ Ngâm Khúc",
+        "content": "<h4>I. Tác phẩm</h4><p>Khúc ngâm của Đặng Trần Côn, bản dịch chữ Nôm của Đoàn Thị Điểm.</p><h4>II. Nội dung</h4><p>Nỗi sầu muộn, cô đơn, oán hận của người vợ có chồng ra trận. Tố cáo chiến tranh phi nghĩa.</p><h4>III. Nghệ thuật</h4><p>Thể thơ song thất lục bát điêu luyện. Ngôn từ giàu cảm xúc, nhạc điệu.</p>"
+    },
+    {
+        "id": "banh-troi-nuoc",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Bánh Trôi Nước",
+        "content": "<h4>I. Tác giả</h4><p>Hồ Xuân Hương.</p><h4>II. Nội dung</h4><p>Mượn hình ảnh bánh trôi nước để nói về thân phận và phẩm chất của người phụ nữ trong xã hội phong kiến. Khẳng định vẻ đẹp và tấm lòng son sắt.</p><h4>III. Nghệ thuật</h4><p>Thể thất ngôn tứ tuyệt, ngôn ngữ bình dị, ẩn dụ sâu sắc.</p>"
+    },
+    {
+        "id": "chi-pheo",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Chí Phèo (Nam Cao)",
+        "content": "<h4>I. Tác phẩm</h4><p>Truyện ngắn xuất sắc của văn học hiện thực phê phán Việt Nam (1941).</p><h4>II. Nội dung</h4><p>Bi kịch của Chí Phèo - người nông dân lương thiện bị xã hội tha hóa thành con quỷ dữ. Cuộc gặp gỡ Thị Nở đánh thức nhân tính, nhưng bị cự tuyệt quyền làm người.</p><h4>III. Nghệ thuật</h4><p>Xây dựng nhân vật điển hình. Ngôn ngữ độc thoại nội tâm sắc bén.</p>"
+    },
+    {
+        "id": "so-do",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Số Đỏ (Vũ Trọng Phụng)",
+        "content": "<h4>I. Nội dung</h4><p>Thông qua Xuân Tóc Đỏ, tác phẩm phơi bày bộ mặt lố lăng, giả dối của xã hội thượng lưu thực dân nửa phong kiến.</p><h4>II. Nghệ thuật</h4><p>Bút pháp trào phúng châm biếm sắc lạnh. Ngôn ngữ trần trụi nhưng đầy tính nghệ thuật.</p>"
+    },
+    {
+        "id": "voi-vang",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Vội Vàng (Xuân Diệu)",
+        "content": "<h4>I. Nội dung</h4><p>Khát vọng sống mãnh liệt, cuồng nhiệt, trân trọng từng phút giây tuổi trẻ.</p><h4>II. Nghệ thuật</h4><p>Thơ tự do, nhịp điệu dồn dập, hình ảnh táo bạo. Đỉnh cao của Thơ Mới.</p>"
+    },
+    {
+        "id": "tay-tien",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Tây Tiến (Quang Dũng)",
+        "content": "<h4>I. Nội dung</h4><p>Hình tượng người lính Tây Tiến hào hoa, bi tráng giữa núi rừng Tây Bắc hùng vĩ.</p><h4>II. Nghệ thuật</h4><p>Bút pháp lãng mạn kết hợp hiện thực. Ngôn ngữ giàu hình ảnh, nhạc điệu.</p>"
+    },
+    {
+        "id": "hamlet",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Hamlet (Shakespeare)",
+        "content": "<h4>I. Nội dung</h4><p>Vở bi kịch về hoàng tử Hamlet tìm cách trả thù cho cha, bị giằng xé giữa tư tưởng và hành động.</p><h4>II. Giá trị</h4><p>Kiệt tác về xung đột nội tâm, phản ánh sự khủng hoảng thời đại Phục Hưng.</p>"
+    },
+    {
+        "id": "tam-quoc-dien-nghia",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Tam Quốc Diễn Nghĩa",
+        "content": "<h4>I. Tác phẩm</h4><p>Tiểu thuyết chương hồi của La Quán Trung thời Minh.</p><h4>II. Giá trị</h4><p>Bức tranh chính trị - quân sự đồ sộ. Khắc họa thành công các mưu trí (Gia Cát Lượng), võ tướng (Quan Vũ).</p>"
+    },
+    {
+        "id": "tay-du-ky",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Tây Du Ký",
+        "content": "<h4>I. Nội dung</h4><p>Truyện chương hồi kỳ ảo kể về hành trình thỉnh kinh của thầy trò Đường Tăng.</p><h4>II. Giá trị</h4><p>Phản ánh triết lý nhân sinh sâu sắc, ca ngợi trí tuệ và lòng kiên trì.</p>"
+    },
+    {
+        "id": "hong-lau-mong",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Hồng Lâu Mộng",
+        "content": "<h4>I. Nội dung</h4><p>Đỉnh cao tiểu thuyết chương hồi, phản ánh sự suy vong của các gia tộc phong kiến qua tình yêu Bảo Ngọc - Đại Ngọc.</p><h4>II. Giá trị</h4><p>Bức tranh hiện thực rộng lớn. Nghệ thuật xây dựng nhân vật bậc thầy.</p>"
+    },
+    {
+        "id": "tranh-dong-ho",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Tranh Đông Hồ",
+        "content": "<h4>I. Khái niệm</h4><p>Loại tranh khắc gỗ dân gian Việt Nam, in trên giấy điệp, ra đời từ làng Đông Hồ.</p><h4>II. Đặc điểm</h4><p>Màu sắc tự nhiên. Phản ánh ước vọng bình dị, sinh hoạt nông nghiệp.</p>"
+    },
+    {
+        "id": "hat-cheo",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Nghệ Thuật Chèo",
+        "content": "<h4>I. Khái niệm</h4><p>Loại hình sân khấu kịch hát truyền thống của người Việt, phổ biến ở Bắc Bộ.</p><h4>II. Đặc điểm</h4><p>Đề cao đạo đức, lối sống nhân nghĩa. Nhân vật mang tính ước lệ.</p>"
+    },
+    {
+        "id": "quan-am-thi-kinh",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Quan Âm Thị Kính",
+        "content": "<h4>I. Nội dung</h4><p>Vở chèo kinh điển về người phụ nữ nết na, hiền đức nhưng bị oan khiên, chịu nhiều đau khổ.</p><h4>II. Giá trị</h4><p>Ca ngợi đức hạnh và lòng vị tha. Tố cáo xã hội phong kiến bất công.</p>"
+    },
+    {
+        "id": "da-co-hoai-lang",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Dạ Cổ Hoài Lang",
+        "content": "<h4>I. Tác phẩm</h4><p>Bản đờn ca tài tử do nghệ nhân Cao Văn Lầu sáng tác.</p><h4>II. Giá trị</h4><p>Cội nguồn hình thành nên thể loại vọng cổ Nam Bộ. Diễn tả nỗi nhớ chồng.</p>"
+    },
+    {
+        "id": "quan-ho",
+        "type": "tac-pham",
+        "title": "Quyển. Chuyên Khảo Dân Ca Quan Họ",
+        "content": "<h4>I. Khái niệm</h4><p>Hát giao duyên đối đáp giữa liền anh và liền chị ở vùng Kinh Bắc.</p><h4>II. Giá trị</h4><p>Di sản văn hóa phi vật thể đại diện của nhân loại.</p>"
+    }
+]
