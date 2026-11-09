@@ -2,247 +2,415 @@
 # -*- coding: utf-8 -*-
 """
 =====================================================================
-VĂN ĐẠO ENGINE - TOOL QUẢN LÝ DỮ LIỆU VĂN HIẾN (ULTIMATE EDITION)
+VĂN ĐẠO ENGINE - PYTHON CORE (ULTIMATE EDITION V2)
 =====================================================================
 Tác giả: Văn Đạo
-Mô tả: Công cụ tự động chuẩn hóa ID (slug), merge dữ liệu mới, 
-       kiểm tra lỗi schema và tạo bản sao lưu (backup) an toàn.
+Mô tả: Bộ máy phân tích thi pháp tất định (Deterministic) và
+       Kiểm soát tri thức (Epistemic Layer) dành cho Văn học.
 
-Tính năng nổi bật:
-  - 100% SVG-like symbols (Không dùng emoji, hiển thị sắc nét mọi Terminal).
-  - Tự động tạo ID từ Tiêu đề tiếng Việt (VD: "Truyện Kiều" -> "truyen-kieu").
-  - Tự động phát hiện và xử lý ID trùng lặp (thêm hậu tố -2, -3...).
-  - Tự động backup file cũ trước khi ghi đè.
-  - Thống kê dữ liệu bằng biểu đồ cột (Bar chart) trực quan.
+Kiến trúc "Nhất Khí Hóa Tam Thanh":
+- Tầng 1 (Corpus): Đọc và bảo tồn văn bản gốc.
+- Tầng 2 (Formal): Bóc tách số tiếng, thanh điệu (NFD), vần điệu.
+- Tầng 3 (Epistemic): Đánh giá, phân tầng nhận thức và tra cứu biểu tượng.
 
-Cách sử dụng:
-  1. Chỉ chuẩn hóa file hiện tại: 
-     python vandao_tool.py
-  2. Merge thêm file mới (data-heritage-new.json):
-     python vandao_tool.py --new data-heritage-new.json
+Cách chạy:
+    python vandao_core.py
+    python vandao_core.py --text "Quạt giấy khép lại mùa thi,\nÁo dài bay giữa kinh kỳ sắc xuân."
+    python vandao_core.py --file poem.txt --title "Tên bài thơ"
 =====================================================================
 """
 
-import json
-import re
-import unicodedata
-import shutil
-import sys
+from __future__ import annotations
+
 import argparse
-from datetime import datetime
+import re
+import sys
+import unicodedata
+from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
+from typing import Any
 
-# ─── CẤU HÌNH HỆ THỐNG ────────────────────────────────────────────────────
-DEFAULT_DATA_FILE = "data-heritage.json"
-DEFAULT_NEW_FILE  = "data-heritage-new.json"
-BACKUP_DIR        = "backups"
+# =====================================================================
+# I. EPISTEMIC LAYER (TẦNG KIỂM SOÁT TRI THỨC)
+# =====================================================================
+class Level(str, Enum):
+    """Bốn cấp độ nhận thức - Bộ lọc bắt buộc."""
+    FACT = "Dữ kiện"
+    HYPOTHESIS = "Giả thuyết"
+    INTERPRETATION = "Diễn giải"
+    FEELING = "Cảm nhận"
 
-# Các trường bắt buộc phải có trong mỗi tác phẩm
-REQUIRED_FIELDS = ["title", "author", "genre", "era", "script", "desc", "category"]
 
-# ─── BỘ KÝ TỰ SVG-LIKE (Unicode Typographic - Không dùng Emoji) ───────────
-SYM = {
-    "ok":     "✓",   # U+2713 CHECK MARK
-    "err":    "✗",   # U+2717 BALLOT X
-    "warn":   "△",   # U+25B3 WHITE UP-POINTING TRIANGLE
-    "dir":    "▸",   # U+25B8 BLACK RIGHT-POINTING SMALL TRIANGLE
-    "bak":    "▣",   # U+25A3 WHITE SQUARE CONTAINING BLACK SMALL SQUARE
-    "merge":  "⇄",   # U+21C4 RIGHTWARDS ARROW OVER LEFTWARDS ARROW
-    "stat":   "▤",   # U+25A4 SQUARE WITH HORIZONTAL FILL
-    "stop":   "⊗",   # U+2297 CIRCLED TIMES
-    "bullet": "▸",   # U+25B8
-    "bar":    "▮",   # U+25AE BLACK VERTICAL RECTANGLE
-    "hl":     "═",   # U+2550 BOX DRAWINGS DOUBLE HORIZONTAL
-    "vl":     "║",   # U+2551 BOX DRAWINGS DOUBLE VERTICAL
-    "tl":     "╔",   # U+2554 BOX DRAWINGS DOUBLE DOWN AND RIGHT
-    "tr":     "╗",   # U+2557 BOX DRAWINGS DOUBLE DOWN AND LEFT
-    "bl":     "╚",   # U+255A BOX DRAWINGS DOUBLE UP AND RIGHT
-    "br":     "╝",   # U+255D BOX DRAWINGS DOUBLE UP AND LEFT
-}
+class Confidence(str, Enum):
+    """Trạng thái tin cậy của một nhận định."""
+    VERIFIED = "Đã xác minh"
+    TENTATIVE = "Tạm thời"
+    CONTESTED = "Còn tranh luận"
+    UNVERIFIED = "Chưa xác minh"
+    MISSING = "Thiếu nguồn"
 
-# ─── CÁC HÀM TIỆN ÍCH GIAO DIỆN ───────────────────────────────────────────
 
-def banner(title: str, width: int = 55) -> str:
-    """Vẽ khung tiêu đề SVG-like bằng box-drawing characters."""
-    min_w = len(title) + 4
-    if width < min_w:
-        width = min_w
-    inner  = width - 2
-    pad    = inner - len(title) - 2
-    left   = pad // 2
-    right  = pad - left
-    top    = SYM["tl"] + SYM["hl"] * inner + SYM["tr"]
-    middle = SYM["vl"] + " " * left + title + " " * right + SYM["vl"]
-    bottom = SYM["bl"] + SYM["hl"] * inner + SYM["br"]
-    return f"{top}\n{middle}\n{bottom}"
+@dataclass
+class Reference:
+    """Nguồn tham chiếu cho một Claim."""
+    source: str
+    status: Confidence = Confidence.UNVERIFIED
+    location: str = ""
 
-# ─── XỬ LÝ SLUG VÀ ID TIẾNG VIỆT ──────────────────────────────────────────
 
-SPECIAL_MAP = {
-    "đ": "d", "Đ": "D", "ơ": "o", "Ơ": "O", "ư": "u", "Ư": "U",
-    "ă": "a", "Ă": "A", "â": "a", "Â": "A", "ê": "e", "Ê": "E", 
-    "ô": "o", "Ô": "O"
-}
+@dataclass
+class Claim:
+    """Đơn vị nhận định có provenance (nguồn gốc)."""
+    content: str
+    level: Level
+    text_excerpt: str = ""
+    location: str = ""
+    references: list[Reference] = field(default_factory=list)
+    confidence: Confidence = Confidence.UNVERIFIED
 
-def remove_diacritics(text: str) -> str:
-    """Loại bỏ dấu tiếng Việt để tạo slug."""
-    for k, v in SPECIAL_MAP.items():
-        text = text.replace(k, v)
-    # Chuẩn hóa NFD để tách dấu ra khỏi ký tự gốc, sau đó xóa các dấu đó
-    text = unicodedata.normalize("NFD", text)
-    return "".join(c for c in text if unicodedata.category(c) != "Mn")
+    def validate(self) -> list[str]:
+        """Kiểm tra tính hợp lệ của Claim. Trả về danh sách cảnh báo."""
+        warnings = []
+        if self.level is Level.FACT:
+            if not self.references:
+                warnings.append("FACT không có Reference (Cần nguồn dẫn).")
+            elif not any(r.status is Confidence.VERIFIED for r in self.references):
+                warnings.append("FACT không có Reference đã xác minh.")
+        if self.level is Level.INTERPRETATION:
+            if not self.text_excerpt and not self.references:
+                warnings.append("INTERPRETATION thiếu cả trích dẫn văn bản và Reference.")
+        return warnings
 
-def slugify(text: str) -> str:
-    """Chuyển tiêu đề thành ID dạng slug (VD: 'Truyện Kiều' -> 'truyen-kieu')."""
-    text = remove_diacritics(text).lower()
-    text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
-    return re.sub(r"-+", "-", text)
 
-def ensure_unique(base: str, used: set) -> str:
-    """Đảm bảo ID không bị trùng lặp. Nếu trùng, thêm -2, -3..."""
-    if base not in used:
-        return base
-    n = 2
-    while f"{base}-{n}" in used:
-        n += 1
-    return f"{base}-{n}"
+# =====================================================================
+# II. TẦNG 1: CORPUS & VĂN BẢN HỌC
+# =====================================================================
+@dataclass
+class Poem:
+    """Đối tượng lưu trữ bài thơ gốc."""
+    title: str
+    lines: list[str]
+    author: str = "Khuyết danh"
+    source_status: Confidence = Confidence.UNVERIFIED
 
-# ─── ĐỌC / GHI FILE VÀ BACKUP ─────────────────────────────────────────────
+    def full_text(self) -> str:
+        """Trả về toàn bộ văn bản thơ dưới dạng chuỗi."""
+        return "\n".join(self.lines)
 
-def load_json(path: str) -> list:
-    """Đọc file JSON an toàn, trả về mảng rỗng nếu file không tồn tại."""
-    p = Path(path)
-    if not p.exists():
-        return []
-    try:
-        with open(p, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if not isinstance(data, list):
-                print(f"  {SYM['err']}  Lỗi: File {path} phải là một mảng [...]")
-                sys.exit(1)
-            return data
-    except json.JSONDecodeError as e:
-        print(f"  {SYM['err']}  Lỗi cú pháp JSON trong {path}: {e}")
-        sys.exit(1)
 
-def save_json(path: str, data: list) -> None:
-    """Ghi file JSON và tự động tạo backup nếu file đã tồn tại."""
-    p = Path(path)
-    if p.exists():
-        Path(BACKUP_DIR).mkdir(exist_ok=True)
-        ts  = datetime.now().strftime("%Y%m%d_%H%M%S")
-        bak = Path(BACKUP_DIR) / f"{p.stem}_{ts}{p.suffix}"
-        shutil.copy2(p, bak)
-        print(f"  {SYM['bak']}  Đã tạo Backup: {bak}")
+# =====================================================================
+# III. TẦNG 2: FORMAL ANALYSIS (PHÂN TÍCH HÌNH THỨC)
+# =====================================================================
+class FormalAnalyzer:
+    """Bộ máy phân tích ngữ âm và cấu trúc thơ tất định."""
     
-    with open(p, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-    print(f"  {SYM['ok']}  Đã lưu: {path} ({len(data)} mục)")
+    # Bảng tra dấu thanh trong chuẩn NFD (Unicode)
+    # Ngang: không dấu | Huyền, Sắc, Ngã, Hỏi, Nặng: có dấu
+    _TONE_MARKS = {
+        "\u0300": "huyền",
+        "\u0301": "sắc",
+        "\u0303": "ngã",
+        "\u0309": "hỏi",
+        "\u0323": "nặng",
+    }
+    _BANG_TONES = {"ngang", "huyền"}
+    
+    # Phụ âm đầu tiếng Việt (xếp theo độ dài giảm dần để khớp chính xác)
+    _INITIALS = sorted(
+        ["ngh", "ng", "nh", "ch", "gh", "gi", "kh", "ph", "th", "tr", "qu",
+         "b", "c", "d", "đ", "g", "h", "k", "l", "m", "n", "p", "r", "s", "t", "v", "x"],
+        key=len, reverse=True
+    )
 
-# ─── LOGIC XỬ LÝ DỮ LIỆU ──────────────────────────────────────────────────
+    @staticmethod
+    def tokenize(line: str) -> list[str]:
+        """Tách từ tiếng Việt, loại bỏ dấu câu và số."""
+        # Regex chỉ lấy chữ cái tiếng Việt (bao gồm cả chữ có dấu)
+        return re.findall(r"[a-zA-Zà-ỹÀ-ỸđĐ]+", line, re.UNICODE)
 
-def normalize_ids(entries: list) -> list:
-    """Quét qua tất cả dữ liệu, tự động thêm trường 'id' nếu bị thiếu."""
-    used_ids = set()
-    result = []
-    for e in entries:
-        e = dict(e) # Tạo bản sao để không ảnh hưởng mảng gốc
-        if "id" not in e or not e["id"]:
-            e["id"] = ensure_unique(slugify(e.get("title", "untitled")), used_ids)
-        elif e["id"] in used_ids:
-            e["id"] = ensure_unique(e["id"], used_ids)
+    @classmethod
+    def get_tone(cls, syllable: str) -> str:
+        """Lấy thanh điệu của một âm tiết bằng NFD."""
+        nfd = unicodedata.normalize("NFD", syllable.lower())
+        for ch in nfd:
+            if ch in cls._TONE_MARKS:
+                return cls._TONE_MARKS[ch]
+        return "ngang"
+
+    @classmethod
+    def strip_tone(cls, syllable: str) -> str:
+        """Bỏ dấu thanh, giữ nguyên dấu mũ/móc (ă, â, ê, ô, ơ, ư, đ)."""
+        nfd = unicodedata.normalize("NFD", syllable.lower())
+        kept = "".join(ch for ch in nfd if ch not in cls._TONE_MARKS)
+        return unicodedata.normalize("NFC", kept)
+
+    @classmethod
+    def get_rhyme(cls, syllable: str) -> str:
+        """Lấy phần vần (bỏ phụ âm đầu và dấu thanh)."""
+        stripped = cls.strip_tone(syllable)
+        for ini in cls._INITIALS:
+            if stripped.startswith(ini) and len(stripped) > len(ini):
+                return stripped[len(ini):]
+        return stripped
+
+    @classmethod
+    def analyze(cls, poem: Poem) -> dict[str, Any]:
+        """Phân tích cấu trúc toàn bài thơ."""
+        result = []
+        counts = []
         
-        used_ids.add(e["id"])
-        result.append(e)
-    return result
+        for i, line in enumerate(poem.lines, 1):
+            syllables = cls.tokenize(line)
+            counts.append(len(syllables))
+            
+            tones = [cls.get_tone(s) for s in syllables]
+            # Tạo mẫu Bằng - Trắc (B/T)
+            pattern = " - ".join(["B" if t in cls._BANG_TONES else "T" for t in tones])
+            
+            # Lấy vần của từ cuối cùng
+            last_rhyme = cls.get_rhyme(syllables[-1]) if syllables else ""
+            
+            result.append({
+                "line_number": i,
+                "text": line,
+                "syllables": syllables,
+                "syllable_count": len(syllables),
+                "pattern": pattern,
+                "tones": tones,
+                "last_rhyme": last_rhyme
+            })
+            
+        # Kiểm tra mẫu 6-8
+        is_68 = bool(counts) and counts[0] == 6 and all(
+            c == (6 if i % 2 == 0 else 8) for i, c in enumerate(counts)
+        )
+        
+        # Phân tích vần giữa các dòng (nếu có mẫu 6-8)
+        rhyme_analysis = []
+        if is_68:
+            for i in range(0, len(result) - 1, 2):
+                luc = result[i]
+                bat = result[i + 1]
+                rhyme_analysis.append({
+                    "pair": f"L{luc['line_number']}-B{bat['line_number']}",
+                    "rhyme_1": luc["last_rhyme"],
+                    "rhyme_2": bat["last_rhyme"],
+                    "match": luc["last_rhyme"] == bat["last_rhyme"]
+                })
+        
+        return {
+            "lines": result,
+            "total_syllables": sum(counts),
+            "total_lines": len(result),
+            "is_68_pattern": is_68,
+            "rhyme_analysis": rhyme_analysis,
+            "conclusion": (
+                "Văn bản có cấu trúc luân phiên 6-8 tiếng (Lục bát)."
+                if is_68
+                else "Văn bản không theo cấu trúc 6-8 cố định."
+            )
+        }
 
-def validate_schema(entries: list) -> list:
-    """Kiểm tra xem có mục nào bị thiếu trường bắt buộc không."""
-    errors = []
-    for i, e in enumerate(entries):
-        for field in REQUIRED_FIELDS:
-            if not e.get(field):
-                errors.append(f"Mục #{i} (ID: {e.get('id', '?')}) thiếu trường '{field}'")
-    return errors
 
-def print_statistics(entries: list) -> None:
-    """In biểu đồ thống kê phân bố thể loại."""
-    cats = {}
-    for e in entries:
-        cat = e.get("category", "khong-ro")
-        cats[cat] = cats.get(cat, 0) + 1
+# =====================================================================
+# IV. TẦNG 3: KNOWLEDGE GRAPH (TRI THỨC BIỂU TƯỢNG & TƯ TƯỞNG)
+# =====================================================================
+KNOWLEDGE_BASE = {
+    "biểu tượng": {
+        "trăng": ["Hoài niệm", "Đoàn viên", "Thanh khiết", "Cô đơn"],
+        "nước": ["Thời gian", "Dòng đời", "Biến chuyển"],
+        "tùng": ["Khí tiết", "Bền bỉ", "Quân tử"],
+        "liễu": ["Tiễn biệt", "Chia ly"],
+        "sen": ["Thanh khiết", "Thoát tục"],
+        "mai": ["Mùa xuân", "Sức sống", "Thanh cao"],
+        "hạc": ["Trường thọ", "Thanh cao", "Cõi tiên"],
+        "mây": ["Phiêu du", "Tự do"],
+    },
+    "tư tưởng": {
+        "Nho gia": ["nhân", "nghĩa", "lễ", "trí", "tín", "tôn sư trọng đạo"],
+        "Đạo gia": ["vô vi", "tự nhiên", "tiêu dao", "thượng thiện nhược thủy"],
+        "Phật giáo": ["vô thường", "vô ngã", "từ bi", "duyên khởi"]
+    }
+}
 
-    print(f"\n  {SYM['stat']}  Thống kê theo Category:")
-    for cat, count in sorted(cats.items(), key=lambda x: -x[1]):
-        # Vẽ biểu đồ cột (tối đa 25 ký tự ▮)
-        bar = SYM["bar"] * min(count // 2, 25)
-        print(f"     {cat:15s} {SYM['vl']} {count:3d}  {bar}")
-    print(f"     {'TỔNG CỘNG':15s} {SYM['vl']} {len(entries):3d}")
+def extract_knowledge(text: str) -> dict[str, list[str]]:
+    """Quét văn bản để tìm biểu tượng và tư tưởng."""
+    found = {"biểu tượng": [], "tư tưởng": []}
+    lower_text = text.lower()
+    
+    for category, items in KNOWLEDGE_BASE.items():
+        for key in items.keys():
+            if key.lower() in lower_text:
+                found[category].append(key)
+    return found
 
-# ─── HÀM CHẠY CHÍNH ───────────────────────────────────────────────────────
 
-def main():
-    parser = argparse.ArgumentParser(description="VĂN ĐẠO - Tool chuẩn hóa và merge dữ liệu.")
-    parser.add_argument("--data", default=DEFAULT_DATA_FILE, help="Đường dẫn file JSON gốc")
-    parser.add_argument("--new", default=None, help="Đường dẫn file JSON chứa dữ liệu mới cần merge")
+# =====================================================================
+# V. BỘ MÁY ĐIỀU KHIỂN VÀ RENDER (TERMINAL UI)
+# =====================================================================
+class VanDaoEngine:
+    """Bộ máy điều khiển và hiển thị kết quả trên Terminal."""
+    
+    # Mã màu ANSI cho Terminal thanh lịch
+    C_TEAL = "\033[96m"    # Xanh ngọc
+    C_GOLD = "\033[93m"    # Vàng kim
+    C_GRAY = "\033[90m"    # Xám khói
+    C_GREEN = "\033[92m"   # Xanh lá (Cho dữ kiện đúng)
+    C_RED = "\033[91m"     # Đỏ son (Cho cảnh báo)
+    C_RESET = "\033[0m"    # Reset
+
+    @classmethod
+    def render_header(cls, poem: Poem) -> None:
+        """In phần tiêu đề báo cáo."""
+        print(f"\n{cls.C_TEAL}╭──────────────────────────────────────────────────────╮{cls.C_RESET}")
+        print(f"{cls.C_TEAL}│{cls.C_RESET} {cls.C_GOLD}VĂN ĐẠO ENGINE — BÁO CÁO PHÂN TÍCH{cls.C_RESET}")
+        print(f"{cls.C_TEAL}├──────────────────────────────────────────────────────┤{cls.C_RESET}")
+        print(f"{cls.C_TEAL}│{cls.C_RESET} {cls.C_GOLD}Tác phẩm:{cls.C_RESET} {poem.title}")
+        print(f"{cls.C_TEAL}│{cls.C_RESET} {cls.C_GOLD}Tác giả :{cls.C_RESET} {poem.author}")
+        print(f"{cls.C_TEAL}│{cls.C_RESET} {cls.C_GOLD}Nguồn   :{cls.C_RESET} {poem.source_status.value}")
+        print(f"{cls.C_TEAL}╰──────────────────────────────────────────────────────╯{cls.C_RESET}\n")
+
+    @classmethod
+    def render_formal(cls, analysis: dict[str, Any]) -> list[Claim]:
+        """In phần phân tích hình thức và trả về danh sách Claims."""
+        print(f"{cls.C_GOLD}► TẦNG 2: PHÂN TÍCH HÌNH THỨC (Dữ kiện tất định){cls.C_RESET}\n")
+        
+        for line in analysis["lines"]:
+            print(f"  {cls.C_GRAY}{line['line_number']:02d}.{cls.C_RESET} {line['text']}")
+            print(f"      {cls.C_GRAY}→ {line['syllable_count']} tiếng | "
+                  f"Thanh điệu: {line['pattern']} | "
+                  f"Vần: '{line['last_rhyme']}'{cls.C_RESET}")
+        
+        # Tạo danh sách Claims cấp độ DỮ KIỆN
+        claims = []
+        claims.append(Claim(
+            content=analysis["conclusion"],
+            level=Level.FACT,
+            references=[Reference(
+                source="Thuật toán phân tích NFD (Unicode)",
+                status=Confidence.VERIFIED,
+                location="FormalAnalyzer.analyze()"
+            )]
+        ))
+        
+        # Nếu có mẫu 6-8, phân tích vần
+        if analysis["rhyme_analysis"]:
+            matched = sum(1 for r in analysis["rhyme_analysis"] if r["match"])
+            total = len(analysis["rhyme_analysis"])
+            claims.append(Claim(
+                content=f"Tỷ lệ gieo vần chính: {matched}/{total} cặp vần khớp nhau.",
+                level=Level.FACT,
+                references=[Reference(
+                    source="Thuật toán phân tích vần",
+                    status=Confidence.VERIFIED
+                )]
+            ))
+        
+        return claims
+
+    @classmethod
+    def render_epistemic(cls, claims: list[Claim], knowledge: dict[str, list[str]]) -> None:
+        """In phần đánh giá tri thức (Epistemic Layer)."""
+        print(f"\n{cls.C_GOLD}► TẦNG 3: ĐÁNH GIÁ NHẬN THỨC (Epistemic Layer){cls.C_RESET}\n")
+        
+        # 1. In các Claims cấp Dữ kiện
+        for c in claims:
+            warnings = c.validate()
+            status_color = cls.C_GREEN if not warnings else cls.C_RED
+            print(f"  {status_color}[{c.level.value}]{cls.C_RESET} {c.content}")
+            print(f"      {cls.C_GRAY}Nguồn: {c.references[0].source if c.references else 'N/A'}{cls.C_RESET}")
+            
+            for w in warnings:
+                # Sử dụng ký tự △ thay cho emoji ⚠
+                print(f"      {cls.C_RED}△ {w}{cls.C_RESET}")
+        
+        # 2. In kết quả trích xuất tri thức (Diễn giải/Giả thuyết)
+        print()
+        if knowledge["biểu tượng"]:
+            print(f"  {cls.C_TEAL}[Diễn giải]{cls.C_RESET} Biểu tượng phát hiện: "
+                  f"{', '.join(knowledge['biểu tượng'])}")
+            print(f"      {cls.C_GRAY}→ Cần đặt trong ngữ cảnh để xác định nghĩa chính xác.{cls.C_RESET}")
+        
+        if knowledge["tư tưởng"]:
+            print(f"  {cls.C_TEAL}[Giả thuyết]{cls.C_RESET} Từ khóa tư tưởng: "
+                  f"{', '.join(knowledge['tư tưởng'])}")
+            print(f"      {cls.C_GRAY}→ Đây chỉ là dấu hiệu từ vựng, chưa đủ chứng minh ảnh hưởng.{cls.C_RESET}")
+        
+        if not knowledge["biểu tượng"] and not knowledge["tư tưởng"]:
+            print(f"  {cls.C_GRAY}[Trống] Không phát hiện biểu tượng hay tư tưởng nào.{cls.C_RESET}")
+
+    @classmethod
+    def run(cls, poem: Poem) -> None:
+        """Chạy toàn bộ pipeline phân tích."""
+        # 1. In Header
+        cls.render_header(poem)
+        
+        # 2. Tầng 2: Phân tích hình thức
+        analysis = FormalAnalyzer.analyze(poem)
+        claims = cls.render_formal(analysis)
+        
+        # 3. Tầng 3: Trích xuất tri thức
+        knowledge = extract_knowledge(poem.full_text())
+        cls.render_epistemic(claims, knowledge)
+        
+        # 4. Footnote
+        print(f"\n{cls.C_GRAY}{'─'*54}{cls.C_RESET}")
+        print(f"{cls.C_GRAY}* Báo cáo này là phân tích tất định (deterministic).{cls.C_RESET}")
+        print(f"{cls.C_GRAY}* Mọi nhận định về 'Hồn thơ' cần được thực hiện bởi con người.{cls.C_RESET}\n")
+
+
+# =====================================================================
+# VI. GIAO DIỆN DÒNG LỆNH (CLI)
+# =====================================================================
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="VĂN ĐẠO ENGINE - Phân tích thi pháp và tri thức văn học."
+    )
+    parser.add_argument("--title", type=str, default="Bài thơ chưa đặt tên", help="Tên bài thơ")
+    parser.add_argument("--author", type=str, default="Khuyết danh", help="Tác giả")
+    parser.add_argument("--text", type=str, help="Nội dung bài thơ (dùng \\n để xuống dòng)")
+    parser.add_argument("--file", type=str, help="Đường dẫn file .txt chứa bài thơ")
+    
     args = parser.parse_args()
 
-    print(banner("VĂN ĐẠO - TOOL DỮ LIỆU VĂN HIẾN"))
-    print()
-
-    # 1. Đọc file gốc
-    print(f"  {SYM['dir']}  Đang đọc file gốc: {args.data}")
-    existing_data = load_json(args.data)
-    print(f"     -> Tìm thấy {len(existing_data)} mục.")
+    # Xử lý nguồn đầu vào
+    poem_text = ""
+    source_status = Confidence.UNVERIFIED
     
-    # 2. Chuẩn hóa ID cho file gốc (đề phòng có mục cũ chưa có ID)
-    existing_data = normalize_ids(existing_data)
-
-    # 3. Nếu có file mới, tiến hành merge
-    if args.new:
-        print(f"\n  {SYM['dir']}  Đang đọc file mới: {args.new}")
-        new_data = load_json(args.new)
-        
-        if new_data:
-            print(f"     -> Tìm thấy {len(new_data)} mục mới.")
-            new_data = normalize_ids(new_data)
-            
-            # Đảm bảo ID của file mới không trùng với file cũ
-            used_ids = {e["id"] for e in existing_data}
-            for e in new_data:
-                if e["id"] in used_ids:
-                    e["id"] = ensure_unique(e["id"], used_ids)
-                used_ids.add(e["id"])
-            
-            existing_data.extend(new_data)
-            print(f"  {SYM['merge']}  Đã merge thành công. Tổng cộng: {len(existing_data)} mục.")
-        else:
-            print(f"  {SYM['warn']}  File mới rỗng hoặc không tồn tại. Bỏ qua bước merge.")
-
-    # 4. Kiểm tra lỗi (Validate)
-    print(f"\n  {SYM['dir']}  Đang kiểm tra tính toàn vẹn dữ liệu...")
-    errors = validate_schema(existing_data)
-    if errors:
-        print(f"  {SYM['err']}  Phát hiện {len(errors)} lỗi schema:")
-        for err in errors[:10]: # Chỉ in 10 lỗi đầu tiên để đỡ rối
-            print(f"     {SYM['bullet']} {err}")
-        if len(errors) > 10:
-            print(f"     ... và {len(errors) - 10} lỗi khác.")
+    if args.file:
+        try:
+            poem_text = Path(args.file).read_text(encoding="utf-8")
+            source_status = Confidence.UNVERIFIED  # Cần đối chiếu thêm
+        except FileNotFoundError:
+            print(f"Lỗi: Không tìm thấy file {args.file}", file=sys.stderr)
+            return 1
+    elif args.text:
+        poem_text = args.text.replace("\\n", "\n")
     else:
-        print(f"  {SYM['ok']}  Tất cả dữ liệu đều hợp lệ. Schema OK.")
+        # Dữ liệu mẫu nếu không truyền tham số
+        poem_text = (
+            "Quạt giấy khép lại mùa thi,\n"
+            "Áo dài bay giữa kinh kỳ sắc xuân.\n"
+            "Thầy cô tựa ánh trăng ngần,\n"
+            "Dắt em qua những thăng trầm thế gian.\n"
+            "Lời ru thuở trước vọng vang,\n"
+            "Điển xưa tích cũ, hành trang em mang."
+        )
+        print(f"\n{VanDaoEngine.C_GRAY}* Không có tham số. Đang phân tích dữ liệu mẫu.{VanDaoEngine.C_RESET}")
 
-    # 5. In thống kê
-    print_statistics(existing_data)
+    # Tạo đối tượng Poem (Tầng 1)
+    poem = Poem(
+        title=args.title,
+        author=args.author,
+        lines=[line.strip() for line in poem_text.split("\n") if line.strip()],
+        source_status=source_status
+    )
 
-    # 6. Ghi file
-    print()
-    save_json(args.data, existing_data)
-    
-    print(f"\n{SYM['ok']}  HOÀN TẤT!\n")
+    # Chạy bộ máy
+    VanDaoEngine.run(poem)
+    return 0
+
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print(f"\n  {SYM['stop']}  Đã hủy bởi người dùng.")
-        sys.exit(1)
+    sys.exit(main())
