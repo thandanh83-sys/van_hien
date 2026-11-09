@@ -1,8 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V70 - FULL NO OMISSION)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V76 - FULL NO OMISSION)
    Tác giả: Văn Đạo
-   Mô tả: Bản đầy đủ 100% không lược bỏ. Tích hợp Phân trang, Nút Chi tiết,
-          Liên kết Bách Khoa bằng ID, Unload View, Hiệu ứng Canvas và Cache.
+   Mô tả: Bản đầy đủ 100% không lược bỏ. Tích hợp Tìm kiếm Bách Khoa, 
+          Liên kết ID, Phân trang, Unload View, và toàn bộ Hiệu ứng Canvas.
    ===================================================================== */
 
 /* =====================================================================
@@ -21,9 +21,9 @@ const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke
 // Icon dấu hỏi (Dùng cho gợi mở tư duy)
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
-// Các Key lưu trữ (Tăng version khi thay đổi cấu trúc dữ liệu)
+// Các Key lưu trữ (Tăng version khi thay đổi cấu trúc dữ liệu để xóa cache)
 const THEME_KEY = 'vandao_theme';
-const CACHE_KEY = 'vandao_cache_v9'; // Tăng version để xóa cache cũ
+const CACHE_KEY = 'vandao_cache_v9'; 
 const ITEMS_PER_PAGE = 20; // Số thẻ tối đa trên một trang (Chống tràn DOM)
 
 // Biến toàn cục lưu trữ dữ liệu tải từ JSON
@@ -116,8 +116,6 @@ function unloadView(viewId) {
     } else if (viewId === 'encyclopedia') {
         const container = document.getElementById('encyclopedia-container');
         if (container) container.innerHTML = ''; 
-        const toc = document.getElementById('encyclopedia-toc');
-        if (toc) toc.innerHTML = ''; 
         console.log("🗑️ Đã unload Bách Khoa (Giải phóng RAM)");
     } else if (viewId === 'analyze') {
         const panel = document.getElementById('results-panel');
@@ -357,23 +355,13 @@ function gotoEncyclopediaById(id) {
 }
 
 /* =====================================================================
-   MODULE 6: BÁCH KHOA (ĐỘC QUYỀN & UNLOAD)
+   MODULE 6: BÁCH KHOA (ĐỘC QUYỀN, UNLOAD & TÌM KIẾM)
    ===================================================================== */
 function renderEncyclopedia() {
     const container = document.getElementById('encyclopedia-container');
-    const tocContainer = document.getElementById('encyclopedia-toc');
     if (!container || ENCYCLOPEDIA_DATA.length === 0) return;
     
-    // 1. Vẽ Mục lục
-    if (tocContainer) {
-        tocContainer.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => {
-            const match = item.title.match(/Quyển\s+([IVXLCDM]+|[0-9]+)/i);
-            const volNumber = match ? match[1] : (index);
-            return `<button class="toc-btn" onclick="scrollToVolume(${index})">Quyển ${volNumber}</button>`;
-        }).join('');
-    }
-    
-    // 2. Vẽ khung Accordion (chưa nạp nội dung)
+    // Vẽ khung Accordion (chưa nạp nội dung)
     container.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => `
         <div class="accordion-item" id="vol-${index}">
             <details data-index="${index}">
@@ -383,7 +371,7 @@ function renderEncyclopedia() {
         </div>
     `).join('');
 
-    // 3. Sự kiện Đóng/Mở (Độc quyền & Giải phóng RAM)
+    // Sự kiện Đóng/Mở (Độc quyền & Giải phóng RAM)
     const allDetails = container.querySelectorAll('details');
     allDetails.forEach(detail => {
         detail.addEventListener('toggle', function() {
@@ -407,7 +395,42 @@ function renderEncyclopedia() {
     });
 }
 
-// Hàm cuộn tới Quyển (dùng cho Mục lục và Nút Chi tiết)
+// HÀM TÌM KIẾM BÁCH KHOA (Tìm theo Tên hoặc Nội dung)
+function searchEncyclopedia() {
+    const keyword = document.getElementById('encyclopedia-search').value.toLowerCase().trim();
+    const items = document.querySelectorAll('.accordion-item');
+
+    items.forEach(item => {
+        const details = item.querySelector('details');
+        const title = item.querySelector('summary').textContent.toLowerCase();
+        const index = parseInt(details.getAttribute('data-index'));
+        
+        // Lấy nội dung từ mảng JSON gốc, xóa thẻ HTML để tìm kiếm text thuần
+        const rawContent = ENCYCLOPEDIA_DATA[index].content.toLowerCase();
+        const cleanContent = rawContent.replace(/<[^>]*>/g, '');
+
+        // Nếu từ khóa nằm trong Tên Quyển HOẶC trong Nội dung
+        if (title.includes(keyword) || cleanContent.includes(keyword)) {
+            item.classList.remove('hidden-by-search');
+            // Nếu đang tìm kiếm (có gõ chữ), tự động mở rộng Quyển đó ra
+            if (keyword !== '') {
+                details.open = true;
+                // Nạp nội dung nếu chưa có
+                const contentDiv = details.querySelector('.accordion-content');
+                if (contentDiv.innerHTML.trim() === '') {
+                    contentDiv.innerHTML = ENCYCLOPEDIA_DATA[index].content;
+                }
+            }
+        } else {
+            item.classList.add('hidden-by-search');
+            details.open = false; // Đóng lại
+            // Xóa nội dung để nhẹ máy
+            details.querySelector('.accordion-content').innerHTML = '';
+        }
+    });
+}
+
+// Hàm cuộn tới Quyển (dùng cho nút Chi tiết)
 function scrollToVolume(index) { 
     const target = document.getElementById(`vol-${index}`); 
     if (target) { 
