@@ -1,147 +1,232 @@
 [
     {
-        "id": "tac-gia-dan-gian",
-        "title": "Hồ Sơ Tác Giả: Văn Học Dân Gian Việt Nam",
-        "content": "<h4>I. Khái niệm</h4><p>Văn học dân gian là sáng tác tập thể của nhân dân lao động, được truyền miệng từ đời này sang đời khác. Tác giả dân gian mang tính cộng đồng, không có tên tuổi cụ thể của một cá nhân mà đại diện cho tiếng nói, tâm tư, tình cảm của cả một tập thể, một dân tộc.</p><h4>II. Đặc trưng</h4><p>Tính tập thể, tính truyền miệng, tính dị bản và tính nguyên hợp (kết hợp nhiều loại hình nghệ thuật).</p><h4>III. Các tác phẩm tiêu biểu</h4><p>Thần thoại (Thần Trụ Trời), Truyền thuyết (Con Rồng Cháu Tiên, Thánh Gióng), Cổ tích (Tấm Cám, Thạch Sanh), Truyện cười (Treo Biển), Ngụ ngôn (Ếch Ngồi Đáy Giếng), Ca dao, Tục ngữ.</p>"
-    },
-    {
         "id": "tac-gia-nguyen-du",
-        "title": "Hồ Sơ Tác Giả: Nguyễn Du (1765 - 1820)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Du, tự Tố Như, hiệu Thanh Hiên, quê ở Nghi Xuân, Hà Tĩnh. Ông sinh ra trong một gia đình đại quý tộc phong kiến (cha là Nguyễn Nghiễm, từng làm Tể tướng). Cuộc đời ông trải qua nhiều thăng trầm, chứng kiến sự sụp đổ của nhà Lê, sự thay đổi của triều Tây Sơn và nhà Nguyễn.</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông để lại một di sản văn học đồ sộ cả chữ Hán và chữ Nôm. Về chữ Hán có: <i>Thanh Hiên thi tập</i>, <i>Nam trung tạp ngâm</i>, <i>Bắc hành tạp lục</i>. Về chữ Nôm có kiệt tác <i>Đoạn trường tân thanh</i> (Truyện Kiều) và <i>Văn chiêu hồn</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Nguyễn Du là bậc thầy về ngôn ngữ và thể thơ lục bát. Thơ ông thấm đẫm tinh thần nhân đạo, sự đồng cảm sâu sắc với số phận con người, đặc biệt là người phụ nữ tài hoa bạc mệnh. Ông được UNESCO vinh danh là Danh nhân văn hóa thế giới.</p>"
+        "title": "Chân Dung Tác Giả: Nguyễn Du",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Du (1765-1820), tự Tố Như, hiệu Thanh Hiên, quê ở Nghi Xuân, Hà Tĩnh. Sinh ra trong gia đình đại quý tộc phong kiến, cha là Nguyễn Nghiễm (Tể tướng). Ông sống trong thời kỳ loạn lạc (Lê mạt, Tây Sơn, Nguyễn) nên cuộc đời nhiều thăng trầm.</p><h4>II. Sự nghiệp sáng tác</h4><p>Để lại nhiều tác phẩm chữ Hán (Thanh Hiên thi tập, Nam trung tạp ngâm, Bắc hành tạp lục) và chữ Nôm (Truyện Kiều, Văn chiêu hồn).</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ ông mang nặng tình cảm, tư tưởng nhân đạo sâu sắc. Ông có biệt tài sử dụng ngôn từ, đặc biệt là tả cảnh ngụ tình và phân tích tâm lý con người.</p><h4>IV. Vị trí</h4><p>Được UNESCO vinh danh là Danh nhân văn hóa thế giới. Đỉnh cao của văn học cổ điển Việt Nam.</p>"
     },
     {
         "id": "tac-gia-nam-cao",
-        "title": "Hồ Sơ Tác Giả: Nam Cao (1915 - 1951)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nam Cao tên thật là Trần Hữu Tri, quê ở Hà Nam. Ông xuất thân trong một gia đình nông dân nghèo. Trước Cách mạng tháng Tám, ông dạy học và viết văn. Sau cách mạng, ông tham gia kháng chiến và hy sinh trên đường đi công tác.</p><h4>II. Sự nghiệp sáng tác</h4><p>Nam Cao là nhà văn hiện thực phê phán xuất sắc. Các tác phẩm của ông thường viết về người nông dân nghèo bị tha hóa (Chí Phèo) và trí thức tiểu tư sản (Sống mòn, Đời thừa).</p><h4>III. Phong cách nghệ thuật</h4><p>Ngòi bút của Nam Cao luôn tỉnh táo, lạnh lùng nhưng ẩn chứa tình yêu thương sâu sắc. Ông có biệt tài phân tích tâm lý nhân vật vô cùng tinh tế và sắc sảo. Tác phẩm của ông luôn trăn trở về nhân phẩm và khát vọng làm người.</p>"
-    },
-    {
-        "id": "tac-gia-nguyen-trai",
-        "title": "Hồ Sơ Tác Giả: Nguyễn Trãi (1380 - 1442)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Trãi hiệu là Ức Trai, quê ở Hải Dương. Ông là con của Nguyễn Phi Khanh. Ông đỗ Thái học sinh thời nhà Hồ, sau đó theo Lê Lợi đánh đuổi giặc Minh, trở thành công thần khai quốc triều Lê. Cuối đời ông bị oan trong vụ án Lệ Chi Viên.</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông là nhà chính trị, quân sự, ngoại giao và văn hóa kiệt xuất. Các tác phẩm chính: <i>Bình Ngô đại cáo</i>, <i>Quân trung từ mệnh tập</i>, <i>Quốc âm thi tập</i> (tập thơ Nôm sớm nhất còn lại), <i>Ức Trai thi tập</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Văn chương của ông kết hợp hài hòa giữa tư tưởng nhân nghĩa vĩ đại và tình yêu thiên nhiên tha thiết. Ông là người đặt nền móng cho văn học chữ Nôm. Được UNESCO vinh danh là Danh nhân văn hóa thế giới.</p>"
+        "title": "Chân Dung Tác Giả: Nam Cao",
+        "content": "<h4>I. Tiểu sử</h4><p>Nam Cao (1915-1951), tên thật là Trần Hữu Tri, quê ở Hà Nam. Là nhà văn hiện thực phê phán xuất sắc và cũng là một chiến sĩ cách mạng.</p><h4>II. Sự nghiệp sáng tác</h4><p>Trước Cách mạng tháng Tám, ông viết về người nông dân nghèo bị tha hóa (Chí Phèo) và trí thức tiểu tư sản (Sống mòn). Sau cách mạng, ông viết về người nông dân tham gia kháng chiến (Đôi mắt).</p><h4>III. Phong cách</h4><p>Ngòi bút lạnh lùng, tỉnh táo nhưng ẩn chứa tình yêu thương sâu sắc. Luôn trăn trở về nhân phẩm và khát vọng làm người.</p>"
     },
     {
         "id": "tac-gia-ho-chi-minh",
-        "title": "Hồ Sơ Tác Giả: Hồ Chí Minh (1890 - 1969)",
-        "content": "<h4>I. Tiểu sử</h4><p>Chủ tịch Hồ Chí Minh, tên khai sinh là Nguyễn Sinh Cung, quê ở Nghệ An. Người là lãnh tụ vĩ đại của dân tộc Việt Nam, người sáng lập Đảng Cộng sản Việt Nam và là nhà văn, nhà thơ lớn.</p><h4>II. Sự nghiệp sáng tác</h4><p>Di sản văn học của Người rất đa dạng: Truyện và ký (<i>Vi hành</i>, <i>Lời than vãn của bà Trưng Trắc</i>), Thơ (<i>Nhật ký trong tù</i>), Văn chính luận (<i>Tuyên ngôn độc lập</i>, <i>Lời kêu gọi toàn quốc kháng chiến</i>).</p><h4>III. Phong cách nghệ thuật</h4><p>Văn chương của Hồ Chí Minh vừa mang tính chiến đấu mạnh mẽ, vừa giàu chất trữ tình. Thơ của Người (đặc biệt trong Nhật ký trong tù) thể hiện tinh thần thép của người chiến sĩ cách mạng và tình yêu thiên nhiên, quê hương tha thiết.</p>"
+        "title": "Chân Dung Tác Giả: Hồ Chí Minh",
+        "content": "<h4>I. Tiểu sử</h4><p>Hồ Chí Minh (1890-1969), quê ở Nghệ An. Vị lãnh tụ vĩ đại của dân tộc, đồng thời là một nhà văn, nhà thơ lớn.</p><h4>II. Sự nghiệp văn học</h4><p>Để lại di sản văn học phong phú: Truyện và ký (Vi hành, Lời than vãn của bà Trưng Trắc), Thơ (Nhật ký trong tù), Văn chính luận (Tuyên ngôn độc lập, Lời kêu gọi toàn quốc kháng chiến).</p><h4>III. Phong cách</h4><p>Đa dạng, sâu sắc. Từ những áng văn chính luận hùng hồn đến những vần thơ Đường luật thâm trầm, giàu triết lý.</p>"
+    },
+    {
+        "id": "tac-gia-nguyen-trai",
+        "title": "Chân Dung Tác Giả: Nguyễn Trãi",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Trãi (1380-1442), hiệu Ức Trai, quê ở Hải Dương. Là nhà chính trị, quân sự, ngoại giao và văn hóa kiệt xuất.</p><h4>II. Sự nghiệp</h4><p>Ông là linh hồn của cuộc khởi nghĩa Lam Sơn. Để lại nhiều tác phẩm lớn: Bình Ngô đại cáo, Quân trung từ mệnh tập, Ức Trai thi tập, Quốc âm thi tập.</p><h4>III. Vị trí</h4><p>Được UNESCO vinh danh là Danh nhân văn hóa thế giới, biểu tượng của tư tưởng nhân nghĩa và lòng yêu nước.</p>"
     },
     {
         "id": "tac-gia-shakespeare",
-        "title": "Hồ Sơ Tác Giả: William Shakespeare (1564 - 1616)",
-        "content": "<h4>I. Tiểu sử</h4><p>William Shakespeare sinh ra tại Stratford-upon-Avon, Anh. Ông là nhà viết kịch, nhà thơ và diễn viên vĩ đại người Anh.</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông đã viết khoảng 39 vở kịch, 154 bản sonnet và nhiều bài thơ. Các tác phẩm của ông chia thành nhiều thể loại như Bi kịch (<i>Hamlet</i>, <i>Othello</i>, <i>Macbeth</i>), Hài kịch (<i>Giấc mộng đêm hè</i>), và Kịch lịch sử.</p><h4>III. Phong cách nghệ thuật</h4><p>Shakespeare là bậc thầy về khắc họa tâm lý con người. Ngôn từ trong các tác phẩm của ông vô cùng phong phú, điêu luyện và thấm đẫm triết lý nhân sinh. Ông được xem là một trong những nhà văn có ảnh hưởng nhất trong lịch sử nhân loại.</p>"
-    },
-    {
-        "id": "tac-gia-xuan-dieu",
-        "title": "Hồ Sơ Tác Giả: Xuân Diệu (1916 - 1985)",
-        "content": "<h4>I. Tiểu sử</h4><p>Xuân Diệu quê ở Hà Tĩnh. Ông là nhà thơ lớn của phong trào Thơ Mới, được mệnh danh là \"Ông hoàng thơ tình\".</p><h4>II. Sự nghiệp sáng tác</h4><p>Các tập thơ tiêu biểu: <i>Thơ thơ</i>, <i>Gửi hương cho gió</i>, <i>Riêng chung</i>. Ngoài ra ông còn viết văn xuôi và phê bình văn học.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ Xuân Diệu là sự kết hợp nhuần nhuyễn giữa cổ điển và hiện đại. Ông đề cao khát vọng sống mãnh liệt, giao cảm với thiên nhiên và tình yêu cuồng nhiệt. Mỗi câu thơ của ông đều thấm đẫm tình yêu cuộc sống.</p>"
-    },
-    {
-        "id": "tac-gia-quang-dung",
-        "title": "Hồ Sơ Tác Giả: Quang Dũng (1921 - 1988)",
-        "content": "<h4>I. Tiểu sử</h4><p>Quang Dũng tên thật là Bùi Đình Diệm, quê ở Hà Nội. Ông là một nghệ sĩ đa tài: làm thơ, viết văn, vẽ tranh và soạn nhạc.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu: Bài thơ <i>Tây Tiến</i> (được viết khi ông chuyển sang đơn vị khác, nhớ về đoàn quân Tây Tiến cũ).</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ Quang Dũng hồn hậu, phóng khoáng và hào hoa. Ông thường viết về người lính và thiên nhiên miền núi với một tình cảm thiết tha, bi tráng.</p>"
-    },
-    {
-        "id": "tac-gia-vu-trong-phung",
-        "title": "Hồ Sơ Tác Giả: Vũ Trọng Phụng (1912 - 1939)",
-        "content": "<h4>I. Tiểu sử</h4><p>Vũ Trọng Phụng quê ở Hưng Yên, sinh ra và lớn lên ở Hà Nội. Ông mất rất trẻ (27 tuổi) nhưng đã để lại một sự nghiệp văn học đồ sộ.</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông là bậc thầy của thể loại phóng sự và tiểu thuyết trào phúng. Các tác phẩm tiêu biểu: <i>Số Đỏ</i>, <i>Kỹ nghệ lấy Tây</i>, <i>Cơm thầy cơm cô</i>, <i>Lục xì</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Ngòi bút của ông vô cùng sắc bén, táo bạo, phơi bày bộ mặt giả dối, lố lăng của xã hội tư sản thành thị thời kỳ Âu hóa. Ông xứng đáng được mệnh danh là \"ông vua phóng sự đất Bắc\".</p>"
-    },
-    {
-        "id": "tac-gia-nguyen-tuan",
-        "title": "Hồ Sơ Tác Giả: Nguyễn Tuân (1910 - 1987)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Tuân quê ở Hà Nội, xuất thân trong một gia đình nhà Nho. Ông là nhà văn nổi tiếng với phong cách \"tài hoa, uyên bác\".</p><h4>II. Sự nghiệp sáng tác</h4><p>Các tác phẩm nổi tiếng: <i>Vang bóng một thời</i>, <i>Người lái đò Sông Đà</i>, <i>Cô Tô</i>, <i>Hà Nội ta đánh Mỹ giỏi</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Nguyễn Tuân luôn tìm tòi, khám phá cái đẹp và cái tài hoa. Ông thường viết về những con người tài năng, phi thường và những cảnh sắc thiên nhiên tuyệt mỹ. Ngôn ngữ văn chương của ông rất giàu hình ảnh và nhạc điệu.</p>"
-    },
-    {
-        "id": "tac-gia-huy-can",
-        "title": "Hồ Sơ Tác Giả: Huy Cận (1919 - 2005)",
-        "content": "<h4>I. Tiểu sử</h4><p>Huy Cận quê ở Hà Tĩnh. Ông là một trong những nhà thơ tiêu biểu nhất của phong trào Thơ Mới và thơ ca cách mạng Việt Nam.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu trước Cách mạng: <i>Lửa thiêng</i> (nổi bật với bài <i>Tràng Giang</i>). Sau Cách mạng, ông có các tập thơ như <i>Trời mỗi ngày lại sáng</i>, <i>Đất nở hoa</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ Huy Cận trước cách mạng thường mang nỗi buồn nhân thế, cô đơn và sầu vũ trụ. Sau cách mạng, thơ ông trở nên tươi sáng, lạc quan, gắn liền với cuộc sống mới và công cuộc xây dựng đất nước.</p>"
-    },
-    {
-        "id": "tac-gia-to-huu",
-        "title": "Hồ Sơ Tác Giả: Tố Hữu (1920 - 2002)",
-        "content": "<h4>I. Tiểu sử</h4><p>Tố Hữu tên thật là Nguyễn Kim Thành, quê ở Huế. Ông là nhà thơ lớn của nền văn học cách mạng Việt Nam, \"nhà thơ của nhân dân\".</p><h4>II. Sự nghiệp sáng tác</h4><p>Các tập thơ tiêu biểu: <i>Từ ấy</i>, <i>Việt Bắc</i>, <i>Gío lộng</i>, <i>Ra trận</i>, <i>Máu và hoa</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ Tố Hữu mang đậm tính dân tộc và tính đảng sâu sắc. Ông thường sử dụng các thể thơ truyền thống (lục bát, song thất lục bát) với ngôn ngữ giàu hình ảnh, nhạc điệu, dễ đi vào lòng người.</p>"
-    },
-    {
-        "id": "tac-gia-tran-quoc-tuan",
-        "title": "Hồ Sơ Tác Giả: Trần Quốc Tuấn (Hưng Đạo Vương)",
-        "content": "<h4>I. Tiểu sử</h4><p>Trần Quốc Tuấn (1231 - 1300) là danh tướng kiệt xuất của nhà Trần, người chỉ huy quân dân Đại Việt hai lần đánh bại quân Nguyên Mông (1285 và 1288).</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông là tác giả của áng văn chính luận nổi tiếng <i>Hịch Tướng Sĩ</i>, một lời kêu gọi quân dân đoàn kết chống giặc ngoại xâm.</p><h4>III. Phong cách nghệ thuật</h4><p>Văn chương của ông hùng hồn, tha thiết, thể hiện lòng yêu nước nồng nàn và ý chí quyết chiến quyết thắng kẻ thù.</p>"
-    },
-    {
-        "id": "tac-gia-ly-cong-uan",
-        "title": "Hồ Sơ Tác Giả: Lý Công Uẩn (Lý Thái Tổ)",
-        "content": "<h4>I. Tiểu sử</h4><p>Lý Công Uẩn (974 - 1028) là vị vua sáng lập vương triều Lý. Ông lên ngôi năm 1009.</p><h4>II. Sự nghiệp sáng tác</h4><p>Năm 1010, ông ban hành <i>Chiếu Dời Đô</i> để chuyển kinh đô từ Hoa Lư (Ninh Bình) về Thăng Long (Hà Nội), mở ra một kỷ nguyên phát triển mới cho đất nước.</p><h4>III. Phong cách nghệ thuật</h4><p>Văn bản của ông thể hiện tầm nhìn chiến lược, khát vọng xây dựng một quốc gia hùng mạnh, trường tồn. Lập luận sắc bén, thuyết phục.</p>"
-    },
-    {
-        "id": "tac-gia-ba-huyen-thanh-quan",
-        "title": "Hồ Sơ Tác Giả: Bà Huyện Thanh Quan",
-        "content": "<h4>I. Tiểu sử</h4><p>Bà Huyện Thanh Quan tên thật là Nguyễn Thị Hinh, sống ở thế kỷ 19. Bà là một trong những nữ nhà thơ tài năng nhất của văn học trung đại Việt Nam.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm của bà còn lại rất ít, chủ yếu là các bài thơ Đường luật như: <i>Qua Đèo Ngang</i>, <i>Thăng Long thành hoài cổ</i>, <i>Chiều hôm nhớ nhà</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ của bà mang phong cách trang nhã, điêu luyện, thường thể hiện nỗi niềm hoài cổ, sự cô đơn và tâm trạng buồn man mác trước sự đổi thay của thời cuộc.</p>"
+        "title": "Chân Dung Tác Giả: William Shakespeare",
+        "content": "<h4>I. Tiểu sử</h4><p>William Shakespeare (1564-1616), sinh ra và lớn lên tại Stratford-upon-Avon, Anh.</p><h4>II. Sự nghiệp</h4><p>Ông để lại 38 vở kịch, 154 bài sonnet, 2 trường ca. Các thể loại: Bi kịch (Hamlet, Othello, Macbeth, King Lear), Hài kịch (Giấc mộng đêm hè), Kịch lịch sử.</p><h4>III. Vị trí</h4><p>Đỉnh cao của kịch nghệ Phục Hưng, bậc thầy về ngôn từ và thấu hiểu tâm lý con người.</p>"
     },
     {
         "id": "tac-gia-ho-xuan-huong",
-        "title": "Hồ Sơ Tác Giả: Hồ Xuân Hương",
-        "content": "<h4>I. Tiểu sử</h4><p>Hồ Xuân Hương sống vào cuối thế kỷ 18, đầu thế kỷ 19. Bà được mệnh danh là \"Bà chúa thơ Nôm\".</p><h4>II. Sự nghiệp sáng tác</h4><p>Các tác phẩm tiêu biểu: <i>Bánh Trôi Nước</i>, <i>Tự Tình</i>, <i>Mời Trầu</i> và chùm thơ vịnh cảnh, vịnh vật.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ Hồ Xuân Hương là tiếng nói đòi quyền sống, quyền hạnh phúc cho người phụ nữ. Bà sử dụng rất tài tình các biện pháp nghệ thuật như ẩn dụ, đảo ngữ để tạo nên những vần thơ vừa châm biếm sắc sảo, vừa trữ tình sâu lắng.</p>"
+        "title": "Chân Dung Tác Giả: Hồ Xuân Hương",
+        "content": "<h4>I. Tiểu sử</h4><p>Hồ Xuân Hương (1772-1822), được mệnh danh là \"Bà chúa thơ Nôm\". Cuộc đời bà trải qua nhiều bất hạnh về tình duyên.</p><h4>II. Sự nghiệp</h4><p>Thơ bà thường viết về thân phận người phụ nữ, về tình yêu và những bất công trong xã hội phong kiến (Bánh trôi nước, Tự tình, Mời trầu).</p><h4>III. Phong cách</h4><p>Ngôn ngữ sắc sảo, tinh tế, sử dụng nhiều ẩn dụ, đả kích sâu cay nhưng cũng đầy trữ tình.</p>"
     },
     {
-        "id": "tac-gia-nguyen-khuyen",
-        "title": "Hồ Sơ Tác Giả: Nguyễn Khuyến (1835 - 1909)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Khuyến, hiệu là Quế Sơn, quê ở Hà Nam. Ông đỗ đầu cả ba kỳ thi (Hương, Hội, Đình) nên được gọi là Tam Nguyên Yên Đổ.</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông là nhà thơ lớn của làng quê Việt Nam. Các tác phẩm tiêu biểu: Chùm thơ thu (<i>Thu Vịnh</i>, <i>Thu Điếu</i>, <i>Thu Ẩm</i>), <i>Bạn đến chơi nhà</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ Nguyễn Khuyến mang đậm tính dân tộc, phản ánh chân thực và sinh động cảnh sắc thiên nhiên cũng như đời sống của người nông dân. Ông cũng là người có tấm lòng yêu nước thầm kín và nỗi buồn trước thời cuộc.</p>"
+        "id": "tac-gia-xuan-dieu",
+        "title": "Chân Dung Tác Giả: Xuân Diệu",
+        "content": "<h4>I. Tiểu sử</h4><p>Xuân Diệu (1916-1985), quê ở Hà Tĩnh. Được mệnh danh là \"Ông hoàng thơ tình\" Việt Nam, là nhà thơ lớn của phong trào Thơ Mới.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Thơ thơ, Gửi hương cho gió, Riêng chung, Mũi Cà Mau. Thơ ông là sự kết hợp nhuần nhuyễn giữa cổ điển và hiện đại.</p><h4>III. Phong cách</h4><p>Đề cao khát vọng sống mãnh liệt, giao cảm với thiên nhiên và tình yêu cuồng nhiệt.</p>"
     },
     {
-        "id": "tac-gia-luu-quang-vu",
-        "title": "Hồ Sơ Tác Giả: Lưu Quang Vũ (1948 - 1988)",
-        "content": "<h4>I. Tiểu sử</h4><p>Lưu Quang Vũ quê ở Đà Nẵng, là nhà viết kịch, nhà thơ và nhà văn nổi tiếng của Việt Nam. Ông mất trong một tai nạn giao thông cùng vợ (nhà thơ Xuân Quỳnh).</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông là hiện tượng của sân khấu kịch nói Việt Nam thập niên 1980. Các vở kịch nổi tiếng: <i>Hồn Trương Ba, Da Hàng Thịt</i>, <i>Lời Thề Thứ 9</i>, <i>Tôi Và Chúng Ta</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Kịch của Lưu Quang Vũ thường đề cập đến những vấn đề nóng bỏng của xã hội, đấu tranh chống lại cái ác, cái giả dối và khẳng định những giá trị chân chính của con người. Ngôn ngữ kịch của ông sắc sảo, giàu triết lý.</p>"
+        "id": "tac-gia-quang-dung",
+        "title": "Chân Dung Tác Giả: Quang Dũng",
+        "content": "<h4>I. Tiểu sử</h4><p>Quang Dũng (1921-1988), quê ở Hà Nội. Là nhà thơ, nhà văn, họa sĩ, nhạc sĩ tài hoa.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Tây Tiến, Mây đầu ô, Thơ văn Quang Dũng. Bài thơ Tây Tiến được xem là kiệt tác về người lính kháng chiến.</p><h4>III. Phong cách</h4><p>Thơ ông vừa lãng mạn hào hoa, vừa bi tráng. Ngôn ngữ giàu hình ảnh và nhạc điệu.</p>"
     },
     {
-        "id": "tac-gia-nguyen-minh-chau",
-        "title": "Hồ Sơ Tác Giả: Nguyễn Minh Châu (1930 - 1989)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Minh Châu quê ở Nghệ An, là nhà văn tiêu biểu của văn học Việt Nam thời kỳ kháng chiến chống Mỹ và thời kỳ đổi mới.</p><h4>II. Sự nghiệp sáng tác</h4><p>Các tác phẩm nổi tiếng: <i>Mảnh Trăng Cuối Rừng</i>, <i>Bến Quê</i>, <i>Chiếc Thuyền Ngoài Xa</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Văn Nguyễn Minh Châu luôn hướng tới việc khám phá những vẻ đẹp bình dị, khuất lấp của cuộc sống và con người. Ông là người đi tiên phong trong công cuộc đổi mới văn học, đưa văn học Việt Nam hòa nhập với văn học thế giới.</p>"
+        "id": "tac-gia-vu-trong-phung",
+        "title": "Chân Dung Tác Giả: Vũ Trọng Phụng",
+        "content": "<h4>I. Tiểu sử</h4><p>Vũ Trọng Phụng (1912-1939), quê ở Hưng Yên. Là nhà văn hiện thực phê phán xuất sắc, được mệnh danh là \"Ông vua phóng sự đất Bắc\".</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Số đỏ, Giông tố, Vỡ đê, Kỹ nghệ lấy Tây, Cơm thầy cơm cô.</p><h4>III. Phong cách</h4><p>Ngòi bút trào phúng, châm biếm sắc lạnh. Phơi bày bộ mặt thật của xã hội tư sản thành thị thời kỳ Âu hóa.</p>"
     },
     {
-        "id": "tac-gia-mac-dinh-chi",
-        "title": "Hồ Sơ Tác Giả: Nguyễn Đình Chiểu (1822 - 1888)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Đình Chiểu (còn gọi là Đồ Chiểu) quê ở Gia Định (Nam Bộ). Ông bị mù khi còn trẻ nhưng vẫn dạy học, làm thuốc và sáng tác thơ văn. Ông là nhà thơ lớn của dân tộc, người có lòng yêu nước nồng nàn.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu: <i>Lục Vân Tiên</i> (truyện thơ Nôm), <i>Dương Từ Hà Mậu</i>, <i>Văn tế nghĩa sĩ Cần Giuộc</i>, <i>Ngư Tiều Y Thuật Vấn Đáp</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ văn của ông mang đậm tính nhân đạo, đề cao đạo lý làm người và tinh thần yêu nước chống giặc ngoại xâm. Ngôn ngữ trong sáng, bình dị, gần gũi với quần chúng nhân dân.</p>"
-    },
-    {
-        "id": "tac-gia-vu-dinh-long",
-        "title": "Hồ Sơ Tác Giả: Vũ Đình Long (1896 - 1960)",
-        "content": "<h4>I. Tiểu sử</h4><p>Vũ Đình Long quê ở Hà Nội, là nhà viết kịch tiên phong của Việt Nam.</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông là tác giả của vở kịch nói đầu tiên của Việt Nam: <i>Chén Thuốc Độc</i> (1921).</p><h4>III. Phong cách nghệ thuật</h4><p>Kịch của ông thường đả kích những thói hư tật xấu của xã hội phong kiến, tư sản. Ông đã đặt nền móng cho sự phát triển của nghệ thuật kịch nói Việt Nam.</p>"
+        "id": "tac-gia-nguyen-tuan",
+        "title": "Chân Dung Tác Giả: Nguyễn Tuân",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Tuân (1910-1987), quê ở Hà Nội. Là nhà văn nổi tiếng với phong cách độc đáo, tài hoa và uyên bác.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Vang bóng một thời, Người lái đò sông Đà, Tùy bút kháng chiến, Cô Tô.</p><h4>III. Phong cách</h4><p>Ngòi bút tài hoa, luôn khám phá con người ở phương diện tài năng và nghệ sĩ. Ngôn ngữ phong phú, giàu chất tạo hình.</p>"
     },
     {
         "id": "tac-gia-nguyen-huy-tuong",
-        "title": "Hồ Sơ Tác Giả: Nguyễn Huy Tưởng (1912 - 1960)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Huy Tưởng quê ở Hà Nội. Ông là nhà văn, nhà viết kịch nổi tiếng của văn học Việt Nam hiện đại.</p><h4>II. Sự nghiệp sáng tác</h4><p>Các tác phẩm nổi tiếng: <i>Vũ Như Tô</i> (kịch), <i>Sống Mãi Với Thủ Đô</i>, <i>Lũy Hoa Vàng</i> (tiểu thuyết).</p><h4>III. Phong cách nghệ thuật</h4><p>Văn chương của ông luôn đề cao tinh thần yêu nước, lòng dũng cảm và sự hy sinh cao cả của con người. Ông thường khai thác các đề tài lịch sử và dân gian.</p>"
+        "title": "Chân Dung Tác Giả: Nguyễn Huy Tưởng",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Huy Tưởng (1912-1960), quê ở Hà Nội. Là nhà văn, nhà viết kịch xuất sắc của văn học hiện đại Việt Nam.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Vũ Như Tô, Sống mãi với thủ đô, Lũy hoa, Trương Chi.</p><h4>III. Phong cách</h4><p>Tác phẩm của ông thường khai thác đề tài lịch sử, ca ngợi lòng yêu nước và đức hy sinh.</p>"
     },
     {
-        "id": "tac-gia-kim-dung",
-        "title": "Hồ Sơ Tác Giả: Kim Dung (1924 - 2018)",
-        "content": "<h4>I. Tiểu sử</h4><p>Kim Dung tên thật là Tra Lương Dung, quê ở Chiết Giang, Trung Quốc. Ông là nhà văn kiếm hiệp nổi tiếng nhất thế giới.</p><h4>II. Sự nghiệp sáng tác</h4><p>Các tác phẩm nổi tiếng: <i>Anh Hùng Xạ Điêu</i>, <i>Thần Điêu Hiệp Lữ</i>, <i>Ỷ Thiên Đồ Long Ký</i>, <i>Lộc Đỉnh Ký</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Tiểu thuyết của Kim Dung không chỉ là những câu chuyện võ hiệp hấp dẫn mà còn chứa đựng những triết lý nhân sinh sâu sắc, tình yêu nước, tình bạn và tình yêu đôi lứa. Ngôn ngữ trong sáng, giàu hình ảnh.</p>"
+        "id": "tac-gia-luu-quang-vu",
+        "title": "Chân Dung Tác Giả: Lưu Quang Vũ",
+        "content": "<h4>I. Tiểu sử</h4><p>Lưu Quang Vũ (1948-1988), quê ở Đà Nẵng. Là nhà thơ, nhà viết kịch tài năng bậc nhất của văn học Việt Nam hiện đại.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Hồn Trương Ba, da hàng thịt, Tôi và chúng ta, Lời thề thứ 9, Hoa cúc xanh.</p><h4>III. Phong cách</h4><p>Kịch của ông mang tính triết lý sâu sắc, đề cập đến những vấn đề nóng bỏng của xã hội đương thời.</p>"
     },
     {
-        "id": "tac-gia-leo-tolstoy",
-        "title": "Hồ Sơ Tác Giả: Lev Tolstoy (1828 - 1910)",
-        "content": "<h4>I. Tiểu sử</h4><p>Leo Tolstoy là đại văn hào người Nga, được xem là một trong những nhà văn vĩ đại nhất của văn học thế giới.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu: <i>Chiến Tranh Và Hòa Bình</i> (tiểu thuyết sử thi đồ sộ), <i>Anna Karenina</i>, <i>Phục Sinh</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Các tác phẩm của Tolstoy thường phản ánh hiện thực xã hội Nga một cách toàn diện và sâu sắc. Ông là bậc thầy về khắc họa tâm lý nhân vật và luôn đặt ra những câu hỏi về ý nghĩa của cuộc sống, đạo đức và tôn giáo.</p>"
+        "id": "tac-gia-nguyen-khoa-diem",
+        "title": "Chân Dung Tác Giả: Nguyễn Khoa Điềm",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Khoa Điềm (sinh 1943), quê ở Thừa Thiên Huế. Là nhà thơ tiêu biểu của thế hệ nhà thơ trẻ thời kỳ kháng chiến chống Mỹ.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Mặt đường khát vọng, Đất ngoại ô, Ngôi nhà có ngọn lửa ấm.</p><h4>III. Phong cách</h4><p>Thơ ông giàu chất suy tư, triết lý, kết hợp hài hòa giữa cảm xúc và lý trí.</p>"
     },
     {
-        "id": "tac-gia-ernest-hemingway",
-        "title": "Hồ Sơ Tác Giả: Ernest Hemingway (1899 - 1961)",
-        "content": "<h4>I. Tiểu sử</h4><p>Ernest Hemingway là nhà văn, nhà báo người Mỹ. Ông đạt giải Nobel Văn học năm 1954.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu: <i>Ông Già Và Biển Cả</i>, <i>Giã Từ Vũ Khí</i>, <i>Chuông Nguyện Hồn Ai</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Hemingway nổi tiếng với phong cách viết \"Nguyên lý tảng băng trôi\" (Iceberg Theory) - ý nghĩa sâu xa của tác phẩm nằm ở phần chìm mà người đọc phải tự cảm nhận. Ngôn ngữ của ông giản dị, ngắn gọn nhưng đầy sức mạnh.</p>"
+        "id": "tac-gia-hoang-phu-ngoc-tuong",
+        "title": "Chân Dung Tác Giả: Hoàng Phủ Ngọc Tường",
+        "content": "<h4>I. Tiểu sử</h4><p>Hoàng Phủ Ngọc Tường (sinh 1937), quê ở Quảng Trị. Là nhà văn chuyên viết bút ký, tùy bút nổi tiếng.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Ai đã đặt tên cho dòng sông?, Ngọn núi ảo ảnh, Rượu hồng đào.</p><h4>III. Phong cách</h4><p>Bút ký của ông giàu chất trữ tình, tài hoa và uyên bác. Thể hiện tình yêu quê hương đất nước sâu đậm.</p>"
     },
     {
-        "id": "tac-gia-thach-lam",
-        "title": "Hồ Sơ Tác Giả: Thạch Lam (1910 - 1942)",
-        "content": "<h4>I. Tiểu sử</h4><p>Thạch Lam tên thật là Nguyễn Tường Lân, quê ở Hải Dương, sinh ra và lớn lên ở Hà Nội.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu: Tập truyện ngắn <i>Gío Lạnh Đầu Mùa</i>, <i>Nắng Trong Vườn</i>, tiểu thuyết <i>Ngày Mới</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Văn Thạch Lam trong sáng, giản dị, giàu chất thơ và trữ tình. Ông thường viết về những con người nhỏ bé, những cuộc sống bình dị ở các phố huyện nghèo, với một tấm lòng yêu thương và trân trọng vẻ đẹp tâm hồn của họ.</p>"
+        "id": "tac-gia-nguyen-minh-chau",
+        "title": "Chân Dung Tác Giả: Nguyễn Minh Châu",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Minh Châu (1930-1989), quê ở Nghệ An. Là nhà văn tiêu biểu của văn học kháng chiến và thời kỳ Đổi mới.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Mảnh trăng cuối rừng, Dấu chân người lính, Bến quê, Chiếc thuyền ngoài xa.</p><h4>III. Phong cách</h4><p>Ngòi bút luôn trăn trở về con người, đi sâu vào những vấn đề đạo đức và nhân sinh.</p>"
     },
     {
-        "id": "tac-gia-vu-bang",
-        "title": "Hồ Sơ Tác Giả: Vũ Bằng (1913 - 1984)",
-        "content": "<h4>I. Tiểu sử</h4><p>Vũ Bằng tên thật là Vũ Đăng Bằng, quê ở Hà Nội. Ông là nhà văn, nhà báo hoạt động chủ yếu ở miền Nam.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu: Tùy bút <i>Thương Nhớ Mười Hai</i>, <i>Miếng Ăn Miếng Nhớ</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Văn Vũ Bằng giàu cảm xúc, thể hiện tình yêu quê hương da diết, sự gắn bó sâu nặng với văn hóa và ẩm thực Hà Nội. Ông là một trong những nhà văn viết về Hà Nội hay nhất.</p>"
+        "id": "tac-gia-nguyen-khai",
+        "title": "Chân Dung Tác Giả: Nguyễn Khải",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Khải (1930-2008), quê ở Nam Định. Là nhà văn có nhiều đóng góp cho văn học Việt Nam hiện đại.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Một người Hà Nội, Mùa lạc, Cha và con và..., Gặp gỡ cuối năm.</p><h4>III. Phong cách</h4><p>Ngòi bút sắc sảo, luôn khám phá những vẻ đẹp bình dị của con người trong cuộc sống đời thường.</p>"
     },
     {
-        "id": "tac-gia-tran-te-xuong",
-        "title": "Hồ Sơ Tác Giả: Trần Tế Xương (Tú Xương)",
-        "content": "<h4>I. Tiểu sử</h4><p>Trần Tế Xương (1870 - 1907), thường gọi là Tú Xương, quê ở Nam Định. Ông là nhà thơ trào phúng xuất sắc của văn học Việt Nam.</p><h4>II. Sự nghiệp sáng tác</h4><p>Thơ của ông chủ yếu là thơ Nôm, châm biếm sâu cay những thói hư tật xấu của xã hội phong kiến và thực dân nửa phong kiến.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ Tú Xương mang tính chiến đấu cao, phê phán xã hội một cách quyết liệt. Bên cạnh đó, ông cũng có những vần thơ trữ tình sâu lắng viết về quê hương, gia đình.</p>"
+        "id": "tac-gia-to-hoai",
+        "title": "Chân Dung Tác Giả: Tô Hoài",
+        "content": "<h4>I. Tiểu sử</h4><p>Tô Hoài (1920-2014), quê ở Hà Nội. Là nhà văn lớn, có sự nghiệp sáng tác đồ sộ.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Dế Mèn phiêu lưu ký, Vợ chồng A Phủ, O chuột, Truyện Tây Bắc.</p><h4>III. Phong cách</h4><p>Ngòi bút tinh tế, giàu chất thơ. Ông đặc biệt thành công khi viết về đề tài miền núi và thiếu nhi.</p>"
     },
     {
-        "id": "tac-gia-nguyen-binh-khiem",
-        "title": "Hồ Sơ Tác Giả: Nguyễn Bỉnh Khiêm (Trạng Trình)",
-        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Bỉnh Khiêm (1491 - 1585) quê ở Hải Phòng. Ông là một nhà triết học, nhà thơ, nhà giáo và là một nhà tiên tri nổi tiếng của Việt Nam.</p><h4>II. Sự nghiệp sáng tác</h4><p>Ông để lại nhiều tác phẩm chữ Hán và chữ Nôm, nổi tiếng nhất là tập thơ <i>Bạch Vân Quốc Ngữ Thi Tập</i>.</p><h4>III. Phong cách nghệ thuật</h4><p>Thơ của ông thường thể hiện tư tưởng nhàn tản, yêu thiên nhiên và triết lý sống sâu sắc. Ông được người đời sau kính trọng và gọi là Trạng Trình.</p>"
+        "id": "tac-gia-nam-quoc-son-ha",
+        "title": "Chân Dung Tác Giả: Lý Thường Kiệt",
+        "content": "<h4>I. Tiểu sử</h4><p>Lý Thường Kiệt (1019-1105), quê ở Hà Nội. Là danh tướng kiệt xuất thời nhà Lý.</p><h4>II. Sự nghiệp</h4><p>Ông là tác giả bài thơ thần \"Nam quốc sơn hà\" - Bản tuyên ngôn độc lập đầu tiên của dân tộc Việt Nam.</p><h4>III. Vị trí</h4><p>Biểu tượng của tinh thần yêu nước và ý chí bảo vệ chủ quyền dân tộc.</p>"
+    },
+    {
+        "id": "tac-gia-tran-quoc-tuan",
+        "title": "Chân Dung Tác Giả: Trần Quốc Tuấn",
+        "content": "<h4>I. Tiểu sử</h4><p>Trần Quốc Tuấn (Hưng Đạo Đại Vương, 1228-1300), là danh tướng kiệt xuất thời nhà Trần.</p><h4>II. Sự nghiệp</h4><p>Ông là tác giả của bài Hịch tướng sĩ - áng văn chính luận xuất sắc, khơi dậy lòng yêu nước của quân sĩ.</p><h4>III. Vị trí</h4><p>Anh hùng dân tộc, biểu tượng của tinh thần quyết chiến chống giặc ngoại xâm.</p>"
+    },
+    {
+        "id": "tac-gia-ly-cong-uan",
+        "title": "Chân Dung Tác Giả: Lý Công Uẩn",
+        "content": "<h4>I. Tiểu sử</h4><p>Lý Công Uẩn (Lý Thái Tổ, 974-1028), là người sáng lập nhà Lý.</p><h4>II. Sự nghiệp</h4><p>Ông là tác giả của bài Chiếu dời đô, quyết định dời đô từ Hoa Lư về Thăng Long.</p><h4>III. Vị trí</h4><p>Vị vua có tầm nhìn chiến lược, đặt nền móng cho sự phát triển lâu dài của đất nước.</p>"
+    },
+    {
+        "id": "tac-gia-nguyen-gia-thieu",
+        "title": "Chân Dung Tác Giả: Nguyễn Gia Thiều",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Gia Thiều (1741-1798), quê ở Bắc Ninh. Là nhà thơ lớn của văn học trung đại.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Cung oán ngâm khúc - Tiếng lòng oán hận của người cung nữ bị vua chúa lãng quên.</p><h4>III. Phong cách</h4><p>Ngôn từ giàu cảm xúc, thể hiện sự đồng cảm với số phận người phụ nữ.</p>"
+    },
+    {
+        "id": "tac-gia-nguyen-dinh-chieu",
+        "title": "Chân Dung Tác Giả: Nguyễn Đình Chiểu",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Đình Chiểu (1822-1888), quê ở Bến Tre. Là nhà thơ mù yêu nước, một tấm gương sáng về nghị lực.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Lục Vân Tiên, Chạy giặc, Văn tế nghĩa sĩ Cần Giuộc.</p><h4>III. Phong cách</h4><p>Thơ ông mang đậm tính nhân đạo, ca ngợi đạo lý làm người và lòng yêu nước.</p>"
+    },
+    {
+        "id": "tac-gia-nguyen-khuyen",
+        "title": "Chân Dung Tác Giả: Nguyễn Khuyến",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Khuyến (1835-1909), quê ở Nam Định. Là nhà thơ lớn của văn học trung đại, được mệnh danh là \"Tam Nguyên Yên Đổ\".</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Thu điếu, Thu vịnh, Bạn đến chơi nhà, Câu cá mùa thu.</p><h4>III. Phong cách</h4><p>Ngôn từ giản dị, tinh tế. Thơ ông thể hiện tình yêu thiên nhiên và tâm hồn thanh cao.</p>"
+    },
+    {
+        "id": "tac-gia-ba-huyen-thanh-quan",
+        "title": "Chân Dung Tác Giả: Bà Huyện Thanh Quan",
+        "content": "<h4>I. Tiểu sử</h4><p>Bà Huyện Thanh Quan (Nguyễn Thị Hinh), quê ở Hà Nội. Là nữ sĩ tài danh trong nền văn học trung đại.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Qua Đèo Ngang, Thăng Long thành hoài cổ, Chiều hôm nhớ nhà.</p><h4>III. Phong cách</h4><p>Thơ bà mang nét buồn, hoài cổ, tả cảnh ngụ tình rất tinh tế.</p>"
+    },
+    {
+        "id": "tac-gia-le-huu-trac",
+        "title": "Chân Dung Tác Giả: Lê Hữu Trác",
+        "content": "<h4>I. Tiểu sử</h4><p>Lê Hữu Trác (1724-1791), quê ở Hà Tĩnh. Là thầy thuốc nổi tiếng, đồng thời là nhà văn.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Thượng kinh ký sự, Hải Thượng y tông tâm lĩnh.</p><h4>III. Phong cách</h4><p>Văn ông chân thực, sinh động, phản ánh hiện thực xã hội phong kiến thời bấy giờ.</p>"
+    },
+    {
+        "id": "tac-gia-la-quan-trung",
+        "title": "Chân Dung Tác Giả: La Quán Trung",
+        "content": "<h4>I. Tiểu sử</h4><p>La Quán Trung (1330-1400), là nhà văn Trung Quốc thời nhà Minh.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Tam quốc diễn nghĩa - Bộ tiểu thuyết chương hồi vĩ đại nhất của văn học Trung Hoa.</p><h4>III. Phong cách</h4><p>Ngòi bút tài hoa, khắc họa thành công các nhân vật lịch sử và những mưu mô chính trị - quân sự.</p>"
+    },
+    {
+        "id": "tac-gia-ngo-thua-an",
+        "title": "Chân Dung Tác Giả: Ngô Thừa Ân",
+        "content": "<h4>I. Tiểu sử</h4><p>Ngô Thừa Ân (1500-1582), là nhà văn Trung Quốc thời nhà Minh.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Tây du ký - Bộ tiểu thuyết chương hồi kỳ ảo nổi tiếng nhất về thầy trò Đường Tăng.</p><h4>III. Phong cách</h4><p>Ngòi bút phong phú, giàu trí tưởng tượng. Tác phẩm mang đậm triết lý nhân sinh.</p>"
+    },
+    {
+        "id": "tac-gia-tao-tuyet-can",
+        "title": "Chân Dung Tác Giả: Tào Tuyết Cần",
+        "content": "<h4>I. Tiểu sử</h4><p>Tào Tuyết Cần (1715-1763), là nhà văn Trung Quốc thời nhà Thanh.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Hồng lâu mộng - Đỉnh cao tiểu thuyết chương hồi của văn học Trung Hoa.</p><h4>III. Phong cách</h4><p>Ngòi bút tinh tế, đi sâu vào tâm lý nhân vật và phản ánh sự suy vong của xã hội phong kiến.</p>"
+    },
+    {
+        "id": "tac-gia-hemingway",
+        "title": "Chân Dung Tác Giả: Ernest Hemingway",
+        "content": "<h4>I. Tiểu sử</h4><p>Ernest Hemingway (1899-1961), là nhà văn người Mỹ, đoạt giải Nobel Văn học.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Ông già và biển cả, Giã từ vũ khí, Chuông nguyện hồn ai.</p><h4>III. Phong cách</h4><p>Văn phong giản dị, ngắn gọn nhưng đầy sức mạnh. Ca ngợi ý chí kiên cường của con người trước thử thách.</p>"
+    },
+    {
+        "id": "tac-gia-homer",
+        "title": "Chân Dung Tác Giả: Homer",
+        "content": "<h4>I. Tiểu sử</h4><p>Homer (khoảng thế kỷ 8 TCN), là nhà thơ Hy Lạp cổ đại.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Iliad và Odyssey - Hai bản trường ca vĩ đại nhất của văn học Hy Lạp cổ đại.</p><h4>III. Vị trí</h4><p>Được xem là cha đẻ của văn học phương Tây.</p>"
+    },
+    {
+        "id": "tac-gia-aesop",
+        "title": "Chân Dung Tác Giả: Aesop",
+        "content": "<h4>I. Tiểu sử</h4><p>Aesop (khoảng thế kỷ 6 TCN), là nhà văn Hy Lạp cổ đại.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Ngụ ngôn Aesop - Tập truyện ngụ ngôn nổi tiếng thế giới, mượn chuyện loài vật để gửi gắm bài học đạo lý.</p><h4>III. Vị trí</h4><p>Được xem là ông tổ của thể loại truyện ngụ ngôn.</p>"
+    },
+    {
+        "id": "tac-gia-cao-van-lau",
+        "title": "Chân Dung Tác Giả: Cao Văn Lầu",
+        "content": "<h4>I. Tiểu sử</h4><p>Cao Văn Lầu (1892-1976), quê ở Long An. Là nghệ nhân đờn ca tài tử nổi tiếng.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Dạ cổ hoài lang - Bản đờn ca tài tử được xem là cội nguồn của thể loại vọng cổ Nam Bộ.</p><h4>III. Vị trí</h4><p>Biểu tượng của âm nhạc truyền thống Nam Bộ.</p>"
+    },
+    {
+        "id": "tac-gia-nguyen-cong-tru",
+        "title": "Chân Dung Tác Giả: Nguyễn Công Trứ",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Công Trứ (1778-1858), quê ở Hà Tĩnh. Là nhà thơ, nhà chính trị tài ba thời nhà Nguyễn.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Chí làm trai, Hát nói, Bài ca ngất ngưởng.</p><h4>III. Phong cách</h4><p>Thơ ông thể hiện triết lý sống phóng khoáng, nợ tang bồng và chí nam nhi phụng sự đất nước.</p>"
+    },
+    {
+        "id": "tac-gia-matsuo-basho",
+        "title": "Chân Dung Tác Giả: Matsuo Basho",
+        "content": "<h4>I. Tiểu sử</h4><p>Matsuo Basho (1644-1694), là nhà thơ Nhật Bản vĩ đại, người đưa thể thơ Haiku lên đỉnh cao.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Con ếch nhảy vào ao cũ, Đường mòn Oku no Hosomichi.</p><h4>III. Phong cách</h4><p>Thơ ông cô đọng, hàm súc, giàu triết lý Thiền học.</p>"
+    },
+    {
+        "id": "tac-gia-to-thuc",
+        "title": "Chân Dung Tác Giả: Tô Thức",
+        "content": "<h4>I. Tiểu sử</h4><p>Tô Thức (1037-1101), là nhà thơ, nhà văn Trung Quốc thời nhà Tống.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Thủy điệu ca đầu, Tiền Xích Bích phú, Hậu Xích Bích phú.</p><h4>III. Phong cách</h4><p>Thơ ông bay bổng, giàu triết lý nhân sinh, thể hiện tâm hồn phóng khoáng.</p>"
+    },
+    {
+        "id": "tac-gia-lao-tu",
+        "title": "Chân Dung Tác Giả: Lão Tử",
+        "content": "<h4>I. Tiểu sử</h4><p>Lão Tử (khoảng thế kỷ 6 TCN), là triết gia Trung Quốc cổ đại, người sáng lập Đạo gia.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Đạo đức kinh - Tác phẩm triết học kinh điển của Đạo gia.</p><h4>III. Tư tưởng</h4><p>Vô vi, Tự nhiên, Tiêu dao, Thượng thiện nhược thủy.</p>"
+    },
+    {
+        "id": "tac-gia-khong-tu",
+        "title": "Chân Dung Tác Giả: Khổng Tử",
+        "content": "<h4>I. Tiểu sử</h4><p>Khổng Tử (551-479 TCN), là triết gia Trung Quốc cổ đại, người sáng lập Nho gia.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Luận Ngữ - Tác phẩm ghi lại những lời dạy của ông.</p><h4>III. Tư tưởng</h4><p>Ngũ thường (Nhân, Nghĩa, Lễ, Trí, Tín), con đường tu dưỡng và đạo lý làm người.</p>"
+    },
+    {
+        "id": "tac-gia-tagore",
+        "title": "Chân Dung Tác Giả: Rabindranath Tagore",
+        "content": "<h4>I. Tiểu sử</h4><p>Rabindranath Tagore (1861-1941), là nhà thơ, nhà văn Ấn Độ, người châu Á đầu tiên đoạt giải Nobel Văn học.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Thơ Dâng, Trăng non, Người làm vườn.</p><h4>III. Phong cách</h4><p>Thơ ông giàu chất trữ tình, kết hợp hài hòa giữa triết lý phương Đông và tình yêu nhân loại.</p>"
+    },
+    {
+        "id": "tac-gia-pushkin",
+        "title": "Chân Dung Tác Giả: Alexander Pushkin",
+        "content": "<h4>I. Tiểu sử</h4><p>Alexander Pushkin (1799-1837), là nhà thơ vĩ đại của nước Nga, được mệnh danh là \"Mặt trời của thi ca Nga\".</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Ép-ghê-nhi Ô-nhê-ghin, Người con gái viên đại úy, Truyện cổ tích về ngư ông và con cá vàng.</p><h4>III. Vị trí</h4><p>Người đặt nền móng cho văn học Nga hiện đại.</p>"
+    },
+    {
+        "id": "tac-gia-dostoevsky",
+        "title": "Chân Dung Tác Giả: Fyodor Dostoevsky",
+        "content": "<h4>I. Tiểu sử</h4><p>Fyodor Dostoevsky (1821-1881), là nhà văn Nga vĩ đại, bậc thầy của tiểu thuyết tâm lý.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Tội ác và Hình phạt, Anh em nhà Karamazov, Thằng ngốc.</p><h4>III. Phong cách</h4><p>Đi sâu vào thế giới nội tâm đen tối và hành trình sám hối của con người.</p>"
+    },
+    {
+        "id": "tac-gia-tolstoy",
+        "title": "Chân Dung Tác Giả: Leo Tolstoy",
+        "content": "<h4>I. Tiểu sử</h4><p>Leo Tolstoy (1828-1910), là nhà văn Nga vĩ đại, một trong những tiểu thuyết gia lớn nhất mọi thời đại.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Chiến tranh và Hòa bình, Anna Karenina, Phục sinh.</p><h4>III. Phong cách</h4><p>Phản ánh toàn cảnh xã hội Nga với những vấn đề về chiến tranh, tình yêu và đạo đức.</p>"
+    },
+    {
+        "id": "tac-gia-chekhov",
+        "title": "Chân Dung Tác Giả: Anton Chekhov",
+        "content": "<h4>I. Tiểu sử</h4><p>Anton Chekhov (1860-1904), là nhà văn, nhà viết kịch Nga nổi tiếng.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Truyện ngắn (Người trong bao, Phòng số 6), Kịch (Vườn anh đào, Hải âu).</p><h4>III. Phong cách</h4><p>Ngòi bút tinh tế, giàu chất nhân văn. Ông được xem là bậc thầy của truyện ngắn.</p>"
+    },
+    {
+        "id": "tac-gia-goethe",
+        "title": "Chân Dung Tác Giả: Johann Wolfgang von Goethe",
+        "content": "<h4>I. Tiểu sử</h4><p>Johann Wolfgang von Goethe (1749-1832), là nhà thơ, nhà văn, nhà viết kịch vĩ đại của Đức.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Faust, Nỗi đau của chàng Werther, Cây thủy tùng.</p><h4>III. Vị trí</h4><p>Được xem là nhân vật văn hóa vĩ đại nhất của nước Đức.</p>"
+    },
+    {
+        "id": "tac-gia-victor-hugo",
+        "title": "Chân Dung Tác Giả: Victor Hugo",
+        "content": "<h4>I. Tiểu sử</h4><p>Victor Hugo (1802-1885), là nhà thơ, nhà văn, nhà viết kịch vĩ đại của Pháp.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Những người khốn khổ, Thằng gù nhà thờ Đức Bà, Chín mươi ba.</p><h4>III. Phong cách</h4><p>Phản ánh những bất công xã hội, ca ngợi tình yêu thương và lòng nhân đạo.</p>"
+    },
+    {
+        "id": "tac-gia-dante",
+        "title": "Chân Dung Tác Giả: Dante Alighieri",
+        "content": "<h4>I. Tiểu sử</h4><p>Dante Alighieri (1265-1321), là nhà thơ vĩ đại của Ý, người được mệnh danh là \"Cha đẻ của tiếng Ý\".</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Thần khúc, Cuộc đời mới.</p><h4>III. Vị trí</h4><p>Đỉnh cao của văn học Phục Hưng, người đặt nền móng cho văn học hiện đại châu Âu.</p>"
+    },
+    {
+        "id": "tac-gia-ba-huyen-thanh-quan-2",
+        "title": "Chân Dung Tác Giả: Nguyễn Bỉnh Khiêm",
+        "content": "<h4>I. Tiểu sử</h4><p>Nguyễn Bỉnh Khiêm (1491-1585), quê ở Hải Phòng. Là nhà thơ, nhà triết học lớn thời nhà Mạc.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: Bạch Vân am thi tập, Bạch Vân quốc ngữ thi, Trung Tân quán.</p><h4>III. Phong cách</h4><p>Thơ ông mang đậm tính triết lý, thể hiện tư tưởng nhập thế và xuất thế của Nho gia.</p>"
     }
 ]
