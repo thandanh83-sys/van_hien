@@ -20,13 +20,12 @@
     <!-- ========================================== -->
     <!-- FAVICON ĐỘNG (Tự động đổi Logo Sáng/Tối)   -->
     <!-- ========================================== -->
-    <!-- Mặc định hiển thị logo_trang.png. JS sẽ tự đổi sang logo_toi.png khi bật Dark Mode -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (v=1014 để ép xóa cache) -->
+    <!-- LIÊN KẾT FILE CSS (v=1018 để ép xóa cache) -->
     <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=1014">
+    <link rel="stylesheet" href="style.css?v=1018">
 </head>
 <body>
 
@@ -46,53 +45,40 @@
         <!-- NAVBAR (THANH ĐIỀU HƯỚNG)                  -->
         <!-- ========================================== -->
         <nav class="navbar">
-            <!-- Logo chữ Văn Đạo (Bấm vào để về Trang Chủ) -->
             <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
             
-            <!-- Khối chứa các nút Menu (Sẽ xổ xuống trên Mobile) -->
             <div class="nav-links" id="navMenu">
-                
-                <!-- Nút Trang Chủ -->
                 <button class="nav-btn active" onclick="switchView('home')" id="nav-home">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                     Trang Chủ
                 </button>
                 
-                <!-- Nút Văn Hiến -->
                 <button class="nav-btn" onclick="switchView('heritage')" id="nav-heritage">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                     Văn Hiến
                 </button>
                 
-                <!-- Nút Bách Khoa -->
                 <button class="nav-btn" onclick="switchView('encyclopedia')" id="nav-encyclopedia">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     Bách Khoa
                 </button>
                 
-                <!-- Nút Thi Pháp -->
                 <button class="nav-btn" onclick="switchView('analyze')" id="nav-analyze">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                     Thi Pháp
                 </button>
                 
-                <!-- Đường gạch ngang ngăn cách (chỉ hiện trên mobile) -->
                 <div class="menu-divider"></div>
 
-                <!-- Nút Đổi Theme (Sáng/Tối) -->
                 <button class="nav-btn theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">
                     <span id="theme-icon-wrapper">
-                        <!-- Icon Mặt Trời (Hiện ở chế độ Tối, màu Vàng sáng) -->
                         <svg class="sun-icon nav-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                        <!-- Icon Mặt Trăng (Hiện ở chế độ Sáng, màu Xanh ngọc) -->
                         <svg class="moon-icon nav-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     </span>
-                    <!-- Chữ sẽ được JS tự động đổi thành "Chế độ Sáng" hoặc "Chế độ Tối" -->
                     <span id="theme-text">Chế độ Tối</span>
                 </button>
             </div>
 
-            <!-- Nút Menu Hamburger (Chỉ hiển thị trên điện thoại) -->
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Mở Menu">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
@@ -103,41 +89,29 @@
         <!-- ========================================== -->
         <section id="view-home" class="view active">
             <div class="hero">
-                <!-- Khối Nội dung chữ bên trái -->
                 <div class="hero-content">
                     <h1>
-                        <!-- Text hiển thị ở chế độ Sáng (Bạch Ngọc) -->
                         <span class="light-text">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
-                        <!-- Text hiển thị ở chế độ Tối (Thủy Mặc) -->
                         <span class="dark-text">Vạn Tượng<br>Trong <i>Lời</i></span>
                     </h1>
                     <p>
-                        <!-- Text hiển thị ở chế độ Sáng -->
                         <span class="light-text">Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</span>
-                        <!-- Text hiển thị ở chế độ Tối -->
                         <span class="dark-text">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</span>
                     </p>
-                    <!-- Nút kêu gọi hành động -->
                     <button class="btn" onclick="switchView('heritage')">
                         <span class="light-text">Khám Phá Tuyệt Tác</span>
                         <span class="dark-text">Thưởng Lãm</span>
                     </button>
                 </div>
                 
-                <!-- Khối Hình ảnh bên phải (Khung vòm) -->
                 <div class="hero-visual">
                     <div class="arch-frame">
-                        <!-- GỌI ẢNH KHUNG SÁNG: Từ file khung_sang.jpg -->
                         <img class="light-img" src="khung_sang.jpg" alt="Tranh sáo trúc">
-                        
-                        <!-- GỌI ẢNH KHUNG TỐI: Từ file khung_toi.jpg -->
                         <img class="dark-img" src="khung_toi.jpg" alt="Tranh mây vàng">
                     </div>
                 </div>
             </div>
 
-            <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
-            <!-- Đã gắn inline-style để xóa sạch 100% đường gạch ngang -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
@@ -148,7 +122,6 @@
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản văn học nước nhà & Thế giới</p>
             
-            <!-- Thanh Bộ Lọc Tác Phẩm (Filter Bar) -->
             <div class="filter-bar">
                 <button class="filter-btn active" onclick="filterHeritage('all', this)">Tất cả</button>
                 <button class="filter-btn" onclick="filterHeritage('dan-gian', this)">Dân gian</button>
@@ -158,11 +131,9 @@
                 <button class="filter-btn" onclick="filterHeritage('ca-dao', this)">Ca dao - Tục ngữ</button>
                 <button class="filter-btn" onclick="filterHeritage('dien-tich', this)">Điển tích</button>
                 <button class="filter-btn" onclick="filterHeritage('truyen-cuoi', this)">Truyện cười</button>
-                <!-- Nút lọc mới cho nhóm Ngụ ngôn -->
                 <button class="filter-btn" onclick="filterHeritage('ngu-ngon', this)">Ngụ ngôn</button>
             </div>
             
-            <!-- Vùng chứa động: JS sẽ tự động đổ các thẻ (card) tác phẩm vào đây -->
             <div class="heritage-grid" id="heritage-grid"></div>
         </section>
 
@@ -173,7 +144,6 @@
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Cẩm nang học thuật văn chương</p>
             
-            <!-- Vùng chứa động: JS sẽ tự động đổ 18 Quyển sách vào đây -->
             <div id="encyclopedia-container"></div>
         </section>
 
@@ -182,15 +152,14 @@
         <!-- ========================================== -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Thi Pháp Học</h1>
-            <p class="page-desc">Phân tích thơ theo 4 tầng (Dữ kiện → Đối chiếu → Chiếu rọi → Mở ngỏ)</p>
+            <!-- Đã xóa hoàn toàn dòng page-desc theo yêu cầu -->
             
-            <!-- Khung nhập liệu phân tích thơ -->
             <div class="analyze-box">
+                <!-- Khung nhập đã được làm trống, chỉ giữ lại placeholder -->
                 <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
                 <button onclick="executePipeline()">Phân Tích Ngay</button>
             </div>
             
-            <!-- Vùng chứa kết quả sau khi phân tích (Báo cáo 4 tầng) -->
             <div id="results-panel"></div>
         </section>
 
@@ -199,14 +168,9 @@
     <!-- ========================================== -->
     <!-- SCRIPTS (TẢI DỮ LIỆU VÀ LOGIC XỬ LÝ)       -->
     <!-- ========================================== -->
-    <!-- Thứ tự tải file cực kỳ quan trọng: Dữ liệu trước, Logic sau -->
-    
-    <!-- 1. Tải 3 file dữ liệu (v=1014 để ép xóa cache) -->
-    <script src="data-heritage.js?v=1014"></script>
-    <script src="data-encyclopedia.js?v=1014"></script>
-    <script src="data-quotes.js?v=1014"></script>
-    
-    <!-- 2. Tải file logic xử lý sau cùng (v=1014 để ép xóa cache) -->
-    <script src="script.js?v=1014"></script>
+    <script src="data-heritage.js?v=1018"></script>
+    <script src="data-encyclopedia.js?v=1018"></script>
+    <script src="data-quotes.js?v=1018"></script>
+    <script src="script.js?v=1018"></script>
 </body>
 </html>
