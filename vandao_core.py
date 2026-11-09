@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 =====================================================================
-VĂN ĐẠO ENGINE - PYTHON CORE (ULTIMATE EDITION)
+VĂN ĐẠO ENGINE - PYTHON CORE (ULTIMATE EDITION V2)
 =====================================================================
 Tác giả: Văn Đạo
 Mô tả: Bộ máy phân tích thi pháp tất định (Deterministic) và
@@ -24,7 +26,7 @@ import argparse
 import re
 import sys
 import unicodedata
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -59,7 +61,7 @@ class Reference:
 
 @dataclass
 class Claim:
-    """Đơn vị nhận định có provenance."""
+    """Đơn vị nhận định có provenance (nguồn gốc)."""
     content: str
     level: Level
     text_excerpt: str = ""
@@ -72,12 +74,12 @@ class Claim:
         warnings = []
         if self.level is Level.FACT:
             if not self.references:
-                warnings.append("FACT không có Reference.")
+                warnings.append("FACT không có Reference (Cần nguồn dẫn).")
             elif not any(r.status is Confidence.VERIFIED for r in self.references):
                 warnings.append("FACT không có Reference đã xác minh.")
         if self.level is Level.INTERPRETATION:
             if not self.text_excerpt and not self.references:
-                warnings.append("INTERPRETATION thiếu cả text_excerpt và Reference.")
+                warnings.append("INTERPRETATION thiếu cả trích dẫn văn bản và Reference.")
         return warnings
 
 
@@ -93,6 +95,7 @@ class Poem:
     source_status: Confidence = Confidence.UNVERIFIED
 
     def full_text(self) -> str:
+        """Trả về toàn bộ văn bản thơ dưới dạng chuỗi."""
         return "\n".join(self.lines)
 
 
@@ -100,9 +103,10 @@ class Poem:
 # III. TẦNG 2: FORMAL ANALYSIS (PHÂN TÍCH HÌNH THỨC)
 # =====================================================================
 class FormalAnalyzer:
-    """Bộ máy phân tích ngữ âm và cấu trúc thơ."""
+    """Bộ máy phân tích ngữ âm và cấu trúc thơ tất định."""
     
     # Bảng tra dấu thanh trong chuẩn NFD (Unicode)
+    # Ngang: không dấu | Huyền, Sắc, Ngã, Hỏi, Nặng: có dấu
     _TONE_MARKS = {
         "\u0300": "huyền",
         "\u0301": "sắc",
@@ -122,7 +126,8 @@ class FormalAnalyzer:
     @staticmethod
     def tokenize(line: str) -> list[str]:
         """Tách từ tiếng Việt, loại bỏ dấu câu và số."""
-        return [w for w in re.findall(r"\w+", line, re.UNICODE) if not w.isdigit()]
+        # Regex chỉ lấy chữ cái tiếng Việt (bao gồm cả chữ có dấu)
+        return re.findall(r"[a-zA-Zà-ỹÀ-ỸđĐ]+", line, re.UNICODE)
 
     @classmethod
     def get_tone(cls, syllable: str) -> str:
@@ -201,7 +206,7 @@ class FormalAnalyzer:
             "is_68_pattern": is_68,
             "rhyme_analysis": rhyme_analysis,
             "conclusion": (
-                "Văn bản có cấu trúc luân phiên 6-8 tiếng."
+                "Văn bản có cấu trúc luân phiên 6-8 tiếng (Lục bát)."
                 if is_68
                 else "Văn bản không theo cấu trúc 6-8 cố định."
             )
@@ -228,7 +233,6 @@ KNOWLEDGE_BASE = {
         "Phật giáo": ["vô thường", "vô ngã", "từ bi", "duyên khởi"]
     }
 }
-
 
 def extract_knowledge(text: str) -> dict[str, list[str]]:
     """Quét văn bản để tìm biểu tượng và tư tưởng."""
@@ -318,7 +322,8 @@ class VanDaoEngine:
             print(f"      {cls.C_GRAY}Nguồn: {c.references[0].source if c.references else 'N/A'}{cls.C_RESET}")
             
             for w in warnings:
-                print(f"      {cls.C_RED}⚠ {w}{cls.C_RESET}")
+                # Sử dụng ký tự △ thay cho emoji ⚠ để đảm bảo an toàn terminal
+                print(f"      {cls.C_RED}△ {w}{cls.C_RESET}")
         
         # 2. In kết quả trích xuất tri thức (Diễn giải/Giả thuyết)
         print()
