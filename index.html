@@ -20,13 +20,12 @@
     <!-- ========================================== -->
     <!-- FAVICON ĐỘNG (Tự động đổi Logo Sáng/Tối)   -->
     <!-- ========================================== -->
-    <!-- Mặc định hiển thị logo_trang.png. JS sẽ tự đổi sang logo_toi.png khi bật Dark Mode -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (v=1019 để ép xóa cache) -->
+    <!-- LIÊN KẾT FILE CSS (v=1023 để ép xóa cache) -->
     <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=1019">
+    <link rel="stylesheet" href="style.css?v=1023">
 </head>
 <body>
 
@@ -103,41 +102,30 @@
         <!-- ========================================== -->
         <section id="view-home" class="view active">
             <div class="hero">
-                <!-- Khối Nội dung chữ bên trái -->
                 <div class="hero-content">
                     <h1>
-                        <!-- Text hiển thị ở chế độ Sáng (Bạch Ngọc) -->
                         <span class="light-text">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
-                        <!-- Text hiển thị ở chế độ Tối (Thủy Mặc) -->
                         <span class="dark-text">Vạn Tượng<br>Trong <i>Lời</i></span>
                     </h1>
                     <p>
-                        <!-- Text hiển thị ở chế độ Sáng -->
                         <span class="light-text">Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</span>
-                        <!-- Text hiển thị ở chế độ Tối -->
                         <span class="dark-text">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</span>
                     </p>
-                    <!-- Nút kêu gọi hành động -->
                     <button class="btn" onclick="switchView('heritage')">
                         <span class="light-text">Khám Phá Tuyệt Tác</span>
                         <span class="dark-text">Thưởng Lãm</span>
                     </button>
                 </div>
                 
-                <!-- Khối Hình ảnh bên phải (Khung vòm) -->
                 <div class="hero-visual">
                     <div class="arch-frame">
-                        <!-- GỌI ẢNH KHUNG SÁNG: Từ file khung_sang.jpg -->
                         <img class="light-img" src="khung_sang.jpg" alt="Tranh sáo trúc">
-                        
-                        <!-- GỌI ẢNH KHUNG TỐI: Từ file khung_toi.jpg -->
                         <img class="dark-img" src="khung_toi.jpg" alt="Tranh mây vàng">
                     </div>
                 </div>
             </div>
 
             <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
-            <!-- Đã gắn inline-style để xóa sạch 100% đường gạch ngang -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
@@ -148,18 +136,11 @@
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản văn học nước nhà & Thế giới</p>
             
-            <!-- Thanh Bộ Lọc Tác Phẩm (Filter Bar) -->
-            <div class="filter-bar">
-                <button class="filter-btn active" onclick="filterHeritage('all', this)">Tất cả</button>
-                <button class="filter-btn" onclick="filterHeritage('dan-gian', this)">Dân gian</button>
-                <button class="filter-btn" onclick="filterHeritage('trung-dai', this)">Trung đại</button>
-                <button class="filter-btn" onclick="filterHeritage('hien-dai', this)">Hiện đại</button>
-                <button class="filter-btn" onclick="filterHeritage('the-gioi', this)">Thế giới</button>
-                <button class="filter-btn" onclick="filterHeritage('ca-dao', this)">Ca dao - Tục ngữ</button>
-                <button class="filter-btn" onclick="filterHeritage('dien-tich', this)">Điển tích</button>
-                <button class="filter-btn" onclick="filterHeritage('truyen-cuoi', this)">Truyện cười</button>
-                <button class="filter-btn" onclick="filterHeritage('ngu-ngon', this)">Ngụ ngôn</button>
-            </div>
+            <!-- TẦNG 1: LỌC THEO THỜI KỲ / KHU VỰC (JS tự động điền) -->
+            <div class="filter-bar" id="main-filter-bar"></div>
+            
+            <!-- TẦNG 2: LỌC THEO THỂ LOẠI (JS tự động điền khi bấm Tầng 1) -->
+            <div class="filter-bar" id="sub-filter-bar" style="display: none; margin-top: -20px;"></div>
             
             <!-- Vùng chứa động: JS sẽ tự động đổ các thẻ (card) tác phẩm vào đây -->
             <div class="heritage-grid" id="heritage-grid"></div>
@@ -172,7 +153,10 @@
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Cẩm nang học thuật văn chương</p>
             
-            <!-- Vùng chứa động: JS sẽ tự động đổ 18 Quyển sách vào đây -->
+            <!-- MỤC LỤC TỰ ĐỘNG (JS sẽ tạo các nút Quyển I, Quyển II...) -->
+            <div id="encyclopedia-toc" class="toc-container"></div>
+
+            <!-- NỘI DUNG CÁC QUYỂN (JS sẽ render) -->
             <div id="encyclopedia-container"></div>
         </section>
 
@@ -181,11 +165,9 @@
         <!-- ========================================== -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Thi Pháp Học</h1>
-            <!-- Đã xóa hoàn toàn dòng page-desc theo yêu cầu để tạo khoảng thoáng -->
             
-            <!-- Khung nhập liệu phân tích thơ -->
             <div class="analyze-box">
-                <!-- Khung nhập đã được làm trống, chỉ giữ lại chữ mờ gợi ý -->
+                <!-- Khung nhập trống, chỉ có chữ mờ gợi ý -->
                 <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
                 <button onclick="executePipeline()">Phân Tích Ngay</button>
             </div>
@@ -197,16 +179,9 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- SCRIPTS (TẢI DỮ LIỆU VÀ LOGIC XỬ LÝ)       -->
+    <!-- SCRIPTS (CHỈ CẦN GỌI SCRIPT.JS)            -->
     <!-- ========================================== -->
-    <!-- Thứ tự tải file cực kỳ quan trọng: Dữ liệu trước, Logic sau -->
-    
-    <!-- 1. Tải 3 file dữ liệu (v=1019 để ép xóa cache) -->
-    <script src="data-heritage.js?v=1019"></script>
-    <script src="data-encyclopedia.js?v=1019"></script>
-    <script src="data-quotes.js?v=1019"></script>
-    
-    <!-- 2. Tải file logic xử lý sau cùng (v=1019 để ép xóa cache) -->
-    <script src="script.js?v=1019"></script>
+    <!-- KHÔNG CÒN CÁC THẺ GỌI DATA.JS Ở ĐÂY NỮA -->
+    <script src="script.js?v=1023"></script>
 </body>
 </html>
