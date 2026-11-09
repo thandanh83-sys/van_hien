@@ -1,7 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V56 - SEARCH & COPY LINK)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V57 - FINAL)
    Tác giả: Văn Đạo
-   Mô tả: Tích hợp Tìm kiếm, Copy Link, Fix lỗi Safari iOS và Smart Links.
+   Mô tả: Tích hợp Tìm kiếm, Copy Link, Deep Link Scroll, Phân tích Thi Pháp,
+          Render dữ liệu từ JSON và tất cả hiệu ứng động.
    ===================================================================== */
 
 /* =====================================================================
@@ -122,20 +123,18 @@ function initMainFilters() {
 
 function filterMainCategory(category, btnElement) {
     currentMainCat = category;
-    currentGenre = 'all'; // Reset thể loại con khi đổi danh mục chính
+    currentGenre = 'all';
     
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
 
     const subBar = document.getElementById('sub-filter-bar');
-    
     if (category === 'all') {
         subBar.style.display = 'none';
-        renderHeritage(); // Gọi render để cập nhật
+        renderHeritage();
         return;
     }
 
-    // Lấy thể loại con dựa trên danh mục
     const itemsInCat = HERITAGE_DATA.filter(item => item.category === category);
     const uniqueGenres = [...new Set(itemsInCat.map(item => item.genre))];
 
@@ -159,7 +158,6 @@ function filterSubGenre(genre, btnElement) {
     renderHeritage();
 }
 
-// HÀM RENDER CHÍNH: Kết hợp Bộ Lọc 2 Tầng + Tìm Kiếm + Nút Copy
 function renderHeritage() {
     const grid = document.getElementById('heritage-grid');
     const searchInput = document.getElementById('search-input');
@@ -169,17 +167,9 @@ function renderHeritage() {
     
     let data = HERITAGE_DATA;
     
-    // 1. Lọc theo Danh mục chính (Tầng 1)
-    if (currentMainCat !== 'all') {
-        data = data.filter(item => item.category === currentMainCat);
-    }
-    
-    // 2. Lọc theo Thể loại (Tầng 2)
-    if (currentGenre !== 'all') {
-        data = data.filter(item => item.genre === currentGenre);
-    }
+    if (currentMainCat !== 'all') data = data.filter(item => item.category === currentMainCat);
+    if (currentGenre !== 'all') data = data.filter(item => item.genre === currentGenre);
 
-    // 3. Lọc theo Từ khóa tìm kiếm
     if (keyword) {
         data = data.filter(item => 
             item.title.toLowerCase().includes(keyword) || 
@@ -187,13 +177,11 @@ function renderHeritage() {
         );
     }
 
-    // 4. Trạng thái không có kết quả
     if (data.length === 0) {
         grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted); font-style: italic;">Không tìm thấy tác phẩm nào phù hợp.</p>`;
         return;
     }
 
-    // 5. Render HTML
     grid.innerHTML = data.map(item => {
         let statusBadge = '';
         if (NEEDS_REVIEW_IDS.includes(item.id)) {
@@ -212,7 +200,6 @@ function renderHeritage() {
                     <span>${ICON_CLOCK} ${item.era}</span>
                     <span>${ICON_SCROLL} ${item.script}</span>
                 </div>
-                <!-- Nút Copy Link -->
                 <button onclick="copyLink('${item.id}')" class="copy-btn" title="Copy liên kết bài viết">
                     <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                     Copy
@@ -223,7 +210,6 @@ function renderHeritage() {
     }).join('');
 }
 
-// Hàm Copy Link (Tạo Toast thông báo thay vì dùng alert)
 function copyLink(id) {
     const url = window.location.origin + window.location.pathname + '#' + id;
     navigator.clipboard.writeText(url).then(() => {
@@ -243,21 +229,23 @@ function copyLink(id) {
     });
 }
 
-// Hàm tự động cuộn tới bài viết nếu URL có dấu #id và làm sáng thẻ
+// FIX LỖI DEEP LINK: Tự động chuyển tab và cuộn đến thẻ khi mở link #id
 function handleHashScroll() {
     if (window.location.hash) {
         const id = window.location.hash.substring(1);
-        const element = document.getElementById(id);
-        if (element) {
-            // Đợi 1 chút để DOM render xong
-            setTimeout(() => {
+        if (typeof switchView === 'function') {
+            switchView('heritage');
+        }
+        setTimeout(() => {
+            const element = document.getElementById(id);
+            if (element) {
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 element.classList.add('highlight-card');
                 setTimeout(() => {
                     element.classList.remove('highlight-card');
                 }, 2000);
-            }, 500);
-        }
+            }
+        }, 600);
     }
 }
 
@@ -269,7 +257,6 @@ function renderEncyclopedia() {
     const tocContainer = document.getElementById('encyclopedia-toc');
     if (!container || ENCYCLOPEDIA_DATA.length === 0) return;
 
-    // 1. Tự động tạo Mục lục
     if (tocContainer) {
         tocContainer.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => {
             const match = item.title.match(/Quyển\s+([IVXLCDM]+|[0-9]+)/i);
@@ -278,7 +265,6 @@ function renderEncyclopedia() {
         }).join('');
     }
 
-    // 2. Render nội dung
     container.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => `
         <div class="accordion-item" id="vol-${index}">
             <details>
@@ -377,14 +363,12 @@ const POETRY_ANALYZER = (() => {
         const lastSyl = lines.map(l => l.lastSyllable);
         const rhymeParts = lastSyl.map(s => getRhymePart(s));
 
-        // Vần chân
         for (let i = 0; i < lines.length; i++) {
             for (let j = i + 1; j < lines.length; j++) {
                 const match = (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== '');
                 result.chan.push({ text: `Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}")`, isMatch: match, rhyme: rhymeParts[i] });
             }
         }
-        // Vần lưng
         for (let i = 0; i < lines.length - 1; i++) {
             const endPart = rhymeParts[i];
             const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || [];
@@ -400,12 +384,10 @@ const POETRY_ANALYZER = (() => {
                 result.lung.push({ text: `Cuối câu ${i+1} ("${lastSyl[i]}") không có vần lưng ở câu ${i+2}`, isMatch: false, rhyme: '' });
             }
         }
-        // Vần liền
         for (let i = 0; i < lines.length - 1; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== '');
             result.lien.push({ text: `Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}")`, isMatch: match, rhyme: rhymeParts[i] });
         }
-        // Vần cách
         for (let i = 0; i < lines.length - 2; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== '');
             result.cach.push({ text: `Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}")`, isMatch: match, rhyme: rhymeParts[i] });
@@ -662,11 +644,10 @@ function initDewdrops() {
 }
 
 /* =====================================================================
-   MODULE 11: KHỞI CHẠY & TẢI DỮ LIỆU TỰ ĐỘNG (ĐÃ FIX LỖI SAFARI IOS)
+   MODULE 11: KHỞI CHẠY & TẢI DỮ LIỆU TỰ ĐỘNG
    ===================================================================== */
 async function loadAllData() {
     try {
-        // Thêm './' và cache: "no-store" để Safari không bị lỗi "String did not match..."
         const fetchOptions = { cache: "no-store" }; 
         
         const [resHeritage, resEncyclopedia, resQuotes] = await Promise.all([
@@ -675,12 +656,10 @@ async function loadAllData() {
             fetch('./data-quotes.json', fetchOptions)
         ]);
 
-        // Bắt lỗi 404 tường minh
         if (!resHeritage.ok) throw new Error(`Không tìm thấy file data-heritage.json (Mã HTTP: ${resHeritage.status})`);
         if (!resEncyclopedia.ok) throw new Error(`Không tìm thấy file data-encyclopedia.json (Mã HTTP: ${resEncyclopedia.status})`);
         if (!resQuotes.ok) throw new Error(`Không tìm thấy file data-quotes.json (Mã HTTP: ${resQuotes.status})`);
 
-        // Đọc text trước để parse an toàn trên Safari
         const textHeritage = await resHeritage.text();
         const textEncyclopedia = await resEncyclopedia.text();
         const textQuotes = await resQuotes.text();
@@ -694,7 +673,6 @@ async function loadAllData() {
         try { QUOTES_DATA = JSON.parse(textQuotes); } 
         catch (e) { throw new Error("File data-quotes.json bị lỗi cú pháp JSON."); }
 
-        // Khởi chạy giao diện
         loadSavedTheme();
         updateCanvasColors();
         
@@ -709,10 +687,9 @@ async function loadAllData() {
         initWaterCanvas();
         initDewdrops();
 
-        // Kiểm tra xem URL có chứa #id (để cuộn tới thẻ được share) không
         handleHashScroll();
 
-        console.log("VĂN ĐẠO V56: Tải dữ liệu thành công!");
+        console.log("VĂN ĐẠO V57: Tải dữ liệu thành công!");
 
     } catch (error) {
         console.error("LỖI TẢI DỮ LIỆU: ", error);
@@ -720,10 +697,8 @@ async function loadAllData() {
     }
 }
 
-// Kích hoạt tải dữ liệu khi DOM sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
     loadAllData();
 });
 
-// Bắt sự kiện khi người dùng thay đổi hash trên thanh địa chỉ (bấm link share)
 window.addEventListener('hashchange', handleHashScroll);
