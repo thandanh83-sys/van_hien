@@ -8,7 +8,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Thần thoại", "Thần thoại sáng thế"],
         "era": "Cổ đại",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "than-thoai"
     },
     {
         "id": "than-tru-troi",
@@ -19,7 +20,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Thần thoại", "Thần thoại sáng thế"],
         "era": "Không rõ",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "than-tru-troi"
     },
     {
         "id": "nu-oa-va-troi",
@@ -52,7 +54,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Truyền thuyết", "Truyền thuyết lịch sử"],
         "era": "Không rõ",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "truyen-thuyet"
     },
     {
         "id": "con-rong-chau-tien",
@@ -63,7 +66,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Truyền thuyết", "Truyền thuyết nguồn gốc"],
         "era": "Thời Hồng Bàng",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "con-rong-chau-tien"
     },
     {
         "id": "son-tinh-thuy-tinh",
@@ -74,7 +78,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Truyền thuyết", "Truyền thuyết lịch sử"],
         "era": "Thời Hùng Vương",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "son-tinh-thuy-tinh"
     },
     {
         "id": "thanh-giong",
@@ -85,7 +90,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Truyền thuyết", "Truyền thuyết anh hùng"],
         "era": "Thời Hùng Vương",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "thanh-giong"
     },
     {
         "id": "su-tich-ho-guom",
@@ -118,7 +124,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Cổ tích", "Cổ tích về người bất hạnh"],
         "era": "Không rõ",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "tam-cam"
     },
     {
         "id": "thach-sanh",
@@ -129,7 +136,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Cổ tích", "Cổ tích thần kỳ"],
         "era": "Không rõ",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "thach-sanh"
     },
     {
         "id": "nghin-le-mot-dem",
@@ -217,7 +225,8 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Truyện cười", "Văn học dân gian phi tự sự"],
         "era": "Không rõ",
-        "script": "Truyền miệng"
+        "script": "Truyền miệng",
+        "encyclopedia_id": "quyen-xl"
     },
     {
         "id": "treo-bien",
@@ -264,24 +273,13 @@
         "script": "Quốc ngữ"
     },
     {
-        "id": "tuc-ngu",
-        "title": "Tục ngữ",
-        "type": "the-loai",
-        "author": "Dân gian",
-        "desc": "Câu nói ngắn gọn, đúc kết kinh nghiệm sống, triết lý dân gian.",
-        "loai_hinh": "van-hoc-dan-gian",
-        "the_loai": ["Tục ngữ", "Văn học dân gian phi tự sự"],
-        "era": "Không rõ",
-        "script": "Quốc ngữ"
-    },
-    {
         "id": "tuc-ngu-ve-dao-ly",
         "title": "Tục Ngữ Về Đạo Lý",
         "type": "tac-pham",
         "author": "Dân gian",
         "desc": "Bài học ứng xử, triết lý sống được đúc kết từ kinh nghiệm dân gian.",
         "loai_hinh": "van-hoc-dan-gian",
-        "the_loai": ["Tục ngữ", "Tục ngữ về đạo lý"],
+        "the_loai": ["Tục ngữ", "Văn học dân gian phi tự sự"],
         "era": "Không rõ",
         "script": "Quốc ngữ"
     },
@@ -405,7 +403,7 @@
         "the_loai": ["Diễn xướng nghi lễ", "Sử thi", "Thần thoại"],
         "era": "Cổ đại",
         "script": "Truyền miệng",
-        "encyclopedia_id": "quyen-xviii"
+        "encyclopedia_id": "mo-muong"
     },
     {
         "id": "de-dat-de-nuoc",
@@ -427,19 +425,7 @@
         "loai_hinh": "van-hoc-dan-gian",
         "the_loai": ["Sử thi", "Sử thi Tây Nguyên"],
         "era": "Cổ đại",
-        "script": "Truyền miệng",
-        "encyclopedia_id": "quyen-xix"
-    },
-    {
-        "id": "truyen-tho",
-        "title": "Truyện thơ",
-        "type": "the-loai",
-        "author": "Đa tác giả",
-        "desc": "Thể loại tự sự bằng thơ, kết hợp giữa kể chuyện và trữ tình.",
-        "loai_hinh": "van-hoc-dan-gian",
-        "the_loai": ["Truyện thơ", "Thơ tự sự"],
-        "era": "Đa thời đại",
-        "script": "Đa ngôn ngữ"
+        "script": "Truyền miệng"
     },
     {
         "id": "truyen-kieu",
@@ -451,7 +437,8 @@
         "the_loai": ["Truyện thơ Nôm", "Lục bát", "Thơ trữ tình", "Thơ tự sự"],
         "era": "TK 19",
         "script": "Chữ Nôm",
-        "trang_thai": "da-xac-minh"
+        "trang_thai": "da-xac-minh",
+        "encyclopedia_id": "truyen-kieu"
     },
     {
         "id": "luc-van-tien",
@@ -474,7 +461,8 @@
         "the_loai": ["Ngâm khúc", "Song thất lục bát"],
         "era": "TK 18",
         "script": "Chữ Hán / Nôm",
-        "trang_thai": "can-kiem-chung"
+        "trang_thai": "can-kiem-chung",
+        "encyclopedia_id": "chinh-phu-ngam-khuc"
     },
     {
         "id": "cung-oan-ngam-khuc",
@@ -486,17 +474,6 @@
         "the_loai": ["Ngâm khúc", "Song thất lục bát"],
         "era": "TK 18",
         "script": "Chữ Nôm"
-    },
-    {
-        "id": "tho-duong-luat",
-        "title": "Thơ Đường luật",
-        "type": "the-loai",
-        "author": "Văn học Trung Hoa / Việt Nam",
-        "desc": "Thể thơ có niêm luật chặt chẽ, thường gồm 4 câu (tứ tuyệt) hoặc 8 câu (bát cú).",
-        "loai_hinh": "thi-ca",
-        "the_loai": ["Thơ Đường luật", "Thể thức thơ Đông Á"],
-        "era": "Nhà Đường",
-        "script": "Chữ Hán / Nôm"
     },
     {
         "id": "thu-dieu",
@@ -518,7 +495,8 @@
         "loai_hinh": "thi-ca",
         "the_loai": ["Thất ngôn tứ tuyệt", "Thơ Đường luật", "Thơ trữ tình"],
         "era": "TK 19",
-        "script": "Chữ Nôm"
+        "script": "Chữ Nôm",
+        "encyclopedia_id": "banh-troi-nuoc"
     },
     {
         "id": "qua-deo-ngang",
@@ -606,7 +584,8 @@
         "loai_hinh": "thi-ca",
         "the_loai": ["Thơ tự do", "Thơ Mới", "Thơ tình yêu"],
         "era": "1938",
-        "script": "Quốc ngữ"
+        "script": "Quốc ngữ",
+        "encyclopedia_id": "voi-vang"
     },
     {
         "id": "tay-tien",
@@ -617,7 +596,8 @@
         "loai_hinh": "thi-ca",
         "the_loai": ["Thơ tự do", "Thơ kháng chiến", "Thơ trữ tình"],
         "era": "1948",
-        "script": "Quốc ngữ"
+        "script": "Quốc ngữ",
+        "encyclopedia_id": "tay-tien"
     },
     {
         "id": "mat-duong-khat-vong",
@@ -642,28 +622,6 @@
         "script": "Quốc ngữ"
     },
     {
-        "id": "van-xuoi",
-        "title": "Văn xuôi",
-        "type": "the-loai",
-        "author": "Đa tác giả",
-        "desc": "Loại hình văn học viết bằng ngôn ngữ tự sự, không có niêm luật như thơ.",
-        "loai_hinh": "van-xuoi",
-        "the_loai": ["Văn xuôi", "Tự sự"],
-        "era": "Đa thời đại",
-        "script": "Đa ngôn ngữ"
-    },
-    {
-        "id": "tieu-thuyet",
-        "title": "Tiểu thuyết",
-        "type": "the-loai",
-        "author": "Đa tác giả",
-        "desc": "Thể loại tự sự dài hơi, có cốt truyện phức tạp và nhiều nhân vật.",
-        "loai_hinh": "van-xuoi",
-        "the_loai": ["Tiểu thuyết", "Tự sự"],
-        "era": "Đa thời đại",
-        "script": "Đa ngôn ngữ"
-    },
-    {
         "id": "chi-pheo",
         "title": "Chí Phèo",
         "type": "tac-pham",
@@ -672,7 +630,8 @@
         "loai_hinh": "van-xuoi",
         "the_loai": ["Truyện ngắn", "Văn học hiện thực phê phán"],
         "era": "1941",
-        "script": "Quốc ngữ"
+        "script": "Quốc ngữ",
+        "encyclopedia_id": "chi-pheo"
     },
     {
         "id": "so-do",
@@ -683,7 +642,8 @@
         "loai_hinh": "van-xuoi",
         "the_loai": ["Tiểu thuyết", "Văn học châm biếm", "Hiện thực phê phán"],
         "era": "1936",
-        "script": "Quốc ngữ"
+        "script": "Quốc ngữ",
+        "encyclopedia_id": "so-do"
     },
     {
         "id": "tam-long-vang",
@@ -730,17 +690,6 @@
         "script": "Quốc ngữ"
     },
     {
-        "id": "tieu-thuyet-chuong-hoi",
-        "title": "Tiểu thuyết chương hồi",
-        "type": "the-loai",
-        "author": "Văn học cổ điển",
-        "desc": "Thể loại tiểu thuyết dài kỳ, mỗi chương hồi thường kết thúc bằng một tình tiết gây tò mò.",
-        "loai_hinh": "van-xuoi",
-        "the_loai": ["Tiểu thuyết chương hồi", "Tự sự"],
-        "era": "Thời Trung đại",
-        "script": "Đa ngôn ngữ"
-    },
-    {
         "id": "tam-quoc-dien-nghia",
         "title": "Tam Quốc Diễn Nghĩa",
         "type": "tac-pham",
@@ -749,7 +698,8 @@
         "loai_hinh": "van-xuoi",
         "the_loai": ["Tiểu thuyết chương hồi", "Tiểu thuyết lịch sử"],
         "era": "Nhà Minh",
-        "script": "Chữ Hán"
+        "script": "Chữ Hán",
+        "encyclopedia_id": "tam-quoc-dien-nghia"
     },
     {
         "id": "thuy-hu",
@@ -760,7 +710,8 @@
         "loai_hinh": "van-xuoi",
         "the_loai": ["Tiểu thuyết chương hồi", "Tiểu thuyết võ hiệp"],
         "era": "Nhà Minh",
-        "script": "Chữ Hán"
+        "script": "Chữ Hán",
+        "encyclopedia_id": "thuy-hu"
     },
     {
         "id": "tay-du-ky",
@@ -771,7 +722,8 @@
         "loai_hinh": "van-xuoi",
         "the_loai": ["Tiểu thuyết chương hồi", "Tiểu thuyết thần ma"],
         "era": "Nhà Minh",
-        "script": "Chữ Hán"
+        "script": "Chữ Hán",
+        "encyclopedia_id": "tay-du-ky"
     },
     {
         "id": "hong-lau-mong",
@@ -782,7 +734,8 @@
         "loai_hinh": "van-xuoi",
         "the_loai": ["Tiểu thuyết chương hồi", "Tiểu thuyết gia đình", "Tiểu thuyết tâm lý"],
         "era": "Nhà Thanh",
-        "script": "Chữ Hán"
+        "script": "Chữ Hán",
+        "encyclopedia_id": "hong-lau-mong"
     },
     {
         "id": "hoang-le-nhat-thong-chi",
@@ -873,17 +826,6 @@
         "script": "Tiếng Nga"
     },
     {
-        "id": "ky-khao-cuu",
-        "title": "Ký & Khảo cứu",
-        "type": "the-loai",
-        "author": "Đa tác giả",
-        "desc": "Các thể loại văn học phi hư cấu, ghi chép sự thật hoặc nghiên cứu chuyên sâu.",
-        "loai_hinh": "ky-khao-cuu",
-        "the_loai": ["Ký", "Khảo cứu", "Phi hư cấu"],
-        "era": "Đa thời đại",
-        "script": "Đa ngôn ngữ"
-    },
-    {
         "id": "thuong-kinh-ky-su",
         "title": "Thượng Kinh Ký Sự",
         "type": "tac-pham",
@@ -961,17 +903,6 @@
         "script": "Quốc ngữ"
     },
     {
-        "id": "kich-san-khau",
-        "title": "Kịch & Sân khấu",
-        "type": "the-loai",
-        "author": "Đa tác giả",
-        "desc": "Loại hình văn học nghệ thuật dành cho biểu diễn trên sân khấu.",
-        "loai_hinh": "kich-san-khau",
-        "the_loai": ["Kịch", "Sân khấu"],
-        "era": "Đa thời đại",
-        "script": "Đa ngôn ngữ"
-    },
-    {
         "id": "hamlet",
         "title": "Hamlet",
         "type": "tac-pham",
@@ -980,7 +911,8 @@
         "loai_hinh": "kich-san-khau",
         "the_loai": ["Bi kịch", "Kịch thơ", "Kịch Phục Hưng"],
         "era": "TK 16-17",
-        "script": "Tiếng Anh"
+        "script": "Tiếng Anh",
+        "encyclopedia_id": "hamlet"
     },
     {
         "id": "quan-am-thi-kinh",
@@ -991,7 +923,8 @@
         "loai_hinh": "kich-san-khau",
         "the_loai": ["Chèo", "Sân khấu truyền thống Việt Nam"],
         "era": "Không rõ",
-        "script": "Chữ Nôm"
+        "script": "Chữ Nôm",
+        "encyclopedia_id": "quan-am-thi-kinh"
     },
     {
         "id": "son-hau",
@@ -1071,17 +1004,6 @@
         "script": "Truyền miệng"
     },
     {
-        "id": "am-nhac-mua",
-        "title": "Âm nhạc & Múa",
-        "type": "the-loai",
-        "author": "Đa tác giả",
-        "desc": "Các loại hình nghệ thuật biểu diễn âm thanh và chuyển động cơ thể.",
-        "loai_hinh": "am-nhac-mua",
-        "the_loai": ["Âm nhạc", "Múa"],
-        "era": "Đa thời đại",
-        "script": "Đa ngôn ngữ"
-    },
-    {
         "id": "da-co-hoai-lang",
         "title": "Dạ Cổ Hoài Lang",
         "type": "tac-pham",
@@ -1090,7 +1012,8 @@
         "loai_hinh": "am-nhac-mua",
         "the_loai": ["Đờn ca tài tử", "Vọng cổ", "Âm nhạc truyền thống Việt Nam"],
         "era": "Đầu TK 20",
-        "script": "Quốc ngữ"
+        "script": "Quốc ngữ",
+        "encyclopedia_id": "da-co-hoai-lang"
     },
     {
         "id": "nha-nhac-cung-dinh-hue",
@@ -1126,17 +1049,6 @@
         "script": "Chữ Nôm"
     },
     {
-        "id": "my-thuat",
-        "title": "Mỹ thuật & Hội họa",
-        "type": "the-loai",
-        "author": "Đa tác giả",
-        "desc": "Các loại hình nghệ thuật thị giác như hội họa, điêu khắc, đồ họa.",
-        "loai_hinh": "my-thuat",
-        "the_loai": ["Mỹ thuật", "Hội họa"],
-        "era": "Đa thời đại",
-        "script": "Đa ngôn ngữ"
-    },
-    {
         "id": "tranh-dong-ho",
         "title": "Tranh Đông Hồ",
         "type": "the-loai",
@@ -1145,7 +1057,8 @@
         "loai_hinh": "my-thuat",
         "the_loai": ["Tranh khắc gỗ", "Mỹ thuật dân gian"],
         "era": "Thời phong kiến",
-        "script": "Mộc bản"
+        "script": "Mộc bản",
+        "encyclopedia_id": "tranh-dong-ho"
     },
     {
         "id": "tranh-hang-trong",
@@ -1212,138 +1125,6 @@
         "the_loai": ["Tranh sơn dầu", "Mỹ thuật Đông Dương"],
         "era": "1943",
         "script": "Sơn dầu"
-    },
-    {
-        "id": "van-chinh-luan",
-        "title": "Văn chính luận & Hành chính",
-        "type": "the-loai",
-        "author": "Đa tác giả",
-        "desc": "Các thể loại văn bản chính trị, hành chính, nghị luận thời phong kiến (Cáo, Hịch, Chiếu, Biểu...).",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Văn chính luận", "Cáo", "Hịch", "Chiếu"],
-        "era": "Trung đại",
-        "script": "Chữ Hán / Nôm"
-    },
-    {
-        "id": "hich-tuong-si",
-        "title": "Hịch Tướng Sĩ",
-        "type": "tac-pham",
-        "author": "Trần Quốc Tuấn",
-        "desc": "Lời kêu gọi quân sĩ thức tỉnh lòng tự tôn dân tộc và chống giặc Nguyên Mông.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Hịch", "Văn chính luận"],
-        "era": "Nhà Trần",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "binh-ngo-dai-cao",
-        "title": "Bình Ngô Đại Cáo",
-        "type": "tac-pham",
-        "author": "Nguyễn Trãi",
-        "desc": "Bản tuyên ngôn độc lập thứ hai, khẳng định nền độc lập và tư tưởng nhân nghĩa.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Cáo", "Văn chính luận"],
-        "era": "Nhà Lê sơ",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "chieu-doi-do",
-        "title": "Chiếu Dời Đô",
-        "type": "tac-pham",
-        "author": "Lý Công Uẩn",
-        "desc": "Mệnh lệnh dời đô từ Hoa Lư về Thăng Long, thể hiện tầm nhìn chiến lược.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Chiếu", "Văn chính luận"],
-        "era": "Nhà Lý",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "chieu-cau-hien",
-        "title": "Chiếu Cầu Hiền",
-        "type": "tac-pham",
-        "author": "Ngô Thì Nhậm",
-        "desc": "Kêu gọi bậc hiền tài ra giúp nước, phục hưng triều đại mới.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Chiếu", "Văn chính luận"],
-        "era": "Nhà Tây Sơn",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "phu-song-bach-dang",
-        "title": "Phú Sông Bạch Đằng",
-        "type": "tac-pham",
-        "author": "Trương Hán Siêu",
-        "desc": "Hoài niệm chiến công lịch sử và ca ngợi truyền thống yêu nước hào hùng.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Phú", "Văn chính luận"],
-        "era": "Nhà Trần",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "dien-tich",
-        "title": "Điển tích & Thành ngữ",
-        "type": "the-loai",
-        "author": "Dân gian / Cổ nhân",
-        "desc": "Các câu chuyện cổ, thành ngữ có nguồn gốc văn hóa sâu sắc.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Điển tích", "Thành ngữ"],
-        "era": "Cổ đại",
-        "script": "Đa ngôn ngữ"
-    },
-    {
-        "id": "san-lai",
-        "title": "Sân Lai",
-        "type": "tac-pham",
-        "author": "Khuyết danh",
-        "desc": "Lão Lai Tử mặc áo trẻ con múa vui để cha mẹ cười. Biểu tượng lòng hiếu thảo.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Điển tích", "Thành ngữ Hán Việt"],
-        "era": "Thời Xuân Thu",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "tai-ong-that-ma",
-        "title": "Tái Ông Thất Mã",
-        "type": "tac-pham",
-        "author": "Hoài Nam Tử",
-        "desc": "Ông lão mất ngựa, rủi ro dẫn đến may, may lại biến thành họa.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Điển tích", "Ngụ ngôn triết lý"],
-        "era": "Thời Tây Hán",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "nguu-lang-chuc-nu",
-        "title": "Ngưu Lang - Chức Nữ",
-        "type": "tac-pham",
-        "author": "Truyện dân gian",
-        "desc": "Tình yêu đôi lứa bị chia cắt bởi sông Ngân, gặp nhau ngày Thất tịch.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Điển tích", "Thần thoại"],
-        "era": "Truyền thuyết",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "guong-vo-lai-lanh",
-        "title": "Gương Vỡ Lại Lành",
-        "type": "tac-pham",
-        "author": "Khuyết danh",
-        "desc": "Vợ chồng chia ly mỗi người giữ nửa gương, sau trùng phùng ghép lại.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Điển tích", "Thành ngữ"],
-        "era": "Thời Tùy Đường",
-        "script": "Chữ Hán"
-    },
-    {
-        "id": "my-chau-trong-thuy",
-        "title": "Mỵ Châu - Trọng Thủy",
-        "type": "tac-pham",
-        "author": "Dân gian",
-        "desc": "Bi kịch tình yêu lồng trong bi kịch mất nước do nhẹ dạ cả tin.",
-        "loai_hinh": "mo-rong",
-        "the_loai": ["Điển tích", "Truyền thuyết"],
-        "era": "An Dương Vương",
-        "script": "Truyền miệng"
     },
     {
         "id": "got-chan-achilles",
