@@ -24,9 +24,9 @@
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (v=1010 để ép xóa cache) -->
+    <!-- LIÊN KẾT FILE CSS (v=1014 để ép xóa cache) -->
     <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=1010">
+    <link rel="stylesheet" href="style.css?v=1014">
 </head>
 <body>
 
@@ -158,6 +158,8 @@
                 <button class="filter-btn" onclick="filterHeritage('ca-dao', this)">Ca dao - Tục ngữ</button>
                 <button class="filter-btn" onclick="filterHeritage('dien-tich', this)">Điển tích</button>
                 <button class="filter-btn" onclick="filterHeritage('truyen-cuoi', this)">Truyện cười</button>
+                <!-- Nút lọc mới cho nhóm Ngụ ngôn -->
+                <button class="filter-btn" onclick="filterHeritage('ngu-ngon', this)">Ngụ ngôn</button>
             </div>
             
             <!-- Vùng chứa động: JS sẽ tự động đổ các thẻ (card) tác phẩm vào đây -->
@@ -171,7 +173,7 @@
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Cẩm nang học thuật văn chương</p>
             
-            <!-- Vùng chứa động: JS sẽ tự động đổ 9 Quyển sách vào đây -->
+            <!-- Vùng chứa động: JS sẽ tự động đổ 18 Quyển sách vào đây -->
             <div id="encyclopedia-container"></div>
         </section>
 
@@ -199,12 +201,12 @@
     <!-- ========================================== -->
     <!-- Thứ tự tải file cực kỳ quan trọng: Dữ liệu trước, Logic sau -->
     
-    <!-- 1. Tải 3 file dữ liệu (v=1010 để ép xóa cache) -->
-    <script src="data-heritage.js?v=1010"></script>
-    <script src="data-encyclopedia.js?v=1010"></script>
-    <script src="data-quotes.js?v=1010"></script>
+    <!-- 1. Tải 3 file dữ liệu (v=1014 để ép xóa cache) -->
+    <script src="data-heritage.js?v=1014"></script>
+    <script src="data-encyclopedia.js?v=1014"></script>
+    <script src="data-quotes.js?v=1014"></script>
     
-    <!-- 2. Tải file logic xử lý sau cùng (v=1010 để ép xóa cache) -->
-    <script src="script.js?v=1010"></script>
+    <!-- 2. Tải file logic xử lý sau cùng (v=1014 để ép xóa cache) -->
+    <script src="script.js?v=1014"></script>
 </body>
 </html>
