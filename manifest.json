@@ -1,0 +1,47 @@
+{
+  "name": "VĂN ĐẠO — Đại Bách Khoa Toàn Thư",
+  "short_name": "Văn Đạo",
+  "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf9f6",
+  "theme_color": "#7da89e",
+  "lang": "vi",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "logo_trang.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo_trang.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo_trang.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "logo_trang.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "khung_sang.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Trang chủ Văn Đạo"
+    }
+  ]
+}
