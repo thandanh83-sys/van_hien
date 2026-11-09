@@ -1,8 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V45 - SMART LINKS)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V46)
    Tác giả: Văn Đạo
-   Cập nhật: Tầng 3 tự động tạo link liên kết đến Bách Khoa (Regex).
-             Giao diện 4 tầng không gạch, 100% SVG.
+   Mô tả: Hệ thống điều khiển trung tâm, quản lý Theme, Render dữ liệu,
+          Động cơ Thi pháp 4 Tầng và Hệ thống Liên kết thông minh.
    ===================================================================== */
 
 /* =====================================================================
@@ -11,7 +11,7 @@
 const ICON_PEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
 const ICON_CLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
 const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
-const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
 const THEME_KEY = 'vandao_theme';
@@ -80,11 +80,20 @@ document.addEventListener('click', (e) => {
 function renderHeritage(filterCategory = 'all') {
     const grid = document.getElementById('heritage-grid');
     if (!grid || typeof HERITAGE_DATA === 'undefined') return;
+    
     const filteredData = filterCategory === 'all' ? HERITAGE_DATA : HERITAGE_DATA.filter(item => item.category === filterCategory);
-    grid.innerHTML = filteredData.map(item => `
+    
+    grid.innerHTML = filteredData.map(item => {
+        // Tạo nhãn cảnh báo nếu có vấn đề học thuật
+        let statusBadge = '';
+        if (item.attributionStatus === 'uncertain' || item.translatorStatus === 'disputed') {
+            statusBadge = `<span style="font-size:0.65rem; background:rgba(212,175,55,0.2); color:var(--accent-gold); padding:2px 8px; border-radius:10px; margin-left:10px; font-weight:normal; vertical-align:middle; white-space:nowrap;">Cần kiểm chứng</span>`;
+        }
+        
+        return `
         <div class="heritage-card">
             <span class="h-tag">${item.genre}</span>
-            <h3>${item.title}</h3>
+            <h3>${item.title} ${statusBadge}</h3>
             <div class="h-author">${ICON_PEN} ${item.author}</div>
             <p>${item.desc}</p>
             <div class="h-meta">
@@ -92,7 +101,7 @@ function renderHeritage(filterCategory = 'all') {
                 <span>${ICON_SCROLL} ${item.script}</span>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function filterHeritage(category, btnElement) {
@@ -179,13 +188,12 @@ const POETRY_ANALYZER = (() => {
         return { form: `Thơ ${c} chữ`, confidence: 'trung bình', note: `${n} câu × ${c} chữ` };
     }
 
-    // Hàm phân tích vần: Đánh giá TẤT CẢ các cặp để hiển thị đúng/sai
     function checkRhymeDetails(lines) {
         const result = { chan: [], lung: [], lien: [], cach: [] };
         const lastSyl = lines.map(l => l.lastSyllable);
         const rhymeParts = lastSyl.map(s => getRhymePart(s));
 
-        // 1. Vần chân: Đánh giá các cặp (1-2, 1-3, 1-4, 2-3, 2-4, 3-4)
+        // 1. Vần chân
         for (let i = 0; i < lines.length; i++) {
             for (let j = i + 1; j < lines.length; j++) {
                 const match = (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== '');
@@ -197,7 +205,7 @@ const POETRY_ANALYZER = (() => {
             }
         }
 
-        // 2. Vần lưng: Cuối câu i với các chữ giữa câu i+1
+        // 2. Vần lưng
         for (let i = 0; i < lines.length - 1; i++) {
             const endPart = rhymeParts[i];
             const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || [];
@@ -214,7 +222,6 @@ const POETRY_ANALYZER = (() => {
                     hasMatch = true;
                 }
             }
-            // Nếu không tìm thấy vần lưng nào
             if (!hasMatch && endPart) {
                 result.lung.push({
                     text: `Cuối câu ${i+1} ("${lastSyl[i]}") không có vần lưng ở câu ${i+2}`,
@@ -224,7 +231,7 @@ const POETRY_ANALYZER = (() => {
             }
         }
 
-        // 3. Vần liền: Cặp liên tiếp (1-2, 3-4, ...)
+        // 3. Vần liền
         for (let i = 0; i < lines.length - 1; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== '');
             result.lien.push({
@@ -234,7 +241,7 @@ const POETRY_ANALYZER = (() => {
             });
         }
 
-        // 4. Vần cách: Cách 1 câu (1-3, 2-4, ...)
+        // 4. Vần cách
         for (let i = 0; i < lines.length - 2; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== '');
             result.cach.push({
@@ -276,7 +283,6 @@ const POETRY_ANALYZER = (() => {
 
     function buildQuestions(form, rhymes, symbols) {
         const qs = [];
-        // Chuẩn hóa cú pháp "Xem Quyển ..., mục ..." để dễ tạo link
         if (form.confidence !== 'cao') qs.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay chỉ là ngẫu nhiên? (Xem Quyển I, mục 1.3)`);
         if (rhymes.details.chan.length === 0) qs.push(`Không thấy vần chân rõ ràng giữa các câu. Tác giả có chủ ý dùng vần lỏng, hay đây là thơ tự do?`);
         if (symbols.length > 0) qs.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này, nó đang gợi nghĩa nào? (Xem Quyển ${symbols[0].vol}, mục ${symbols[0].sec})`);
@@ -323,7 +329,7 @@ function executePipeline() {
         </div>
     `).join('');
 
-    // --- TẦNG 1: BỐ CỤC 2 CỘT, KHÔNG GẠCH, DÙNG SVG ---
+    // --- TẦNG 1: BỐ CỤC 2 CỘT, KHÔNG GẠCH ---
     const renderRhymeList = (title, arr, color) => {
         if (arr.length === 0) return '';
         const list = arr.map(item => `
@@ -365,7 +371,7 @@ function executePipeline() {
 
     // --- TẦNG 3: TỰ ĐỘNG TẠO LINK LIÊN KẾT ---
     const tier3 = report.questions.map(q => {
-        // Tìm cụm "(Xem Quyển ..., mục ...)" và thay bằng thẻ span có thể click
+        // Regex tìm cụm "(Xem Quyển ..., mục ...)" để biến thành thẻ span click được
         const formattedQ = q.replace(/\(Xem Quyển ([IVX]+), mục ([\d.]+)\)/g, (match, vol, sec) => {
             return `(<span class="volume-link" onclick="gotoEncyclopedia('${vol}', '${sec}')">Xem Quyển ${vol}, mục ${sec}</span>)`;
         });
@@ -406,6 +412,7 @@ function executePipeline() {
 
 /**
  * Hàm phụ trợ: Điều hướng tới đúng Quyển và đúng Mục trong Bách Khoa.
+ * Tự động mở Quyển, cuộn mượt tới thẻ h4 tương ứng và highlight nó.
  */
 function gotoEncyclopedia(volNum, secNum) {
     switchView('encyclopedia');
@@ -448,7 +455,9 @@ let canvas, ctx;
 let ripples = [];
 let isDarkTheme = false;
 
-function updateCanvasColors() { isDarkTheme = document.body.classList.contains('dark-mode'); }
+function updateCanvasColors() { 
+    isDarkTheme = document.body.classList.contains('dark-mode'); 
+}
 
 function initCursorGlow() {
     if (window.matchMedia('(pointer: fine)').matches) {
@@ -516,5 +525,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initWaterCanvas();
     initDewdrops();
     
-    console.log("VĂN ĐẠO V45: Hệ thống đã sẵn sàng! Smart Links đã được kích hoạt.");
+    console.log("VĂN ĐẠO V46: Hệ thống đã sẵn sàng! Trí tuệ nhân loại đã được kết nối.");
 });
