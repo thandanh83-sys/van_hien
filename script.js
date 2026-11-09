@@ -1,9 +1,10 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V54 - FIX LOAD DATA)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V55 - SAFARI IOS FIX)
    Tác giả: Văn Đạo
-   [V54 — Cập nhật] Sửa lỗi "Không thể tải dữ liệu" trên Safari/Mobile:
-     - Thêm Cache-Buster (?v=timestamp) vào fetch JSON.
-     - Báo lỗi chi tiết từng file nếu fetch thất bại.
+   [V55 — Cập nhật] Sửa lỗi "The string did not match..." trên Safari:
+     - Đổi đường dẫn fetch thành './file.json' để Safari hiểu đúng.
+     - Đọc dạng text() trước khi parse JSON để bắt lỗi chuẩn xác.
+     - Thêm thông báo lỗi chi tiết từng file.
    ===================================================================== */
 
 /* =====================================================================
@@ -16,7 +17,6 @@ const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
 const THEME_KEY = 'vandao_theme';
-
 const NEEDS_REVIEW_IDS = ['chinh-phu-ngam-khuc'];
 
 let HERITAGE_DATA = [];
@@ -572,27 +572,38 @@ function initDewdrops() {
 }
 
 /* =====================================================================
-   MODULE 11: KHỞI CHẠY & TẢI DỮ LIỆU TỰ ĐỘNG (ĐÃ FIX LỖI CACHE)
+   MODULE 11: TẢI DỮ LIỆU TỰ ĐỘNG (FIX LỖI SAFARI IOS)
    ===================================================================== */
 async function loadAllData() {
     try {
-        // BƯỚC QUAN TRỌNG: Thêm ?v=timestamp để chống cache trên Safari/Mobile
-        const cb = `?v=${new Date().getTime()}`;
+        // SỬA LỖI SAFARI: Dùng đường dẫn tương đối './' và đọc dạng text trước
+        const fetchOptions = { cache: "no-store" }; 
         
         const [resHeritage, resEncyclopedia, resQuotes] = await Promise.all([
-            fetch('data-heritage.json' + cb),
-            fetch('data-encyclopedia.json' + cb),
-            fetch('data-quotes.json' + cb)
+            fetch('./data-heritage.json', fetchOptions),
+            fetch('./data-encyclopedia.json', fetchOptions),
+            fetch('./data-quotes.json', fetchOptions)
         ]);
 
-        // Kiểm tra xem file có tải thành công không (tránh lỗi 404 âm thầm)
-        if (!resHeritage.ok) throw new Error(`Không tìm thấy data-heritage.json (Mã lỗi: ${resHeritage.status})`);
-        if (!resEncyclopedia.ok) throw new Error(`Không tìm thấy data-encyclopedia.json (Mã lỗi: ${resEncyclopedia.status})`);
-        if (!resQuotes.ok) throw new Error(`Không tìm thấy data-quotes.json (Mã lỗi: ${resQuotes.status})`);
+        // Bắt lỗi 404 (Không tìm thấy file) một cách tường minh
+        if (!resHeritage.ok) throw new Error(`Không tìm thấy file data-heritage.json (Mã HTTP: ${resHeritage.status})`);
+        if (!resEncyclopedia.ok) throw new Error(`Không tìm thấy file data-encyclopedia.json (Mã HTTP: ${resEncyclopedia.status})`);
+        if (!resQuotes.ok) throw new Error(`Không tìm thấy file data-quotes.json (Mã HTTP: ${resQuotes.status})`);
 
-        HERITAGE_DATA = await resHeritage.json();
-        ENCYCLOPEDIA_DATA = await resEncyclopedia.json();
-        QUOTES_DATA = await resQuotes.json();
+        // Đọc text trước để tránh lỗi "String did not match..." của Safari
+        const textHeritage = await resHeritage.text();
+        const textEncyclopedia = await resEncyclopedia.text();
+        const textQuotes = await resQuotes.text();
+
+        // Chuyển đổi sang JSON
+        try { HERITAGE_DATA = JSON.parse(textHeritage); } 
+        catch (e) { throw new Error("File data-heritage.json bị lỗi cú pháp JSON."); }
+
+        try { ENCYCLOPEDIA_DATA = JSON.parse(textEncyclopedia); } 
+        catch (e) { throw new Error("File data-encyclopedia.json bị lỗi cú pháp JSON."); }
+
+        try { QUOTES_DATA = JSON.parse(textQuotes); } 
+        catch (e) { throw new Error("File data-quotes.json bị lỗi cú pháp JSON."); }
 
         // Khởi chạy giao diện
         loadSavedTheme();
@@ -609,14 +620,15 @@ async function loadAllData() {
         initWaterCanvas();
         initDewdrops();
 
-        console.log("VĂN ĐẠO V54: Đã tải xong toàn bộ dữ liệu từ JSON!");
+        console.log("VĂN ĐẠO V55: Tải dữ liệu thành công!");
 
     } catch (error) {
-        console.error("LỖI TẢI DỮ LIỆU: ", error);
-        alert("Lỗi tải dữ liệu:\n" + error.message + "\n\nVui lòng kiểm tra lại tên file JSON trên GitHub (phân biệt chữ hoa/chữ thường).");
+        console.error("LỖI: ", error);
+        alert("Lỗi tải dữ liệu:\n\n" + error.message);
     }
 }
 
+// Kích hoạt khi DOM sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
     loadAllData();
 });
