@@ -28,17 +28,20 @@
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ================================================================= -->
-    <!-- 4. LIÊN KẾT FILE CSS (?v=1300 để ép xóa cache)                    -->
-    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 1300 thành số khác  -->
+    <!-- 4. LIÊN KẾT FILE CSS (?v=1370 để ép xóa cache)                    -->
+    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 1370 thành số khác  -->
+    <!-- để trình duyệt không lấy code cũ trong bộ nhớ đệm.                 -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=1300">
+    <link rel="stylesheet" href="style.css?v=1370">
 </head>
 <body>
 
     <!-- ================================================================= -->
     <!-- 5. LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT, HẠT SƯƠNG)             -->
-    <!-- Các lớp này nằm dưới cùng và pointer-events: none                 -->
+    <!-- Các lớp này nằm dưới cùng và pointer-events: none để không cản     -->
+    <!-- trở việc click chuột vào nội dung chính.                          -->
     <!-- ================================================================= -->
+    
     <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click -->
     <canvas id="water-canvas" aria-hidden="true"></canvas>
     
@@ -50,11 +53,14 @@
 
     <!-- ================================================================= -->
     <!-- 6. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                          -->
+    <!-- Giới hạn chiều rộng (max-width) để nội dung không bị dàn trải     -->
+    <!-- quá mức trên màn hình máy tính.                                   -->
     <!-- ================================================================= -->
     <div class="container">
         
         <!-- ============================================================= -->
         <!-- 6.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
+        <!-- Cố định trên cùng (fixed top), có hiệu ứng kính mờ             -->
         <!-- ============================================================= -->
         <nav class="navbar">
             <!-- Logo chữ Văn Đạo (Bấm vào để về Trang Chủ) -->
@@ -63,25 +69,25 @@
             <!-- Khối chứa các nút Menu (Sẽ xổ xuống dạng Hamburger trên Mobile) -->
             <div class="nav-links" id="navMenu">
                 
-                <!-- Nút Trang Chủ -->
+                <!-- Nút Trang Chủ (Icon ngôi nhà) -->
                 <button class="nav-btn active" onclick="switchView('home')" id="nav-home">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                     Trang Chủ
                 </button>
                 
-                <!-- Nút Văn Hiến (Chứa danh mục Tác phẩm & Thể loại) -->
+                <!-- Nút Văn Hiến (Icon cuốn sách - Chứa danh mục Tác phẩm & Thể loại) -->
                 <button class="nav-btn" onclick="switchView('heritage')" id="nav-heritage">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                     Văn Hiến
                 </button>
                 
-                <!-- Nút Đại Bách Khoa (Chứa các Chuyên khảo chi tiết) -->
+                <!-- Nút Đại Bách Khoa (Icon sách mở - Chứa các Chuyên khảo chi tiết) -->
                 <button class="nav-btn" onclick="switchView('encyclopedia')" id="nav-encyclopedia">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     Bách Khoa
                 </button>
                 
-                <!-- Nút Thi Pháp Học (Phân tích thơ 4 tầng) -->
+                <!-- Nút Thi Pháp Học (Icon cây bút - Phân tích thơ 4 tầng) -->
                 <button class="nav-btn" onclick="switchView('analyze')" id="nav-analyze">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                     Thi Pháp
@@ -160,7 +166,7 @@
             <p class="page-desc">Danh mục Tác phẩm & Thể loại</p>
             
             <!-- THANH TÌM KIẾM -->
-            <!-- oninput="searchHeritage()" giúp lọc dữ liệu ngay khi gõ phím (realtime) -->
+            <!-- oninput="searchHeritage()" giúp lọc dữ liệu ngay khi gõ phím -->
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Tìm tên tác phẩm, thể loại..." oninput="searchHeritage()">
             </div>
@@ -217,8 +223,8 @@
 
     <!-- ================================================================= -->
     <!-- 7. SCRIPTS (BỘ NÃO XỬ LÝ LOGIC CỦA TOÀN BỘ TRANG WEB)             -->
-    <!-- (?v=1300 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
+    <!-- (?v=1370 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
     <!-- ================================================================= -->
-    <script src="script.js?v=1300"></script>
+    <script src="script.js?v=1370"></script>
 </body>
 </html>
