@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 =====================================================================
-VĂN ĐẠO ENGINE - DATA TOOL CLI (ULTIMATE EDITION)
+VĂN ĐẠO ENGINE - DATA TOOL CLI (ULTIMATE EDITION V2)
 =====================================================================
 Tác giả: Văn Đạo
 Mô tả: Công cụ dòng lệnh (CLI) quản lý, kiểm tra và thống kê dữ liệu
@@ -34,10 +34,10 @@ from collections import Counter
 # =====================================================================
 BASE_DIR = Path(__file__).parent
 FILES = {
-    "theory": BASE_DIR / "data-theory.json",
-    "encyclopedia": BASE_DIR / "data-encyclopedia.json",
-    "works": BASE_DIR / "data-works.json",
-    "quotes": BASE_DIR / "data-quotes.json"
+    "theory": BASE_DIR / "data-ly-thuyet.json",
+    "authors": BASE_DIR / "data-tac-gia.json",
+    "works": BASE_DIR / "data-tac-pham.json",
+    "quotes": BASE_DIR / "data-danh-ngon.json"
 }
 
 # Mã màu ANSI cho Terminal (Không dùng Emoji, chỉ dùng màu chữ)
@@ -98,7 +98,7 @@ def cmd_stats():
             categories = Counter(item.get("loai_hinh", "Không rõ") for item in data)
             top_cat = ", ".join([f"{k} ({v})" for k, v in categories.most_common(3)])
             extra_info = f" | Phân bố: {top_cat}..."
-        elif key == "encyclopedia":
+        elif key == "authors":
             extra_info = " | Hồ sơ tác giả"
         elif key == "theory":
             extra_info = " | Quyển lý thuyết"
@@ -150,7 +150,14 @@ def cmd_validate():
             print(f"  {C_RED}[LỖI]{C_RESET} Quyển lý thuyết '{item.get('title', 'Không tên')}' thiếu trường id/title/content.")
             has_error = True
 
-    # 3. Kiểm tra file Quotes (Danh ngôn)
+    # 3. Kiểm tra file Authors (Tác giả)
+    authors = load_json(FILES["authors"])
+    for item in authors:
+        if "id" not in item or "title" not in item or "content" not in item:
+            print(f"  {C_RED}[LỖI]{C_RESET} Hồ sơ tác giả '{item.get('title', 'Không tên')}' thiếu trường id/title/content.")
+            has_error = True
+
+    # 4. Kiểm tra file Quotes (Danh ngôn)
     quotes = load_json(FILES["quotes"])
     for item in quotes:
         if "text" not in item or "author" not in item:
@@ -180,6 +187,14 @@ def cmd_search(keyword: str):
             print(f"    {C_GRAY}ID: {item.get('id')}{C_RESET}")
             found_count += 1
 
+    # Tìm trong Tác giả (Hồ sơ)
+    authors = load_json(FILES["authors"])
+    for item in authors:
+        if kw_lower in item.get("title", "").lower() or kw_lower in item.get("content", "").lower():
+            print(f"  {C_GREEN}[TÁC GIẢ]{C_RESET} {item.get('title')}")
+            print(f"    {C_GRAY}ID: {item.get('id')}{C_RESET}")
+            found_count += 1
+
     # Tìm trong Lý thuyết
     theory = load_json(FILES["theory"])
     for item in theory:
@@ -202,7 +217,7 @@ def cmd_search(keyword: str):
 def cmd_add(data_type: str):
     """Thêm một mục từ mới thông qua giao diện dòng lệnh."""
     if data_type not in FILES:
-        print(f"{C_RED}[LỖI]{C_RESET} Loại dữ liệu không hợp lệ. Chọn: theory, encyclopedia, works, quotes")
+        print(f"{C_RED}[LỖI]{C_RESET} Loại dữ liệu không hợp lệ. Chọn: theory, authors, works, quotes")
         return
 
     print(f"\n{C_TEAL}======================================================{C_RESET}")
@@ -233,7 +248,7 @@ def cmd_add(data_type: str):
         new_item["title"] = input("  Nhập Tên Quyển: ").strip()
         new_item["content"] = input("  Nhập Nội dung (HTML): ").strip()
 
-    elif data_type == "encyclopedia":
+    elif data_type == "authors":
         new_item["id"] = input("  Nhập ID (vd: tac-gia-abc): ").strip()
         new_item["title"] = input("  Nhập Tên Tác giả: ").strip()
         new_item["content"] = input("  Nhập Tiểu sử & Sự nghiệp (HTML): ").strip()
@@ -281,7 +296,7 @@ def main() -> int:
 
     # Lệnh: add
     parser_add = subparsers.add_parser("add", help="Thêm mới một mục từ vào file JSON")
-    parser_add.add_argument("--type", "-t", type=str, required=True, choices=["theory", "encyclopedia", "works", "quotes"], help="Loại dữ liệu muốn thêm")
+    parser_add.add_argument("--type", "-t", type=str, required=True, choices=["theory", "authors", "works", "quotes"], help="Loại dữ liệu muốn thêm")
 
     args = parser.parse_args()
 
