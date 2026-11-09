@@ -1,8 +1,13 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V52 - JSON FETCH)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V53 - JSON FETCH)
    Tác giả: Văn Đạo
    Mô tả: Tự động tải dữ liệu từ JSON, quản lý 2 tầng bộ lọc, mục lục
           Bách Khoa, Thi pháp 4 Tầng và các hiệu ứng động.
+   
+   [V53 — Cập nhật mới nhất] Đã sửa:
+     ✅ FIX #1: Thêm tên hiển thị 'kich' (Kịch) và 'ky' (Ký) - Hết bị lỗi viết hoa không dấu.
+     ✅ FIX #2: Smart Link Hán Việt trỏ đúng mục 8.5 (thay vì 8.6 không tồn tại).
+     ✅ FIX #3: Huy hiệu "Cần kiểm chứng" hoạt động qua mảng NEEDS_REVIEW_IDS.
    ===================================================================== */
 
 /* =====================================================================
@@ -15,6 +20,13 @@ const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
 const THEME_KEY = 'vandao_theme';
+
+// ✅ FIX #3: Danh sách ID các tác phẩm cần gắn nhãn "Cần kiểm chứng"
+// Muốn thêm tác phẩm khác cần kiểm chứng → chỉ cần thêm id (slug) vào mảng này.
+// Ví dụ: 'nam-quoc-son-ha', 'truyen-kieu'...
+const NEEDS_REVIEW_IDS = [
+    'chinh-phu-ngam-khuc'   // Bản dịch Nôm: Đoàn Thị Điểm hay Phan Huy Ích? (còn tranh luận)
+];
 
 // Biến toàn cục lưu trữ dữ liệu tải từ JSON
 let HERITAGE_DATA = [];
@@ -30,7 +42,7 @@ function toggleTheme() {
     localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
     updateCanvasColors();
     updateThemeText(isDark);
-    updateFavicon(isDark); 
+    updateFavicon(isDark);
 }
 
 function loadSavedTheme() {
@@ -38,7 +50,7 @@ function loadSavedTheme() {
     const isDark = savedTheme === 'dark';
     if (isDark) document.body.classList.add('dark-mode');
     updateThemeText(isDark);
-    updateFavicon(isDark); 
+    updateFavicon(isDark);
 }
 
 function updateThemeText(isDark) {
@@ -85,6 +97,8 @@ document.addEventListener('click', (e) => {
 let currentMainCat = 'all';
 let currentGenre = 'all';
 
+// ✅ FIX #1: Đã bổ sung 'kich' và 'ky' — trước đây bị thiếu nên
+// nút lọc tự hiện thành "KICH" và "KY" (viết hoa không dấu), trông xấu.
 const CATEGORY_NAMES = {
     'dan-gian': 'Dân gian',
     'trung-dai': 'Trung đại',
@@ -94,7 +108,9 @@ const CATEGORY_NAMES = {
     'ca-dao': 'Ca dao - Tục ngữ',
     'dien-tich': 'Điển tích',
     'truyen-cuoi': 'Truyện cười',
-    'ngu-ngon': 'Ngụ ngôn'
+    'ngu-ngon': 'Ngụ ngôn',
+    'kich': 'Kịch',
+    'ky': 'Ký'
 };
 
 function initMainFilters() {
@@ -103,9 +119,9 @@ function initMainFilters() {
 
     // Lấy tất cả các 'category' duy nhất từ data
     const uniqueCategories = [...new Set(HERITAGE_DATA.map(item => item.category))];
-    
+
     let html = `<button class="filter-btn active" onclick="filterMainCategory('all', this)">Tất cả</button>`;
-    
+
     uniqueCategories.forEach(cat => {
         const displayName = CATEGORY_NAMES[cat] || cat.toUpperCase();
         html += `<button class="filter-btn" onclick="filterMainCategory('${cat}', this)">${displayName}</button>`;
@@ -117,12 +133,12 @@ function initMainFilters() {
 function filterMainCategory(category, btnElement) {
     currentMainCat = category;
     currentGenre = 'all'; // Reset thể loại con
-    
+
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
 
     const subBar = document.getElementById('sub-filter-bar');
-    
+
     if (category === 'all') {
         subBar.style.display = 'none';
         renderHeritage();
@@ -157,19 +173,20 @@ function filterSubGenre(genre, btnElement) {
 function renderHeritage() {
     const grid = document.getElementById('heritage-grid');
     if (!grid) return;
-    
+
     let data = currentMainCat === 'all' ? HERITAGE_DATA : HERITAGE_DATA.filter(item => item.category === currentMainCat);
-    
+
     if (currentGenre !== 'all') {
         data = data.filter(item => item.genre === currentGenre);
     }
 
     grid.innerHTML = data.map(item => {
+        // ✅ FIX #3: Badge "Cần kiểm chứng" hoạt động dựa trên NEEDS_REVIEW_IDS
         let statusBadge = '';
-        if (item.attributionStatus === 'uncertain' || item.translatorStatus === 'disputed') {
+        if (NEEDS_REVIEW_IDS.includes(item.id)) {
             statusBadge = `<span style="font-size:0.65rem; background:rgba(212,175,55,0.2); color:var(--accent-gold); padding:2px 8px; border-radius:10px; margin-left:10px; font-weight:normal; vertical-align:middle; white-space:nowrap;">Cần kiểm chứng</span>`;
         }
-        
+
         return `
         <div class="heritage-card">
             <span class="h-tag">${item.genre}</span>
@@ -217,9 +234,9 @@ function scrollToVolume(index) {
     if (target) {
         const details = target.querySelector('details');
         if (details) details.open = true;
-        
+
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
+
         const summary = target.querySelector('summary');
         if (summary) {
             summary.style.backgroundColor = 'rgba(212, 175, 55, 0.2)';
@@ -235,7 +252,7 @@ let currentQuoteIndex = -1;
 function renderRandomQuote() {
     const container = document.getElementById('daily-quote-container');
     if (!container || QUOTES_DATA.length === 0) return;
-    
+
     container.style.opacity = 0;
     setTimeout(() => {
         let newIndex;
@@ -243,7 +260,7 @@ function renderRandomQuote() {
         currentQuoteIndex = newIndex;
         const quote = QUOTES_DATA[currentQuoteIndex];
         container.innerHTML = `
-            <div class="quote-mark">“</div>
+            <div class="quote-mark">"</div>
             <p class="quote-text">${quote.text}</p>
             <p class="quote-author">— ${quote.author} —</p>
         `;
@@ -348,9 +365,11 @@ const POETRY_ANALYZER = (() => {
         'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' },
         'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm, mất tự do' }
     };
+    // ✅ FIX #2: sec đổi từ '8.6' → '8.5' (Quyển VIII chỉ có mục 8.1 → 8.5)
     const HAN_VIET = {
-        'vọng': { vol: 'VIII', sec: '8.6', mean: '望 — trông về, ngóng đợi.' }, 'khúc': { vol: 'VIII', sec: '8.6', mean: '曲 — khúc nhạc, bản nhạc.' },
-        'dặm trường': { vol: 'VIII', sec: '8.6', mean: 'trường = 長 (dài) — đường xa.' }
+        'vọng': { vol: 'VIII', sec: '8.5', mean: '望 — trông về, ngóng đợi.' },
+        'khúc': { vol: 'VIII', sec: '8.5', mean: '曲 — khúc nhạc, bản nhạc.' },
+        'dặm trường': { vol: 'VIII', sec: '8.5', mean: 'trường = 長 (dài) — đường xa.' }
     };
 
     function findSymbols(text) {
@@ -418,7 +437,7 @@ function executePipeline() {
                     ${item.isMatch ? `${ICON_CHECK_GREEN} cùng vần [${item.rhyme}]` : `- khác vần`}
                 </span>
             </li>`).join('');
-        
+
         return `<div style="margin-bottom: 20px;">
             <strong style="display: block; margin-bottom: 10px; color: ${color}; font-size: 1rem;">${title}</strong>
             <ul style="padding-left: 0; list-style: none; margin: 0;">${list}</ul>
@@ -427,7 +446,7 @@ function executePipeline() {
 
     const tier1 = `
         <div style="margin-bottom:20px;">
-            <strong>Thể thơ nhận diện:</strong> ${report.form.form} 
+            <strong>Thể thơ nhận diện:</strong> ${report.form.form}
             <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span>
         </div>
         ${renderRhymeList('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}
@@ -450,7 +469,7 @@ function executePipeline() {
         const formattedQ = q.replace(/\(Xem Quyển ([IVX]+), mục ([\d.]+)\)/g, (match, vol, sec) => {
             return `(<span class="volume-link" onclick="gotoEncyclopedia('${vol}', '${sec}')">Xem Quyển ${vol}, mục ${sec}</span>)`;
         });
-        
+
         return `
             <div class="question-item" style="display: flex; align-items: flex-start; border-bottom: none !important; padding: 8px 0;">
                 <div style="margin-top: 2px;">${ICON_QUESTION}</div>
@@ -495,7 +514,7 @@ function gotoEncyclopedia(volNum, secNum) {
             const summary = d.querySelector('summary');
             if (!summary) continue;
             const text = summary.textContent.trim();
-            
+
             if (text.startsWith(`Quyển ${volNum}.`) || text.startsWith(`Quyển ${volNum} `)) {
                 d.open = true;
                 if (secNum) {
@@ -551,10 +570,10 @@ function initWaterCanvas() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('click', (e) => { ripples.push({ x: e.clientX, y: e.clientY, radius: 2, alpha: 0.5, growth: 1.5, fade: 0.015 }); });
-    
+
     function animateRipples() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; 
+        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158';
         for (let i = ripples.length - 1; i >= 0; i--) {
             let p = ripples[i]; p.radius += p.growth; p.alpha -= p.fade;
             if (p.alpha <= 0) { ripples.splice(i, 1); continue; }
@@ -578,7 +597,7 @@ function initDewdrops() {
         drop.style.left = `${Math.random() * 100}vw`;
         drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
         container.appendChild(drop);
-        setTimeout(() => drop.remove(), 20000); 
+        setTimeout(() => drop.remove(), 20000);
     }, 800);
 }
 
@@ -587,7 +606,7 @@ function initDewdrops() {
    ===================================================================== */
 async function loadAllData() {
     try {
-        // Tải 3 file JSON (đã đổi tên theo yêu cầu)
+        // Tải 3 file JSON song song
         const [resHeritage, resEncyclopedia, resQuotes] = await Promise.all([
             fetch('data-heritage.json'),
             fetch('data-encyclopedia.json'),
@@ -601,19 +620,19 @@ async function loadAllData() {
         // Khởi chạy giao diện
         loadSavedTheme();
         updateCanvasColors();
-        
+
         initMainFilters(); // Tự động tạo nút lọc 2 tầng
         renderHeritage();
         renderEncyclopedia(); // Tự động tạo Mục lục & Nội dung
-        
-        renderRandomQuote(); 
-        setInterval(renderRandomQuote, 6000); 
-        
+
+        renderRandomQuote();
+        setInterval(renderRandomQuote, 6000);
+
         initCursorGlow();
         initWaterCanvas();
         initDewdrops();
 
-        console.log("VĂN ĐẠO V52: Đã tải xong toàn bộ dữ liệu từ JSON!");
+        console.log("VĂN ĐẠO V53: Đã tải xong toàn bộ dữ liệu từ JSON!");
 
     } catch (error) {
         console.error("LỖI TẢI DỮ LIỆU: ", error);
