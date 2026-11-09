@@ -1153,4 +1153,180 @@
         "id": "chien-tranh-va-hoa-binh",
         "title": "Chiến tranh và Hòa bình",
         "author": "Leo Tolstoy",
-        "genre": "Tiểu thuyết
+        "genre": "Tiểu thuyết sử thi",
+        "era": "Thế kỷ 19",
+        "script": "Tiếng Nga",
+        "desc": "Kiệt tác tiểu thuyết sử thi quy mô đồ sộ, tái hiện toàn cảnh xã hội Nga và cuộc chiến chống Napoleon.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "vung-dat-sa-mac",
+        "title": "Vùng đất sa mạc",
+        "author": "Nhiều tác giả",
+        "genre": "Truyện dã sử",
+        "era": "Hiện đại",
+        "script": "Quốc ngữ",
+        "desc": "Thể loại truyện dã sử sử thi hiện đại, soi rọi chiều sâu lịch sử giữ nước qua thăng trầm bờ cõi.",
+        "category": "hien-dai"
+    },
+    {
+        "id": "toi-ac-va-hinh-phat",
+        "title": "Tội ác và Hình phạt",
+        "author": "Fyodor Dostoevsky",
+        "genre": "Tiểu thuyết tâm lý",
+        "era": "Thế kỷ 19",
+        "script": "Tiếng Nga",
+        "desc": "Đỉnh cao tiểu thuyết tâm lý thế giới, đi sâu vào thế giới nội tâm đen tối và hành trình sám hối của nhân vật Raskolnikov.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "kien-va-nguoi",
+        "title": "Kiến và Người",
+        "author": "Khuyết danh",
+        "genre": "Tiểu thuyết hiện thực huyền ảo",
+        "era": "Hiện đại",
+        "script": "Quốc ngữ",
+        "desc": "Truyện mang phong cách hiện thực huyền ảo Việt Nam, đan cài giữa hiện thực khắc nghiệt và thế giới tâm linh nguyên sơ.",
+        "category": "hien-dai"
+    },
+    {
+        "id": "ben-thuong-hai",
+        "title": "Bến Thượng Hải",
+        "author": "Khuyết danh",
+        "genre": "Truyện ngôn tình",
+        "era": "Hiện đại",
+        "script": "Quốc ngữ",
+        "desc": "Thể loại truyện lãng mạn kịch tính, kết hợp bối cảnh lịch sử biến động và tình yêu trắc trở.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "truong-gia-hoc-lam-sang",
+        "title": "Trưởng giả học làm sang",
+        "author": "Molière",
+        "genre": "Hài kịch",
+        "era": "Thế kỷ 17",
+        "script": "Tiếng Pháp",
+        "desc": "Kiệt tác hài kịch châm biếm sâu cay thói rởm đời, đua đòi của giai cấp tư sản mới nổi.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "hac-trang-den-on",
+        "title": "Hạc trắng đền ơn",
+        "author": "Dân gian Nhật Bản",
+        "genre": "Kịch Noh",
+        "era": "Cổ đại",
+        "script": "Biểu diễn mặt nạ",
+        "desc": "Thể loại kịch Noh bác học, dùng mặt nạ, vũ đạo chậm rãi và âm nhạc huyền bí để biểu đạt thế giới tâm linh.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "carmen",
+        "title": "Carmen",
+        "author": "Georges Bizet",
+        "genre": "Opera",
+        "era": "Thế kỷ 19",
+        "script": "Tiếng Pháp",
+        "desc": "Thể loại kịch Opera đỉnh cao, kết hợp nghệ thuật thanh nhạc cổ điển và diễn xuất kịch tính, kể về tình yêu bi thảm của cô gái vùng Seville.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "ho-thien-nga",
+        "title": "Hồ Thiên Nga",
+        "author": "Pyotr Ilyich Tchaikovsky",
+        "genre": "Ballet",
+        "era": "Thế kỷ 19",
+        "script": "Nhạc kịch không lời",
+        "desc": "Thể loại kịch múa sử dụng ngôn ngữ cơ thể, vũ đạo hình thể đỉnh cao để kể truyện cổ tích lãng mạn.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "na-tra-loc-xuong-tra-cha",
+        "title": "Na Tra lóc xương trả cha",
+        "author": "Hứa Trọng Lâm",
+        "genre": "Điển tích",
+        "era": "Thời nhà Minh",
+        "script": "Chữ Hán",
+        "desc": "Hành động quyết liệt bảo vệ chính nghĩa và gia tộc. Điển tích chỉ sự hy sinh tối thượng vì đại nghĩa hoặc sự đoạn tuyệt cực đoan để giữ khí tiết.",
+        "category": "dien-tich"
+    },
+    {
+        "id": "ngam-ngai-tim-tram",
+        "title": "Ngậm ngải tìm trầm",
+        "author": "Tư Mã Thiên",
+        "genre": "Điển tích",
+        "era": "Thời Tây Hán",
+        "script": "Chữ Hán",
+        "desc": "Câu chuyện Việt Vương Câu Tiễn chịu nhục để mưu cầu phục quốc. Chỉ ý chí kiên cường, nhẫn nhục chịu đựng gian khổ để chờ ngày phục thù lớn.",
+        "category": "dien-tich"
+    },
+    {
+        "id": "xay-thap-nga",
+        "title": "Xây tháp ngà",
+        "author": "Thành ngữ cổ phương Tây",
+        "genre": "Thành ngữ",
+        "era": "Cận đại",
+        "script": "Tiếng Anh",
+        "desc": "Hình ảnh ẩn dụ chỉ những người, đặc biệt là giới trí thức, sống tách biệt với thực tế đời thường, xa rời quần chúng nhân dân.",
+        "category": "dien-tich"
+    },
+    {
+        "id": "chay-nha-ra-mat-chuot",
+        "title": "Cháy nhà ra mặt chuột",
+        "author": "Dân gian Việt Nam",
+        "genre": "Thành ngữ",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Thành ngữ chỉ một biến cố lớn xảy ra làm lộ rõ bộ mặt thật xấu xa, giả dối của những kẻ ẩn nấp bên trong.",
+        "category": "dien-tich"
+    },
+    {
+        "id": "dung-nui-nay-trong-nui-no",
+        "title": "Đứng núi này trông núi nọ",
+        "author": "Dân gian Việt Nam",
+        "genre": "Thành ngữ",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Thành ngữ phê phán tâm lý tham lam, không kiên định, luôn không hài lòng với những gì mình có mà ao ước cái của người khác.",
+        "category": "dien-tich"
+    },
+    {
+        "id": "an-tuong-mat-troi-moc",
+        "title": "Ấn tượng mặt trời mọc",
+        "author": "Claude Monet",
+        "genre": "Hội họa Ấn tượng",
+        "era": "1872",
+        "script": "Sơn dầu",
+        "desc": "Khởi đầu cho trường phái hội họa nắm bắt ánh sáng và khoảnh khắc chuyển động khách quan của tự nhiên.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "nhung-co-nang-o-avignon",
+        "title": "Những cô nàng ở Avignon",
+        "author": "Pablo Picasso",
+        "genre": "Hội họa Lập thể",
+        "era": "1907",
+        "script": "Sơn dầu",
+        "desc": "Trường phái phá vỡ không gian phối cảnh truyền thống, phân rã vật thể thành các khối hình học đa chiều.",
+        "category": "the-gioi"
+    },
+    {
+        "id": "vuon-xuan-trung-nam-bac",
+        "title": "Vườn xuân Trung Nam Bắc",
+        "author": "Nguyễn Gia Trí",
+        "genre": "Tranh sơn mài",
+        "era": "Hiện đại",
+        "script": "Sơn mài",
+        "desc": "Đỉnh cao của trường phái tranh Sơn mài bác học Việt Nam, đưa chất liệu mỹ nghệ truyền thống thành chất liệu hội họa đỉnh cao thế giới.",
+        "category": "hien-dai"
+    },
+    {
+        "id": "em-thuy",
+        "title": "Em Thúy",
+        "author": "Trần Văn Cẩn",
+        "genre": "Tranh sơn dầu",
+        "era": "1943",
+        "script": "Sơn dầu",
+        "desc": "Tác phẩm tiêu biểu cho thời kỳ đầu tiếp thu kỹ thuật sơn dầu phương Tây nhưng mang đậm linh hồn, cốt cách bình dị của con người Việt Nam.",
+        "category": "hien-dai"
+    }
+]
