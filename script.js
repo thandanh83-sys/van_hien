@@ -1,13 +1,9 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V53 - JSON FETCH)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V54 - FIX LOAD DATA)
    Tác giả: Văn Đạo
-   Mô tả: Tự động tải dữ liệu từ JSON, quản lý 2 tầng bộ lọc, mục lục
-          Bách Khoa, Thi pháp 4 Tầng và các hiệu ứng động.
-   
-   [V53 — Cập nhật mới nhất] Đã sửa:
-     ✅ FIX #1: Thêm tên hiển thị 'kich' (Kịch) và 'ky' (Ký) - Hết bị lỗi viết hoa không dấu.
-     ✅ FIX #2: Smart Link Hán Việt trỏ đúng mục 8.5 (thay vì 8.6 không tồn tại).
-     ✅ FIX #3: Huy hiệu "Cần kiểm chứng" hoạt động qua mảng NEEDS_REVIEW_IDS.
+   [V54 — Cập nhật] Sửa lỗi "Không thể tải dữ liệu" trên Safari/Mobile:
+     - Thêm Cache-Buster (?v=timestamp) vào fetch JSON.
+     - Báo lỗi chi tiết từng file nếu fetch thất bại.
    ===================================================================== */
 
 /* =====================================================================
@@ -21,14 +17,8 @@ const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="v
 
 const THEME_KEY = 'vandao_theme';
 
-// ✅ FIX #3: Danh sách ID các tác phẩm cần gắn nhãn "Cần kiểm chứng"
-// Muốn thêm tác phẩm khác cần kiểm chứng → chỉ cần thêm id (slug) vào mảng này.
-// Ví dụ: 'nam-quoc-son-ha', 'truyen-kieu'...
-const NEEDS_REVIEW_IDS = [
-    'chinh-phu-ngam-khuc'   // Bản dịch Nôm: Đoàn Thị Điểm hay Phan Huy Ích? (còn tranh luận)
-];
+const NEEDS_REVIEW_IDS = ['chinh-phu-ngam-khuc'];
 
-// Biến toàn cục lưu trữ dữ liệu tải từ JSON
 let HERITAGE_DATA = [];
 let ENCYCLOPEDIA_DATA = [];
 let QUOTES_DATA = [];
@@ -92,13 +82,11 @@ document.addEventListener('click', (e) => {
 });
 
 /* =====================================================================
-   MODULE 4: LOGIC LỌC 2 TẦNG CHO VĂN HIẾN (TỰ ĐỘNG TỪ DATA)
+   MODULE 4: LOGIC LỌC 2 TẦNG CHO VĂN HIẾN
    ===================================================================== */
 let currentMainCat = 'all';
 let currentGenre = 'all';
 
-// ✅ FIX #1: Đã bổ sung 'kich' và 'ky' — trước đây bị thiếu nên
-// nút lọc tự hiện thành "KICH" và "KY" (viết hoa không dấu), trông xấu.
 const CATEGORY_NAMES = {
     'dan-gian': 'Dân gian',
     'trung-dai': 'Trung đại',
@@ -117,11 +105,9 @@ function initMainFilters() {
     const mainBar = document.getElementById('main-filter-bar');
     if (!mainBar || HERITAGE_DATA.length === 0) return;
 
-    // Lấy tất cả các 'category' duy nhất từ data
     const uniqueCategories = [...new Set(HERITAGE_DATA.map(item => item.category))];
-
     let html = `<button class="filter-btn active" onclick="filterMainCategory('all', this)">Tất cả</button>`;
-
+    
     uniqueCategories.forEach(cat => {
         const displayName = CATEGORY_NAMES[cat] || cat.toUpperCase();
         html += `<button class="filter-btn" onclick="filterMainCategory('${cat}', this)">${displayName}</button>`;
@@ -132,20 +118,18 @@ function initMainFilters() {
 
 function filterMainCategory(category, btnElement) {
     currentMainCat = category;
-    currentGenre = 'all'; // Reset thể loại con
-
+    currentGenre = 'all';
+    
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
 
     const subBar = document.getElementById('sub-filter-bar');
-
     if (category === 'all') {
         subBar.style.display = 'none';
         renderHeritage();
         return;
     }
 
-    // Tự động lấy thể loại con dựa trên danh mục chính
     const itemsInCat = HERITAGE_DATA.filter(item => item.category === category);
     const uniqueGenres = [...new Set(itemsInCat.map(item => item.genre))];
 
@@ -159,7 +143,6 @@ function filterMainCategory(category, btnElement) {
         });
         subBar.innerHTML = subHtml;
     }
-
     renderHeritage();
 }
 
@@ -173,20 +156,16 @@ function filterSubGenre(genre, btnElement) {
 function renderHeritage() {
     const grid = document.getElementById('heritage-grid');
     if (!grid) return;
-
+    
     let data = currentMainCat === 'all' ? HERITAGE_DATA : HERITAGE_DATA.filter(item => item.category === currentMainCat);
-
-    if (currentGenre !== 'all') {
-        data = data.filter(item => item.genre === currentGenre);
-    }
+    if (currentGenre !== 'all') data = data.filter(item => item.genre === currentGenre);
 
     grid.innerHTML = data.map(item => {
-        // ✅ FIX #3: Badge "Cần kiểm chứng" hoạt động dựa trên NEEDS_REVIEW_IDS
         let statusBadge = '';
         if (NEEDS_REVIEW_IDS.includes(item.id)) {
             statusBadge = `<span style="font-size:0.65rem; background:rgba(212,175,55,0.2); color:var(--accent-gold); padding:2px 8px; border-radius:10px; margin-left:10px; font-weight:normal; vertical-align:middle; white-space:nowrap;">Cần kiểm chứng</span>`;
         }
-
+        
         return `
         <div class="heritage-card">
             <span class="h-tag">${item.genre}</span>
@@ -202,14 +181,13 @@ function renderHeritage() {
 }
 
 /* =====================================================================
-   MODULE 5: RENDER BÁCH KHOA & MỤC LỤC (TỰ ĐỘNG)
+   MODULE 5: RENDER BÁCH KHOA & MỤC LỤC
    ===================================================================== */
 function renderEncyclopedia() {
     const container = document.getElementById('encyclopedia-container');
     const tocContainer = document.getElementById('encyclopedia-toc');
     if (!container || ENCYCLOPEDIA_DATA.length === 0) return;
 
-    // 1. Tự động tạo Mục lục
     if (tocContainer) {
         tocContainer.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => {
             const match = item.title.match(/Quyển\s+([IVXLCDM]+|[0-9]+)/i);
@@ -218,7 +196,6 @@ function renderEncyclopedia() {
         }).join('');
     }
 
-    // 2. Render nội dung
     container.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => `
         <div class="accordion-item" id="vol-${index}">
             <details>
@@ -234,9 +211,7 @@ function scrollToVolume(index) {
     if (target) {
         const details = target.querySelector('details');
         if (details) details.open = true;
-
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
         const summary = target.querySelector('summary');
         if (summary) {
             summary.style.backgroundColor = 'rgba(212, 175, 55, 0.2)';
@@ -252,7 +227,7 @@ let currentQuoteIndex = -1;
 function renderRandomQuote() {
     const container = document.getElementById('daily-quote-container');
     if (!container || QUOTES_DATA.length === 0) return;
-
+    
     container.style.opacity = 0;
     setTimeout(() => {
         let newIndex;
@@ -316,14 +291,12 @@ const POETRY_ANALYZER = (() => {
         const lastSyl = lines.map(l => l.lastSyllable);
         const rhymeParts = lastSyl.map(s => getRhymePart(s));
 
-        // Vần chân
         for (let i = 0; i < lines.length; i++) {
             for (let j = i + 1; j < lines.length; j++) {
                 const match = (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== '');
                 result.chan.push({ text: `Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}")`, isMatch: match, rhyme: rhymeParts[i] });
             }
         }
-        // Vần lưng
         for (let i = 0; i < lines.length - 1; i++) {
             const endPart = rhymeParts[i];
             const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || [];
@@ -339,12 +312,10 @@ const POETRY_ANALYZER = (() => {
                 result.lung.push({ text: `Cuối câu ${i+1} ("${lastSyl[i]}") không có vần lưng ở câu ${i+2}`, isMatch: false, rhyme: '' });
             }
         }
-        // Vần liền
         for (let i = 0; i < lines.length - 1; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== '');
             result.lien.push({ text: `Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}")`, isMatch: match, rhyme: rhymeParts[i] });
         }
-        // Vần cách
         for (let i = 0; i < lines.length - 2; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== '');
             result.cach.push({ text: `Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}")`, isMatch: match, rhyme: rhymeParts[i] });
@@ -365,7 +336,6 @@ const POETRY_ANALYZER = (() => {
         'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' },
         'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm, mất tự do' }
     };
-    // ✅ FIX #2: sec đổi từ '8.6' → '8.5' (Quyển VIII chỉ có mục 8.1 → 8.5)
     const HAN_VIET = {
         'vọng': { vol: 'VIII', sec: '8.5', mean: '望 — trông về, ngóng đợi.' },
         'khúc': { vol: 'VIII', sec: '8.5', mean: '曲 — khúc nhạc, bản nhạc.' },
@@ -437,7 +407,7 @@ function executePipeline() {
                     ${item.isMatch ? `${ICON_CHECK_GREEN} cùng vần [${item.rhyme}]` : `- khác vần`}
                 </span>
             </li>`).join('');
-
+        
         return `<div style="margin-bottom: 20px;">
             <strong style="display: block; margin-bottom: 10px; color: ${color}; font-size: 1rem;">${title}</strong>
             <ul style="padding-left: 0; list-style: none; margin: 0;">${list}</ul>
@@ -446,7 +416,7 @@ function executePipeline() {
 
     const tier1 = `
         <div style="margin-bottom:20px;">
-            <strong>Thể thơ nhận diện:</strong> ${report.form.form}
+            <strong>Thể thơ nhận diện:</strong> ${report.form.form} 
             <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span>
         </div>
         ${renderRhymeList('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}
@@ -469,7 +439,7 @@ function executePipeline() {
         const formattedQ = q.replace(/\(Xem Quyển ([IVX]+), mục ([\d.]+)\)/g, (match, vol, sec) => {
             return `(<span class="volume-link" onclick="gotoEncyclopedia('${vol}', '${sec}')">Xem Quyển ${vol}, mục ${sec}</span>)`;
         });
-
+        
         return `
             <div class="question-item" style="display: flex; align-items: flex-start; border-bottom: none !important; padding: 8px 0;">
                 <div style="margin-top: 2px;">${ICON_QUESTION}</div>
@@ -514,7 +484,7 @@ function gotoEncyclopedia(volNum, secNum) {
             const summary = d.querySelector('summary');
             if (!summary) continue;
             const text = summary.textContent.trim();
-
+            
             if (text.startsWith(`Quyển ${volNum}.`) || text.startsWith(`Quyển ${volNum} `)) {
                 d.open = true;
                 if (secNum) {
@@ -570,10 +540,10 @@ function initWaterCanvas() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
     window.addEventListener('click', (e) => { ripples.push({ x: e.clientX, y: e.clientY, radius: 2, alpha: 0.5, growth: 1.5, fade: 0.015 }); });
-
+    
     function animateRipples() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158';
+        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; 
         for (let i = ripples.length - 1; i >= 0; i--) {
             let p = ripples[i]; p.radius += p.growth; p.alpha -= p.fade;
             if (p.alpha <= 0) { ripples.splice(i, 1); continue; }
@@ -597,21 +567,28 @@ function initDewdrops() {
         drop.style.left = `${Math.random() * 100}vw`;
         drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
         container.appendChild(drop);
-        setTimeout(() => drop.remove(), 20000);
+        setTimeout(() => drop.remove(), 20000); 
     }, 800);
 }
 
 /* =====================================================================
-   MODULE 11: KHỞI CHẠY & TẢI DỮ LIỆU TỰ ĐỘNG (FETCH JSON)
+   MODULE 11: KHỞI CHẠY & TẢI DỮ LIỆU TỰ ĐỘNG (ĐÃ FIX LỖI CACHE)
    ===================================================================== */
 async function loadAllData() {
     try {
-        // Tải 3 file JSON song song
+        // BƯỚC QUAN TRỌNG: Thêm ?v=timestamp để chống cache trên Safari/Mobile
+        const cb = `?v=${new Date().getTime()}`;
+        
         const [resHeritage, resEncyclopedia, resQuotes] = await Promise.all([
-            fetch('data-heritage.json'),
-            fetch('data-encyclopedia.json'),
-            fetch('data-quotes.json')
+            fetch('data-heritage.json' + cb),
+            fetch('data-encyclopedia.json' + cb),
+            fetch('data-quotes.json' + cb)
         ]);
+
+        // Kiểm tra xem file có tải thành công không (tránh lỗi 404 âm thầm)
+        if (!resHeritage.ok) throw new Error(`Không tìm thấy data-heritage.json (Mã lỗi: ${resHeritage.status})`);
+        if (!resEncyclopedia.ok) throw new Error(`Không tìm thấy data-encyclopedia.json (Mã lỗi: ${resEncyclopedia.status})`);
+        if (!resQuotes.ok) throw new Error(`Không tìm thấy data-quotes.json (Mã lỗi: ${resQuotes.status})`);
 
         HERITAGE_DATA = await resHeritage.json();
         ENCYCLOPEDIA_DATA = await resEncyclopedia.json();
@@ -620,27 +597,26 @@ async function loadAllData() {
         // Khởi chạy giao diện
         loadSavedTheme();
         updateCanvasColors();
-
-        initMainFilters(); // Tự động tạo nút lọc 2 tầng
+        
+        initMainFilters();
         renderHeritage();
-        renderEncyclopedia(); // Tự động tạo Mục lục & Nội dung
-
-        renderRandomQuote();
-        setInterval(renderRandomQuote, 6000);
-
+        renderEncyclopedia();
+        
+        renderRandomQuote(); 
+        setInterval(renderRandomQuote, 6000); 
+        
         initCursorGlow();
         initWaterCanvas();
         initDewdrops();
 
-        console.log("VĂN ĐẠO V53: Đã tải xong toàn bộ dữ liệu từ JSON!");
+        console.log("VĂN ĐẠO V54: Đã tải xong toàn bộ dữ liệu từ JSON!");
 
     } catch (error) {
         console.error("LỖI TẢI DỮ LIỆU: ", error);
-        alert("Không thể tải dữ liệu. Vui lòng kiểm tra lại kết nối mạng hoặc file JSON.");
+        alert("Lỗi tải dữ liệu:\n" + error.message + "\n\nVui lòng kiểm tra lại tên file JSON trên GitHub (phân biệt chữ hoa/chữ thường).");
     }
 }
 
-// Kích hoạt tải dữ liệu khi DOM sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
     loadAllData();
 });
