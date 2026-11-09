@@ -1,12 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V92)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V93)
    Tác giả: Văn Đạo
    Mô tả: Hệ thống CSS Lưỡng cực, SVG Only, Không Bookmark, Không Onboarding.
-          Tối ưu hóa hiển thị cho Chart Bằng/Trắc, Tìm kiếm Debounce, Phân trang.
+          Đã sửa lỗi Navbar che khuất nội dung (scroll-margin-top).
    ===================================================================== */
 
 /* =====================================================================
-   1. HỆ THỐNG BIẾN VÀ CẤU HÌNH GỐC(CSS VARIABLES)
+   1. HỆ THỐNG BIẾN VÀ CẤU HÌNH GỐC (CSS VARIABLES)
    ===================================================================== */
 :root {
     /* --- [LIGHT MODE] BẠCH NGỌC LIÊN --- */
@@ -428,7 +428,15 @@ body.dark-mode .page-btn.active { color: #000; box-shadow: 0 4px 15px rgba(212, 
 /* Ẩn các thẻ details bị lọc (dùng cho chức năng tìm kiếm) */
 .accordion-item.hidden-by-search { display: none; }
 
-.accordion-item { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: var(--radius-card); margin-bottom: 15px; overflow: hidden; }
+.accordion-item { 
+    background: var(--glass-bg); 
+    backdrop-filter: blur(10px); 
+    border: 1px solid var(--glass-border); 
+    border-radius: var(--radius-card); 
+    margin-bottom: 15px; 
+    overflow: hidden; 
+    scroll-margin-top: 120px; /* Sửa lỗi Navbar che khuất khi tự động cuộn */
+}
 .accordion-item summary { padding: 20px 25px; font-family: var(--font-serif); font-size: 1.2rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; list-style: none; transition: background 0.3s; }
 .accordion-item summary:hover { background: rgba(125, 168, 158, 0.1); }
 body.dark-mode .accordion-item summary:hover { background: rgba(212, 175, 55, 0.1); }
