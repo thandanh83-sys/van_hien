@@ -1,8 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V48 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V49 - FINAL)
    Tác giả: Văn Đạo
-   Cấu trúc: 13 Phân đoạn - Tối ưu hóa toàn diện cho Thi Pháp 4 Tầng.
-   Đã xóa 100% gạch thừa, tối ưu link liên kết Bách Khoa.
+   Cấu trúc: 13 Phân đoạn - Tối ưu hóa toàn diện cho Hệ thống Tri thức.
    ===================================================================== */
 
 /* =====================================================================
@@ -118,7 +117,7 @@ body.dark-mode .dewdrop { display: none; }
    ===================================================================== */
 .container { 
     position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; 
-    padding: 100px 24px 40px 24px; /* Padding-top tránh Navbar đè nội dung */
+    padding: 100px 24px 40px 24px; 
 }
 
 .navbar {
