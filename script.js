@@ -1,10 +1,7 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V55 - SAFARI IOS FIX)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V56 - SEARCH & COPY LINK)
    Tác giả: Văn Đạo
-   [V55 — Cập nhật] Sửa lỗi "The string did not match..." trên Safari:
-     - Đổi đường dẫn fetch thành './file.json' để Safari hiểu đúng.
-     - Đọc dạng text() trước khi parse JSON để bắt lỗi chuẩn xác.
-     - Thêm thông báo lỗi chi tiết từng file.
+   Mô tả: Tích hợp Tìm kiếm, Copy Link, Fix lỗi Safari iOS và Smart Links.
    ===================================================================== */
 
 /* =====================================================================
@@ -17,8 +14,11 @@ const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
 const THEME_KEY = 'vandao_theme';
+
+// Danh sách ID các tác phẩm cần gắn nhãn "Cần kiểm chứng"
 const NEEDS_REVIEW_IDS = ['chinh-phu-ngam-khuc'];
 
+// Biến toàn cục lưu trữ dữ liệu tải từ JSON
 let HERITAGE_DATA = [];
 let ENCYCLOPEDIA_DATA = [];
 let QUOTES_DATA = [];
@@ -59,12 +59,16 @@ function updateFavicon(isDark) {
 function switchView(viewId) {
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(link => link.classList.remove('active'));
+    
     const targetView = document.getElementById(`view-${viewId}`);
     const targetNav = document.getElementById(`nav-${viewId}`);
+    
     if (targetView) targetView.classList.add('active');
     if (targetNav) targetNav.classList.add('active');
+    
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -82,7 +86,7 @@ document.addEventListener('click', (e) => {
 });
 
 /* =====================================================================
-   MODULE 4: LOGIC LỌC 2 TẦNG CHO VĂN HIẾN
+   MODULE 4: LOGIC LỌC, TÌM KIẾM VÀ COPY LINK (VĂN HIẾN)
    ===================================================================== */
 let currentMainCat = 'all';
 let currentGenre = 'all';
@@ -118,18 +122,20 @@ function initMainFilters() {
 
 function filterMainCategory(category, btnElement) {
     currentMainCat = category;
-    currentGenre = 'all';
+    currentGenre = 'all'; // Reset thể loại con khi đổi danh mục chính
     
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
 
     const subBar = document.getElementById('sub-filter-bar');
+    
     if (category === 'all') {
         subBar.style.display = 'none';
-        renderHeritage();
+        renderHeritage(); // Gọi render để cập nhật
         return;
     }
 
+    // Lấy thể loại con dựa trên danh mục
     const itemsInCat = HERITAGE_DATA.filter(item => item.category === category);
     const uniqueGenres = [...new Set(itemsInCat.map(item => item.genre))];
 
@@ -153,13 +159,41 @@ function filterSubGenre(genre, btnElement) {
     renderHeritage();
 }
 
+// HÀM RENDER CHÍNH: Kết hợp Bộ Lọc 2 Tầng + Tìm Kiếm + Nút Copy
 function renderHeritage() {
     const grid = document.getElementById('heritage-grid');
+    const searchInput = document.getElementById('search-input');
+    const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
     if (!grid) return;
     
-    let data = currentMainCat === 'all' ? HERITAGE_DATA : HERITAGE_DATA.filter(item => item.category === currentMainCat);
-    if (currentGenre !== 'all') data = data.filter(item => item.genre === currentGenre);
+    let data = HERITAGE_DATA;
+    
+    // 1. Lọc theo Danh mục chính (Tầng 1)
+    if (currentMainCat !== 'all') {
+        data = data.filter(item => item.category === currentMainCat);
+    }
+    
+    // 2. Lọc theo Thể loại (Tầng 2)
+    if (currentGenre !== 'all') {
+        data = data.filter(item => item.genre === currentGenre);
+    }
 
+    // 3. Lọc theo Từ khóa tìm kiếm
+    if (keyword) {
+        data = data.filter(item => 
+            item.title.toLowerCase().includes(keyword) || 
+            item.author.toLowerCase().includes(keyword)
+        );
+    }
+
+    // 4. Trạng thái không có kết quả
+    if (data.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted); font-style: italic;">Không tìm thấy tác phẩm nào phù hợp.</p>`;
+        return;
+    }
+
+    // 5. Render HTML
     grid.innerHTML = data.map(item => {
         let statusBadge = '';
         if (NEEDS_REVIEW_IDS.includes(item.id)) {
@@ -167,27 +201,75 @@ function renderHeritage() {
         }
         
         return `
-        <div class="heritage-card">
+        <div class="heritage-card" id="${item.id}">
             <span class="h-tag">${item.genre}</span>
             <h3>${item.title} ${statusBadge}</h3>
             <div class="h-author">${ICON_PEN} ${item.author}</div>
             <p>${item.desc}</p>
+            
             <div class="h-meta">
-                <span>${ICON_CLOCK} ${item.era}</span>
-                <span>${ICON_SCROLL} ${item.script}</span>
+                <div>
+                    <span>${ICON_CLOCK} ${item.era}</span>
+                    <span>${ICON_SCROLL} ${item.script}</span>
+                </div>
+                <!-- Nút Copy Link -->
+                <button onclick="copyLink('${item.id}')" class="copy-btn" title="Copy liên kết bài viết">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    Copy
+                </button>
             </div>
         </div>
-    `}).join('');
+        `;
+    }).join('');
+}
+
+// Hàm Copy Link (Tạo Toast thông báo thay vì dùng alert)
+function copyLink(id) {
+    const url = window.location.origin + window.location.pathname + '#' + id;
+    navigator.clipboard.writeText(url).then(() => {
+        const toast = document.createElement('div');
+        toast.textContent = '✓ Đã copy liên kết bài viết!';
+        toast.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:12px 24px; border-radius:30px; font-size:0.95rem; z-index:9999; box-shadow:0 4px 15px rgba(0,0,0,0.2); opacity:0; transition:opacity 0.3s; font-weight:500;';
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.style.opacity = '1', 10);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }).catch(err => {
+        console.error('Lỗi copy: ', err);
+        alert('Trình duyệt của bạn không hỗ trợ copy tự động.');
+    });
+}
+
+// Hàm tự động cuộn tới bài viết nếu URL có dấu #id và làm sáng thẻ
+function handleHashScroll() {
+    if (window.location.hash) {
+        const id = window.location.hash.substring(1);
+        const element = document.getElementById(id);
+        if (element) {
+            // Đợi 1 chút để DOM render xong
+            setTimeout(() => {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.classList.add('highlight-card');
+                setTimeout(() => {
+                    element.classList.remove('highlight-card');
+                }, 2000);
+            }, 500);
+        }
+    }
 }
 
 /* =====================================================================
-   MODULE 5: RENDER BÁCH KHOA & MỤC LỤC
+   MODULE 5: RENDER BÁCH KHOA & MỤC LỤC (TỰ ĐỘNG)
    ===================================================================== */
 function renderEncyclopedia() {
     const container = document.getElementById('encyclopedia-container');
     const tocContainer = document.getElementById('encyclopedia-toc');
     if (!container || ENCYCLOPEDIA_DATA.length === 0) return;
 
+    // 1. Tự động tạo Mục lục
     if (tocContainer) {
         tocContainer.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => {
             const match = item.title.match(/Quyển\s+([IVXLCDM]+|[0-9]+)/i);
@@ -196,6 +278,7 @@ function renderEncyclopedia() {
         }).join('');
     }
 
+    // 2. Render nội dung
     container.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => `
         <div class="accordion-item" id="vol-${index}">
             <details>
@@ -211,7 +294,9 @@ function scrollToVolume(index) {
     if (target) {
         const details = target.querySelector('details');
         if (details) details.open = true;
+        
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
         const summary = target.querySelector('summary');
         if (summary) {
             summary.style.backgroundColor = 'rgba(212, 175, 55, 0.2)';
@@ -234,6 +319,7 @@ function renderRandomQuote() {
         do { newIndex = Math.floor(Math.random() * QUOTES_DATA.length); } while (QUOTES_DATA.length > 1 && newIndex === currentQuoteIndex);
         currentQuoteIndex = newIndex;
         const quote = QUOTES_DATA[currentQuoteIndex];
+        
         container.innerHTML = `
             <div class="quote-mark">"</div>
             <p class="quote-text">${quote.text}</p>
@@ -291,12 +377,14 @@ const POETRY_ANALYZER = (() => {
         const lastSyl = lines.map(l => l.lastSyllable);
         const rhymeParts = lastSyl.map(s => getRhymePart(s));
 
+        // Vần chân
         for (let i = 0; i < lines.length; i++) {
             for (let j = i + 1; j < lines.length; j++) {
                 const match = (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== '');
                 result.chan.push({ text: `Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}")`, isMatch: match, rhyme: rhymeParts[i] });
             }
         }
+        // Vần lưng
         for (let i = 0; i < lines.length - 1; i++) {
             const endPart = rhymeParts[i];
             const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || [];
@@ -312,10 +400,12 @@ const POETRY_ANALYZER = (() => {
                 result.lung.push({ text: `Cuối câu ${i+1} ("${lastSyl[i]}") không có vần lưng ở câu ${i+2}`, isMatch: false, rhyme: '' });
             }
         }
+        // Vần liền
         for (let i = 0; i < lines.length - 1; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== '');
             result.lien.push({ text: `Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}")`, isMatch: match, rhyme: rhymeParts[i] });
         }
+        // Vần cách
         for (let i = 0; i < lines.length - 2; i += 2) {
             const match = (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== '');
             result.cach.push({ text: `Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}")`, isMatch: match, rhyme: rhymeParts[i] });
@@ -572,11 +662,11 @@ function initDewdrops() {
 }
 
 /* =====================================================================
-   MODULE 11: TẢI DỮ LIỆU TỰ ĐỘNG (FIX LỖI SAFARI IOS)
+   MODULE 11: KHỞI CHẠY & TẢI DỮ LIỆU TỰ ĐỘNG (ĐÃ FIX LỖI SAFARI IOS)
    ===================================================================== */
 async function loadAllData() {
     try {
-        // SỬA LỖI SAFARI: Dùng đường dẫn tương đối './' và đọc dạng text trước
+        // Thêm './' và cache: "no-store" để Safari không bị lỗi "String did not match..."
         const fetchOptions = { cache: "no-store" }; 
         
         const [resHeritage, resEncyclopedia, resQuotes] = await Promise.all([
@@ -585,17 +675,16 @@ async function loadAllData() {
             fetch('./data-quotes.json', fetchOptions)
         ]);
 
-        // Bắt lỗi 404 (Không tìm thấy file) một cách tường minh
+        // Bắt lỗi 404 tường minh
         if (!resHeritage.ok) throw new Error(`Không tìm thấy file data-heritage.json (Mã HTTP: ${resHeritage.status})`);
         if (!resEncyclopedia.ok) throw new Error(`Không tìm thấy file data-encyclopedia.json (Mã HTTP: ${resEncyclopedia.status})`);
         if (!resQuotes.ok) throw new Error(`Không tìm thấy file data-quotes.json (Mã HTTP: ${resQuotes.status})`);
 
-        // Đọc text trước để tránh lỗi "String did not match..." của Safari
+        // Đọc text trước để parse an toàn trên Safari
         const textHeritage = await resHeritage.text();
         const textEncyclopedia = await resEncyclopedia.text();
         const textQuotes = await resQuotes.text();
 
-        // Chuyển đổi sang JSON
         try { HERITAGE_DATA = JSON.parse(textHeritage); } 
         catch (e) { throw new Error("File data-heritage.json bị lỗi cú pháp JSON."); }
 
@@ -620,15 +709,21 @@ async function loadAllData() {
         initWaterCanvas();
         initDewdrops();
 
-        console.log("VĂN ĐẠO V55: Tải dữ liệu thành công!");
+        // Kiểm tra xem URL có chứa #id (để cuộn tới thẻ được share) không
+        handleHashScroll();
+
+        console.log("VĂN ĐẠO V56: Tải dữ liệu thành công!");
 
     } catch (error) {
-        console.error("LỖI: ", error);
+        console.error("LỖI TẢI DỮ LIỆU: ", error);
         alert("Lỗi tải dữ liệu:\n\n" + error.message);
     }
 }
 
-// Kích hoạt khi DOM sẵn sàng
+// Kích hoạt tải dữ liệu khi DOM sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
     loadAllData();
 });
+
+// Bắt sự kiện khi người dùng thay đổi hash trên thanh địa chỉ (bấm link share)
+window.addEventListener('hashchange', handleHashScroll);
