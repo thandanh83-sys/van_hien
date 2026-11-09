@@ -1,35 +1,46 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-VĂN ĐẠO - Công cụ chuẩn hóa ID và merge dữ liệu Văn Hiến
-Phiên bản SVG-ified: Thay thế TOÀN BỘ emoji bằng ký tự hình học Unicode
-                    (sắc nét, đồng bộ, không phụ thuộc font emoji hệ điều hành)
+=====================================================================
+VĂN ĐẠO ENGINE - TOOL QUẢN LÝ DỮ LIỆU VĂN HIẾN (ULTIMATE EDITION)
+=====================================================================
+Tác giả: Văn Đạo
+Mô tả: Công cụ tự động chuẩn hóa ID (slug), merge dữ liệu mới, 
+       kiểm tra lỗi schema và tạo bản sao lưu (backup) an toàn.
 
-Ký hiệu sử dụng:
-  ▸   Thư mục / file           ▣   Lưu trữ / backup
-  ✓   Thành công                ✗   Lỗi
-  △   Cảnh báo                  ⇄   Merge
-  ▤   Thống kê                  ⊗   Dừng / hủy
-  ◈   Thông tin                 ═║╔╗╚╝  Khung tiêu đề SVG-like
-  ▮   Bar chart (thống kê)
+Tính năng nổi bật:
+  - 100% SVG-like symbols (Không dùng emoji, hiển thị sắc nét mọi Terminal).
+  - Tự động tạo ID từ Tiêu đề tiếng Việt (VD: "Truyện Kiều" -> "truyen-kieu").
+  - Tự động phát hiện và xử lý ID trùng lặp (thêm hậu tố -2, -3...).
+  - Tự động backup file cũ trước khi ghi đè.
+  - Thống kê dữ liệu bằng biểu đồ cột (Bar chart) trực quan.
 
-Cách dùng:
-  1. Đặt file này cùng thư mục với data-heritage.json
-  2. Muốn thêm dữ liệu: tạo file data-heritage-new.json (cùng cấu trúc mảng)
-  3. Chạy: python vandao_tool.py
+Cách sử dụng:
+  1. Chỉ chuẩn hóa file hiện tại: 
+     python vandao_tool.py
+  2. Merge thêm file mới (data-heritage-new.json):
+     python vandao_tool.py --new data-heritage-new.json
+=====================================================================
 """
-import json, re, unicodedata, shutil, sys
+
+import json
+import re
+import unicodedata
+import shutil
+import sys
+import argparse
 from datetime import datetime
 from pathlib import Path
 
-# ─── CẤU HÌNH ─────────────────────────────────────────────────────────────
-DATA_FILE   = "data-heritage.json"
-NEW_FILE    = "data-heritage-new.json"
-BACKUP_DIR  = "backups"
-REQUIRED    = ["title", "author", "genre", "era", "script", "desc", "category"]
+# ─── CẤU HÌNH HỆ THỐNG ────────────────────────────────────────────────────
+DEFAULT_DATA_FILE = "data-heritage.json"
+DEFAULT_NEW_FILE  = "data-heritage-new.json"
+BACKUP_DIR        = "backups"
 
-# ─── BỘ KÝ TỰ SVG-LIKE (Unicode typographic — không phải emoji) ──────────
-# Tất cả đều là ký tự monochrome, render sắc nét trên mọi terminal
+# Các trường bắt buộc phải có trong mỗi tác phẩm
+REQUIRED_FIELDS = ["title", "author", "genre", "era", "script", "desc", "category"]
+
+# ─── BỘ KÝ TỰ SVG-LIKE (Unicode Typographic - Không dùng Emoji) ───────────
 SYM = {
     "ok":     "✓",   # U+2713 CHECK MARK
     "err":    "✗",   # U+2717 BALLOT X
@@ -39,7 +50,6 @@ SYM = {
     "merge":  "⇄",   # U+21C4 RIGHTWARDS ARROW OVER LEFTWARDS ARROW
     "stat":   "▤",   # U+25A4 SQUARE WITH HORIZONTAL FILL
     "stop":   "⊗",   # U+2297 CIRCLED TIMES
-    "info":   "◈",   # U+25C8 WHITE DIAMOND CONTAINING BLACK SMALL DIAMOND
     "bullet": "▸",   # U+25B8
     "bar":    "▮",   # U+25AE BLACK VERTICAL RECTANGLE
     "hl":     "═",   # U+2550 BOX DRAWINGS DOUBLE HORIZONTAL
@@ -50,8 +60,9 @@ SYM = {
     "br":     "╝",   # U+255D BOX DRAWINGS DOUBLE UP AND LEFT
 }
 
-# ─── HÀM VẼ KHUNG SVG-LIKE ────────────────────────────────────────────────
-def banner(title, width=50):
+# ─── CÁC HÀM TIỆN ÍCH GIAO DIỆN ───────────────────────────────────────────
+
+def banner(title: str, width: int = 55) -> str:
     """Vẽ khung tiêu đề SVG-like bằng box-drawing characters."""
     min_w = len(title) + 4
     if width < min_w:
@@ -65,114 +76,173 @@ def banner(title, width=50):
     bottom = SYM["bl"] + SYM["hl"] * inner + SYM["br"]
     return f"{top}\n{middle}\n{bottom}"
 
-# ─── XỬ LÝ SLUG / ID ──────────────────────────────────────────────────────
-SPECIAL_MAP = {"đ":"d","Đ":"D","ơ":"o","Ơ":"O","ư":"u","Ư":"U",
-               "ă":"a","Ă":"A","â":"a","Â":"A","ê":"e","Ê":"E","ô":"o","Ô":"O"}
+# ─── XỬ LÝ SLUG VÀ ID TIẾNG VIỆT ──────────────────────────────────────────
 
-def remove_diacritics(t):
+SPECIAL_MAP = {
+    "đ": "d", "Đ": "D", "ơ": "o", "Ơ": "O", "ư": "u", "Ư": "U",
+    "ă": "a", "Ă": "A", "â": "a", "Â": "A", "ê": "e", "Ê": "E", 
+    "ô": "o", "Ô": "O"
+}
+
+def remove_diacritics(text: str) -> str:
+    """Loại bỏ dấu tiếng Việt để tạo slug."""
     for k, v in SPECIAL_MAP.items():
-        t = t.replace(k, v)
-    t = unicodedata.normalize("NFD", t)
-    return "".join(c for c in t if unicodedata.category(c) != "Mn")
+        text = text.replace(k, v)
+    # Chuẩn hóa NFD để tách dấu ra khỏi ký tự gốc, sau đó xóa các dấu đó
+    text = unicodedata.normalize("NFD", text)
+    return "".join(c for c in text if unicodedata.category(c) != "Mn")
 
-def slugify(t):
-    t = remove_diacritics(t).lower()
-    t = re.sub(r"[^a-z0-9]+", "-", t).strip("-")
-    return re.sub(r"-+", "-", t)
+def slugify(text: str) -> str:
+    """Chuyển tiêu đề thành ID dạng slug (VD: 'Truyện Kiều' -> 'truyen-kieu')."""
+    text = remove_diacritics(text).lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+    return re.sub(r"-+", "-", text)
 
-def ensure_unique(base, used):
-    if base not in used: return base
+def ensure_unique(base: str, used: set) -> str:
+    """Đảm bảo ID không bị trùng lặp. Nếu trùng, thêm -2, -3..."""
+    if base not in used:
+        return base
     n = 2
-    while f"{base}-{n}" in used: n += 1
+    while f"{base}-{n}" in used:
+        n += 1
     return f"{base}-{n}"
 
-# ─── ĐỌC / GHI FILE ───────────────────────────────────────────────────────
-def load(path):
+# ─── ĐỌC / GHI FILE VÀ BACKUP ─────────────────────────────────────────────
+
+def load_json(path: str) -> list:
+    """Đọc file JSON an toàn, trả về mảng rỗng nếu file không tồn tại."""
     p = Path(path)
     if not p.exists():
-        print(f"  {SYM['warn']}  Không có: {path}")
         return []
-    with open(p, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(p, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if not isinstance(data, list):
+                print(f"  {SYM['err']}  Lỗi: File {path} phải là một mảng [...]")
+                sys.exit(1)
+            return data
+    except json.JSONDecodeError as e:
+        print(f"  {SYM['err']}  Lỗi cú pháp JSON trong {path}: {e}")
+        sys.exit(1)
 
-def save(path, data):
+def save_json(path: str, data: list) -> None:
+    """Ghi file JSON và tự động tạo backup nếu file đã tồn tại."""
     p = Path(path)
     if p.exists():
         Path(BACKUP_DIR).mkdir(exist_ok=True)
         ts  = datetime.now().strftime("%Y%m%d_%H%M%S")
         bak = Path(BACKUP_DIR) / f"{p.stem}_{ts}{p.suffix}"
         shutil.copy2(p, bak)
-        print(f"  {SYM['bak']}  Backup: {bak}")
+        print(f"  {SYM['bak']}  Đã tạo Backup: {bak}")
+    
     with open(p, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
-    print(f"  {SYM['ok']}  Ghi: {path} ({len(data)} mục)")
+    print(f"  {SYM['ok']}  Đã lưu: {path} ({len(data)} mục)")
 
-# ─── LOGIC CHÍNH ──────────────────────────────────────────────────────────
-def normalize_ids(entries):
-    used, out = set(), []
+# ─── LOGIC XỬ LÝ DỮ LIỆU ──────────────────────────────────────────────────
+
+def normalize_ids(entries: list) -> list:
+    """Quét qua tất cả dữ liệu, tự động thêm trường 'id' nếu bị thiếu."""
+    used_ids = set()
+    result = []
     for e in entries:
-        e = dict(e)
+        e = dict(e) # Tạo bản sao để không ảnh hưởng mảng gốc
         if "id" not in e or not e["id"]:
-            e["id"] = ensure_unique(slugify(e.get("title", "untitled")), used)
-        elif e["id"] in used:
-            e["id"] = ensure_unique(e["id"], used)
-        used.add(e["id"])
-        out.append(e)
-    return out
+            e["id"] = ensure_unique(slugify(e.get("title", "untitled")), used_ids)
+        elif e["id"] in used_ids:
+            e["id"] = ensure_unique(e["id"], used_ids)
+        
+        used_ids.add(e["id"])
+        result.append(e)
+    return result
 
-def validate(entries):
-    errs = []
+def validate_schema(entries: list) -> list:
+    """Kiểm tra xem có mục nào bị thiếu trường bắt buộc không."""
+    errors = []
     for i, e in enumerate(entries):
-        for f in REQUIRED:
-            if not e.get(f):
-                errs.append(f"#{i} '{e.get('title','?')}': thiếu '{f}'")
-    return errs
+        for field in REQUIRED_FIELDS:
+            if not e.get(field):
+                errors.append(f"Mục #{i} (ID: {e.get('id', '?')}) thiếu trường '{field}'")
+    return errors
+
+def print_statistics(entries: list) -> None:
+    """In biểu đồ thống kê phân bố thể loại."""
+    cats = {}
+    for e in entries:
+        cat = e.get("category", "khong-ro")
+        cats[cat] = cats.get(cat, 0) + 1
+
+    print(f"\n  {SYM['stat']}  Thống kê theo Category:")
+    for cat, count in sorted(cats.items(), key=lambda x: -x[1]):
+        # Vẽ biểu đồ cột (tối đa 25 ký tự ▮)
+        bar = SYM["bar"] * min(count // 2, 25)
+        print(f"     {cat:15s} {SYM['vl']} {count:3d}  {bar}")
+    print(f"     {'TỔNG CỘNG':15s} {SYM['vl']} {len(entries):3d}")
+
+# ─── HÀM CHẠY CHÍNH ───────────────────────────────────────────────────────
 
 def main():
-    print(banner("VĂN ĐẠO - Tool chuẩn hóa dữ liệu"))
+    parser = argparse.ArgumentParser(description="VĂN ĐẠO - Tool chuẩn hóa và merge dữ liệu.")
+    parser.add_argument("--data", default=DEFAULT_DATA_FILE, help="Đường dẫn file JSON gốc")
+    parser.add_argument("--new", default=None, help="Đường dẫn file JSON chứa dữ liệu mới cần merge")
+    args = parser.parse_args()
+
+    print(banner("VĂN ĐẠO - TOOL DỮ LIỆU VĂN HIẾN"))
     print()
 
-    existing = load(DATA_FILE)
-    print(f"  {SYM['dir']}  File hiện tại: {len(existing)} mục")
-    existing = normalize_ids(existing)
+    # 1. Đọc file gốc
+    print(f"  {SYM['dir']}  Đang đọc file gốc: {args.data}")
+    existing_data = load_json(args.data)
+    print(f"     -> Tìm thấy {len(existing_data)} mục.")
+    
+    # 2. Chuẩn hóa ID cho file gốc (đề phòng có mục cũ chưa có ID)
+    existing_data = normalize_ids(existing_data)
 
-    new = load(NEW_FILE)
-    if new:
-        print(f"  {SYM['dir']}  File mới: {len(new)} mục")
-        new = normalize_ids(new)
-        used = {e["id"] for e in existing}
-        for e in new:
-            if e["id"] in used:
-                e["id"] = ensure_unique(e["id"], used)
-            used.add(e["id"])
-        existing += new
-        print(f"  {SYM['merge']}  Đã merge: tổng {len(existing)} mục")
+    # 3. Nếu có file mới, tiến hành merge
+    if args.new:
+        print(f"\n  {SYM['dir']}  Đang đọc file mới: {args.new}")
+        new_data = load_json(args.new)
+        
+        if new_data:
+            print(f"     -> Tìm thấy {len(new_data)} mục mới.")
+            new_data = normalize_ids(new_data)
+            
+            # Đảm bảo ID của file mới không trùng với file cũ
+            used_ids = {e["id"] for e in existing_data}
+            for e in new_data:
+                if e["id"] in used_ids:
+                    e["id"] = ensure_unique(e["id"], used_ids)
+                used_ids.add(e["id"])
+            
+            existing_data.extend(new_data)
+            print(f"  {SYM['merge']}  Đã merge thành công. Tổng cộng: {len(existing_data)} mục.")
+        else:
+            print(f"  {SYM['warn']}  File mới rỗng hoặc không tồn tại. Bỏ qua bước merge.")
 
-    errs = validate(existing)
-    if errs:
-        print(f"\n  {SYM['err']}  {len(errs)} lỗi schema:")
-        for e in errs[:10]:
-            print(f"     {SYM['bullet']} {e}")
+    # 4. Kiểm tra lỗi (Validate)
+    print(f"\n  {SYM['dir']}  Đang kiểm tra tính toàn vẹn dữ liệu...")
+    errors = validate_schema(existing_data)
+    if errors:
+        print(f"  {SYM['err']}  Phát hiện {len(errors)} lỗi schema:")
+        for err in errors[:10]: # Chỉ in 10 lỗi đầu tiên để đỡ rối
+            print(f"     {SYM['bullet']} {err}")
+        if len(errors) > 10:
+            print(f"     ... và {len(errors) - 10} lỗi khác.")
     else:
-        print(f"  {SYM['ok']}  Schema OK")
+        print(f"  {SYM['ok']}  Tất cả dữ liệu đều hợp lệ. Schema OK.")
 
-    cats = {}
-    for e in existing:
-        c = e.get("category", "?")
-        cats[c] = cats.get(c, 0) + 1
+    # 5. In thống kê
+    print_statistics(existing_data)
 
-    print(f"\n  {SYM['stat']}  Thống kê theo category:")
-    for c, n in sorted(cats.items(), key=lambda x: -x[1]):
-        bar = SYM["bar"] * min(n // 3, 20)
-        print(f"     {c:15s} {SYM['vl']} {n:3d}  {bar}")
-    print(f"     {'TỔNG':15s} {SYM['vl']} {len(existing):3d}")
+    # 6. Ghi file
     print()
-
-    save(DATA_FILE, existing)
+    save_json(args.data, existing_data)
+    
+    print(f"\n{SYM['ok']}  HOÀN TẤT!\n")
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print(f"\n  {SYM['stop']}  Hủy")
+        print(f"\n  {SYM['stop']}  Đã hủy bởi người dùng.")
         sys.exit(1)
