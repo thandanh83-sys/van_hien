@@ -1,8 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V58 - GAME OPTIMIZED)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V61 - FULL OPTIMIZED)
    Tác giả: Văn Đạo
-   Mô tả: Tích hợp Tìm kiếm, Copy Link, Deep Link Scroll, Phân tích Thi Pháp,
-          Render dữ liệu từ JSON và Kỹ thuật Viewport Culling (Lazy Load).
+   Mô tả: Tích hợp Phân trang, Tìm kiếm, Bách Khoa Độc Quyền, Cache,
+          Fix lỗi Safari và Deep Link thông minh.
    ===================================================================== */
 
 /* =====================================================================
@@ -14,15 +14,17 @@ const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="cur
 const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
+// Các Key lưu trữ
 const THEME_KEY = 'vandao_theme';
-
-// Danh sách ID các tác phẩm cần gắn nhãn "Cần kiểm chứng"
+const CACHE_KEY = 'vandao_cache_v2'; // Tăng version để xóa cache cũ nếu có thay đổi dữ liệu
 const NEEDS_REVIEW_IDS = ['chinh-phu-ngam-khuc'];
 
-// Biến toàn cục lưu trữ dữ liệu tải từ JSON
-let HERITAGE_DATA = [];
-let ENCYCLOPEDIA_DATA = [];
-let QUOTES_DATA = [];
+// Cấu hình phân trang
+const ITEMS_PER_PAGE = 20;
+
+// Biến toàn cục
+let HERITAGE_DATA = [], ENCYCLOPEDIA_DATA = [], QUOTES_DATA = [];
+let currentMainCat = 'all', currentGenre = 'all', currentPage = 1;
 
 /* =====================================================================
    MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI) & FAVICON
@@ -31,8 +33,8 @@ function toggleTheme() {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
     localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
-    updateCanvasColors();
-    updateThemeText(isDark);
+    updateCanvasColors(); 
+    updateThemeText(isDark); 
     updateFavicon(isDark);
 }
 
@@ -40,7 +42,7 @@ function loadSavedTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
     const isDark = savedTheme === 'dark';
     if (isDark) document.body.classList.add('dark-mode');
-    updateThemeText(isDark);
+    updateThemeText(isDark); 
     updateFavicon(isDark);
 }
 
@@ -87,23 +89,13 @@ document.addEventListener('click', (e) => {
 });
 
 /* =====================================================================
-   MODULE 4: LOGIC LỌC, TÌM KIẾM VÀ COPY LINK (VĂN HIẾN)
+   MODULE 4: LOGIC LỌC, TÌM KIẾM VÀ PHÂN TRANG (VĂN HIẾN)
    ===================================================================== */
-let currentMainCat = 'all';
-let currentGenre = 'all';
-
 const CATEGORY_NAMES = {
-    'dan-gian': 'Dân gian',
-    'trung-dai': 'Trung đại',
-    'hien-dai': 'Hiện đại',
-    'the-gioi': 'Thế giới',
-    'dac-thu': 'Đặc thù',
-    'ca-dao': 'Ca dao - Tục ngữ',
-    'dien-tich': 'Điển tích',
-    'truyen-cuoi': 'Truyện cười',
-    'ngu-ngon': 'Ngụ ngôn',
-    'kich': 'Kịch',
-    'ky': 'Ký'
+    'dan-gian': 'Dân gian', 'trung-dai': 'Trung đại', 'hien-dai': 'Hiện đại',
+    'the-gioi': 'Thế giới', 'dac-thu': 'Đặc thù', 'ca-dao': 'Ca dao - Tục ngữ',
+    'dien-tich': 'Điển tích', 'truyen-cuoi': 'Truyện cười', 'ngu-ngon': 'Ngụ ngôn',
+    'kich': 'Kịch', 'ky': 'Ký'
 };
 
 function initMainFilters() {
@@ -124,6 +116,7 @@ function initMainFilters() {
 function filterMainCategory(category, btnElement) {
     currentMainCat = category;
     currentGenre = 'all';
+    currentPage = 1; // Reset về trang 1 khi đổi bộ lọc
     
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
@@ -153,42 +146,57 @@ function filterMainCategory(category, btnElement) {
 
 function filterSubGenre(genre, btnElement) {
     currentGenre = genre;
+    currentPage = 1; // Reset về trang 1 khi đổi bộ lọc
+    
     document.querySelectorAll('#sub-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
     renderHeritage();
 }
 
+// Khi gõ tìm kiếm, tự động reset về trang 1
+function searchHeritage() {
+    currentPage = 1; 
+    renderHeritage();
+}
+
+// HÀM RENDER CHÍNH TÍCH HỢP PHÂN TRANG
 function renderHeritage() {
     const grid = document.getElementById('heritage-grid');
     const searchInput = document.getElementById('search-input');
     const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
-
     if (!grid) return;
     
+    // 1. Lọc dữ liệu
     let data = HERITAGE_DATA;
-    
     if (currentMainCat !== 'all') data = data.filter(item => item.category === currentMainCat);
     if (currentGenre !== 'all') data = data.filter(item => item.genre === currentGenre);
-
     if (keyword) {
-        data = data.filter(item => 
-            item.title.toLowerCase().includes(keyword) || 
-            item.author.toLowerCase().includes(keyword)
-        );
+        data = data.filter(item => item.title.toLowerCase().includes(keyword) || item.author.toLowerCase().includes(keyword));
     }
 
+    // 2. Xử lý trường hợp không có kết quả
     if (data.length === 0) {
         grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted); font-style: italic;">Không tìm thấy tác phẩm nào phù hợp.</p>`;
+        const pagContainer = document.getElementById('pagination-container');
+        if (pagContainer) pagContainer.innerHTML = '';
         return;
     }
 
-    grid.innerHTML = data.map(item => {
+    // 3. Tính toán phân trang
+    const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    // 4. Render HTML cho trang hiện tại
+    grid.innerHTML = paginatedData.map(item => {
         let statusBadge = '';
         if (NEEDS_REVIEW_IDS.includes(item.id)) {
             statusBadge = `<span style="font-size:0.65rem; background:rgba(212,175,55,0.2); color:var(--accent-gold); padding:2px 8px; border-radius:10px; margin-left:10px; font-weight:normal; vertical-align:middle; white-space:nowrap;">Cần kiểm chứng</span>`;
         }
         
-        // ĐÃ THÊM CLASS "lazy-card" ĐỂ KÍCH HOẠT VIEWPORT CULLING
         return `
         <div class="heritage-card lazy-card" id="${item.id}">
             <span class="h-tag">${item.genre}</span>
@@ -210,10 +218,48 @@ function renderHeritage() {
         `;
     }).join('');
 
-    // Kích hoạt Lazy Load cho các thẻ vừa render
-    setupLazyLoading(); 
+    // 5. Vẽ thanh phân trang
+    renderPagination(totalPages);
 }
 
+// Hàm vẽ thanh chuyển trang (Pagination)
+function renderPagination(totalPages) {
+    let pagContainer = document.getElementById('pagination-container');
+    if (!pagContainer) {
+        pagContainer = document.createElement('div');
+        pagContainer.id = 'pagination-container';
+        pagContainer.className = 'pagination-container';
+        document.getElementById('heritage-grid').after(pagContainer);
+    }
+
+    if (totalPages <= 1) {
+        pagContainer.innerHTML = '';
+        return;
+    }
+
+    let html = `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Trước</button>`;
+    
+    for (let i = 1; i <= totalPages; i++) {
+        // Hiện trang đầu, trang cuối, trang hiện tại và 2 trang kề nó
+        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+            html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+        } else if (i === currentPage - 2 || i === currentPage + 2) {
+            html += `<span class="page-ellipsis">...</span>`;
+        }
+    }
+    
+    html += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Sau</button>`;
+    pagContainer.innerHTML = html;
+}
+
+function changePage(page) {
+    currentPage = page;
+    renderHeritage();
+    // Cuộn lên đầu thanh tìm kiếm cho dễ nhìn
+    document.getElementById('search-input').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Hàm Copy Link
 function copyLink(id) {
     const url = window.location.origin + window.location.pathname + '#' + id;
     navigator.clipboard.writeText(url).then(() => {
@@ -234,13 +280,14 @@ function copyLink(id) {
 }
 
 /* =====================================================================
-   MODULE 5: RENDER BÁCH KHOA & MỤC LỤC (TỰ ĐỘNG)
+   MODULE 5: RENDER BÁCH KHOA (ĐỘC QUYỀN & UNLOAD)
    ===================================================================== */
 function renderEncyclopedia() {
     const container = document.getElementById('encyclopedia-container');
     const tocContainer = document.getElementById('encyclopedia-toc');
     if (!container || ENCYCLOPEDIA_DATA.length === 0) return;
-
+    
+    // 1. Tạo mục lục
     if (tocContainer) {
         tocContainer.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => {
             const match = item.title.match(/Quyển\s+([IVXLCDM]+|[0-9]+)/i);
@@ -248,29 +295,55 @@ function renderEncyclopedia() {
             return `<button class="toc-btn" onclick="scrollToVolume(${index})">Quyển ${volNumber}</button>`;
         }).join('');
     }
-
+    
+    // 2. Tạo khung xương (chưa chèn nội dung)
     container.innerHTML = ENCYCLOPEDIA_DATA.map((item, index) => `
         <div class="accordion-item" id="vol-${index}">
-            <details>
+            <details data-index="${index}">
                 <summary>${item.title}</summary>
-                <div class="accordion-content">${item.content}</div>
+                <div class="accordion-content"></div>
             </details>
         </div>
     `).join('');
+
+    // 3. Gắn sự kiện Toggle để xử lý Đóng/Mở và Nạp/Xóa dữ liệu
+    const allDetails = container.querySelectorAll('details');
+    allDetails.forEach(detail => {
+        detail.addEventListener('toggle', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            const contentDiv = this.querySelector('.accordion-content');
+
+            if (this.open) {
+                // BƯỚC 1: Đóng tất cả các Quyển khác (để đảm bảo tính độc quyền)
+                allDetails.forEach(otherDetail => {
+                    if (otherDetail !== this && otherDetail.open) {
+                        otherDetail.open = false; // Việc này sẽ tự động kích hoạt sự kiện 'else' bên dưới để xóa data
+                    }
+                });
+
+                // BƯỚC 2: Nạp nội dung nếu đang trống (Lazy Load)
+                if (contentDiv.innerHTML.trim() === '') {
+                    contentDiv.innerHTML = ENCYCLOPEDIA_DATA[index].content;
+                }
+            } else {
+                // NẾU ĐÓNG: Xóa sạch nội dung để giải phóng bộ nhớ (Unload)
+                contentDiv.innerHTML = '';
+            }
+        });
+    });
 }
 
 function scrollToVolume(index) {
     const target = document.getElementById(`vol-${index}`);
     if (target) {
         const details = target.querySelector('details');
-        if (details) details.open = true;
+        if (details) details.open = true; // Gán open sẽ tự động kích hoạt sự kiện toggle ở trên
         
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
         const summary = target.querySelector('summary');
-        if (summary) {
-            summary.style.backgroundColor = 'rgba(212, 175, 55, 0.2)';
-            setTimeout(() => { summary.style.backgroundColor = ''; }, 1500);
+        if (summary) { 
+            summary.style.backgroundColor = 'rgba(212, 175, 55, 0.2)'; 
+            setTimeout(() => { summary.style.backgroundColor = ''; }, 1500); 
         }
     }
 }
@@ -379,24 +452,9 @@ const POETRY_ANALYZER = (() => {
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
 
-    const SYMBOLS = {
-        'trăng': { vol: 'V', sec: '5.2', mean: 'đoàn viên, nhớ quê, cô đơn, chiêm nghiệm' }, 'nguyệt': { vol: 'V', sec: '5.2', mean: 'Hán Việt của "trăng"' },
-        'liễu': { vol: 'V', sec: '5.2', mean: 'chia biệt' }, 'đào': { vol: 'V', sec: '5.2', mean: 'tuổi trẻ, mùa xuân' },
-        'sen': { vol: 'V', sec: '5.2', mean: 'thanh khiết' }, 'hạc': { vol: 'V', sec: '5.2', mean: 'thanh cao, trường thọ' },
-        'nhạn': { vol: 'V', sec: '5.2', mean: 'tin tức' }, 'mây': { vol: 'V', sec: '5.2', mean: 'phiêu du' },
-        'nước': { vol: 'V', sec: '5.2', mean: 'thời gian, mềm mại' }, 'thuyền': { vol: 'V', sec: '5.2', mean: 'hành trình' },
-        'bến đò': { vol: 'V', sec: '5.2', mean: 'gặp gỡ, chia tay' }
-    };
-    const DIEN_TICH = {
-        'sân lai': { vol: 'V', sec: '5.2', mean: 'lòng hiếu thảo (Lão Lai Tử)' }, 'ngưu lang': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' },
-        'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' },
-        'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm, mất tự do' }
-    };
-    const HAN_VIET = {
-        'vọng': { vol: 'VIII', sec: '8.5', mean: '望 — trông về, ngóng đợi.' },
-        'khúc': { vol: 'VIII', sec: '8.5', mean: '曲 — khúc nhạc, bản nhạc.' },
-        'dặm trường': { vol: 'VIII', sec: '8.5', mean: 'trường = 長 (dài) — đường xa.' }
-    };
+    const SYMBOLS = { 'trăng': { vol: 'V', sec: '5.2', mean: 'đoàn viên, nhớ quê, cô đơn, chiêm nghiệm' }, 'nguyệt': { vol: 'V', sec: '5.2', mean: 'Hán Việt của "trăng"' }, 'liễu': { vol: 'V', sec: '5.2', mean: 'chia biệt' }, 'đào': { vol: 'V', sec: '5.2', mean: 'tuổi trẻ, mùa xuân' }, 'sen': { vol: 'V', sec: '5.2', mean: 'thanh khiết' }, 'hạc': { vol: 'V', sec: '5.2', mean: 'thanh cao, trường thọ' }, 'nhạn': { vol: 'V', sec: '5.2', mean: 'tin tức' }, 'mây': { vol: 'V', sec: '5.2', mean: 'phiêu du' }, 'nước': { vol: 'V', sec: '5.2', mean: 'thời gian, mềm mại' }, 'thuyền': { vol: 'V', sec: '5.2', mean: 'hành trình' }, 'bến đò': { vol: 'V', sec: '5.2', mean: 'gặp gỡ, chia tay' } };
+    const DIEN_TICH = { 'sân lai': { vol: 'V', sec: '5.2', mean: 'lòng hiếu thảo (Lão Lai Tử)' }, 'ngưu lang': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' }, 'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm, mất tự do' } };
+    const HAN_VIET = { 'vọng': { vol: 'VIII', sec: '8.5', mean: '望 — trông về, ngóng đợi.' }, 'khúc': { vol: 'VIII', sec: '8.5', mean: '曲 — khúc nhạc, bản nhạc.' }, 'dặm trường': { vol: 'VIII', sec: '8.5', mean: 'trường = 長 (dài) — đường xa.' } };
 
     function findSymbols(text) {
         const lower = text.toLowerCase();
@@ -535,31 +593,32 @@ function executePipeline() {
 function gotoEncyclopedia(volNum, secNum) {
     switchView('encyclopedia');
     setTimeout(() => {
-        const details = document.querySelectorAll('#encyclopedia-container details');
-        for (const d of details) {
-            const summary = d.querySelector('summary');
-            if (!summary) continue;
+        const detailsList = document.querySelectorAll('#encyclopedia-container details');
+        for (const d of detailsList) {
+            const summary = d.querySelector('summary'); if (!summary) continue;
             const text = summary.textContent.trim();
             
             if (text.startsWith(`Quyển ${volNum}.`) || text.startsWith(`Quyển ${volNum} `)) {
+                // Sự kiện toggle sẽ tự động đóng các quyển khác và nạp data cho quyển này
                 d.open = true;
-                if (secNum) {
-                    const headings = d.querySelectorAll('h4');
-                    for (const h of headings) {
-                        if (h.textContent.includes(secNum)) {
-                            setTimeout(() => {
+                
+                setTimeout(() => {
+                    if (secNum) {
+                        const headings = d.querySelectorAll('h4');
+                        for (const h of headings) {
+                            if (h.textContent.includes(secNum)) {
                                 h.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                h.style.backgroundColor = 'rgba(212, 175, 55, 0.2)';
-                                h.style.padding = '5px 10px';
-                                h.style.borderRadius = '4px';
+                                h.style.backgroundColor = 'rgba(212, 175, 55, 0.2)'; 
+                                h.style.padding = '5px 10px'; 
+                                h.style.borderRadius = '4px'; 
                                 h.style.transition = 'background-color 1.5s ease';
                                 setTimeout(() => { h.style.backgroundColor = 'transparent'; }, 2000);
-                            }, 300);
-                            return;
+                                return;
+                            }
                         }
                     }
-                }
-                d.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    d.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 150);
                 return;
             }
         }
@@ -569,37 +628,28 @@ function gotoEncyclopedia(volNum, secNum) {
 /* =====================================================================
    MODULE 10: HIỆU ỨNG ĐỘNG & VISUAL EFFECTS
    ===================================================================== */
-let canvas, ctx;
-let ripples = [];
-let isDarkTheme = false;
-
+let canvas, ctx; let ripples = []; let isDarkTheme = false;
 function updateCanvasColors() { isDarkTheme = document.body.classList.contains('dark-mode'); }
 
 function initCursorGlow() {
     if (window.matchMedia('(pointer: fine)').matches) {
-        const glow = document.getElementById('cursor-glow');
-        if (!glow) return;
-        window.addEventListener('mousemove', (e) => {
-            requestAnimationFrame(() => { glow.style.left = `${e.clientX}px`; glow.style.top = `${e.clientY}px`; });
-        });
-    } else {
-        const glow = document.getElementById('cursor-glow');
-        if (glow) glow.style.display = 'none';
+        const glow = document.getElementById('cursor-glow'); if (!glow) return;
+        window.addEventListener('mousemove', (e) => { requestAnimationFrame(() => { glow.style.left = `${e.clientX}px`; glow.style.top = `${e.clientY}px`; }); });
+    } else { 
+        const glow = document.getElementById('cursor-glow'); 
+        if (glow) glow.style.display = 'none'; 
     }
 }
 
 function initWaterCanvas() {
-    canvas = document.getElementById('water-canvas');
-    if (!canvas) return;
+    canvas = document.getElementById('water-canvas'); if (!canvas) return;
     ctx = canvas.getContext('2d');
     const resizeCanvas = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas(); window.addEventListener('resize', resizeCanvas);
     window.addEventListener('click', (e) => { ripples.push({ x: e.clientX, y: e.clientY, radius: 2, alpha: 0.5, growth: 1.5, fade: 0.015 }); });
-    
     function animateRipples() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; 
+        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158';
         for (let i = ripples.length - 1; i >= 0; i--) {
             let p = ripples[i]; p.radius += p.growth; p.alpha -= p.fade;
             if (p.alpha <= 0) { ripples.splice(i, 1); continue; }
@@ -612,144 +662,114 @@ function initWaterCanvas() {
 }
 
 function initDewdrops() {
-    const container = document.getElementById('dewdrop-container');
-    if (!container) return;
+    const container = document.getElementById('dewdrop-container'); if (!container) return;
     setInterval(() => {
         if (document.body.classList.contains('dark-mode')) return;
-        const drop = document.createElement('div');
-        drop.className = 'dewdrop';
-        const size = Math.random() * 6 + 2;
-        drop.style.width = `${size}px`; drop.style.height = `${size}px`;
-        drop.style.left = `${Math.random() * 100}vw`;
-        drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
-        container.appendChild(drop);
-        setTimeout(() => drop.remove(), 20000); 
+        const drop = document.createElement('div'); drop.className = 'dewdrop';
+        const size = Math.random() * 6 + 2; drop.style.width = `${size}px`; drop.style.height = `${size}px`;
+        drop.style.left = `${Math.random() * 100}vw`; drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
+        container.appendChild(drop); setTimeout(() => drop.remove(), 20000);
     }, 800);
 }
 
 /* =====================================================================
-   MODULE 11: TẢI DỮ LIỆU TỰ ĐỘNG (SAFARI IOS FIX)
+   MODULE 11: TẢI DỮ LIỆU TỰ ĐỘNG (CACHE LOCALSTORAGE)
    ===================================================================== */
 async function loadAllData() {
     try {
-        const fetchOptions = { cache: "no-store" }; 
+        const cachedData = localStorage.getItem(CACHE_KEY);
         
-        const [resHeritage, resEncyclopedia, resQuotes] = await Promise.all([
-            fetch('./data-heritage.json', fetchOptions),
-            fetch('./data-encyclopedia.json', fetchOptions),
-            fetch('./data-quotes.json', fetchOptions)
-        ]);
+        if (cachedData) {
+            console.log("VĂN ĐẠO: Tải dữ liệu từ Cache (Tốc độ ánh sáng)");
+            const parsed = JSON.parse(cachedData);
+            HERITAGE_DATA = parsed.heritage;
+            ENCYCLOPEDIA_DATA = parsed.encyclopedia;
+            QUOTES_DATA = parsed.quotes;
+        } else {
+            console.log("VĂN ĐẠO: Tải dữ liệu từ GitHub (Lần đầu)");
+            const fetchOptions = { cache: "no-store" };
+            const [resHeritage, resEncyclopedia, resQuotes] = await Promise.all([
+                fetch('./data-heritage.json', fetchOptions), 
+                fetch('./data-encyclopedia.json', fetchOptions), 
+                fetch('./data-quotes.json', fetchOptions)
+            ]);
+            
+            if (!resHeritage.ok || !resEncyclopedia.ok || !resQuotes.ok) throw new Error("Lỗi 404 - Không tìm thấy file JSON.");
+            
+            HERITAGE_DATA = await resHeritage.json();
+            ENCYCLOPEDIA_DATA = await resEncyclopedia.json();
+            QUOTES_DATA = await resQuotes.json();
 
-        if (!resHeritage.ok) throw new Error(`Không tìm thấy file data-heritage.json (Mã HTTP: ${resHeritage.status})`);
-        if (!resEncyclopedia.ok) throw new Error(`Không tìm thấy file data-encyclopedia.json (Mã HTTP: ${resEncyclopedia.status})`);
-        if (!resQuotes.ok) throw new Error(`Không tìm thấy file data-quotes.json (Mã HTTP: ${resQuotes.status})`);
+            // Lưu vào bộ nhớ máy
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                heritage: HERITAGE_DATA, encyclopedia: ENCYCLOPEDIA_DATA, quotes: QUOTES_DATA
+            }));
+        }
 
-        const textHeritage = await resHeritage.text();
-        const textEncyclopedia = await resEncyclopedia.text();
-        const textQuotes = await resQuotes.text();
-
-        try { HERITAGE_DATA = JSON.parse(textHeritage); } 
-        catch (e) { throw new Error("File data-heritage.json bị lỗi cú pháp JSON."); }
-
-        try { ENCYCLOPEDIA_DATA = JSON.parse(textEncyclopedia); } 
-        catch (e) { throw new Error("File data-encyclopedia.json bị lỗi cú pháp JSON."); }
-
-        try { QUOTES_DATA = JSON.parse(textQuotes); } 
-        catch (e) { throw new Error("File data-quotes.json bị lỗi cú pháp JSON."); }
-
-        loadSavedTheme();
-        updateCanvasColors();
-        
-        initMainFilters();
-        renderHeritage();
+        // Khởi chạy giao diện
+        loadSavedTheme(); 
+        updateCanvasColors(); 
+        initMainFilters(); 
+        renderHeritage(); 
         renderEncyclopedia();
-        
         renderRandomQuote(); 
-        setInterval(renderRandomQuote, 6000); 
-        
-        initCursorGlow();
-        initWaterCanvas();
+        setInterval(renderRandomQuote, 6000);
+        initCursorGlow(); 
+        initWaterCanvas(); 
         initDewdrops();
-
-        // Gọi hàm xử lý deep link SAU KHI mọi thứ đã render
+        
+        // Xử lý Deep Link nếu có
         handleHashScroll();
 
-        console.log("VĂN ĐẠO V58: Tải dữ liệu thành công!");
-
     } catch (error) {
-        console.error("LỖI TẢI DỮ LIỆU: ", error);
+        console.error("LỖI TẢI DỮ LIỆU: ", error); 
         alert("Lỗi tải dữ liệu:\n\n" + error.message);
     }
 }
 
 /* =====================================================================
-   MODULE 12: VIEWPORT CULLING (GAME ENGINE STYLE LAZY LOAD)
-   ===================================================================== */
-let lazyObserver;
-
-function setupLazyLoading() {
-    if (!('IntersectionObserver' in window)) {
-        document.querySelectorAll('.lazy-card').forEach(card => {
-            card.classList.add('is-visible');
-        });
-        return;
-    }
-
-    if (lazyObserver) {
-        lazyObserver.disconnect();
-    }
-
-    lazyObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                observer.unobserve(entry.target); 
-            }
-        });
-    }, {
-        rootMargin: '150px 0px', // Tải trước 150px khi sắp cuộn tới
-        threshold: 0.01 
-    });
-
-    document.querySelectorAll('.lazy-card').forEach(card => {
-        lazyObserver.observe(card);
-    });
-}
-
-/* =====================================================================
-   MODULE 13: XỬ LÝ LINK DEEP LINK (#id) KHI SHARE
+   MODULE 12: XỬ LÝ DEEP LINK (#id) - TỰ ĐỘNG TÍNH TRANG
    ===================================================================== */
 function handleHashScroll() {
     if (window.location.hash) {
         const id = window.location.hash.substring(1);
         
-        // 1. Chuyển sang tab Văn Hiến
-        if (typeof switchView === 'function') {
+        // 1. Tìm xem tác phẩm nằm ở vị trí nào trong mảng dữ liệu
+        const dataIndex = HERITAGE_DATA.findIndex(item => item.id === id);
+        
+        if (dataIndex !== -1) {
+            // 2. Tính xem tác phẩm nằm ở Trang mấy
+            currentPage = Math.floor(dataIndex / ITEMS_PER_PAGE) + 1;
+            
+            // 3. Chuyển sang Văn Hiến, Reset bộ lọc để đảm bảo nó hiện ra
             switchView('heritage');
-        }
+            currentMainCat = 'all'; 
+            currentGenre = 'all'; 
+            
+            document.querySelectorAll('#main-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
+            const firstBtn = document.querySelector('#main-filter-bar .filter-btn');
+            if (firstBtn) firstBtn.classList.add('active');
+            const subBar = document.getElementById('sub-filter-bar');
+            if(subBar) subBar.style.display = 'none';
 
-        // 2. Đợi render xong rồi cuộn tới thẻ
-        setTimeout(() => {
-            const element = document.getElementById(id);
-            if (element) {
-                // QUAN TRỌNG: Ép hiển thị thẻ này ngay lập tức (vì có thể nó đang bị ẩn do Lazy Load)
-                element.classList.add('is-visible');
-                
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                element.classList.add('highlight-card');
-                
-                setTimeout(() => {
-                    element.classList.remove('highlight-card');
-                }, 2000);
-            }
-        }, 600); // Đợi DOM và view render ổn định
+            // 4. Render trang chứa tác phẩm đó
+            renderHeritage(); 
+
+            // 5. Cuộn và highlight
+            setTimeout(() => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    element.classList.add('highlight-card');
+                    setTimeout(() => element.classList.remove('highlight-card'), 2000);
+                }
+            }, 600);
+        }
     }
 }
 
-// Khởi chạy khi DOM sẵn sàng
-document.addEventListener('DOMContentLoaded', () => {
-    loadAllData();
-});
-
-// Bắt sự kiện khi người dùng nhấn vào một link share mới (hashchange)
+/* =====================================================================
+   MODULE 13: KHỞI CHẠY
+   ===================================================================== */
+document.addEventListener('DOMContentLoaded', () => { loadAllData(); });
 window.addEventListener('hashchange', handleHashScroll);
