@@ -1,18 +1,27 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V90 - FULL FEATURES)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V91 - FULL FEATURES)
    Tác giả: Văn Đạo
-   Mô tả: Tích hợp Debounce, Chart Bằng/Trắc, SVG Only, Không Bookmark.
+   Mô tả: Đã cập nhật tên 4 file JSON mới (data-ly-thuyet, data-tac-gia,
+          data-tac-pham, data-danh-ngon). Tích hợp Debounce, Chart Bằng/Trắc,
+          SVG Only, Không Bookmark.
    ===================================================================== */
 
 /* =====================================================================
    MODULE 1: HỆ THỐNG ICONS (SVG) & HẰNG SỐ
    ===================================================================== */
+// Icon cây bút (Tác phẩm)
 const ICON_PEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+// Icon cuốn sách (Thể loại / Chuyên khảo)
 const ICON_BOOK = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
+// Icon đồng hồ (Thời gian)
 const ICON_CLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+// Icon cuộn giấy (Văn tự)
 const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
+// Icon dấu tích xanh (Kết quả phân tích)
 const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+// Icon dấu hỏi (Gợi mở)
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
+// Icon mũi tên phải (Thay thế ký tự →)
 const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
 
 const THEME_KEY = 'vandao_theme';
@@ -568,11 +577,12 @@ async function loadAllData() {
             WORKS_DATA = parsed.works;
             QUOTES_DATA = parsed.quotes;
         } else {
+            // ĐÃ CẬP NHẬT TÊN FILE MỚI Ở ĐÂY
             const [resT, resA, resW, resQ] = await Promise.all([
-                fetch('./data-theory.json', { cache: "no-store" }), 
-                fetch('./data-encyclopedia.json', { cache: "no-store" }), 
-                fetch('./data-works.json', { cache: "no-store" }), 
-                fetch('./data-quotes.json', { cache: "no-store" })
+                fetch('./data-ly-thuyet.json', { cache: "no-store" }), 
+                fetch('./data-tac-gia.json', { cache: "no-store" }), 
+                fetch('./data-tac-pham.json', { cache: "no-store" }), 
+                fetch('./data-danh-ngon.json', { cache: "no-store" })
             ]);
             THEORY_DATA = await resT.json(); 
             AUTHOR_DATA = await resA.json(); 
