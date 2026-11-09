@@ -1,54 +1,67 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <!-- ========================================== -->
-    <!-- KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)   -->
-    <!-- ========================================== -->
+    <!-- ================================================================= -->
+    <!-- KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                           -->
+    <!-- Giúp Google hiểu trang web của bạn và hiển thị đúng trên điện thoại -->
+    <!-- ================================================================= -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="VĂN ĐẠO - Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
     <title>VĂN ĐẠO — Tinh Hoa Văn Chương & Tri Thức</title>
     
-    <!-- ========================================== -->
-    <!-- NHÚNG FONT CHỮ TỪ GOOGLE FONTS             -->
-    <!-- ========================================== -->
+    <!-- ================================================================= -->
+    <!-- NHÚNG FONT CHỮ TỪ GOOGLE FONTS                                     -->
+    <!-- Dùng 4 font: Cormorant (cổ điển), Playfair (sang trọng),           -->
+    <!-- Montserrat (hiện đại), Inter (dễ đọc)                              -->
+    <!-- ================================================================= -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
-    <!-- ========================================== -->
-    <!-- FAVICON ĐỘNG (Tự động đổi Logo Sáng/Tối)   -->
-    <!-- ========================================== -->
+    <!-- ================================================================= -->
+    <!-- FAVICON ĐỘNG (Tự động đổi Logo Sáng/Tối)                          -->
+    <!-- Thẻ id="dynamic-favicon" được JS điều khiển để đổi ảnh khi click  -->
+    <!-- nút chuyển chế độ (Sáng dùng logo_trang.png, Tối dùng logo_toi.png) -->
+    <!-- ================================================================= -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
-    <!-- ========================================== -->
-    <!-- LIÊN KẾT FILE CSS (v=1023 để ép xóa cache) -->
-    <!-- ========================================== -->
-    <link rel="stylesheet" href="style.css?v=1023">
+    <!-- ================================================================= -->
+    <!-- LIÊN KẾT FILE CSS (Đã cập nhật ?v=2026 để ép xóa cache)           -->
+    <!-- BẮT BUỘC ĐỔI SỐ NÀY mỗi khi bạn sửa file style.css                -->
+    <!-- ================================================================= -->
+    <link rel="stylesheet" href="style.css?v=2026">
 </head>
 <body>
 
-    <!-- ========================================== -->
-    <!-- LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT)    -->
-    <!-- ========================================== -->
+    <!-- ================================================================= -->
+    <!-- LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT, HẠT SƯƠNG)                -->
+    <!-- Các lớp này nằm dưới cùng (z-index thấp) và pointer-events: none   -->
+    <!-- để không cản trở việc click chuột vào nội dung chính               -->
+    <!-- ================================================================= -->
+    <!-- 1. Canvas vẽ hiệu ứng gợn sóng nước khi click -->
     <canvas id="water-canvas" aria-hidden="true"></canvas>
+    
+    <!-- 2. Quầng sáng theo dõi chuột (chỉ hiện trên máy tính) -->
     <div id="cursor-glow" aria-hidden="true"></div>
+    
+    <!-- 3. Container chứa các hạt sương bay (chỉ hiện ở chế độ Sáng) -->
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
 
-    <!-- ========================================== -->
-    <!-- CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG      -->
-    <!-- ========================================== -->
+    <!-- ================================================================= -->
+    <!-- CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG CỦA TRANG WEB                -->
+    <!-- ================================================================= -->
     <div class="container">
         
-        <!-- ========================================== -->
-        <!-- NAVBAR (THANH ĐIỀU HƯỚNG)                  -->
-        <!-- ========================================== -->
+        <!-- ============================================================= -->
+        <!-- THANH ĐIỀU HƯỚNG (NAVBAR)                                     -->
+        <!-- ============================================================= -->
         <nav class="navbar">
             <!-- Logo chữ Văn Đạo (Bấm vào để về Trang Chủ) -->
             <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
             
-            <!-- Khối chứa các nút Menu (Sẽ xổ xuống trên Mobile) -->
+            <!-- Khối chứa các nút Menu (Sẽ xổ xuống dạng Hamburger trên Mobile) -->
             <div class="nav-links" id="navMenu">
                 
                 <!-- Nút Trang Chủ -->
@@ -63,27 +76,27 @@
                     Văn Hiến
                 </button>
                 
-                <!-- Nút Bách Khoa -->
+                <!-- Nút Đại Bách Khoa -->
                 <button class="nav-btn" onclick="switchView('encyclopedia')" id="nav-encyclopedia">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     Bách Khoa
                 </button>
                 
-                <!-- Nút Thi Pháp -->
+                <!-- Nút Thi Pháp Học -->
                 <button class="nav-btn" onclick="switchView('analyze')" id="nav-analyze">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                     Thi Pháp
                 </button>
                 
-                <!-- Đường gạch ngang ngăn cách (chỉ hiện trên mobile) -->
+                <!-- Đường gạch ngang ngăn cách (chỉ hiển thị trên Mobile) -->
                 <div class="menu-divider"></div>
 
                 <!-- Nút Đổi Theme (Sáng/Tối) -->
                 <button class="nav-btn theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">
                     <span id="theme-icon-wrapper">
-                        <!-- Icon Mặt Trời (Hiện ở chế độ Tối, màu Vàng sáng) -->
+                        <!-- Icon Mặt Trời (Tự hiện ở chế độ Tối, màu Vàng sáng) -->
                         <svg class="sun-icon nav-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                        <!-- Icon Mặt Trăng (Hiện ở chế độ Sáng, màu Xanh ngọc) -->
+                        <!-- Icon Mặt Trăng (Tự hiện ở chế độ Sáng, màu Xanh ngọc) -->
                         <svg class="moon-icon nav-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     </span>
                     <!-- Chữ sẽ được JS tự động đổi thành "Chế độ Sáng" hoặc "Chế độ Tối" -->
@@ -91,84 +104,97 @@
                 </button>
             </div>
 
-            <!-- Nút Menu Hamburger (Chỉ hiển thị trên điện thoại) -->
+            <!-- Nút Menu Hamburger (Chỉ hiển thị trên điện thoại di động) -->
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Mở Menu">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
         </nav>
 
-        <!-- ========================================== -->
-        <!-- VIEW 1: TRANG CHỦ (HOME)                   -->
-        <!-- ========================================== -->
+        <!-- ============================================================= -->
+        <!-- VIEW 1: TRANG CHỦ (HOME)                                      -->
+        <!-- ============================================================= -->
         <section id="view-home" class="view active">
+            <!-- Phần Hero (Ảnh bìa & Giới thiệu) -->
             <div class="hero">
+                <!-- Nội dung chữ bên trái -->
                 <div class="hero-content">
                     <h1>
+                        <!-- Chữ hiển thị ở chế độ Sáng (Bạch Ngọc) -->
                         <span class="light-text">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
+                        <!-- Chữ hiển thị ở chế độ Tối (Thủy Mặc) -->
                         <span class="dark-text">Vạn Tượng<br>Trong <i>Lời</i></span>
                     </h1>
                     <p>
+                        <!-- Đoạn mô tả chế độ Sáng -->
                         <span class="light-text">Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</span>
+                        <!-- Đoạn mô tả chế độ Tối -->
                         <span class="dark-text">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</span>
                     </p>
+                    <!-- Nút kêu gọi hành động -->
                     <button class="btn" onclick="switchView('heritage')">
                         <span class="light-text">Khám Phá Tuyệt Tác</span>
                         <span class="dark-text">Thưởng Lãm</span>
                     </button>
                 </div>
                 
+                <!-- Khung ảnh vòm bên phải -->
                 <div class="hero-visual">
                     <div class="arch-frame">
+                        <!-- Ảnh Sáo trúc (Sáng) -->
                         <img class="light-img" src="khung_sang.jpg" alt="Tranh sáo trúc">
+                        <!-- Ảnh Mây vàng (Tối) -->
                         <img class="dark-img" src="khung_toi.jpg" alt="Tranh mây vàng">
                     </div>
                 </div>
             </div>
 
-            <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
+            <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Trích xuất từ data-quotes.json) -->
+            <!-- Khung này không có viền, chữ tự mờ dần và đổi câu mới mỗi 6s -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
-        <!-- ========================================== -->
-        <!-- VIEW 2: VĂN HIẾN (HERITAGE)                -->
-        <!-- ========================================== -->
+        <!-- ============================================================= -->
+        <!-- VIEW 2: VĂN HIẾN (HERITAGE)                                   -->
+        <!-- ============================================================= -->
         <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản văn học nước nhà & Thế giới</p>
             
-            <!-- TẦNG 1: LỌC THEO THỜI KỲ / KHU VỰC (JS tự động điền) -->
+            <!-- TẦNG 1: LỌC THEO THỜI KỲ / KHU VỰC (JS tự động điền các nút) -->
             <div class="filter-bar" id="main-filter-bar"></div>
             
-            <!-- TẦNG 2: LỌC THEO THỂ LOẠI (JS tự động điền khi bấm Tầng 1) -->
+            <!-- TẦNG 2: LỌC THEO THỂ LOẠI (JS tự hiện khi bấm Tầng 1) -->
             <div class="filter-bar" id="sub-filter-bar" style="display: none; margin-top: -20px;"></div>
             
             <!-- Vùng chứa động: JS sẽ tự động đổ các thẻ (card) tác phẩm vào đây -->
             <div class="heritage-grid" id="heritage-grid"></div>
         </section>
 
-        <!-- ========================================== -->
-        <!-- VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)       -->
-        <!-- ========================================== -->
+        <!-- ============================================================= -->
+        <!-- VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)                          -->
+        <!-- ============================================================= -->
         <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Cẩm nang học thuật văn chương</p>
             
-            <!-- MỤC LỤC TỰ ĐỘNG (JS sẽ tạo các nút Quyển I, Quyển II...) -->
+            <!-- MỤC LỤC TỰ ĐỘNG (JS sẽ đếm số Quyển và tạo các nút nhảy nhanh) -->
             <div id="encyclopedia-toc" class="toc-container"></div>
 
-            <!-- NỘI DUNG CÁC QUYỂN (JS sẽ render) -->
+            <!-- NỘI DUNG CÁC QUYỂN (JS sẽ render nội dung dạng Accordion) -->
             <div id="encyclopedia-container"></div>
         </section>
 
-        <!-- ========================================== -->
-        <!-- VIEW 4: THI PHÁP (ANALYZE)                 -->
-        <!-- ========================================== -->
+        <!-- ============================================================= -->
+        <!-- VIEW 4: THI PHÁP (ANALYZE)                                    -->
+        <!-- ============================================================= -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Thi Pháp Học</h1>
             
+            <!-- Khung nhập liệu -->
             <div class="analyze-box">
-                <!-- Khung nhập trống, chỉ có chữ mờ gợi ý -->
+                <!-- Vùng nhập thơ (placeholder là bài thơ mẫu) -->
                 <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
+                <!-- Nút kích hoạt bộ máy phân tích 4 tầng -->
                 <button onclick="executePipeline()">Phân Tích Ngay</button>
             </div>
             
@@ -178,10 +204,11 @@
 
     </div>
 
-    <!-- ========================================== -->
-    <!-- SCRIPTS (CHỈ CẦN GỌI SCRIPT.JS)            -->
-    <!-- ========================================== -->
-    <!-- KHÔNG CÒN CÁC THẺ GỌI DATA.JS Ở ĐÂY NỮA -->
-    <script src="script.js?v=1023"></script>
+    <!-- ================================================================= -->
+    <!-- SCRIPTS (BỘ NÃO XỬ LÝ LOGIC CỦA TOÀN BỘ TRANG WEB)                -->
+    <!-- Đã cập nhật ?v=2026 để ép xóa cache (BẮT BUỘC ĐỔI SỐ NÀY mỗi khi  -->
+    <!-- bạn sửa file script.js)                                           -->
+    <!-- ================================================================= -->
+    <script src="script.js?v=2026"></script>
 </body>
 </html>
