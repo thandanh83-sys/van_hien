@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <!-- ================================================================= -->
-    <!-- KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                           -->
-    <!-- Giúp Google hiểu trang web của bạn và hiển thị đúng trên điện thoại -->
+    <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                       -->
+    <!-- Giúp Google hiểu trang web và hiển thị đúng trên điện thoại        -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,50 +12,47 @@
     <title>VĂN ĐẠO — Tinh Hoa Văn Chương & Tri Thức</title>
     
     <!-- ================================================================= -->
-    <!-- NHÚNG FONT CHỮ TỪ GOOGLE FONTS                                     -->
-    <!-- Dùng 4 font: Cormorant (cổ điển), Playfair (sang trọng),           -->
-    <!-- Montserrat (hiện đại), Inter (dễ đọc)                              -->
+    <!-- 2. NHÚNG FONT CHỮ TỪ GOOGLE FONTS                                 -->
+    <!-- Cormorant (cổ điển), Playfair (sang trọng), Montserrat & Inter     -->
     <!-- ================================================================= -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- ================================================================= -->
-    <!-- FAVICON ĐỘNG (Tự động đổi Logo Sáng/Tối)                          -->
-    <!-- Thẻ id="dynamic-favicon" được JS điều khiển để đổi ảnh khi click  -->
-    <!-- nút chuyển chế độ (Sáng dùng logo_trang.png, Tối dùng logo_toi.png) -->
+    <!-- 3. FAVICON ĐỘNG (Tự động đổi Logo Sáng/Tối)                       -->
+    <!-- Thẻ id="dynamic-favicon" được JS điều khiển để đổi ảnh            -->
     <!-- ================================================================= -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ================================================================= -->
-    <!-- LIÊN KẾT FILE CSS (Đã cập nhật ?v=2029 để ép xóa cache)           -->
-    <!-- BẮT BUỘC ĐỔI SỐ NÀY mỗi khi bạn sửa file style.css                -->
+    <!-- 4. LIÊN KẾT FILE CSS (?v=1125 để ép xóa cache)                    -->
+    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 1125 thành số khác  -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2029">
+    <link rel="stylesheet" href="style.css?v=1125">
 </head>
 <body>
 
     <!-- ================================================================= -->
-    <!-- LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT, HẠT SƯƠNG)                -->
-    <!-- Các lớp này nằm dưới cùng (z-index thấp) và pointer-events: none   -->
-    <!-- để không cản trở việc click chuột vào nội dung chính               -->
+    <!-- 5. LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT, HẠT SƯƠNG)             -->
+    <!-- Các lớp này nằm dưới cùng và pointer-events: none                 -->
     <!-- ================================================================= -->
-    <!-- 1. Canvas vẽ hiệu ứng gợn sóng nước khi click -->
+    <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click -->
     <canvas id="water-canvas" aria-hidden="true"></canvas>
     
-    <!-- 2. Quầng sáng theo dõi chuột (chỉ hiện trên máy tính) -->
+    <!-- Quầng sáng theo dõi chuột (chỉ hiện trên máy tính) -->
     <div id="cursor-glow" aria-hidden="true"></div>
     
-    <!-- 3. Container chứa các hạt sương bay (chỉ hiện ở chế độ Sáng) -->
+    <!-- Container chứa các hạt sương bay (chỉ hiện ở chế độ Sáng) -->
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
 
     <!-- ================================================================= -->
-    <!-- CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG CỦA TRANG WEB                -->
+    <!-- 6. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                          -->
     <!-- ================================================================= -->
     <div class="container">
         
         <!-- ============================================================= -->
-        <!-- THANH ĐIỀU HƯỚNG (NAVBAR)                                     -->
+        <!-- 6.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
         <!-- ============================================================= -->
         <nav class="navbar">
             <!-- Logo chữ Văn Đạo (Bấm vào để về Trang Chủ) -->
@@ -111,7 +108,7 @@
         </nav>
 
         <!-- ============================================================= -->
-        <!-- VIEW 1: TRANG CHỦ (HOME)                                      -->
+        <!-- 6.2. VIEW 1: TRANG CHỦ (HOME)                                 -->
         <!-- ============================================================= -->
         <section id="view-home" class="view active">
             <!-- Phần Hero (Ảnh bìa & Giới thiệu) -->
@@ -149,17 +146,22 @@
             </div>
 
             <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Trích xuất từ data-quotes.json) -->
-            <!-- Khung này không có viền, chữ tự mờ dần và đổi câu mới mỗi 6s -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
         <!-- ============================================================= -->
-        <!-- VIEW 2: VĂN HIẾN (HERITAGE)                                   -->
+        <!-- 6.3. VIEW 2: VĂN HIẾN (HERITAGE)                              -->
         <!-- ============================================================= -->
         <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản văn học nước nhà & Thế giới</p>
             
+            <!-- THANH TÌM KIẾM (MỚI THÊM VÀO) -->
+            <!-- oninput="renderHeritage()" giúp lọc dữ liệu ngay khi gõ phím -->
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Tìm tên tác phẩm hoặc tác giả..." oninput="renderHeritage()">
+            </div>
+
             <!-- TẦNG 1: LỌC THEO THỜI KỲ / KHU VỰC (JS tự động điền các nút) -->
             <div class="filter-bar" id="main-filter-bar"></div>
             
@@ -171,7 +173,7 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)                          -->
+        <!-- 6.4. VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)                     -->
         <!-- ============================================================= -->
         <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa</h1>
@@ -185,7 +187,7 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- VIEW 4: THI PHÁP (ANALYZE)                                    -->
+        <!-- 6.5. VIEW 4: THI PHÁP (ANALYZE)                               -->
         <!-- ============================================================= -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Thi Pháp Học</h1>
@@ -205,10 +207,9 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- SCRIPTS (BỘ NÃO XỬ LÝ LOGIC CỦA TOÀN BỘ TRANG WEB)                -->
-    <!-- Đã cập nhật ?v=2029 để ép xóa cache (BẮT BUỘC ĐỔI SỐ NÀY mỗi khi  -->
-    <!-- bạn sửa file script.js)                                           -->
+    <!-- 7. SCRIPTS (BỘ NÃO XỬ LÝ LOGIC CỦA TOÀN BỘ TRANG WEB)             -->
+    <!-- (?v=1125 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2029"></script>
+    <script src="script.js?v=1125"></script>
 </body>
 </html>
