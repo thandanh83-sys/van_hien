@@ -26,10 +26,10 @@
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ================================================================= -->
-    <!-- 4. LIÊN KẾT FILE CSS (?v=1125 để ép xóa cache)                    -->
-    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 1125 thành số khác  -->
+    <!-- 4. LIÊN KẾT FILE CSS (?v=1126 để ép xóa cache)                    -->
+    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 1126 thành số khác  -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=1125">
+    <link rel="stylesheet" href="style.css?v=1126">
 </head>
 <body>
 
@@ -146,6 +146,7 @@
             </div>
 
             <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Trích xuất từ data-quotes.json) -->
+            <!-- Container này sẽ được JS tự động render và đổi câu mỗi 6s -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
@@ -156,7 +157,7 @@
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Di sản văn học nước nhà & Thế giới</p>
             
-            <!-- THANH TÌM KIẾM (MỚI THÊM VÀO) -->
+            <!-- THANH TÌM KIẾM -->
             <!-- oninput="renderHeritage()" giúp lọc dữ liệu ngay khi gõ phím -->
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Tìm tên tác phẩm hoặc tác giả..." oninput="renderHeritage()">
@@ -169,6 +170,7 @@
             <div class="filter-bar" id="sub-filter-bar" style="display: none; margin-top: -20px;"></div>
             
             <!-- Vùng chứa động: JS sẽ tự động đổ các thẻ (card) tác phẩm vào đây -->
+            <!-- Sử dụng Lazy Loading (content-visibility) để chống lag -->
             <div class="heritage-grid" id="heritage-grid"></div>
         </section>
 
@@ -208,8 +210,8 @@
 
     <!-- ================================================================= -->
     <!-- 7. SCRIPTS (BỘ NÃO XỬ LÝ LOGIC CỦA TOÀN BỘ TRANG WEB)             -->
-    <!-- (?v=1125 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
+    <!-- (?v=1126 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
     <!-- ================================================================= -->
-    <script src="script.js?v=1125"></script>
+    <script src="script.js?v=1126"></script>
 </body>
 </html>
