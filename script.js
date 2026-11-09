@@ -1,9 +1,9 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V92 - FULL FEATURES)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V93 - FULL FEATURES)
    Tác giả: Văn Đạo
    Mô tả: Tương thích 100% với 4 file JSON mới (data-ly-thuyet, data-tac-gia,
           data-tac-pham, data-danh-ngon). Tích hợp Debounce, Chart Bằng/Trắc,
-          SVG Only, Không Bookmark.
+          SVG Only, Không Bookmark, Không Onboarding.
    ===================================================================== */
 
 /* =====================================================================
@@ -25,7 +25,7 @@ const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="v
 const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
 
 const THEME_KEY = 'vandao_theme';
-const CACHE_KEY = 'vandao_cache_v12'; // Tăng version để xóa cache cũ
+const CACHE_KEY = 'vandao_cache_v13'; // Tăng version để xóa cache cũ
 const ITEMS_PER_PAGE = 20;
 
 // Biến toàn cục chứa dữ liệu của 4 file
