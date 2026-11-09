@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V61 - FULL OPTIMIZED)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V62 - FINAL)
    Tác giả: Văn Đạo
    Mô tả: Hệ thống CSS Lưỡng cực, Phân trang, Tìm kiếm, Lazy Render, 
           Chống crash Mobile và tối ưu hóa hiệu năng hiển thị.
@@ -200,7 +200,7 @@ body.dark-mode .hero-content h1 i { text-shadow: 2px 2px 8px rgba(212, 175, 55, 
 .arch-frame:hover img { transform: scale(1.05); }
 
 /* =====================================================================
-   7. VĂN HIẾN (HERITAGE) - TÌM KIẾM, BỘ LỌC, PHÂN TRANG
+   7. VĂN HIẾN (HERITAGE) - TÌM KIẾM, BỘ LỌC, THẺ BÀI VIẾT
    ===================================================================== */
 .page-title { font-family: var(--font-serif); font-size: 3rem; text-align: center; margin-bottom: 10px; font-weight: 400; }
 .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-style: italic; }
@@ -236,35 +236,53 @@ body.dark-mode .filter-btn:hover, body.dark-mode .filter-btn.active {
 #sub-filter-bar .filter-btn:hover, #sub-filter-bar .filter-btn.active { background: rgba(125, 168, 158, 0.15); color: var(--accent); border-color: var(--accent); box-shadow: none; }
 body.dark-mode #sub-filter-bar .filter-btn:hover, body.dark-mode #sub-filter-bar .filter-btn.active { background: rgba(212, 175, 55, 0.15); color: var(--accent-gold); border-color: var(--accent-gold); }
 
-/* --- LƯỚI TÁC PHẨM & CƠ CHẾ VIEWPORT CULLING --- */
+/* --- LƯỚI TÁC PHẨM --- */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
 
+/* 1. THẺ CƠ BẢN (Dành cho mọi thiết bị - Không Blur để chống lag) */
 .heritage-card {
+    /* Tối ưu hóa render: Bỏ qua các thẻ không nằm trong tầm nhìn */
+    content-visibility: auto;
+    contain-intrinsic-size: 320px; 
+
+    /* Giao diện nền đặc (Chống crash cho Mobile) */
     background: rgba(255, 255, 255, 0.92); 
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-card); 
     padding: 30px; 
     box-shadow: 0 4px 15px rgba(44, 66, 61, 0.08); 
+    
+    /* Chuyển động mượt mà cho Lazy Load */
     transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; 
-    display: flex; flex-direction: column; position: relative;
-    /* Tối ưu hóa render: Bỏ qua các thẻ ngoài màn hình */
-    content-visibility: auto;
-    contain-intrinsic-size: 300px; 
-    /* Sửa lỗi cuộn lệch do Navbar che: Căn lề trên 120px */
+    display: flex; 
+    flex-direction: column;
+    position: relative;
+
+    /* Sửa lỗi cuộn lệch do Navbar che: Tự động cộng thêm 120px khoảng trắng khi cuộn tới */
     scroll-margin-top: 120px; 
 }
 body.dark-mode .heritage-card { background: rgba(20, 20, 20, 0.92); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); }
 
-/* Chỉ bật kính mờ xịn trên Desktop để tránh crash Mobile */
-@media (min-width: 851px) {
-    .heritage-card { background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: var(--glass-shadow); }
-}
-
+/* Hiệu ứng Hover (Chỉ áp dụng cho thiết bị có chuột) */
 @media (hover: hover) {
-    .heritage-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+    .heritage-card:hover { 
+        transform: translateY(-5px); 
+        border-color: var(--accent); 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+    }
 }
 
-/* Nội dung thẻ bài viết */
+/* 2. DÀNH RIÊNG CHO MÁY TÍNH (MÀN HÌNH LỚN - BẬT KÍNH MỜ XỊN) */
+@media (min-width: 851px) {
+    .heritage-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: var(--glass-shadow);
+    }
+}
+
+/* Nội dung Thẻ bài viết */
 .h-tag { font-size: 0.7rem; background: rgba(125, 168, 158, 0.15); color: var(--text-main); padding: 4px 12px; border-radius: 20px; align-self: flex-start; margin-bottom: 15px; font-weight: 600; text-transform: uppercase; }
 body.dark-mode .h-tag { background: rgba(212, 175, 55, 0.15); color: var(--accent); }
 .heritage-card h3 { font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 8px; line-height: 1.3; }
@@ -343,7 +361,7 @@ body.dark-mode .accordion-item summary:hover { background: rgba(212, 175, 55, 0.
 body.dark-mode .accordion-content blockquote { background: rgba(212, 175, 55, 0.05); }
 
 /* =====================================================================
-   10. THI PHÁP (ANALYZE) - FORM NHẬP
+   10. THI PHÁP (ANALYZE) - FORM NHẬP & KẾT QUẢ
    ===================================================================== */
 .analyze-box { 
     background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); 
