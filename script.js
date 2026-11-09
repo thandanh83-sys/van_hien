@@ -1,40 +1,29 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V94 - FULL FEATURES)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V95 - FULL FEATURES)
    Tác giả: Văn Đạo
-   Mô tả: Tương thích 100% với 4 file JSON mới (data-ly-thuyet, data-tac-gia,
-          data-tac-pham, data-danh-ngon). Đã sửa lỗi Navbar che khuất
-          khi mở thẻ Bách Khoa (Auto-scroll).
+   Mô tả: Đã sửa lỗi Smart Link (Quyển V, VIII) và xóa Biểu đồ Bằng/Trắc.
    ===================================================================== */
 
 /* =====================================================================
    MODULE 1: HỆ THỐNG ICONS (SVG) & HẰNG SỐ
    ===================================================================== */
-// Icon cây bút (Tác phẩm)
 const ICON_PEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-// Icon cuốn sách (Thể loại / Chuyên khảo)
 const ICON_BOOK = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
-// Icon đồng hồ (Thời gian)
 const ICON_CLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
-// Icon cuộn giấy (Văn tự)
 const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
-// Icon dấu tích xanh (Kết quả phân tích)
 const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-// Icon dấu hỏi (Gợi mở)
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
-// Icon mũi tên phải (Thay thế ký tự →)
 const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
 
 const THEME_KEY = 'vandao_theme';
-const CACHE_KEY = 'vandao_cache_v14'; // Tăng version để xóa cache cũ
+const CACHE_KEY = 'vandao_cache_v15'; // Tăng version để xóa cache cũ
 const ITEMS_PER_PAGE = 20;
 
-// Biến toàn cục chứa dữ liệu của 4 file
-let THEORY_DATA = [];    // data-ly-thuyet.json
-let AUTHOR_DATA = [];    // data-tac-gia.json
-let WORKS_DATA = [];     // data-tac-pham.json
-let QUOTES_DATA = [];    // data-danh-ngon.json
+let THEORY_DATA = [];    
+let AUTHOR_DATA = [];    
+let WORKS_DATA = [];     
+let QUOTES_DATA = [];    
 
-// Biến trạng thái
 let currentMainCat = 'all', currentGenre = 'all', currentPage = 1;
 let currentEncyGroup = 'ly-thuyet'; 
 
@@ -220,7 +209,6 @@ function renderHeritage() {
             genreTags = item.the_loai.map(g => `<span class="h-tag" style="margin-right: 5px; margin-bottom: 5px;">${g}</span>`).join(' ');
         }
         
-        // Nút Chi tiết sử dụng SVG thay cho mũi tên unicode
         const detailBtn = item.id 
             ? `<button onclick="gotoEncyclopediaById('${item.id}')" class="detail-btn">Chi tiết ${ICON_ARROW_RIGHT}</button>` 
             : '';
@@ -366,14 +354,20 @@ function searchEncyclopedia() {
 }
 
 function gotoEncyclopediaById(id) {
+    // Nếu id là số la mã (V, VIII...), thêm tiền tố "quyen-" để khớp với JSON
+    let searchId = id.toLowerCase();
+    if (/^[ivx]+$/.test(searchId)) {
+        searchId = 'quyen-' + searchId;
+    }
+
     let targetGroup = 'tinh-hoa';
     let searchData = [...AUTHOR_DATA, ...WORKS_DATA];
-    let volIndex = searchData.findIndex(item => item.id === id);
+    let volIndex = searchData.findIndex(item => item.id === searchId);
 
     if (volIndex === -1) {
         targetGroup = 'ly-thuyet';
         searchData = THEORY_DATA;
-        volIndex = searchData.findIndex(item => item.id === id);
+        volIndex = searchData.findIndex(item => item.id === searchId);
     }
     
     if (volIndex !== -1) {
@@ -484,32 +478,8 @@ function executePipeline() {
     
     const report = POETRY_ANALYZER.generateReport(rawText); if (!report) { resultsPanel.innerHTML = ''; return; }
 
-    // --- BẮT ĐẦU TÍNH TOÁN BIỂU ĐỒ BẰNG TRẮC ---
-    let totalB = 0, totalT = 0;
-    report.bangTrac.forEach(l => {
-        const pat = l.pattern.split(' - ');
-        pat.forEach(p => {
-            if (p === 'B') totalB++;
-            else if (p === 'T') totalT++;
-        });
-    });
-    const total = totalB + totalT || 1;
-    const pB = Math.round((totalB / total) * 100);
-    const pT = 100 - pB;
-
-    const chartHtml = `
-        <div class="chart-container" style="margin: 15px 0 25px; background: var(--glass-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--glass-border);">
-            <div class="chart-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 10px; text-align: center;">
-                Tỷ lệ Bằng / Trắc — ${totalB} B · ${totalT} T
-            </div>
-            <div class="chart-bar" style="display: flex; height: 26px; border-radius: 13px; overflow: hidden; font-size: 0.75rem; font-weight: bold; color: #fff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);">
-                <div class="chart-fill chart-bang" style="width:${pB}%; background: #3b82f6; display: flex; align-items: center; justify-content: center; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${pB}%</div>
-                <div class="chart-fill chart-trac" style="width:${pT}%; background: #ef4444; display: flex; align-items: center; justify-content: center; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">${pT}%</div>
-            </div>
-        </div>`;
-    // --- KẾT THÚC TÍNH TOÁN ---
-    
-    const tier0 = chartHtml + report.bangTrac.map(l => `<div class="line-row" style="border-bottom: none !important; padding: 8px 0;"><span style="color:var(--text-muted);font-family:var(--font-sans);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${l.text}</span><span class="pattern-text">${l.pattern}</span></div>`).join('');
+    // ĐÃ XÓA PHẦN TÍNH TOÁN BIỂU ĐỒ BẰNG TRẮC TẠI ĐÂY THEO YÊU CẦU
+    const tier0 = report.bangTrac.map(l => `<div class="line-row" style="border-bottom: none !important; padding: 8px 0;"><span style="color:var(--text-muted);font-family:var(--font-sans);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${l.text}</span><span class="pattern-text">${l.pattern}</span></div>`).join('');
     
     const renderRhymeList = (title, arr, color) => {
         if (arr.length === 0) return '';
@@ -589,7 +559,6 @@ async function loadAllData() {
             WORKS_DATA = parsed.works;
             QUOTES_DATA = parsed.quotes;
         } else {
-            // ĐÃ CẬP NHẬT TÊN FILE MỚI Ở ĐÂY
             const [resT, resA, resW, resQ] = await Promise.all([
                 fetch('./data-ly-thuyet.json', { cache: "no-store" }), 
                 fetch('./data-tac-gia.json', { cache: "no-store" }), 
@@ -672,7 +641,6 @@ function handleHashScroll() {
 document.addEventListener('DOMContentLoaded', () => { 
     loadAllData(); 
 
-    // Gắn Debounce cho thanh tìm kiếm Văn Hiến
     const searchInputHeritage = document.getElementById('search-input');
     if (searchInputHeritage) {
         searchInputHeritage.addEventListener('input', debounce(function() {
@@ -681,7 +649,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 300));
     }
 
-    // Gắn Debounce cho thanh tìm kiếm Bách Khoa
     const searchInputEncy = document.getElementById('encyclopedia-search');
     if (searchInputEncy) {
         searchInputEncy.addEventListener('input', debounce(function() {
