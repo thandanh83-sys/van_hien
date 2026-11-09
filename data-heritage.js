@@ -1,14 +1,15 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - DỮ LIỆU VĂN HIẾN (HERITAGE DATA)
+   VĂN ĐẠO ENGINE - DỮ LIỆU VĂN HIẾN (HERITAGE DATA) - FINAL PATCHED
    Tác giả: Văn Đạo
-   Mô tả: Kho tàng văn học đồ sộ với 60+ tác phẩm, chia làm 7 nhóm chính.
+   Mô tả: Kho tàng văn học đồ sộ với 60+ tác phẩm, chia làm 8 nhóm chính.
+   Đã áp dụng toàn bộ bản vá lỗi học thuật (tác quyền, thể thơ, niên đại).
    ===================================================================== */
 const HERITAGE_DATA = [
     
     // =================================================================
     // NHÓM 1: VĂN HỌC DÂN GIAN (Truyền miệng)
     // =================================================================
-    { title: "Con Rồng Cháu Tiên", author: "Dân gian", genre: "Truyền thuyết", era: "Thời Hồng Bàng", script: "Truyền miệng", desc: "Giải thích nguồn gốc cao quý của dân tộc Việt Nam, phản ánh ý thức cộng đồng.", category: "dan-gian" },
+    { title: "Con Rồng Cháu Tiên", author: "Dân gian", genre: "Truyền thuyết", era: "Truyền thuyết thời Hùng Vương; không xác định niên đại lịch sử", script: "Truyền miệng", desc: "Giải thích nguồn gốc cao quý của dân tộc Việt Nam, phản ánh ý thức cộng đồng.", category: "dan-gian" },
     { title: "Sơn Tinh Thủy Tinh", author: "Dân gian", genre: "Truyền thuyết", era: "Thời Hùng Vương", script: "Truyền miệng", desc: "Ca ngợi công cuộc trị thủy và bảo vệ đất nước của cha ông ta.", category: "dan-gian" },
     { title: "Tấm Cám", author: "Dân gian", genre: "Cổ tích", era: "Không rõ", script: "Truyền miệng", desc: "Hành trình đấu tranh giành hạnh phúc của cô Tấm, thể hiện khát vọng công lý.", category: "dan-gian" },
     { title: "Thạch Sanh", author: "Dân gian", genre: "Cổ tích", era: "Không rõ", script: "Truyền miệng", desc: "Người hùng diệt chằn tinh, đại bàng và đánh đuổi giặc ngoại xâm.", category: "dan-gian" },
@@ -18,13 +19,13 @@ const HERITAGE_DATA = [
     // NHÓM 2: VĂN HỌC TRUNG ĐẠI (Chữ Hán & Chữ Nôm)
     // =================================================================
     { title: "Truyện Trê Cóc", author: "Khuyết danh", genre: "Truyện thơ Nôm", era: "TK 18", script: "Chữ Nôm", desc: "Tác phẩm trào phúng sâu sắc về xã hội phong kiến đầy bất công.", category: "trung-dai" },
-    { title: "Nam quốc sơn hà", author: "Lý Thường Kiệt", genre: "Thất ngôn tứ tuyệt", era: "Nhà Lý", script: "Chữ Hán", desc: "Bản tuyên ngôn độc lập đầu tiên, khẳng định chủ quyền lãnh thổ.", category: "trung-dai" },
+    { title: "Nam quốc sơn hà", author: "Khuyết danh (truyền thống gắn với Lý Thường Kiệt)", genre: "Thất ngôn tứ tuyệt", era: "Nhà Lý", script: "Chữ Hán", desc: "Bản tuyên ngôn độc lập đầu tiên, khẳng định chủ quyền lãnh thổ. (Lưu ý: Tác quyền còn nhiều tranh luận học thuật).", category: "trung-dai", attributionStatus: "uncertain" },
     { title: "Hịch tướng sĩ", author: "Trần Quốc Tuấn", genre: "Hịch", era: "Nhà Trần", script: "Chữ Hán", desc: "Lời kêu gọi tinh thần yêu nước, quyết chiến chống quân Nguyên Mông.", category: "trung-dai" },
     { title: "Phò giá về kinh", author: "Trần Quang Khải", genre: "Ngũ ngôn tứ tuyệt", era: "Nhà Trần", script: "Chữ Hán", desc: "Hào khí chiến thắng và khát vọng thái bình thịnh trị của dân tộc.", category: "trung-dai" },
     { title: "Phú sông Bạch Đằng", author: "Trương Hán Siêu", genre: "Phú", era: "Nhà Trần", script: "Chữ Hán", desc: "Hoài niệm chiến công lịch sử, ca ngợi truyền thống yêu nước.", category: "trung-dai" },
     { title: "Bình Ngô Đại Cáo", author: "Nguyễn Trãi", genre: "Cáo", era: "Nhà Lê sơ", script: "Chữ Hán", desc: "Áng văn chính luận mẫu mực, tuyên bố chiến thắng quân Minh và khẳng định nền độc lập.", category: "trung-dai" },
     { title: "Truyện Kiều", author: "Nguyễn Du", genre: "Truyện thơ Nôm (Lục bát)", era: "Triều Nguyễn", script: "Chữ Nôm", desc: "Tác phẩm kiệt xuất nhất của văn học trung đại Việt Nam, kể về cuộc đời gian truân của Thúy Kiều.", category: "trung-dai" },
-    { title: "Chinh Phụ Ngâm (Bản Nôm)", author: "Đoàn Thị Điểm (dịch)", genre: "Song thất lục bát", era: "TK 18", script: "Chữ Nôm", desc: "Bản diễn Nôm nổi tiếng từ nguyên tác chữ Hán của Đặng Trần Côn, khúc ngâm về nỗi sầu muộn của người vợ chờ chồng.", category: "trung-dai" },
+    { title: "Chinh Phụ Ngâm (Bản Nôm)", author: "Nguyên tác: Đặng Trần Côn; dịch giả bản Nôm có vấn đề nghiên cứu tranh luận", genre: "Song thất lục bát", era: "TK 18", script: "Chữ Nôm", desc: "Bản diễn Nôm nổi tiếng từ nguyên tác chữ Hán của Đặng Trần Côn, khúc ngâm về nỗi sầu muộn của người vợ chờ chồng.", category: "trung-dai", originalAuthor: "Đặng Trần Côn", translatorStatus: "disputed" },
     { title: "Qua Đèo Ngang", author: "Bà Huyện Thanh Quan", genre: "Thất ngôn bát cú", era: "Triều Nguyễn", script: "Chữ Nôm", desc: "Bức tranh thiên nhiên và tâm trạng hoài cổ, cô đơn của tác giả khi dừng chân trên đèo.", category: "trung-dai" },
     { title: "Câu cá mùa thu", author: "Nguyễn Khuyến", genre: "Thất ngôn bát cú", era: "Cuối TK 19", script: "Chữ Nôm", desc: "Bức tranh mùa thu thanh tĩnh ở làng quê, ẩn chứa tâm sự yêu nước thầm kín.", category: "trung-dai" },
     { title: "Bánh Trôi Nước", author: "Hồ Xuân Hương", genre: "Thất ngôn tứ tuyệt", era: "Cuối Lê - Đầu Nguyễn", script: "Chữ Nôm", desc: "Tiếng nói bênh vực và ca ngợi vẻ đẹp, phẩm chất của người phụ nữ.", category: "trung-dai" },
@@ -39,10 +40,10 @@ const HERITAGE_DATA = [
     { title: "Lão Hạc", author: "Nam Cao", genre: "Truyện ngắn", era: "1943", script: "Quốc ngữ", desc: "Số phận bi thảm của người nông dân nghèo nhưng giàu lòng tự trọng.", category: "hien-dai" },
     { title: "Tắt Đèn", author: "Ngô Tất Tố", genre: "Tiểu thuyết", era: "1939", script: "Quốc ngữ", desc: "Bức tranh hiện thực về nạn sưu thuế và nỗi khổ của người nông dân.", category: "hien-dai" },
     { title: "Số Đỏ", author: "Vũ Trọng Phụng", genre: "Tiểu thuyết", era: "1936", script: "Quốc ngữ", desc: "Bức tranh trào phúng sâu sắc về xã hội tư sản thành thị những năm 1930.", category: "hien-dai" },
-    { title: "Vội Vàng", author: "Xuân Diệu", genre: "Thơ tự do (Thất ngôn biến thể)", era: "Thơ Mới (1938)", script: "Quốc ngữ", desc: "Khát vọng sống mãnh liệt, cuồng nhiệt trước vẻ đẹp cuộc đời.", category: "hien-dai" },
-    { title: "Đây Thôn Vĩ Dạ", author: "Hàn Mặc Tử", genre: "Thất ngôn bát cú", era: "Thơ Mới (1938)", script: "Quốc ngữ", desc: "Bức tranh xứ Huế mộng mơ và nỗi niềm thi sĩ.", category: "hien-dai" },
-    { title: "Tràng Giang", author: "Huy Cận", genre: "Thất ngôn bát cú", era: "Thơ Mới (1939)", script: "Quốc ngữ", desc: "Nỗi sầu vũ trụ, vẻ đẹp cổ điển và hiện đại của sông nước mênh mang.", category: "hien-dai" },
-    { title: "Tây Tiến", author: "Quang Dũng", genre: "Thơ tự do (Thất ngôn biến thể)", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Bài thơ lãng mạn, bi tráng về người lính và núi rừng Tây Bắc.", category: "hien-dai" },
+    { title: "Vội Vàng", author: "Xuân Diệu", genre: "Thơ trữ tình hiện đại - thơ tự do", era: "Thơ Mới (1938)", script: "Quốc ngữ", desc: "Khát vọng sống mãnh liệt, cuồng nhiệt trước vẻ đẹp cuộc đời.", category: "hien-dai" },
+    { title: "Đây Thôn Vĩ Dạ", author: "Hàn Mặc Tử", genre: "Thơ trữ tình hiện đại - thơ bảy chữ", era: "Thơ Mới (1938)", script: "Quốc ngữ", desc: "Bức tranh xứ Huế mộng mơ và nỗi niềm thi sĩ.", category: "hien-dai" },
+    { title: "Tràng Giang", author: "Huy Cận", genre: "Thơ trữ tình hiện đại - thơ bảy chữ, bốn khổ", era: "Thơ Mới (1939)", script: "Quốc ngữ", desc: "Nỗi sầu vũ trụ, vẻ đẹp cổ điển và hiện đại của sông nước mênh mang.", category: "hien-dai" },
+    { title: "Tây Tiến", author: "Quang Dũng", genre: "Thơ trữ tình hiện đại - thơ tự do", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Bài thơ lãng mạn, bi tráng về người lính và núi rừng Tây Bắc.", category: "hien-dai" },
     { title: "Đồng Chí", author: "Chính Hữu", genre: "Thơ tự do", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Tình đồng đội thiêng liêng, gắn bó keo sơn nơi chiến hào.", category: "hien-dai" },
     { title: "Nhật Ký Trong Tù", author: "Hồ Chí Minh", genre: "Thất ngôn tứ tuyệt", era: "1942-1943", script: "Chữ Hán", desc: "Tinh thần lạc quan, ý chí kiên cường của người tù cách mạng.", category: "hien-dai" },
     { title: "Việt Bắc", author: "Tố Hữu", genre: "Lục bát", era: "Kháng chiến Pháp", script: "Quốc ngữ", desc: "Khúc tình ca về cách mạng, kháng chiến và con người kháng chiến.", category: "hien-dai" },
@@ -55,7 +56,7 @@ const HERITAGE_DATA = [
     // =================================================================
     { title: "Tĩnh Dạ Tứ", author: "Lý Bạch", genre: "Ngũ ngôn tứ tuyệt", era: "Thịnh Đường", script: "Chữ Hán", desc: "Nỗi nhớ quê hương da diết của thi tiên Lý Bạch.", category: "the-gioi" },
     { title: "Đăng Cao", author: "Đỗ Phủ", genre: "Thất ngôn bát cú", era: "Thịnh Đường", script: "Chữ Hán", desc: "Nỗi buồn thời cuộc, thân phận con người trước thiên nhiên rộng lớn.", category: "the-gioi" },
-    { title: "Thần Khúc", author: "Dante", genre: "Trường ca", era: "Thời Phục Hưng", script: "Tiếng Ý", desc: "Hành trình qua Địa ngục, Luyện ngục và Thiên đường.", category: "the-gioi" },
+    { title: "Thần Khúc", author: "Dante", genre: "Trường ca", era: "Văn học châu Âu trung đại, cuối TK XIII - đầu TK XIV", script: "Tiếng Ý", desc: "Hành trình qua Địa ngục, Luyện ngục và Thiên đường.", category: "the-gioi" },
     { title: "Hamlet", author: "Shakespeare", genre: "Bi kịch", era: "TK 16-17", script: "Tiếng Anh", desc: "Vở kịch kinh điển về sự trả thù và những trăn trở triết học.", category: "the-gioi" },
     { title: "Hoàng Tử Bé", author: "Antoine de Saint-Exupéry", genre: "Tiểu thuyết", era: "1943", script: "Tiếng Pháp", desc: "Câu chuyện triết lý sâu sắc dành cho cả người lớn và trẻ em.", category: "the-gioi" },
     { title: "Chiến tranh và Hòa bình", author: "Lev Tolstoy", genre: "Tiểu thuyết sử thi", era: "1869", script: "Tiếng Nga", desc: "Bức tranh hoành tráng về xã hội Nga trong cuộc chiến tranh Napoleon.", category: "the-gioi" },
@@ -95,8 +96,12 @@ const HERITAGE_DATA = [
     { title: "Nhưng Nó Phải Bằng Hai Mày", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Đả kích sự tham nhũng, hối lộ của quan lại phong kiến (Lý trưởng, Cải, Ngô).", category: "truyen-cuoi" },
     { title: "Lợn Cưới, Áo Mới", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Chế giễu tính hay khoe của, kệch cỡm của những kẻ giàu mới nổi.", category: "truyen-cuoi" },
     { title: "Treo Biển", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Phê phán những người thiếu bản lĩnh, thiếu lập trường, ai nói gì cũng nghe.", category: "truyen-cuoi" },
-    { title: "Đẽo Cày Giữa Đường", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Khuyên răn con người cần có chính kiến, không nên ba phải, làm theo lời góp ý mù quáng.", category: "truyen-cuoi" },
-    { title: "Thầy Bói Xem Voi", author: "Dân gian", genre: "Truyện ngụ ngôn", era: "Không rõ", script: "Truyền miệng", desc: "Bài học về việc nhìn nhận sự vật một cách phiến diện, chỉ thấy bộ phận mà không thấy toàn thể.", category: "truyen-cuoi" },
-    { title: "Lão Miệng, Tai, Mắt, Mũi", author: "Dân gian", genre: "Truyện ngụ ngôn", era: "Không rõ", script: "Truyền miệng", desc: "Mượn câu chuyện các bộ phận cơ thể để nói về sự gắn kết, tương trợ trong cộng đồng.", category: "truyen-cuoi" },
-    { title: "Cháy Nhà Ra Mặt Chuột", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Tình huống khó khăn mới bộc lộ được bản chất, tính cách thật của con người.", category: "truyen-cuoi" }
+    { title: "Cháy Nhà Ra Mặt Chuột", author: "Dân gian", genre: "Truyện cười", era: "Không rõ", script: "Truyền miệng", desc: "Tình huống khó khăn mới bộc lộ được bản chất, tính cách thật của con người.", category: "truyen-cuoi" },
+
+    // =================================================================
+    // NHÓM 8: TRUYỆN NGỤ NGÔN (Đã tách riêng theo yêu cầu hiệu đính)
+    // =================================================================
+    { title: "Thầy Bói Xem Voi", author: "Dân gian", genre: "Truyện ngụ ngôn", era: "Không rõ", script: "Truyền miệng", desc: "Bài học về việc nhìn nhận sự vật một cách phiến diện, chỉ thấy bộ phận mà không thấy toàn thể.", category: "ngu-ngon" },
+    { title: "Đẽo Cày Giữa Đường", author: "Dân gian", genre: "Truyện ngụ ngôn", era: "Không rõ", script: "Truyền miệng", desc: "Khuyên răn con người cần có chính kiến, không nên ba phải, làm theo lời góp ý mù quáng.", category: "ngu-ngon" },
+    { title: "Lão Miệng, Tai, Mắt, Mũi", author: "Dân gian", genre: "Truyện ngụ ngôn", era: "Không rõ", script: "Truyền miệng", desc: "Mượn câu chuyện các bộ phận cơ thể để nói về sự gắn kết, tương trợ trong cộng đồng.", category: "ngu-ngon" }
 ];
