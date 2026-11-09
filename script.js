@@ -1,8 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V57 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V58 - GAME OPTIMIZED)
    Tác giả: Văn Đạo
    Mô tả: Tích hợp Tìm kiếm, Copy Link, Deep Link Scroll, Phân tích Thi Pháp,
-          Render dữ liệu từ JSON và tất cả hiệu ứng động.
+          Render dữ liệu từ JSON và Kỹ thuật Viewport Culling (Lazy Load).
    ===================================================================== */
 
 /* =====================================================================
@@ -188,8 +188,9 @@ function renderHeritage() {
             statusBadge = `<span style="font-size:0.65rem; background:rgba(212,175,55,0.2); color:var(--accent-gold); padding:2px 8px; border-radius:10px; margin-left:10px; font-weight:normal; vertical-align:middle; white-space:nowrap;">Cần kiểm chứng</span>`;
         }
         
+        // ĐÃ THÊM CLASS "lazy-card" ĐỂ KÍCH HOẠT VIEWPORT CULLING
         return `
-        <div class="heritage-card" id="${item.id}">
+        <div class="heritage-card lazy-card" id="${item.id}">
             <span class="h-tag">${item.genre}</span>
             <h3>${item.title} ${statusBadge}</h3>
             <div class="h-author">${ICON_PEN} ${item.author}</div>
@@ -208,6 +209,9 @@ function renderHeritage() {
         </div>
         `;
     }).join('');
+
+    // Kích hoạt Lazy Load cho các thẻ vừa render
+    setupLazyLoading(); 
 }
 
 function copyLink(id) {
@@ -227,26 +231,6 @@ function copyLink(id) {
         console.error('Lỗi copy: ', err);
         alert('Trình duyệt của bạn không hỗ trợ copy tự động.');
     });
-}
-
-// FIX LỖI DEEP LINK: Tự động chuyển tab và cuộn đến thẻ khi mở link #id
-function handleHashScroll() {
-    if (window.location.hash) {
-        const id = window.location.hash.substring(1);
-        if (typeof switchView === 'function') {
-            switchView('heritage');
-        }
-        setTimeout(() => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                element.classList.add('highlight-card');
-                setTimeout(() => {
-                    element.classList.remove('highlight-card');
-                }, 2000);
-            }
-        }, 600);
-    }
 }
 
 /* =====================================================================
@@ -644,7 +628,7 @@ function initDewdrops() {
 }
 
 /* =====================================================================
-   MODULE 11: KHỞI CHẠY & TẢI DỮ LIỆU TỰ ĐỘNG
+   MODULE 11: TẢI DỮ LIỆU TỰ ĐỘNG (SAFARI IOS FIX)
    ===================================================================== */
 async function loadAllData() {
     try {
@@ -687,9 +671,10 @@ async function loadAllData() {
         initWaterCanvas();
         initDewdrops();
 
+        // Gọi hàm xử lý deep link SAU KHI mọi thứ đã render
         handleHashScroll();
 
-        console.log("VĂN ĐẠO V57: Tải dữ liệu thành công!");
+        console.log("VĂN ĐẠO V58: Tải dữ liệu thành công!");
 
     } catch (error) {
         console.error("LỖI TẢI DỮ LIỆU: ", error);
@@ -697,8 +682,74 @@ async function loadAllData() {
     }
 }
 
+/* =====================================================================
+   MODULE 12: VIEWPORT CULLING (GAME ENGINE STYLE LAZY LOAD)
+   ===================================================================== */
+let lazyObserver;
+
+function setupLazyLoading() {
+    if (!('IntersectionObserver' in window)) {
+        document.querySelectorAll('.lazy-card').forEach(card => {
+            card.classList.add('is-visible');
+        });
+        return;
+    }
+
+    if (lazyObserver) {
+        lazyObserver.disconnect();
+    }
+
+    lazyObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target); 
+            }
+        });
+    }, {
+        rootMargin: '150px 0px', // Tải trước 150px khi sắp cuộn tới
+        threshold: 0.01 
+    });
+
+    document.querySelectorAll('.lazy-card').forEach(card => {
+        lazyObserver.observe(card);
+    });
+}
+
+/* =====================================================================
+   MODULE 13: XỬ LÝ LINK DEEP LINK (#id) KHI SHARE
+   ===================================================================== */
+function handleHashScroll() {
+    if (window.location.hash) {
+        const id = window.location.hash.substring(1);
+        
+        // 1. Chuyển sang tab Văn Hiến
+        if (typeof switchView === 'function') {
+            switchView('heritage');
+        }
+
+        // 2. Đợi render xong rồi cuộn tới thẻ
+        setTimeout(() => {
+            const element = document.getElementById(id);
+            if (element) {
+                // QUAN TRỌNG: Ép hiển thị thẻ này ngay lập tức (vì có thể nó đang bị ẩn do Lazy Load)
+                element.classList.add('is-visible');
+                
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                element.classList.add('highlight-card');
+                
+                setTimeout(() => {
+                    element.classList.remove('highlight-card');
+                }, 2000);
+            }
+        }, 600); // Đợi DOM và view render ổn định
+    }
+}
+
+// Khởi chạy khi DOM sẵn sàng
 document.addEventListener('DOMContentLoaded', () => {
     loadAllData();
 });
 
+// Bắt sự kiện khi người dùng nhấn vào một link share mới (hashchange)
 window.addEventListener('hashchange', handleHashScroll);
