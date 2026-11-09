@@ -28,11 +28,11 @@
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
     
     <!-- ================================================================= -->
-    <!-- 4. LIÊN KẾT FILE CSS (?v=1370 để ép xóa cache)                    -->
-    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 1370 thành số khác  -->
+    <!-- 4. LIÊN KẾT FILE CSS (?v=1450 để ép xóa cache)                    -->
+    <!-- LƯU Ý: Mỗi khi sửa style.css, bạn PHẢI đổi số 1450 thành số khác  -->
     <!-- để trình duyệt không lấy code cũ trong bộ nhớ đệm.                 -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=1370">
+    <link rel="stylesheet" href="style.css?v=1450">
 </head>
 <body>
 
@@ -165,7 +165,7 @@
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Danh mục Tác phẩm & Thể loại</p>
             
-            <!-- THANH TÌM KIẾM -->
+            <!-- THANH TÌM KIẾM VĂN HIẾN -->
             <!-- oninput="searchHeritage()" giúp lọc dữ liệu ngay khi gõ phím -->
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Tìm tên tác phẩm, thể loại..." oninput="searchHeritage()">
@@ -193,8 +193,11 @@
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Chuyên khảo chi tiết</p>
             
-            <!-- MỤC LỤC TỰ ĐỘNG (JS sẽ đếm số Quyển và tạo các nút nhảy nhanh) -->
-            <div id="encyclopedia-toc" class="toc-container"></div>
+            <!-- THANH TÌM KIẾM BÁCH KHOA (Thay thế cho Mục lục cũ) -->
+            <!-- oninput="searchEncyclopedia()" giúp tìm nhanh Quyển hoặc nội dung -->
+            <div class="search-container">
+                <input type="text" id="encyclopedia-search" placeholder="Tìm tên Quyển hoặc nội dung chi tiết..." oninput="searchEncyclopedia()">
+            </div>
 
             <!-- NỘI DUNG CÁC QUYỂN (JS sẽ render nội dung dạng Accordion độc quyền) -->
             <!-- Chỉ tải nội dung khi click mở, tự đóng và xóa data khi mở quyển khác -->
@@ -223,8 +226,8 @@
 
     <!-- ================================================================= -->
     <!-- 7. SCRIPTS (BỘ NÃO XỬ LÝ LOGIC CỦA TOÀN BỘ TRANG WEB)             -->
-    <!-- (?v=1370 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
+    <!-- (?v=1450 để ép xóa cache. Nhớ đổi số này mỗi khi sửa script.js)    -->
     <!-- ================================================================= -->
-    <script src="script.js?v=1370"></script>
+    <script src="script.js?v=1450"></script>
 </body>
 </html>
