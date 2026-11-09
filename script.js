@@ -1,8 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V61 - FULL OPTIMIZED)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V63 - FULL OPTIMIZED)
    Tác giả: Văn Đạo
    Mô tả: Tích hợp Phân trang, Tìm kiếm, Bách Khoa Độc Quyền, Cache,
-          Fix lỗi Safari và Deep Link thông minh.
+          Fix lỗi Safari, Deep Link và Tối ưu hóa Unload theo View.
    ===================================================================== */
 
 /* =====================================================================
@@ -16,7 +16,7 @@ const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="v
 
 // Các Key lưu trữ
 const THEME_KEY = 'vandao_theme';
-const CACHE_KEY = 'vandao_cache_v2'; // Tăng version để xóa cache cũ nếu có thay đổi dữ liệu
+const CACHE_KEY = 'vandao_cache_v3'; // Tăng version để xóa cache cũ nếu có cập nhật data
 const NEEDS_REVIEW_IDS = ['chinh-phu-ngam-khuc'];
 
 // Cấu hình phân trang
@@ -57,9 +57,17 @@ function updateFavicon(isDark) {
 }
 
 /* =====================================================================
-   MODULE 3: ĐIỀU HƯỚNG (ROUTING) & MENU
+   MODULE 3: ĐIỀU HƯỚNG (ROUTING) & TÍNH NĂNG UNLOAD VIEW
    ===================================================================== */
 function switchView(viewId) {
+    const currentActive = document.querySelector('.view.active');
+    
+    // BƯỚC 1: UNLOAD VIEW CŨ (Nếu có view đang mở và khác view sắp mở)
+    if (currentActive && currentActive.id !== `view-${viewId}`) {
+        unloadView(currentActive.id.replace('view-', ''));
+    }
+    
+    // BƯỚC 2: CHUYỂN VIEW MỚI
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(link => link.classList.remove('active'));
     
@@ -72,7 +80,40 @@ function switchView(viewId) {
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
     
+    // BƯỚC 3: LOAD LẠI DATA NẾU VIEW ĐÓ ĐÃ BỊ XÓA TRẮNG (Unload trước đó)
+    if (viewId === 'heritage') {
+        const grid = document.getElementById('heritage-grid');
+        // Nếu grid trống (do vừa bị unload) thì render lại
+        if (grid && grid.innerHTML.trim() === '') renderHeritage();
+    } else if (viewId === 'encyclopedia') {
+        const container = document.getElementById('encyclopedia-container');
+        if (container && container.innerHTML.trim() === '') renderEncyclopedia();
+    }
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// HÀM UNLOAD: Xóa sạch DOM của các tab khi rời đi để giải phóng RAM
+function unloadView(viewId) {
+    if (viewId === 'heritage') {
+        const grid = document.getElementById('heritage-grid');
+        if (grid) grid.innerHTML = ''; // Xóa 20 thẻ bài viết
+        const pag = document.getElementById('pagination-container');
+        if (pag) pag.innerHTML = ''; // Xóa thanh phân trang
+        console.log("🗑️ Đã unload Văn Hiến để giải phóng RAM.");
+        
+    } else if (viewId === 'encyclopedia') {
+        const container = document.getElementById('encyclopedia-container');
+        if (container) container.innerHTML = ''; // Xóa 18 Quyển
+        const toc = document.getElementById('encyclopedia-toc');
+        if (toc) toc.innerHTML = ''; // Xóa mục lục
+        console.log("🗑️ Đã unload Bách Khoa để giải phóng RAM.");
+        
+    } else if (viewId === 'analyze') {
+        const panel = document.getElementById('results-panel');
+        if (panel) panel.innerHTML = ''; // Xóa kết quả phân tích cũ
+        console.log("🗑️ Đã unload kết quả Thi Pháp.");
+    }
 }
 
 function toggleMobileMenu() {
@@ -89,7 +130,7 @@ document.addEventListener('click', (e) => {
 });
 
 /* =====================================================================
-   MODULE 4: LOGIC LỌC, TÌM KIẾM VÀ PHÂN TRANG (VĂN HIẾN)
+   MODULE 4: LỌC, TÌM KIẾM & PHÂN TRANG (VĂN HIẾN)
    ===================================================================== */
 const CATEGORY_NAMES = {
     'dan-gian': 'Dân gian', 'trung-dai': 'Trung đại', 'hien-dai': 'Hiện đại',
@@ -710,8 +751,8 @@ async function loadAllData() {
         loadSavedTheme(); 
         updateCanvasColors(); 
         initMainFilters(); 
-        renderHeritage(); 
-        renderEncyclopedia();
+        
+        // Render ngay tab đang active (Mặc định là Home, nếu Deep Link thì switchView sẽ xử lý)
         renderRandomQuote(); 
         setInterval(renderRandomQuote, 6000);
         initCursorGlow(); 
@@ -742,7 +783,6 @@ function handleHashScroll() {
             currentPage = Math.floor(dataIndex / ITEMS_PER_PAGE) + 1;
             
             // 3. Chuyển sang Văn Hiến, Reset bộ lọc để đảm bảo nó hiện ra
-            switchView('heritage');
             currentMainCat = 'all'; 
             currentGenre = 'all'; 
             
@@ -752,8 +792,8 @@ function handleHashScroll() {
             const subBar = document.getElementById('sub-filter-bar');
             if(subBar) subBar.style.display = 'none';
 
-            // 4. Render trang chứa tác phẩm đó
-            renderHeritage(); 
+            // 4. switchView sẽ tự động gọi renderHeritage() vì grid đang rỗng (bị unload)
+            switchView('heritage');
 
             // 5. Cuộn và highlight
             setTimeout(() => {
