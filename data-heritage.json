@@ -1,0 +1,876 @@
+[
+    {
+        "title": "Thần Trụ Trời",
+        "author": "Dân gian",
+        "genre": "Thần thoại",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Thần thoại kể về sự hình thành trời đất, vũ trụ.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Nữ Oa",
+        "author": "Dân gian",
+        "genre": "Thần thoại",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Thần thoại về nữ thần tạo ra loài người.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Lạc Long Quân - Âu Cơ",
+        "author": "Dân gian",
+        "genre": "Thần thoại",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Truyền thuyết gốc tích dân tộc Việt.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Đăm Săn",
+        "author": "Dân gian",
+        "genre": "Sử thi",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Bản anh hùng ca của người Ê-đê.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Xinh Nhã",
+        "author": "Dân gian",
+        "genre": "Sử thi",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Sử thi của người Ê-đê.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Con Rồng Cháu Tiên",
+        "author": "Dân gian",
+        "genre": "Truyền thuyết",
+        "era": "Thời Hồng Bàng",
+        "script": "Truyền miệng",
+        "desc": "Giải thích nguồn gốc dân tộc.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Bánh Chưng Bánh Giầy",
+        "author": "Dân gian",
+        "genre": "Truyền thuyết",
+        "era": "Thời Hùng Vương",
+        "script": "Truyền miệng",
+        "desc": "Sự tích bánh chưng, bánh giầy.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Thánh Gióng",
+        "author": "Dân gian",
+        "genre": "Truyền thuyết",
+        "era": "Thời Hùng Vương",
+        "script": "Truyền miệng",
+        "desc": "Tinh thần yêu nước chống giặc ngoại xâm.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Sơn Tinh Thủy Tinh",
+        "author": "Dân gian",
+        "genre": "Truyền thuyết",
+        "era": "Thời Hùng Vương",
+        "script": "Truyền miệng",
+        "desc": "Ca ngợi công cuộc trị thủy.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Chử Đồng Tử",
+        "author": "Dân gian",
+        "genre": "Truyền thuyết",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Truyền thuyết về Chử Đồng Tử và Tiên Dung.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Mỵ Châu Trọng Thủy",
+        "author": "Dân gian",
+        "genre": "Truyền thuyết",
+        "era": "An Dương Vương",
+        "script": "Truyền miệng",
+        "desc": "Bi kịch mất nước.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Sự tích Hồ Gươm",
+        "author": "Dân gian",
+        "genre": "Truyền thuyết",
+        "era": "Lê Lợi",
+        "script": "Truyền miệng",
+        "desc": "Truyền thuyết về gươm thần.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Tấm Cám",
+        "author": "Dân gian",
+        "genre": "Cổ tích",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Hành trình đấu tranh giành hạnh phúc.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Thạch Sanh",
+        "author": "Dân gian",
+        "genre": "Cổ tích",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Người hùng diệt chằn tinh, đại bàng.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Sọ Dừa",
+        "author": "Dân gian",
+        "genre": "Cổ tích",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Chàng Sọ Dừa và cô út.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Cây Khế",
+        "author": "Dân gian",
+        "genre": "Cổ tích",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Bài học về lòng tham.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Từ Thức Gặp Tiên",
+        "author": "Dân gian",
+        "genre": "Cổ tích",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Truyện cổ tích về cõi tiên.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Chú Cuội Cung Trăng",
+        "author": "Dân gian",
+        "genre": "Cổ tích",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Sự tích chú Cuội.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Vè Châm Biếm",
+        "author": "Dân gian",
+        "genre": "Vè",
+        "era": "Truyền miệng",
+        "script": "Quốc ngữ",
+        "desc": "Phản ánh thói hư tật xấu.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Câu Đố Dân Gian",
+        "author": "Dân gian",
+        "genre": "Câu đố",
+        "era": "Truyền miệng",
+        "script": "Quốc ngữ",
+        "desc": "Thể hiện trí tuệ dân gian.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Quan Âm Thị Kính",
+        "author": "Khuyết danh",
+        "genre": "Chèo",
+        "era": "Không rõ",
+        "script": "Chữ Nôm",
+        "desc": "Vở chèo kinh điển.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Sơn Hậu",
+        "author": "Khuyết danh",
+        "genre": "Tuồng",
+        "era": "Không rõ",
+        "script": "Chữ Nôm",
+        "desc": "Vở tuồng cổ ca ngợi lòng trung nghĩa.",
+        "category": "dan-gian"
+    },
+    {
+        "title": "Nam Quốc Sơn Hà",
+        "author": "Khuyết danh (truyền thống gắn với Lý Thường Kiệt)",
+        "genre": "Thơ chữ Hán",
+        "era": "Nhà Lý",
+        "script": "Chữ Hán",
+        "desc": "Bản tuyên ngôn độc lập đầu tiên.",
+        "category": "trung-dai",
+        "attributionStatus": "uncertain"
+    },
+    {
+        "title": "Phò Giá Về Kinh",
+        "author": "Trần Quang Khải",
+        "genre": "Thơ chữ Hán",
+        "era": "Nhà Trần",
+        "script": "Chữ Hán",
+        "desc": "Hào khí chiến thắng.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Thiên Trường Vãn Vọng",
+        "author": "Trần Nhân Tông",
+        "genre": "Thơ chữ Hán",
+        "era": "Nhà Trần",
+        "script": "Chữ Hán",
+        "desc": "Bức tranh làng quê thanh bình.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Chiếu Dời Đô",
+        "author": "Lý Công Uẩn",
+        "genre": "Văn chính luận",
+        "era": "Nhà Lý",
+        "script": "Chữ Hán",
+        "desc": "Quyết định dời đô về Thăng Long.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Hịch Tướng Sĩ",
+        "author": "Trần Quốc Tuấn",
+        "genre": "Văn chính luận",
+        "era": "Nhà Trần",
+        "script": "Chữ Hán",
+        "desc": "Lời kêu gọi chống Nguyên Mông.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Bình Ngô Đại Cáo",
+        "author": "Nguyễn Trãi",
+        "genre": "Văn chính luận",
+        "era": "Nhà Lê sơ",
+        "script": "Chữ Hán",
+        "desc": "Áng văn chính luận mẫu mực.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Bàn Luận Về Phép Học",
+        "author": "Nguyễn Thiếp",
+        "genre": "Văn chính luận",
+        "era": "TK 18",
+        "script": "Chữ Hán",
+        "desc": "Bàn về mục đích của việc học.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Phú Sông Bạch Đằng",
+        "author": "Trương Hán Siêu",
+        "genre": "Phú",
+        "era": "Nhà Trần",
+        "script": "Chữ Hán",
+        "desc": "Hoài niệm chiến công lịch sử.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Truyền Kỳ Mạn Lục",
+        "author": "Nguyễn Dữ",
+        "genre": "Truyện ký",
+        "era": "TK 16",
+        "script": "Chữ Hán",
+        "desc": "Tập truyện truyền kỳ đặc sắc.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Thượng Kinh Ký Sự",
+        "author": "Lê Hữu Trác",
+        "genre": "Ký",
+        "era": "TK 18",
+        "script": "Chữ Hán",
+        "desc": "Tùy bút ghi chép hành trình.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Vũ Trung Tùy Bút",
+        "author": "Phạm Đình Hổ",
+        "genre": "Ký",
+        "era": "TK 18",
+        "script": "Chữ Hán",
+        "desc": "Tùy bút về phong tục, con người.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Hoàng Lê Nhất Thống Chí",
+        "author": "Ngô gia văn phái",
+        "genre": "Tiểu thuyết",
+        "era": "TK 18",
+        "script": "Chữ Hán",
+        "desc": "Tiểu thuyết chương hồi lịch sử.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Qua Đèo Ngang",
+        "author": "Bà Huyện Thanh Quan",
+        "genre": "Thơ Nôm Đường luật",
+        "era": "Triều Nguyễn",
+        "script": "Chữ Nôm",
+        "desc": "Bức tranh thiên nhiên và tâm trạng hoài cổ.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Bánh Trôi Nước",
+        "author": "Hồ Xuân Hương",
+        "genre": "Thơ Nôm Đường luật",
+        "era": "Cuối Lê",
+        "script": "Chữ Nôm",
+        "desc": "Tiếng nói bênh vực phụ nữ.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Nhàn",
+        "author": "Nguyễn Bỉnh Khiêm",
+        "genre": "Thơ Nôm Đường luật",
+        "era": "Nhà Mạc",
+        "script": "Chữ Nôm",
+        "desc": "Tâm thế nhàn dật.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Câu Cá Mùa Thu",
+        "author": "Nguyễn Khuyến",
+        "genre": "Thơ Nôm Đường luật",
+        "era": "Cuối TK 19",
+        "script": "Chữ Nôm",
+        "desc": "Bức tranh mùa thu thanh tĩnh.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Bạn Đến Chơi Nhà",
+        "author": "Nguyễn Khuyến",
+        "genre": "Thơ Nôm Đường luật",
+        "era": "Cuối TK 19",
+        "script": "Chữ Nôm",
+        "desc": "Tình bạn chân thành.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Truyện Kiều",
+        "author": "Nguyễn Du",
+        "genre": "Truyện thơ",
+        "era": "Triều Nguyễn",
+        "script": "Chữ Nôm",
+        "desc": "Tác phẩm kiệt xuất nhất của văn học trung đại.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Chinh Phụ Ngâm",
+        "author": "Đặng Trần Côn (nguyên tác)",
+        "genre": "Ngâm khúc",
+        "era": "TK 18",
+        "script": "Chữ Hán / Nôm",
+        "desc": "Khúc ngâm về nỗi sầu của người vợ.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Cung Oán Ngâm Khúc",
+        "author": "Nguyễn Gia Thiều",
+        "genre": "Ngâm khúc",
+        "era": "TK 18",
+        "script": "Chữ Nôm",
+        "desc": "Tiếng nói oán trách của cung nữ.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Lục Vân Tiên",
+        "author": "Nguyễn Đình Chiểu",
+        "genre": "Truyện thơ",
+        "era": "TK 19",
+        "script": "Chữ Nôm",
+        "desc": "Truyện thơ ca ngợi nghĩa hiệp.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Văn Tế Nghĩa Sĩ Cần Giuộc",
+        "author": "Nguyễn Đình Chiểu",
+        "genre": "Văn tế",
+        "era": "TK 19",
+        "script": "Chữ Nôm",
+        "desc": "Tiếng khóc bi tráng cho nghĩa sĩ.",
+        "category": "trung-dai"
+    },
+    {
+        "title": "Chí Phèo",
+        "author": "Nam Cao",
+        "genre": "Truyện ngắn",
+        "era": "1941",
+        "script": "Quốc ngữ",
+        "desc": "Bi kịch người nông dân bị tha hóa.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Lão Hạc",
+        "author": "Nam Cao",
+        "genre": "Truyện ngắn",
+        "era": "1943",
+        "script": "Quốc ngữ",
+        "desc": "Số phận người nông dân nghèo.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Số Đỏ",
+        "author": "Vũ Trọng Phụng",
+        "genre": "Tiểu thuyết",
+        "era": "1936",
+        "script": "Quốc ngữ",
+        "desc": "Bức tranh trào phúng xã hội tư sản.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Tắt Đèn",
+        "author": "Ngô Tất Tố",
+        "genre": "Tiểu thuyết",
+        "era": "1939",
+        "script": "Quốc ngữ",
+        "desc": "Bức tranh hiện thực về nạn sưu thuế.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Vợ Chồng A Phủ",
+        "author": "Tô Hoài",
+        "genre": "Truyện ngắn",
+        "era": "1952",
+        "script": "Quốc ngữ",
+        "desc": "Cuộc đời của người dân miền núi.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Vợ Nhặt",
+        "author": "Kim Lân",
+        "genre": "Truyện ngắn",
+        "era": "1962",
+        "script": "Quốc ngữ",
+        "desc": "Tình người trong nạn đói.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Rừng Xà Nu",
+        "author": "Nguyễn Trung Thành",
+        "genre": "Truyện ngắn",
+        "era": "1965",
+        "script": "Quốc ngữ",
+        "desc": "Tinh thần bất khuất của người dân Tây Nguyên.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Những Đứa Con Trong Gia Đình",
+        "author": "Nguyễn Thi",
+        "genre": "Truyện ngắn",
+        "era": "1966",
+        "script": "Quốc ngữ",
+        "desc": "Truyền thống yêu nước của gia đình Nam Bộ.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Chiếc Thuyền Ngoài Xa",
+        "author": "Nguyễn Minh Châu",
+        "genre": "Truyện ngắn",
+        "era": "1983",
+        "script": "Quốc ngữ",
+        "desc": "Bài học về cách nhìn cuộc sống.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Nỗi Buồn Chiến Tranh",
+        "author": "Bảo Ninh",
+        "genre": "Tiểu thuyết",
+        "era": "1991",
+        "script": "Quốc ngữ",
+        "desc": "Nỗi đau và sự mất mát sau chiến tranh.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Vội Vàng",
+        "author": "Xuân Diệu",
+        "genre": "Thơ Mới",
+        "era": "1938",
+        "script": "Quốc ngữ",
+        "desc": "Khát vọng sống mãnh liệt.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Đây Thôn Vĩ Dạ",
+        "author": "Hàn Mặc Tử",
+        "genre": "Thơ Mới",
+        "era": "1938",
+        "script": "Quốc ngữ",
+        "desc": "Bức tranh xứ Huế mộng mơ.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Tràng Giang",
+        "author": "Huy Cận",
+        "genre": "Thơ Mới",
+        "era": "1939",
+        "script": "Quốc ngữ",
+        "desc": "Nỗi sầu vũ trụ.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Tây Tiến",
+        "author": "Quang Dũng",
+        "genre": "Thơ tự do",
+        "era": "1948",
+        "script": "Quốc ngữ",
+        "desc": "Bài thơ bi tráng về người lính.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Đồng Chí",
+        "author": "Chính Hữu",
+        "genre": "Thơ tự do",
+        "era": "1948",
+        "script": "Quốc ngữ",
+        "desc": "Tình đồng đội thiêng liêng.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Việt Bắc",
+        "author": "Tố Hữu",
+        "genre": "Thơ tự do",
+        "era": "1954",
+        "script": "Quốc ngữ",
+        "desc": "Khúc tình ca cách mạng.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Nhật Ký Trong Tù",
+        "author": "Hồ Chí Minh",
+        "genre": "Thơ chữ Hán",
+        "era": "1942-1943",
+        "script": "Chữ Hán",
+        "desc": "Tinh thần lạc quan của người tù.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Bài Thơ Về Tiểu Đội Xe Không Kính",
+        "author": "Phạm Tiến Duật",
+        "genre": "Thơ tự do",
+        "era": "1969",
+        "script": "Quốc ngữ",
+        "desc": "Hình ảnh người lính lái xe.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Đoàn Thuyền Đánh Cá",
+        "author": "Huy Cận",
+        "genre": "Thơ tự do",
+        "era": "1958",
+        "script": "Quốc ngữ",
+        "desc": "Vẻ đẹp biển cả và người lao động.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Mùa Xuân Nho Nhỏ",
+        "author": "Thanh Hải",
+        "genre": "Thơ tự do",
+        "era": "1980",
+        "script": "Quốc ngữ",
+        "desc": "Ước nguyện cống hiến.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Cơm Thầy Cơm Cô",
+        "author": "Vũ Trọng Phụng",
+        "genre": "Phóng sự",
+        "era": "1936",
+        "script": "Quốc ngữ",
+        "desc": "Phóng sự điều tra về nạn đầy tớ.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Ai Đã Đặt Tên Cho Dòng Sông?",
+        "author": "Hoàng Phủ Ngọc Tường",
+        "genre": "Ký",
+        "era": "1981",
+        "script": "Quốc ngữ",
+        "desc": "Bút ký về sông Hương.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Người Lái Đò Sông Đà",
+        "author": "Nguyễn Tuân",
+        "genre": "Ký",
+        "era": "1960",
+        "script": "Quốc ngữ",
+        "desc": "Tùy bút về sông Đà.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Hồn Trương Ba, Da Hàng Thịt",
+        "author": "Lưu Quang Vũ",
+        "genre": "Kịch",
+        "era": "1981",
+        "script": "Quốc ngữ",
+        "desc": "Vở kịch triết lý về bản thể.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Bắc Sơn",
+        "author": "Nguyễn Huy Tưởng",
+        "genre": "Kịch",
+        "era": "1946",
+        "script": "Quốc ngữ",
+        "desc": "Vở kịch cách mạng.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Thi Nhân Việt Nam",
+        "author": "Hoài Thanh - Hoài Chân",
+        "genre": "Phê bình",
+        "era": "1942",
+        "script": "Quốc ngữ",
+        "desc": "Công trình phê bình về Thơ Mới.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Dế Mèn Phiêu Lưu Ký",
+        "author": "Tô Hoài",
+        "genre": "Văn học thiếu nhi",
+        "era": "1941",
+        "script": "Quốc ngữ",
+        "desc": "Truyện đồng thoại nổi tiếng.",
+        "category": "hien-dai"
+    },
+    {
+        "title": "Iliad",
+        "author": "Homer",
+        "genre": "Sử thi",
+        "era": "Hy Lạp cổ đại",
+        "script": "Tiếng Hy Lạp",
+        "desc": "Sử thi về chiến tranh thành Troy.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Odyssey",
+        "author": "Homer",
+        "genre": "Sử thi",
+        "era": "Hy Lạp cổ đại",
+        "script": "Tiếng Hy Lạp",
+        "desc": "Hành trình trở về của Odysseus.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Hamlet",
+        "author": "Shakespeare",
+        "genre": "Kịch",
+        "era": "TK 16-17",
+        "script": "Tiếng Anh",
+        "desc": "Bi kịch kinh điển.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Romeo and Juliet",
+        "author": "Shakespeare",
+        "genre": "Kịch",
+        "era": "TK 16-17",
+        "script": "Tiếng Anh",
+        "desc": "Tình yêu bi thảm.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Thần Khúc",
+        "author": "Dante",
+        "genre": "Trường ca",
+        "era": "TK 13-14",
+        "script": "Tiếng Ý",
+        "desc": "Hành trình qua Địa ngục, Luyện ngục, Thiên đường.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Chiến Tranh Và Hòa Bình",
+        "author": "Lev Tolstoy",
+        "genre": "Tiểu thuyết",
+        "era": "1869",
+        "script": "Tiếng Nga",
+        "desc": "Bức tranh xã hội Nga.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Tội Ác Và Hình Phạt",
+        "author": "Dostoevsky",
+        "genre": "Tiểu thuyết",
+        "era": "1866",
+        "script": "Tiếng Nga",
+        "desc": "Triết lý về tội ác và sự cứu rỗi.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Những Người Khốn Khổ",
+        "author": "Victor Hugo",
+        "genre": "Tiểu thuyết",
+        "era": "1862",
+        "script": "Tiếng Pháp",
+        "desc": "Bức tranh xã hội Pháp.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Hoàng Tử Bé",
+        "author": "Antoine de Saint-Exupéry",
+        "genre": "Tiểu thuyết",
+        "era": "1943",
+        "script": "Tiếng Pháp",
+        "desc": "Câu chuyện triết lý.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Tĩnh Dạ Tứ",
+        "author": "Lý Bạch",
+        "genre": "Thơ Đường",
+        "era": "Thịnh Đường",
+        "script": "Chữ Hán",
+        "desc": "Nỗi nhớ quê hương.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Đăng Cao",
+        "author": "Đỗ Phủ",
+        "genre": "Thơ Đường",
+        "era": "Thịnh Đường",
+        "script": "Chữ Hán",
+        "desc": "Nỗi buồn thời cuộc.",
+        "category": "the-gioi"
+    },
+    {
+        "title": "Tục Ngữ Về Thiên Nhiên",
+        "author": "Dân gian",
+        "genre": "Tục ngữ",
+        "era": "Truyền miệng",
+        "script": "Quốc ngữ",
+        "desc": "Kinh nghiệm dự báo thời tiết.",
+        "category": "ca-dao"
+    },
+    {
+        "title": "Tục Ngữ Về Đạo Lý",
+        "author": "Dân gian",
+        "genre": "Tục ngữ",
+        "era": "Truyền miệng",
+        "script": "Quốc ngữ",
+        "desc": "Bài học ứng xử.",
+        "category": "ca-dao"
+    },
+    {
+        "title": "Ca Dao Than Thân",
+        "author": "Dân gian",
+        "genre": "Ca dao",
+        "era": "Truyền miệng",
+        "script": "Quốc ngữ",
+        "desc": "Tiếng nói phản kháng.",
+        "category": "ca-dao"
+    },
+    {
+        "title": "Ca Dao Yêu Thương",
+        "author": "Dân gian",
+        "genre": "Ca dao",
+        "era": "Truyền miệng",
+        "script": "Quốc ngữ",
+        "desc": "Tình cảm gia đình, đôi lứa.",
+        "category": "ca-dao"
+    },
+    {
+        "title": "Ca Dao Hài Hước",
+        "author": "Dân gian",
+        "genre": "Ca dao",
+        "era": "Truyền miệng",
+        "script": "Quốc ngữ",
+        "desc": "Tiếng cười tự trào.",
+        "category": "ca-dao"
+    },
+    {
+        "title": "Sân Lai",
+        "author": "Điển cố Trung Hoa",
+        "genre": "Điển tích",
+        "era": "Xuân Thu",
+        "script": "Chữ Hán",
+        "desc": "Lòng hiếu thảo.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Ngưu Lang - Chức Nữ",
+        "author": "Điển tích Trung Hoa",
+        "genre": "Điển tích",
+        "era": "Truyền thuyết",
+        "script": "Chữ Hán",
+        "desc": "Tình yêu bị ngăn cách.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Làn thu thủy, nét xuân sơn",
+        "author": "Nguyễn Du",
+        "genre": "Điển tích",
+        "era": "Truyện Kiều",
+        "script": "Chữ Nôm",
+        "desc": "Tả vẻ đẹp Thúy Kiều.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Bèo dạt mây trôi",
+        "author": "Điển tích Việt Nam",
+        "genre": "Điển tích",
+        "era": "Dân gian",
+        "script": "Quốc ngữ",
+        "desc": "Thân phận trôi nổi.",
+        "category": "dien-tich"
+    },
+    {
+        "title": "Tam Đại Con Gà",
+        "author": "Dân gian",
+        "genre": "Truyện cười",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Chế giễu thói dốt nát.",
+        "category": "truyen-cuoi"
+    },
+    {
+        "title": "Treo Biển",
+        "author": "Dân gian",
+        "genre": "Truyện cười",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Phê phán người thiếu bản lĩnh.",
+        "category": "truyen-cuoi"
+    },
+    {
+        "title": "Lợn Cưới, Áo Mới",
+        "author": "Dân gian",
+        "genre": "Truyện cười",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Chế giễu tính khoe của.",
+        "category": "truyen-cuoi"
+    },
+    {
+        "title": "Thầy Bói Xem Voi",
+        "author": "Dân gian",
+        "genre": "Truyện ngụ ngôn",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Nhìn nhận sự vật phiến diện.",
+        "category": "ngu-ngon"
+    },
+    {
+        "title": "Đẽo Cày Giữa Đường",
+        "author": "Dân gian",
+        "genre": "Truyện ngụ ngôn",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Cần có chính kiến.",
+        "category": "ngu-ngon"
+    },
+    {
+        "title": "Ếch Ngồi Đáy Giếng",
+        "author": "Dân gian",
+        "genre": "Truyện ngụ ngôn",
+        "era": "Không rõ",
+        "script": "Truyền miệng",
+        "desc": "Hiểu biết hạn hẹp.",
+        "category": "ngu-ngon"
+    }
+]
