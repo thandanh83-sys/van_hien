@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V67 - CHI TIẾT LINK)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V69 - FULL DETAILS)
    Tác giả: Văn Đạo
    Mô tả: Hệ thống CSS Lưỡng cực, Phân trang, Lazy Render, Nút Chi Tiết,
           Chống crash Mobile và tối ưu hóa hiệu năng hiển thị.
@@ -295,41 +295,49 @@ body.dark-mode .h-tag { background: rgba(212, 175, 55, 0.15); color: var(--accen
 .h-author { font-size: 0.9rem; color: var(--accent); font-weight: 500; margin-bottom: 15px; display: flex; align-items: center; gap: 6px; }
 .heritage-card p { font-size: 0.95rem; color: var(--text-muted); flex-grow: 1; margin-bottom: 20px; }
 
-.h-meta { font-size: 0.8rem; padding-top: 15px; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; margin-top: auto; border-top: none !important; }
+/* Cập nhật lại h-meta để căn đều 2 bên (trái: thông tin, phải: nút chi tiết) */
+.h-meta { 
+    font-size: 0.8rem; 
+    padding-top: 15px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    gap: 10px; 
+    margin-top: auto; 
+    border-top: none !important; 
+}
 .h-meta > div { display: flex; flex-wrap: wrap; gap: 10px; }
 .h-meta span { display: inline-flex; align-items: center; gap: 6px; background: rgba(125, 168, 158, 0.15); color: var(--accent); padding: 6px 12px; border-radius: 8px; font-weight: 500; }
 body.dark-mode .h-meta span { background: rgba(212, 175, 55, 0.15); color: var(--accent-gold); }
 
-/* --- NÚT XEM CHI TIẾT (LIÊN KẾT BÁCH KHOA) --- */
+/* --- NÚT XEM CHI TIẾT (THIẾT KẾ NHỎ GỌN, TINH TẾ) --- */
 .detail-btn {
-    background: var(--accent);
-    color: var(--bg-base);
+    background: transparent;
+    color: var(--accent);
     border: none;
-    padding: 10px 16px;
-    border-radius: 8px;
+    padding: 4px 0;
     font-size: 0.85rem;
     font-family: var(--font-sans);
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    margin-top: 10px;
-    width: 100%;
+    display: inline-flex;
+    align-items: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(125, 168, 158, 0.2);
+    opacity: 0.8;
 }
 
 .detail-btn:hover {
-    background: var(--accent-gold);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(125, 168, 158, 0.4);
+    color: var(--accent-gold);
+    opacity: 1;
+    transform: translateX(3px); /* Nhích nhẹ sang phải khi hover tạo cảm giác chuyển trang */
 }
 
 body.dark-mode .detail-btn {
-    color: #000;
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2);
+    color: var(--accent-gold);
 }
+
 body.dark-mode .detail-btn:hover {
-    background: #fbbf24;
-    box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4);
+    color: #fbbf24;
 }
 
 /* Hiệu ứng Highlight khi mở link */
