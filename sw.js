@@ -1,16 +1,16 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (OFFLINE CACHE V2)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (OFFLINE CACHE V3)
    Tác giả: Văn Đạo
    Mô tả: Quản lý bộ nhớ đệm (Cache) cho phép ứng dụng hoạt động 100% 
           khi không có kết nối mạng (Offline).
-   Lưu ý: Đã cập nhật tiền tố "anh-" cho tất cả các file hình ảnh.
+   Cập nhật: Đã đồng bộ tên file ảnh mới (tiền tố "anh-") và nâng version.
    ===================================================================== */
 
 // 1. ĐẶT TÊN CHO BỘ NHỚ ĐỆM (CACHE VERSION)
 // Mỗi khi bạn cập nhật code (HTML, CSS, JS, JSON, hoặc thay ảnh mới),
-// BẮT BUỘC phải đổi số 'v2' thành 'v3', 'v4'... để trình duyệt biết 
-// có phiên bản mới và tự động tải lại.
-const CACHE_NAME = 'vandao-cache-v2';
+// BẮT BUỘC phải đổi số 'v3' thành 'v4', 'v5'... để trình duyệt biết 
+// có phiên bản mới và tự động tải lại toàn bộ.
+const CACHE_NAME = 'vandao-cache-v3';
 
 // 2. DANH SÁCH CÁC FILE CẦN TẢI XUỐNG ĐỂ CHẠY OFFLINE (ASSETS)
 // Đã cập nhật chính xác tên file ảnh mới của bạn (có chữ "anh-")
@@ -46,7 +46,7 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('[Service Worker] Đang tải dữ liệu vào bộ nhớ đệm...');
+                console.log('[Service Worker] Đang tải toàn bộ dữ liệu vào bộ nhớ đệm...');
                 return cache.addAll(ASSETS_TO_CACHE);
             })
             .then(() => {
@@ -90,6 +90,9 @@ self.addEventListener('activate', (event) => {
 // Nhiệm vụ: Ưu tiên tìm trong bộ nhớ đệm. Nếu không có mới lên mạng tải.
 // =====================================================================
 self.addEventListener('fetch', (event) => {
+    // Bỏ qua các request không phải GET (như POST từ form)
+    if (event.request.method !== 'GET') return;
+
     event.respondWith(
         caches.match(event.request)
             .then((cachedResponse) => {
@@ -101,7 +104,7 @@ self.addEventListener('fetch', (event) => {
                 // TRƯỜNG HỢP 2: Không có trong bộ nhớ đệm, phải lên mạng tải
                 return fetch(event.request).then((networkResponse) => {
                     // Nếu tải thành công từ mạng, lưu luôn vào bộ nhớ đệm cho lần sau
-                    if (event.request.method === 'GET' && networkResponse.status === 200) {
+                    if (networkResponse.status === 200) {
                         return caches.open(CACHE_NAME).then((cache) => {
                             // Lưu bản sao của dữ liệu vào cache
                             cache.put(event.request, networkResponse.clone());
