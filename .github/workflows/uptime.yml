@@ -1,7 +1,13 @@
 name: Uptime Monitor
 on:
   schedule:
-    - cron: '*/15 * * * *' # 15 phút một lần
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: uptime-group
+  cancel-in-progress: true
+
 jobs:
   ping:
     runs-on: ubuntu-latest
