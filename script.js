@@ -1,12 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 1.0 - HOÀN HẢO)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 2.3 - HOÀN HẢO)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Bộ não trung tâm xử lý toàn bộ logic của ứng dụng.
-   - Tích hợp Động cơ hiệu năng (IntersectionObserver) chống lag.
-   - Hiệu ứng Sóng nước Canvas tối ưu (tự ngủ đông khi không có sóng).
+   - Tối ưu hóa hiệu năng, chống lag trên mọi thiết bị.
+   - Hiệu ứng Sóng nước Canvas (Tinh tế, tự ngủ đông khi không có sóng).
    - Thuật toán phân tích Thi pháp chuẩn xác (NFD Unicode).
-   - Tuyệt đối không dùng thư viện ngoài, không dùng alert(), 100% JS thuần.
+   - Xử lý lỗi mạng thông minh, không dùng alert().
    ===================================================================== */
 
 /* =====================================================================
@@ -48,24 +47,18 @@ const viewScrollPositions = { 'home': 0, 'heritage': 0, 'encyclopedia': 0, 'anal
    MODULE 1: ĐỘNG CƠ HIỆU NĂNG (PERFORMANCE ENGINE)
    ===================================================================== */
 const PerformanceEngine = (() => {
-    // Sử dụng IntersectionObserver để chỉ kích hoạt hiệu ứng khi lướt tới
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('is-visible');
-                // Ngừng quan sát khi phần tử đã hiện để giải phóng tài nguyên
                 observer.unobserve(entry.target); 
             }
         });
-    }, { 
-        rootMargin: "0px 0px 200px 0px", // Tải trước 200px trước khi lọt vào màn hình
-        threshold: 0.01 
-    });
+    }, { rootMargin: "0px 0px 200px 0px", threshold: 0.01 });
 
     function observeNewElements(selector) {
         document.querySelectorAll(selector).forEach(el => observer.observe(el));
     }
-
     return { observe: observeNewElements };
 })();
 
@@ -77,16 +70,13 @@ function switchView(viewId) {
     const currentActive = document.querySelector('.view.active');
     const currentViewId = currentActive ? currentActive.id.replace('view-', '') : null;
     
-    // Nếu đang ở tab hiện tại thì không làm gì cả
     if (currentViewId === viewId) return;
 
-    // 1. Lưu vị trí cuộn của tab cũ và dọn dẹp bộ nhớ
     if (currentViewId) {
         viewScrollPositions[currentViewId] = window.scrollY;
         unloadView(currentViewId);
     }
     
-    // 2. Đổi trạng thái Active cho Tab và Nút Menu
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(link => {
         link.classList.remove('active');
@@ -101,18 +91,15 @@ function switchView(viewId) {
         targetNav.setAttribute('aria-current', 'page');
     }
     
-    // Đóng menu mobile nếu đang mở
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
     
-    // 3. Tải dữ liệu (Lazy Load kèm Skeleton Loading)
     let isRendering = false;
     if (viewId === 'heritage') {
         const grid = document.getElementById('heritage-grid');
         if (grid && grid.innerHTML.trim() === '') {
-            // Hiện Skeleton chờ
             grid.innerHTML = Array(6).fill(`<div class="skeleton skeleton-card"><div class="skeleton-line title"></div><div class="skeleton-line desc"></div></div>`).join('');
-            setTimeout(() => renderHeritage(), 10); // Render dữ liệu thật sau 10ms
+            setTimeout(() => renderHeritage(), 10); 
             isRendering = true;
         }
     } else if (viewId === 'encyclopedia') {
@@ -123,10 +110,8 @@ function switchView(viewId) {
         }
     }
     
-    // 4. Phục hồi vị trí cuộn (Scroll Restoration)
     const savedY = viewScrollPositions[viewId] || 0;
     if (savedY > 0) {
-        // Đợi DOM render xong mới cuộn
         setTimeout(() => window.scrollTo({ top: savedY, behavior: 'instant' }), isRendering ? 60 : 10);
     } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -134,7 +119,6 @@ function switchView(viewId) {
 }
 
 function unloadView(viewId) {
-    // Dọn dẹp DOM của tab cũ để giải phóng RAM
     if (viewId === 'heritage') {
         const grid = document.getElementById('heritage-grid');
         if (grid) grid.innerHTML = ''; 
@@ -143,7 +127,6 @@ function unloadView(viewId) {
     } else if (viewId === 'encyclopedia') {
         const container = document.getElementById('encyclopedia-container');
         if (container) {
-            // Đóng tất cả accordion trước khi xóa
             container.querySelectorAll('details').forEach(d => d.open = false);
             container.innerHTML = ''; 
         }
@@ -184,7 +167,7 @@ function scrollToCenter(element) {
 
 function changeFontSize(step) {
     const currentSize = parseFloat(localStorage.getItem(FONT_SIZE_KEY) || '1.15');
-    const newSize = Math.min(Math.max(currentSize + (step * 0.1), 1.0), 2.0); // Giới hạn 1.0 - 2.0rem
+    const newSize = Math.min(Math.max(currentSize + (step * 0.1), 1.0), 2.0); 
     localStorage.setItem(FONT_SIZE_KEY, newSize);
     document.documentElement.style.setProperty('--read-font-size', `${newSize}rem`);
 }
@@ -213,6 +196,7 @@ function filterMainCategory(category, btnElement) {
     currentMainCat = category; currentGenre = 'all'; currentPage = 1;
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
+    
     const subBar = document.getElementById('sub-filter-bar');
     if (category === 'all') { subBar.style.display = 'none'; renderHeritage(); return; }
     
@@ -220,8 +204,9 @@ function filterMainCategory(category, btnElement) {
     const uniqueGenres = new Set();
     itemsInCat.forEach(item => { if (Array.isArray(item.the_loai)) item.the_loai.forEach(g => uniqueGenres.add(g)); });
     
-    if (uniqueGenres.size === 0) { subBar.style.display = 'none'; }
-    else {
+    if (uniqueGenres.size === 0) { 
+        subBar.style.display = 'none'; 
+    } else {
         subBar.style.display = 'flex';
         let subHtml = `<button class="filter-btn active" onclick="filterSubGenre('all', this)" style="padding: 6px 16px; font-size: 0.8rem;">Tất cả thể loại</button>`;
         Array.from(uniqueGenres).sort().forEach(genre => { 
@@ -590,12 +575,54 @@ function executePipeline() {
     const tier0 = report.bangTrac.map(l => `<div class="line-row" style="border-bottom: none !important; padding: 8px 0;"><span style="color:var(--text-muted);font-family:var(--font-sans);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${l.text}</span><span class="pattern-text">${l.pattern}</span></div>`).join('');
     
     const renderRhymeList = (title, arr, color) => {
-        if (arr.length === 0) return '';
-        const list = arr.map(item => `<li style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; color: var(--text-muted); padding: 4px 0; border-bottom: none !important;"><span style="flex: 1; padding-right: 15px;">${item.text}</span><span style="color: ${item.isMatch ? color : 'var(--text-muted)'}; font-weight: 500; white-space: nowrap; display: flex; align-items: center;">${item.isMatch ? `${ICONS.check} cùng vần [${item.rhyme}]` : `- khác vần`}</span></li>`).join('');
-        return `<div style="margin-bottom: 20px;"><strong style="display: block; margin-bottom: 10px; color: ${color}; font-size: 1rem;">${title}</strong><ul style="padding-left: 0; list-style: none; margin: 0;">${list}</ul></div>`;
+        const matches = arr.filter(item => item.isMatch);
+        
+        const groups = {};
+        matches.forEach(item => {
+            if (!groups[item.rhyme]) groups[item.rhyme] = { cauSet: new Set(), wordSet: new Set() };
+            const nums = item.text.match(/Câu \d+/g) || [];
+            nums.forEach(n => groups[item.rhyme].cauSet.add(n.replace('Câu ', '')));
+            const words = item.text.match(/"([^"]+)"/g) || [];
+            words.forEach(w => groups[item.rhyme].wordSet.add(w.replace(/"/g, '')));
+        });
+        
+        const list = Object.entries(groups).map(([rhyme, data]) => {
+            const cauList = Array.from(data.cauSet).sort((a, b) => a - b).join(', ');
+            const wordList = Array.from(data.wordSet).map(w => `"${w}"`).join(' <span style="opacity: 0.5; margin: 0 4px;">-</span> ');
+            
+            return `<li style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; color: var(--text-muted); padding: 12px 16px; background: rgba(139,184,168,0.06); border-radius: 10px; flex-wrap: wrap; gap: 16px;">
+                <span style="font-weight: 500; flex: 1; min-width: 220px; line-height: 1.5;">
+                    Câu ${cauList} 
+                    <span style="margin-left: 8px; font-style: italic; color: var(--text-main);">(${wordList})</span>
+                </span>
+                <span style="color: ${color}; font-weight: 700; white-space: nowrap; display: flex; align-items: center; gap: 6px;">
+                    ${ICONS.check} cùng vần [${rhyme}]
+                </span>
+            </li>`;
+        }).join('');
+        
+        return `<div style="margin-bottom: 24px;">
+            <strong style="display: block; margin-bottom: 12px; color: ${color}; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">${title}</strong>
+            <ul style="padding-left: 0; list-style: none; margin: 0;">${list}</ul>
+        </div>`;
     };
-    
-    const tier1 = `<div style="margin-bottom:20px;"><strong>Thể thơ nhận diện:</strong> ${report.form.form} <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span></div>${renderRhymeList('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}${renderRhymeList('2. Vần lưng (chữ giữa câu)', report.rhymes.details.lung, 'var(--accent-gold)')}${renderRhymeList('3. Vần liền (câu 1-2, 3-4)', report.rhymes.details.lien, 'var(--text-main)')}${renderRhymeList('4. Vần cách (câu 1-3, 2-4)', report.rhymes.details.cach, 'var(--text-muted)')}`;
+
+    const hasChan = report.rhymes.details.chan.some(r => r.isMatch);
+    const hasLung = report.rhymes.details.lung.some(r => r.isMatch);
+    const hasLien = report.rhymes.details.lien.some(r => r.isMatch);
+    const hasCach = report.rhymes.details.cach.some(r => r.isMatch);
+
+    let rhymeHtml = '';
+    if (hasChan) rhymeHtml += renderRhymeList('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)');
+    if (hasLung) rhymeHtml += renderRhymeList('2. Vần lưng (chữ giữa câu)', report.rhymes.details.lung, 'var(--accent-gold)');
+    if (hasLien) rhymeHtml += renderRhymeList('3. Vần liền (câu 1-2, 3-4)', report.rhymes.details.lien, 'var(--text-main)');
+    if (hasCach) rhymeHtml += renderRhymeList('4. Vần cách (câu 1-3, 2-4)', report.rhymes.details.cach, 'var(--text-muted)');
+
+    if (!hasChan && !hasLung && !hasLien && !hasCach) {
+        rhymeHtml = `<p style="font-style: italic; color: #e74c3c; padding: 15px 0; text-align: center; font-weight: 500; font-size: 1rem;">Bài thơ không sử dụng vần chân, vần lưng, vần liền hay vần cách.</p>`;
+    }
+
+    const tier1 = `<div style="margin-bottom:20px;"><strong>Thể thơ nhận diện:</strong> ${report.form.form} <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span></div>${rhymeHtml}`;
     
     const tier2 = report.symbols.length === 0 ? `<p style="font-style:italic;color:var(--text-muted);">Không phát hiện biểu tượng / điển tích / từ Hán Việt đặc biệt.</p>` : report.symbols.map(s => `<div class="symbol-row" style="border-bottom: none !important; padding: 8px 0;"><span class="symbol-keyword">${s.keyword}</span><span class="symbol-meaning"><em style="color:var(--text-main);font-size:0.8rem;">[${s.type}]</em> ${s.mean}</span><span class="volume-link" onclick="gotoEncyclopediaById('${s.vol}')">Xem Bách Khoa</span></div>`).join('');
     
@@ -609,7 +636,7 @@ function executePipeline() {
 
 
 /* =====================================================================
-   MODULE 7: HIỆU ỨNG ĐỘNG (CANVAS SÓNG NƯỚC TỐI ƯU)
+   MODULE 7: HIỆU ỨNG ĐỘNG (CANVAS SÓNG NƯỚC TINH TẾ)
    ===================================================================== */
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
@@ -635,7 +662,7 @@ function initWaterCanvas() {
             x: x, 
             y: y,
             radius: 0,
-            maxRadius: 80 + Math.random() * 40,
+            maxRadius: 30 + Math.random() * 20, 
             alpha: 0.8,
             color: color
         });
@@ -651,8 +678,8 @@ function initWaterCanvas() {
 
         for (let i = ripples.length - 1; i >= 0; i--) {
             const p = ripples[i];
-            p.radius += 2.5; 
-            p.alpha -= 0.015;
+            p.radius += 1.2; 
+            p.alpha -= 0.02;
 
             if (p.alpha <= 0 || p.radius > p.maxRadius) {
                 ripples.splice(i, 1);
@@ -663,14 +690,14 @@ function initWaterCanvas() {
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             ctx.strokeStyle = p.color;
             ctx.globalAlpha = p.alpha;
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 0.8; 
             ctx.stroke();
 
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius * 0.6, 0, Math.PI * 2);
             ctx.strokeStyle = '#ffffff';
-            ctx.globalAlpha = p.alpha * 0.5;
-            ctx.lineWidth = 1;
+            ctx.globalAlpha = p.alpha * 0.4;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
         }
         
@@ -791,7 +818,6 @@ async function loadAllData() {
     } catch (error) { 
         console.error("Lỗi tải dữ liệu (có thể do mạng yếu):", error);
         
-        // Tự động phục hồi từ Cache nếu có
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             const parsed = JSON.parse(cached);
@@ -803,7 +829,6 @@ async function loadAllData() {
             renderHeritage();
         }
     } finally {
-        // DÙ MẠNG CÓ LỖI HAY KHÔNG, HIỆU ỨNG VẪN PHẢI CHẠY
         initWaterCanvas(); 
         initDewdrops();
         playSplashAnimation();
