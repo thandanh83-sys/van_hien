@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Website Status
-        uses: Jtalk/url-health-check-action@v4
+        uses: Jtalk/url-health-check-action@v5
         with:
           url: https://<TÊN_GITHUB_CỦA_BẠN>.github.io/van_hien/
           max-attempts: 3
