@@ -1,16 +1,16 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (OFFLINE CACHE V3)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (OFFLINE CACHE V4)
    Tác giả: Văn Đạo
-   Mô tả: Quản lý bộ nhớ đệm (Cache) cho phép ứng dụng hoạt động 100% 
+   Mô tả: Quản lý bộ nhớ đệm (Cache) giúp ứng dụng hoạt động 100% 
           khi không có kết nối mạng (Offline).
-   Cập nhật: Đã đồng bộ tên file ảnh mới (tiền tố "anh-") và nâng version.
+   Cập nhật: Đồng bộ tên file ảnh mới (tiền tố "anh-") và nâng version.
    ===================================================================== */
 
 // 1. ĐẶT TÊN CHO BỘ NHỚ ĐỆM (CACHE VERSION)
 // Mỗi khi bạn cập nhật code (HTML, CSS, JS, JSON, hoặc thay ảnh mới),
-// BẮT BUỘC phải đổi số 'v3' thành 'v4', 'v5'... để trình duyệt biết 
-// có phiên bản mới và tự động tải lại toàn bộ.
-const CACHE_NAME = 'vandao-cache-v3';
+// BẮT BUỘC phải đổi số 'v4' thành 'v5', 'v6'... để trình duyệt biết 
+// có phiên bản mới và tự động tải lại toàn bộ, không dùng lại code cũ.
+const CACHE_NAME = 'vandao-cache-v4';
 
 // 2. DANH SÁCH CÁC FILE CẦN TẢI XUỐNG ĐỂ CHẠY OFFLINE (ASSETS)
 // Đã cập nhật chính xác tên file ảnh mới của bạn (có chữ "anh-")
