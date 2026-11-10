@@ -12,6 +12,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Audit URLs using Lighthouse
         uses: treosh/lighthouse-ci-action@v12
+        env:
+          CHROME_FLAGS: "--no-sandbox --disable-dev-shm-usage"
         with:
           urls: |
             https://<TÊN_GITHUB_CỦA_BẠN>.github.io/van_hien/
+          runs: 1
