@@ -1,17 +1,15 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE EDITION V4.0)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE EDITION V5.0)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Kiến trúc SPA (Single Page Application) hoàn chỉnh.
-   - Tối ưu hóa Lazy Load (Chỉ tải chi tiết tác phẩm khi click).
-   - Quản lý bộ nhớ (Unload View) & Khôi phục vị trí cuộn (Scroll Restoration).
-   - Hiệu ứng Lụa khởi động (GSAP), Hạt sương, Giọt ngọc chạm màn hình.
-   - Hệ thống Icon SVG 100% (Không Emoji).
-   - Bộ máy phân tích Thi pháp (Thanh điệu NFD, Vần điệu, Thể thơ).
+   - Tích hợp Động cơ Hiệu năng (Performance Engine) chống lag.
+   - Tính năng đổi cỡ chữ (Lưu LocalStorage).
+   - Tối ưu hóa Mobile (Tắt hiệu ứng nặng).
+   - Hệ thống Icon SVG 100%, Bộ máy phân tích Thi pháp.
    ===================================================================== */
 
 /* =====================================================================
-   MODULE 0: KHO ICON SVG CHUẨN & HẰNG SỐ TOÀN CỤC
+   MODULE 0: KHO ICON SVG & HẰNG SỐ TOÀN CỤC
    ===================================================================== */
 const SVG_ATTR = `viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"`;
 
@@ -25,16 +23,15 @@ const ICONS = {
     chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`
 };
 
-const CACHE_KEY = 'vandao_cache_v28';
+const CACHE_KEY = 'vandao_cache_v5';
+const FONT_SIZE_KEY = 'vandao_font_size';
 const ITEMS_PER_PAGE = 20;
 
-// Biến toàn cục chứa dữ liệu
 let THEORY_DATA = [];    
 let AUTHOR_DATA = [];    
 let WORKS_DATA = [];     
 let QUOTES_DATA = [];    
 
-// Biến trạng thái
 let currentMainCat = 'all';       
 let currentGenre = 'all';         
 let currentPage = 1;              
@@ -42,34 +39,61 @@ let currentEncyGroup = 'ly-thuyet';
 let currentQuoteIndex = -1;
 let quoteIntervalId = null;
 
-// Bộ nhớ đệm cho chi tiết tác phẩm
 const worksDetailCache = new Map();
-
-// Lưu vị trí cuộn của từng tab
-const viewScrollPositions = {
-    'home': 0, 'heritage': 0, 'encyclopedia': 0, 'analyze': 0
-};
+const viewScrollPositions = { 'home': 0, 'heritage': 0, 'encyclopedia': 0, 'analyze': 0 };
 
 /* =====================================================================
-   MODULE 1: HIỆU ỨNG LỤA KHỞI ĐỘNG (SPLASH SCREEN)
+   MODULE 1: ĐỘNG CƠ HIỆU NĂNG (PERFORMANCE ENGINE - GAME DEV TƯ DUY)
    ===================================================================== */
-function playSplashAnimation() {
-    const splash = document.getElementById('jade-splash');
-    if (!splash || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        if (splash) splash.style.display = 'none';
-        return;
+const PerformanceEngine = (() => {
+    let isPaused = false;
+
+    // 1. Camera quan sát: Chỉ vẽ thẻ khi lướt tới
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target); // Ngừng quan sát khi đã hiện
+            }
+        });
+    }, { rootMargin: "0px 0px 300px 0px", threshold: 0.01 });
+
+    // 2. Tạm dừng hiệu ứng nền (Lụa, Hạt sương) khi cuộn xuống sâu hoặc chuyển tab
+    function toggleAnimations(shouldPause) {
+        if (isPaused === shouldPause) return;
+        isPaused = shouldPause;
+        
+        const elements = document.querySelectorAll('.silk-inner, .dewdrop, .silk-layer');
+        elements.forEach(el => {
+            el.style.animationPlayState = shouldPause ? 'paused' : 'running';
+        });
     }
 
-    // Đợi 1 nhịp cho UI render xong rồi mới kích hoạt lụa bay đi
-    setTimeout(() => {
-        splash.classList.add('leaving'); // Kích hoạt animation trượt chéo
-        
-        // Xóa hẳn khỏi DOM sau khi trượt xong để giải phóng RAM
-        setTimeout(() => {
-            splash.remove(); 
-        }, 1500);
-    }, 600);
-}
+    function initListeners() {
+        document.addEventListener('visibilitychange', () => {
+            toggleAnimations(document.hidden);
+        });
+
+        let scrollTick = false;
+        window.addEventListener('scroll', () => {
+            if (!scrollTick) {
+                window.requestAnimationFrame(() => {
+                    const scrollY = window.scrollY;
+                    if (scrollY > 400) toggleAnimations(true);
+                    else if (scrollY < 200) toggleAnimations(false);
+                    scrollTick = false;
+                });
+                scrollTick = true;
+            }
+        }, { passive: true });
+    }
+
+    function observeNewElements(selector) {
+        document.querySelectorAll(selector).forEach(el => observer.observe(el));
+    }
+
+    return { init: initListeners, observe: observeNewElements };
+})();
 
 /* =====================================================================
    MODULE 2: ĐIỀU HƯỚNG (ROUTING) & QUẢN LÝ VIEW
@@ -78,15 +102,13 @@ function switchView(viewId) {
     const currentActive = document.querySelector('.view.active');
     const currentViewId = currentActive ? currentActive.id.replace('view-', '') : null;
     
-    if (currentViewId === viewId) return; // Đang ở tab này rồi thì bỏ qua
+    if (currentViewId === viewId) return;
 
-    // 1. Lưu vị trí cuộn của tab cũ và dọn dẹp bộ nhớ
     if (currentViewId) {
         viewScrollPositions[currentViewId] = window.scrollY;
         unloadView(currentViewId);
     }
     
-    // 2. Đổi trạng thái Active
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(link => {
         link.classList.remove('active');
@@ -104,12 +126,10 @@ function switchView(viewId) {
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
     
-    // 3. Lazy Load dữ liệu (Chỉ render nếu tab trống)
     let isRendering = false;
     if (viewId === 'heritage') {
         const grid = document.getElementById('heritage-grid');
         if (grid && grid.innerHTML.trim() === '') {
-            // Hiện Skeleton
             grid.innerHTML = Array(6).fill(`<div class="skeleton skeleton-card"><div class="skeleton-line title"></div><div class="skeleton-line desc"></div></div>`).join('');
             setTimeout(() => renderHeritage(), 10); 
             isRendering = true;
@@ -122,15 +142,10 @@ function switchView(viewId) {
         }
     }
     
-    // 4. Khôi phục vị trí cuộn
     const savedY = viewScrollPositions[viewId] || 0;
     if (savedY > 0) {
-        // Nếu có vị trí cũ, đợi render xong rồi cuộn thẳng tới đó (instant để không bị giật)
-        setTimeout(() => {
-            window.scrollTo({ top: savedY, behavior: 'instant' });
-        }, isRendering ? 60 : 10);
+        setTimeout(() => window.scrollTo({ top: savedY, behavior: 'instant' }), isRendering ? 60 : 10);
     } else {
-        // Nếu là tab mới, đưa lên đầu
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
@@ -144,7 +159,6 @@ function unloadView(viewId) {
     } else if (viewId === 'encyclopedia') {
         const container = document.getElementById('encyclopedia-container');
         if (container) {
-            // Đóng tất cả accordion trước khi xóa để giải phóng event listener
             container.querySelectorAll('details').forEach(d => d.open = false);
             container.innerHTML = ''; 
         }
@@ -176,17 +190,22 @@ function debounce(func, wait) {
 
 function scrollToCenter(element) {
     if (!element) return;
-    const elementRect = element.getBoundingClientRect();
-    const absoluteElementTop = elementRect.top + window.pageYOffset;
-    // Tính toán để phần tử nằm giữa màn hình
-    const middle = absoluteElementTop - (window.innerHeight / 2) + (elementRect.height / 2);
-    const targetY = Math.max(0, middle); // Đảm bảo không cuộn âm
-    
-    window.scrollTo({ top: targetY, behavior: 'smooth' });
+    const rect = element.getBoundingClientRect();
+    const absoluteTop = rect.top + window.pageYOffset;
+    const middle = absoluteTop - (window.innerHeight / 2) + (rect.height / 2);
+    window.scrollTo({ top: Math.max(0, middle), behavior: 'smooth' });
+}
+
+// Hàm đổi cỡ chữ
+function changeFontSize(step) {
+    const currentSize = parseFloat(localStorage.getItem(FONT_SIZE_KEY) || '1.2');
+    const newSize = Math.min(Math.max(currentSize + (step * 0.1), 1.0), 2.0);
+    localStorage.setItem(FONT_SIZE_KEY, newSize);
+    document.documentElement.style.setProperty('--read-font-size', `${newSize}rem`);
 }
 
 /* =====================================================================
-   MODULE 4: VĂN HIẾN (LỌC 2 TẦNG, TÌM KIẾM, PHÂN TRANG)
+   MODULE 4: VĂN HIẾN (LỌC, TÌM KIẾM, PHÂN TRANG)
    ===================================================================== */
 const CATEGORY_NAMES = {
     'van-hoc-dan-gian': 'Văn học Dân gian', 'thi-ca': 'Thi ca', 'van-xuoi': 'Văn xuôi',
@@ -197,7 +216,6 @@ const CATEGORY_NAMES = {
 function initMainFilters() {
     const mainBar = document.getElementById('main-filter-bar');
     if (!mainBar || WORKS_DATA.length === 0) return;
-
     let html = `<button class="filter-btn active" onclick="filterMainCategory('all', this)">Tất cả</button>`;
     Object.keys(CATEGORY_NAMES).forEach(cat => {
         html += `<button class="filter-btn" onclick="filterMainCategory('${cat}', this)">${CATEGORY_NAMES[cat]}</button>`;
@@ -209,26 +227,16 @@ function filterMainCategory(category, btnElement) {
     currentMainCat = category; currentGenre = 'all'; currentPage = 1;
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
-    
     const subBar = document.getElementById('sub-filter-bar');
-    if (category === 'all') { 
-        subBar.style.display = 'none'; 
-        renderHeritage(); 
-        return; 
-    }
-    
+    if (category === 'all') { subBar.style.display = 'none'; renderHeritage(); return; }
     const itemsInCat = WORKS_DATA.filter(item => item.loai_hinh === category);
     const uniqueGenres = new Set();
     itemsInCat.forEach(item => { if (Array.isArray(item.the_loai)) item.the_loai.forEach(g => uniqueGenres.add(g)); });
-    
-    if (uniqueGenres.size === 0) { 
-        subBar.style.display = 'none'; 
-    } else {
+    if (uniqueGenres.size === 0) { subBar.style.display = 'none'; }
+    else {
         subBar.style.display = 'flex';
         let subHtml = `<button class="filter-btn active" onclick="filterSubGenre('all', this)" style="padding: 6px 16px; font-size: 0.8rem;">Tất cả thể loại</button>`;
-        Array.from(uniqueGenres).sort().forEach(genre => { 
-            subHtml += `<button class="filter-btn" onclick="filterSubGenre('${genre}', this)" style="padding: 6px 16px; font-size: 0.8rem;">${genre}</button>`; 
-        });
+        Array.from(uniqueGenres).sort().forEach(genre => { subHtml += `<button class="filter-btn" onclick="filterSubGenre('${genre}', this)" style="padding: 6px 16px; font-size: 0.8rem;">${genre}</button>`; });
         subBar.innerHTML = subHtml;
     }
     renderHeritage();
@@ -246,25 +254,15 @@ function renderHeritage() {
     const searchInput = document.getElementById('search-input');
     const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
     if (!grid) return;
-    
     let data = WORKS_DATA;
-    
-    // Áp dụng bộ lọc
     if (currentMainCat !== 'all') data = data.filter(item => item.loai_hinh === currentMainCat);
     if (currentGenre !== 'all') data = data.filter(item => item.the_loai && item.the_loai.includes(currentGenre));
-    if (keyword) data = data.filter(item => 
-        item.title.toLowerCase().includes(keyword) || 
-        item.author.toLowerCase().includes(keyword) ||
-        (item.desc && item.desc.toLowerCase().includes(keyword))
-    );
-
+    if (keyword) data = data.filter(item => item.title.toLowerCase().includes(keyword) || item.author.toLowerCase().includes(keyword) || (item.desc && item.desc.toLowerCase().includes(keyword)));
     if (data.length === 0) {
         grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted); font-style: italic;">Không tìm thấy mục từ nào phù hợp.</p>`;
         document.getElementById('pagination-container').innerHTML = '';
         return;
     }
-
-    // Phân trang
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
     if (currentPage > totalPages) currentPage = totalPages;
     if (currentPage < 1) currentPage = 1;
@@ -272,14 +270,8 @@ function renderHeritage() {
 
     grid.innerHTML = paginatedData.map(item => {
         let genreTags = '';
-        if (Array.isArray(item.the_loai)) {
-            genreTags = item.the_loai.map(g => `<span class="h-tag" style="margin-right: 5px; margin-bottom: 5px;">${g}</span>`).join(' ');
-        }
-        
-        const detailBtn = item.id 
-            ? `<button onclick="gotoEncyclopediaById('${item.id}')" class="detail-btn">Chi tiết ${ICONS.arrowRight}</button>` 
-            : '';
-
+        if (Array.isArray(item.the_loai)) genreTags = item.the_loai.map(g => `<span class="h-tag" style="margin-right: 5px; margin-bottom: 5px;">${g}</span>`).join(' ');
+        const detailBtn = item.id ? `<button onclick="gotoEncyclopediaById('${item.id}')" class="detail-btn">Chi tiết ${ICONS.arrowRight}</button>` : '';
         return `
         <div class="heritage-card lazy-card" id="${item.id}">
             <div style="display: flex; flex-wrap: wrap; margin-bottom: 10px;">${genreTags}</div>
@@ -293,35 +285,33 @@ function renderHeritage() {
                 </div>
                 ${detailBtn}
             </div>
-        </div>
-        `;
+        </div>`;
     }).join('');
     
     renderPagination(totalPages);
     const countEl = document.getElementById('heritage-count');
     if (countEl) countEl.textContent = `Tìm thấy ${data.length} tác phẩm`;
+    
+    // Kích hoạt Performance Engine
+    PerformanceEngine.observe('.heritage-card');
 }
 
 function renderPagination(totalPages) {
     let pagContainer = document.getElementById('pagination-container');
     if (!pagContainer) return;
     if (totalPages <= 1) { pagContainer.innerHTML = ''; return; }
-
     let html = `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Trước</button>`;
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
             html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
-        } else if (i === currentPage - 2 || i === currentPage + 2) { 
-            html += `<span class="page-ellipsis">...</span>`; 
-        }
+        } else if (i === currentPage - 2 || i === currentPage + 2) { html += `<span class="page-ellipsis">...</span>`; }
     }
     html += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Sau</button>`;
     pagContainer.innerHTML = html;
 }
 
 function changePage(page) { 
-    currentPage = page; 
-    renderHeritage(); 
+    currentPage = page; renderHeritage(); 
     const searchInput = document.getElementById('search-input');
     if (searchInput) searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
 }
@@ -339,7 +329,6 @@ function filterEncyclopediaGroup(group, btnElement) {
         btnElement.classList.add('active');
         btnElement.setAttribute('aria-pressed', 'true');
     }
-    
     const searchInput = document.getElementById('encyclopedia-search');
     if (searchInput) searchInput.value = '';
     renderEncyclopedia();
@@ -348,26 +337,15 @@ function filterEncyclopediaGroup(group, btnElement) {
 function renderEncyclopedia() {
     const container = document.getElementById('encyclopedia-container');
     if (!container) return;
-    
-    let data = [];
-    if (currentEncyGroup === 'ly-thuyet') {
-        data = THEORY_DATA;
-    } else {
-        data = [...AUTHOR_DATA, ...WORKS_DATA];
-    }
-
+    let data = currentEncyGroup === 'ly-thuyet' ? THEORY_DATA : [...AUTHOR_DATA, ...WORKS_DATA];
     if (!data || data.length === 0) {
         container.innerHTML = `<p style="text-align: center; padding: 40px; color: var(--text-muted); font-style: italic;">Không có dữ liệu.</p>`;
         return;
     }
-    
     container.innerHTML = data.map((item, index) => `
         <div class="accordion-item" id="vol-${index}">
             <details data-index="${index}">
-                <summary>
-                    <span class="summary-title">${item.title}</span>
-                    ${ICONS.chevron}
-                </summary>
+                <summary><span class="summary-title">${item.title}</span>${ICONS.chevron}</summary>
                 <div class="accordion-content"></div>
             </details>
         </div>
@@ -379,15 +357,10 @@ function renderEncyclopedia() {
             const index = parseInt(this.getAttribute('data-index'));
             const contentDiv = this.querySelector('.accordion-content');
             const dataItem = data[index];
-            
             if (this.open) {
-                // Đóng các cái khác
                 allDetails.forEach(other => { if (other !== this && other.open) other.open = false; });
-                
-                // Lazy Load nội dung
                 if (contentDiv.innerHTML.trim() === '') {
                     const isWorks = currentEncyGroup === 'tinh-hoa' && index >= AUTHOR_DATA.length;
-                    
                     if (isWorks) {
                         contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải nội dung...</p>`;
                         try {
@@ -400,34 +373,30 @@ function renderEncyclopedia() {
                         contentDiv.innerHTML = dataItem.content;
                     }
                 }
-
-                // Cuộn ra giữa màn hình
                 scrollToCenter(this);
-            } else { 
-                contentDiv.innerHTML = ''; // Giải phóng DOM khi đóng
-            }
+            } else { contentDiv.innerHTML = ''; }
         });
     });
+    
+    // Kích hoạt Performance Engine
+    PerformanceEngine.observe('.accordion-item');
 }
 
 function searchEncyclopedia() {
     const keyword = document.getElementById('encyclopedia-search').value.toLowerCase().trim();
     const items = document.querySelectorAll('.accordion-item');
     const data = currentEncyGroup === 'ly-thuyet' ? THEORY_DATA : [...AUTHOR_DATA, ...WORKS_DATA];
-
     items.forEach(item => {
         const details = item.querySelector('details');
         const title = item.querySelector('.summary-title').textContent.toLowerCase();
         const index = parseInt(details.getAttribute('data-index'));
         const datum = data[index];
-        
         let searchable = (datum.content || '').toLowerCase();
         if (!searchable && datum.id) {
             const cached = worksDetailCache.get(datum.id);
             searchable = (cached?.content || datum.desc || '').toLowerCase();
         }
         const cleanContent = searchable.replace(/<[^>]*>/g, '');
-
         if (title.includes(keyword) || cleanContent.includes(keyword)) {
             item.classList.remove('hidden-by-search');
             if (keyword !== '') details.open = true;
@@ -437,7 +406,6 @@ function searchEncyclopedia() {
             details.querySelector('.accordion-content').innerHTML = '';
         }
     });
-    
     const visible = document.querySelectorAll('.accordion-item:not(.hidden-by-search)').length;
     const countEl = document.getElementById('encyclopedia-count');
     if (countEl) countEl.textContent = `Tìm thấy ${visible} mục`;
@@ -446,38 +414,31 @@ function searchEncyclopedia() {
 function gotoEncyclopediaById(id) {
     let searchId = id.toLowerCase();
     if (/^[ivx]+$/.test(searchId)) searchId = 'quyen-' + searchId;
-
     let targetGroup = 'tinh-hoa';
     let searchData = [...AUTHOR_DATA, ...WORKS_DATA];
     let volIndex = searchData.findIndex(item => item.id === searchId);
-
     if (volIndex === -1) {
         targetGroup = 'ly-thuyet';
         searchData = THEORY_DATA;
         volIndex = searchData.findIndex(item => item.id === searchId);
     }
-    
     if (volIndex !== -1) {
         switchView('encyclopedia');
         currentEncyGroup = targetGroup;
-        
         document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
         const btns = document.querySelectorAll('#encyclopedia-filter-bar .filter-btn');
         if (targetGroup === 'ly-thuyet' && btns[0]) btns[0].classList.add('active');
         if (targetGroup === 'tinh-hoa' && btns[1]) btns[1].classList.add('active');
-        
         renderEncyclopedia();
-        
         setTimeout(() => {
             const target = document.getElementById(`vol-${volIndex}`);
             if (target) {
+                target.classList.add('is-visible'); // Ép hiển thị nếu nằm trong Performance Engine
                 target.querySelector('details').open = true;
                 scrollToCenter(target);
             }
         }, 300);
-    } else {
-        alert('Chưa có bài viết chi tiết cho mục này trong Đại Bách Khoa.');
-    }
+    } else { alert('Chưa có bài viết chi tiết cho mục này trong Đại Bách Khoa.'); }
 }
 
 /* =====================================================================
@@ -488,14 +449,12 @@ const POETRY_ANALYZER = (() => {
         const nfd = syllable.normalize('NFD'); 
         return (nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) ? 'T' : 'B'; 
     }
-    
     function getRhymePart(word) { 
         if (!word) return ''; 
         const clean = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); 
         const match = clean.match(/[aeiouy]+[^aeiouy]*$/); 
         return match ? match[0] : clean.slice(-2); 
     }
-    
     function analyzeBangTrac(text) {
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         return lines.map((line, i) => {
@@ -504,7 +463,6 @@ const POETRY_ANALYZER = (() => {
             return { lineNum: i + 1, text: line, count: syllables.length, pattern, lastSyllable: syllables[syllables.length - 1] || '' };
         });
     }
-    
     function detectForm(lines) {
         const counts = lines.map(l => l.count); const n = counts.length; 
         const uniform = counts.every(c => c === counts[0]); const c = counts[0];
@@ -518,66 +476,21 @@ const POETRY_ANALYZER = (() => {
         if (!uniform) return { form: 'Thơ tự do hoặc biến thể', confidence: 'thấp', note: `Số chữ mỗi câu: ${counts.join(' - ')}` };
         return { form: `Thơ ${c} chữ`, confidence: 'trung bình', note: `${n} câu × ${c} chữ` };
     }
-    
     function checkRhymeDetails(lines) {
         const result = { chan: [], lung: [], lien: [], cach: [] };
         const lastSyl = lines.map(l => l.lastSyllable); const rhymeParts = lastSyl.map(s => getRhymePart(s));
-        for (let i = 0; i < lines.length; i++) { 
-            for (let j = i + 1; j < lines.length; j++) { 
-                const match = (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== ''); 
-                result.chan.push({ text: `Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}")`, isMatch: match, rhyme: rhymeParts[i] }); 
-            } 
-        }
-        for (let i = 0; i < lines.length - 1; i++) { 
-            const endPart = rhymeParts[i]; 
-            const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || []; 
-            let hasMatch = false; 
-            for (let k = 0; k < nextWords.length - 1; k++) { 
-                const match = (getRhymePart(nextWords[k]) === endPart && endPart !== ''); 
-                if (match) { 
-                    result.lung.push({ text: `Cuối câu ${i+1} vần với chữ ${k+1} câu ${i+2} ("${nextWords[k]}")`, isMatch: true, rhyme: endPart }); 
-                    hasMatch = true; 
-                } 
-            } 
-        }
-        for (let i = 0; i < lines.length - 1; i += 2) { 
-            const match = (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== ''); 
-            result.lien.push({ text: `Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}")`, isMatch: match, rhyme: rhymeParts[i] }); 
-        }
-        for (let i = 0; i < lines.length - 2; i += 2) { 
-            const match = (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== ''); 
-            result.cach.push({ text: `Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}")`, isMatch: match, rhyme: rhymeParts[i] }); 
-        }
+        for (let i = 0; i < lines.length; i++) { for (let j = i + 1; j < lines.length; j++) { 
+            const match = (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== ''); 
+            result.chan.push({ text: `Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}")`, isMatch: match, rhyme: rhymeParts[i] }); 
+        } }
+        for (let i = 0; i < lines.length - 1; i++) { const endPart = rhymeParts[i]; const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || []; let hasMatch = false; for (let k = 0; k < nextWords.length - 1; k++) { const match = (getRhymePart(nextWords[k]) === endPart && endPart !== ''); if (match) { result.lung.push({ text: `Cuối câu ${i+1} vần với chữ ${k+1} câu ${i+2} ("${nextWords[k]}")`, isMatch: true, rhyme: endPart }); hasMatch = true; } } }
+        for (let i = 0; i < lines.length - 1; i += 2) { const match = (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== ''); result.lien.push({ text: `Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}")`, isMatch: match, rhyme: rhymeParts[i] }); }
+        for (let i = 0; i < lines.length - 2; i += 2) { const match = (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== ''); result.cach.push({ text: `Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}")`, isMatch: match, rhyme: rhymeParts[i] }); }
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
-    
-    const SYMBOLS = { 
-        'trăng': { vol: 'V', sec: '5.2', mean: 'đoàn viên, nhớ quê, cô đơn, chiêm nghiệm' }, 
-        'nguyệt': { vol: 'V', sec: '5.2', mean: 'Hán Việt của "trăng"' }, 
-        'liễu': { vol: 'V', sec: '5.2', mean: 'chia biệt' }, 
-        'đào': { vol: 'V', sec: '5.2', mean: 'tuổi trẻ, mùa xuân' }, 
-        'sen': { vol: 'V', sec: '5.2', mean: 'thanh khiết' }, 
-        'hạc': { vol: 'V', sec: '5.2', mean: 'thanh cao, trường thọ' }, 
-        'nhạn': { vol: 'V', sec: '5.2', mean: 'tin tức' }, 
-        'mây': { vol: 'V', sec: '5.2', mean: 'phiêu du' }, 
-        'nước': { vol: 'V', sec: '5.2', mean: 'thời gian, mềm mại' }, 
-        'thuyền': { vol: 'V', sec: '5.2', mean: 'hành trình' }, 
-        'bến đò': { vol: 'V', sec: '5.2', mean: 'gặp gỡ, chia tay' } 
-    };
-    const DIEN_TICH = { 
-        'sân lai': { vol: 'V', sec: '5.2', mean: 'lòng hiếu thảo (Lão Lai Tử)' }, 
-        'ngưu lang': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 
-        'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 
-        'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' }, 
-        'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 
-        'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm, mất tự do' } 
-    };
-    const HAN_VIET = { 
-        'vọng': { vol: 'VIII', sec: '8.5', mean: '望 — trông về, ngóng đợi.' }, 
-        'khúc': { vol: 'VIII', sec: '8.5', mean: '曲 — khúc nhạc, bản nhạc.' }, 
-        'dặm trường': { vol: 'VIII', sec: '8.5', mean: 'trường = 長 (dài) — đường xa.' } 
-    };
-    
+    const SYMBOLS = { 'trăng': { vol: 'V', sec: '5.2', mean: 'đoàn viên, nhớ quê, cô đơn' }, 'nguyệt': { vol: 'V', sec: '5.2', mean: 'Hán Việt của "trăng"' }, 'liễu': { vol: 'V', sec: '5.2', mean: 'chia biệt' }, 'đào': { vol: 'V', sec: '5.2', mean: 'tuổi trẻ, mùa xuân' }, 'sen': { vol: 'V', sec: '5.2', mean: 'thanh khiết' }, 'hạc': { vol: 'V', sec: '5.2', mean: 'thanh cao, trường thọ' }, 'nhạn': { vol: 'V', sec: '5.2', mean: 'tin tức' }, 'mây': { vol: 'V', sec: '5.2', mean: 'phiêu du' }, 'nước': { vol: 'V', sec: '5.2', mean: 'thời gian, mềm mại' }, 'thuyền': { vol: 'V', sec: '5.2', mean: 'hành trình' }, 'bến đò': { vol: 'V', sec: '5.2', mean: 'gặp gỡ, chia tay' } };
+    const DIEN_TICH = { 'sân lai': { vol: 'V', sec: '5.2', mean: 'lòng hiếu thảo' }, 'ngưu lang': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' }, 'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm' } };
+    const HAN_VIET = { 'vọng': { vol: 'VIII', sec: '8.5', mean: '望 — trông về, ngóng đợi.' }, 'khúc': { vol: 'VIII', sec: '8.5', mean: '曲 — khúc nhạc.' }, 'dặm trường': { vol: 'VIII', sec: '8.5', mean: 'trường = 長 (dài) — đường xa.' } };
     function findSymbols(text) { 
         const lower = text.toLowerCase(); const out = []; 
         for (const [kw, info] of Object.entries(SYMBOLS)) { if (lower.includes(kw)) out.push({ type: 'Biểu tượng', keyword: kw, ...info }); } 
@@ -585,7 +498,6 @@ const POETRY_ANALYZER = (() => {
         for (const [kw, info] of Object.entries(HAN_VIET)) { if (lower.includes(kw)) out.push({ type: 'Hán Việt', keyword: kw, ...info }); } 
         return out; 
     }
-    
     function buildQuestions(form, rhymes, symbols) {
         const qs = [];
         if (form.confidence !== 'cao') qs.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay chỉ là ngẫu nhiên? (Xem Quyển I, mục 1.3)`);
@@ -594,7 +506,6 @@ const POETRY_ANALYZER = (() => {
         qs.push(`Điều gì ở bài thơ này là "của riêng" tác giả — khác với những bài cùng thể?`);
         return qs.slice(0, 5);
     }
-    
     function generateReport(text) { 
         const bangTrac = analyzeBangTrac(text); 
         if (bangTrac.length === 0) return null; 
@@ -604,7 +515,6 @@ const POETRY_ANALYZER = (() => {
         const questions = buildQuestions(form, rhymes, symbols); 
         return { bangTrac, form, rhymes, symbols, questions }; 
     }
-    
     return { generateReport };
 })();
 
@@ -612,135 +522,119 @@ function executePipeline() {
     const inputField = document.getElementById('poemInput'); 
     const resultsPanel = document.getElementById('results-panel');
     if (!inputField || !resultsPanel) return;
-    
     const rawText = inputField.value;
     if (!rawText.trim()) { 
         resultsPanel.innerHTML = `<div class="result-step" style="border-left-color:var(--accent-gold);"><p style="font-style:italic;color:var(--text-muted);text-align:center;">Vui lòng nhập bài thơ để phân tích.</p></div>`; 
         return; 
     }
-    
     const report = POETRY_ANALYZER.generateReport(rawText); 
     if (!report) { resultsPanel.innerHTML = ''; return; }
-
     const tier0 = report.bangTrac.map(l => `<div class="line-row" style="border-bottom: none !important; padding: 8px 0;"><span style="color:var(--text-muted);font-family:var(--font-sans);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${l.text}</span><span class="pattern-text">${l.pattern}</span></div>`).join('');
-    
     const renderRhymeList = (title, arr, color) => {
         if (arr.length === 0) return '';
         const list = arr.map(item => `<li style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; color: var(--text-muted); padding: 4px 0; border-bottom: none !important;"><span style="flex: 1; padding-right: 15px;">${item.text}</span><span style="color: ${item.isMatch ? color : 'var(--text-muted)'}; font-weight: 500; white-space: nowrap; display: flex; align-items: center;">${item.isMatch ? `${ICONS.check} cùng vần [${item.rhyme}]` : `- khác vần`}</span></li>`).join('');
         return `<div style="margin-bottom: 20px;"><strong style="display: block; margin-bottom: 10px; color: ${color}; font-size: 1rem;">${title}</strong><ul style="padding-left: 0; list-style: none; margin: 0;">${list}</ul></div>`;
     };
-    
     const tier1 = `<div style="margin-bottom:20px;"><strong>Thể thơ nhận diện:</strong> ${report.form.form} <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note} (độ tin cậy: ${report.form.confidence})</span></div>${renderRhymeList('1. Vần chân (cuối câu)', report.rhymes.details.chan, 'var(--accent)')}${renderRhymeList('2. Vần lưng (chữ giữa câu)', report.rhymes.details.lung, 'var(--accent-gold)')}${renderRhymeList('3. Vần liền (câu 1-2, 3-4)', report.rhymes.details.lien, 'var(--text-main)')}${renderRhymeList('4. Vần cách (câu 1-3, 2-4)', report.rhymes.details.cach, 'var(--text-muted)')}`;
-    
     const tier2 = report.symbols.length === 0 ? `<p style="font-style:italic;color:var(--text-muted);">Không phát hiện biểu tượng / điển tích / từ Hán Việt đặc biệt.</p>` : report.symbols.map(s => `<div class="symbol-row" style="border-bottom: none !important; padding: 8px 0;"><span class="symbol-keyword">${s.keyword}</span><span class="symbol-meaning"><em style="color:var(--text-main);font-size:0.8rem;">[${s.type}]</em> ${s.mean}</span><span class="volume-link" onclick="gotoEncyclopediaById('${s.vol}')">Xem Bách Khoa</span></div>`).join('');
-    
     const tier3 = report.questions.map(q => {
         const formattedQ = q.replace(/\(Xem Quyển ([IVX]+), mục ([\d.]+)\)/g, (match, vol, sec) => `(<span class="volume-link" onclick="gotoEncyclopediaById('${vol}')">Xem Bách Khoa</span>)`);
         return `<div class="question-item" style="display: flex; align-items: flex-start; border-bottom: none !important; padding: 8px 0;"><div style="margin-top: 2px;">${ICONS.question}</div><div style="line-height: 1.6;">${formattedQ}</div></div>`;
     }).join('');
-    
     resultsPanel.innerHTML = `<div class="result-step tier-0"><div class="tier-label">TẦNG 0 — DỮ KIỆN THÔ</div><div class="step-title">Bóc tách thanh điệu (Bằng / Trắc)</div>${tier0}<p class="tier-note">B (Bằng): không dấu, dấu huyền. T (Trắc): sắc, hỏi, ngã, nặng.</p></div><div class="result-step tier-1"><div class="tier-label">TẦNG 1 — ĐỐI CHIẾU LÝ THUYẾT</div><div class="step-title">Thể thơ và Hệ thống Vần</div>${tier1}</div><div class="result-step tier-2"><div class="tier-label">TẦNG 2 — CHIẾU RỌI</div><div class="step-title">Biểu tượng · Điển tích · Hán Việt</div>${tier2}</div><div class="result-step tier-3"><div class="tier-label">TẦNG 3 — MỞ NGỎ</div><div class="step-title">Câu hỏi cho người đọc</div>${tier3}</div>`;
 }
 
 /* =====================================================================
-   MODULE 7: HIỆU ỨNG ĐỘNG (VISUAL EFFECTS)
+   MODULE 7: HIỆU ỨNG ĐỘNG (CHỈ CHẠY TRÊN DESKTOP ĐỂ CHỐNG LAG MOBILE)
    ===================================================================== */
 function initDewdrops() {
+    // Bỏ qua nếu là mobile
+    if (window.innerWidth <= 850) return;
     const container = document.getElementById('dewdrop-container'); 
     if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    
     for (let i = 0; i < 20; i++) {
-        const drop = document.createElement('div'); 
-        drop.className = 'dewdrop';
-        
+        const drop = document.createElement('div'); drop.className = 'dewdrop';
         const layer = Math.floor(Math.random() * 3) + 1; 
         let size, blur, opacity, speed;
-        
-        if (layer === 1) {
-            size = Math.random() * 3 + 1; blur = 2; opacity = 0.3; speed = Math.random() * 15 + 20;
-        } else if (layer === 2) {
-            size = Math.random() * 4 + 3; blur = 1; opacity = 0.6; speed = Math.random() * 10 + 15;
-        } else {
-            size = Math.random() * 6 + 5; blur = 0; opacity = 0.9; speed = Math.random() * 5 + 10;
-        }
-
-        drop.style.width = `${size}px`; 
-        drop.style.height = `${size}px`;
-        drop.style.left = `${Math.random() * 100}vw`; 
-        drop.style.animationDuration = `${speed}s`;
+        if (layer === 1) { size = Math.random() * 3 + 1; blur = 2; opacity = 0.3; speed = Math.random() * 15 + 20; }
+        else if (layer === 2) { size = Math.random() * 4 + 3; blur = 1; opacity = 0.6; speed = Math.random() * 10 + 15; }
+        else { size = Math.random() * 6 + 5; blur = 0; opacity = 0.9; speed = Math.random() * 5 + 10; }
+        drop.style.width = `${size}px`; drop.style.height = `${size}px`;
+        drop.style.left = `${Math.random() * 100}vw`; drop.style.animationDuration = `${speed}s`;
         drop.style.animationDelay = `-${Math.random() * speed}s`;
-        drop.style.filter = `blur(${blur}px)`;
-        drop.style.opacity = opacity;
-        
+        drop.style.filter = `blur(${blur}px)`; drop.style.opacity = opacity;
         container.appendChild(drop); 
     }
 }
 
 function initTouchDrop() {
+    // Trên mobile chỉ giữ vòng sóng nhẹ, desktop có thêm giọt nước
+    const isMobile = window.innerWidth <= 850;
     let lastDrop = 0;
-    
     const createDrop = (x, y) => {
         const now = Date.now();
         if (now - lastDrop < 120) return;
         lastDrop = now;
-
-        const drop = document.createElement('div');
-        drop.className = 'touch-drop';
-        drop.style.left = `${x}px`; drop.style.top = `${y}px`;
         
         const wave = document.createElement('div');
         wave.className = 'touch-wave';
         wave.style.left = `${x}px`; wave.style.top = `${y}px`;
-
-        document.body.appendChild(drop);
         document.body.appendChild(wave);
 
-        setTimeout(() => { drop.remove(); wave.remove(); }, 1000);
-    };
-
-    window.addEventListener('touchstart', (e) => {
-        const touch = e.touches[0];
-        if (touch) createDrop(touch.clientX, touch.clientY);
-    }, { passive: true });
-
-    window.addEventListener('mousedown', (e) => {
-        if (window.matchMedia('(pointer: fine)').matches) {
-            createDrop(e.clientX, e.clientY);
+        if (!isMobile) {
+            const drop = document.createElement('div');
+            drop.className = 'touch-drop';
+            drop.style.left = `${x}px`; drop.style.top = `${y}px`;
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), 1000);
         }
-    }, { passive: true });
+        setTimeout(() => wave.remove(), 1000);
+    };
+    window.addEventListener('touchstart', (e) => { const t = e.touches[0]; if (t) createDrop(t.clientX, t.clientY); }, { passive: true });
+    window.addEventListener('mousedown', (e) => { if (window.matchMedia('(pointer: fine)').matches) createDrop(e.clientX, e.clientY); }, { passive: true });
 }
 
 function initInteractiveSilk() {
+    // Tắt trên mobile để chống lag
+    if (window.innerWidth <= 850) return;
     const container = document.getElementById('silk-container');
     if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
     const layers = container.querySelectorAll('.silk-wrapper');
-    let targetX = 0, targetY = 0;
-    let currentX = 0, currentY = 0;
-
+    let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
     window.addEventListener('pointermove', (e) => {
         targetX = (e.clientX / window.innerWidth - 0.5) * 2;
         targetY = (e.clientY / window.innerHeight - 0.5) * 2;
     }, { passive: true });
-
-    window.addEventListener('pointerleave', () => {
-        targetX = 0; targetY = 0;
-    });
-
+    window.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; });
+    
     function render() {
         currentX += (targetX - currentX) * 0.05;
         currentY += (targetY - currentY) * 0.05;
-
         layers.forEach(layer => {
             const depth = parseFloat(layer.getAttribute('data-depth'));
-            const moveX = currentX * -depth;
-            const moveY = currentY * -depth;
-            layer.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
+            layer.style.transform = `translate3d(${currentX * -depth}px, ${currentY * -depth}px, 0)`;
         });
-
         requestAnimationFrame(render);
     }
     render();
+}
+
+function playSplashAnimation() {
+    // Bỏ qua hiệu ứng Splash trên mobile để vào app nhanh
+    if (window.innerWidth <= 850) {
+        const splash = document.getElementById('jade-splash');
+        if (splash) splash.remove();
+        return;
+    }
+    const splash = document.getElementById('jade-splash');
+    if (!splash || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (splash) splash.style.display = 'none';
+        return;
+    }
+    setTimeout(() => {
+        splash.classList.add('leaving');
+        setTimeout(() => splash.remove(), 1500);
+    }, 600);
 }
 
 /* =====================================================================
@@ -764,54 +658,37 @@ function prefetchAllWorkDetails() {
 
 async function loadAllData() {
     try {
-        // Đọc từ LocalStorage trước (nếu có)
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        if (cachedData) {
-            const parsed = JSON.parse(cachedData);
-            THEORY_DATA = parsed.theory;
-            AUTHOR_DATA = parsed.authors;
-            QUOTES_DATA = parsed.quotes;
-            // Works Index luôn phải fetch mới để đảm bảo cập nhật
-        }
-
         const [resT, resA, resW, resQ] = await Promise.all([
             fetch('./data/data-ly-thuyet.json',  { cache: 'no-store' }),
             fetch('./data/data-tac-gia.json',    { cache: 'no-store' }),
-            fetch('./data/data-tac-pham-index.json', { cache: 'no-store' }),
+            fetch('./data/data-tac-pham.json',   { cache: 'no-store' }), // Đã đổi tên
             fetch('./data/data-danh-ngon.json',  { cache: 'no-store' })
         ]);
-        
         THEORY_DATA = await resT.json();
         AUTHOR_DATA = await resA.json();
         WORKS_DATA  = await resW.json();
         QUOTES_DATA = await resQ.json();
         
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-            theory: THEORY_DATA, authors: AUTHOR_DATA, quotes: QUOTES_DATA
-        }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ theory: THEORY_DATA, authors: AUTHOR_DATA, quotes: QUOTES_DATA }));
         
-        // Khởi tạo UI
         initMainFilters(); 
         initDewdrops(); 
         initTouchDrop(); 
         initInteractiveSilk();
-        renderRandomQuote(); 
+        PerformanceEngine.init(); // Khởi động động cơ
         
+        renderRandomQuote(); 
         if (quoteIntervalId) clearInterval(quoteIntervalId);
         quoteIntervalId = setInterval(renderRandomQuote, 6000);
         
         handleHashScroll();
         prefetchAllWorkDetails(); 
-
-        // Render sẵn tab Văn Hiến
         renderHeritage();
-        
-        // Kích hoạt hiệu ứng Lụa khởi động
         playSplashAnimation();
         
     } catch (error) { 
         console.error("Lỗi tải dữ liệu:", error);
-        playSplashAnimation(); // Tắt lụa dù lỗi
+        playSplashAnimation();
         alert("Lỗi kết nối mạng. Vui lòng kiểm tra và thử lại."); 
     }
 }
@@ -820,7 +697,6 @@ function renderRandomQuote() {
     const container = document.getElementById('daily-quote-container'); 
     if (!container || QUOTES_DATA.length === 0) return; 
     container.style.opacity = 0;
-    
     setTimeout(() => {
         let newIndex;
         do { newIndex = Math.floor(Math.random() * QUOTES_DATA.length); } while (QUOTES_DATA.length > 1 && newIndex === currentQuoteIndex);
@@ -842,12 +718,11 @@ function handleHashScroll() {
             const firstBtn = document.querySelector('#main-filter-bar .filter-btn');
             if (firstBtn) firstBtn.classList.add('active');
             document.getElementById('sub-filter-bar').style.display = 'none';
-            
             switchView('heritage');
-            
             setTimeout(() => {
                 const element = document.getElementById(id);
                 if (element) {
+                    element.classList.add('is-visible'); // Đảm bảo hiện ra
                     scrollToCenter(element);
                     element.classList.add('highlight-card');
                     setTimeout(() => element.classList.remove('highlight-card'), 2000);
@@ -861,7 +736,11 @@ function handleHashScroll() {
    MODULE 9: KHỞI CHẠY & GẮN SỰ KIỆN
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => { 
-    // Khôi phục nháp bài thơ
+    // 1. Khôi phục cỡ chữ đã lưu
+    const savedFontSize = localStorage.getItem(FONT_SIZE_KEY);
+    if (savedFontSize) document.documentElement.style.setProperty('--read-font-size', `${savedFontSize}rem`);
+
+    // 2. Khôi phục nháp bài thơ
     const savedPoem = localStorage.getItem('vandao_draft_poem');
     if (savedPoem) {
         const poemInput = document.getElementById('poemInput');
@@ -869,29 +748,18 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // Bắt đầu tải dữ liệu
+    // 3. Tải dữ liệu
     loadAllData(); 
 
-    // Gắn Debounce cho thanh tìm kiếm
+    // 4. Gắn Debounce cho thanh tìm kiếm
     const searchInputHeritage = document.getElementById('search-input');
-    if (searchInputHeritage) {
-        searchInputHeritage.addEventListener('input', debounce(function() {
-            currentPage = 1; 
-            renderHeritage();
-        }, 300)); 
-    }
-
+    if (searchInputHeritage) searchInputHeritage.addEventListener('input', debounce(() => { currentPage = 1; renderHeritage(); }, 300)); 
     const searchInputEncy = document.getElementById('encyclopedia-search');
-    if (searchInputEncy) {
-        searchInputEncy.addEventListener('input', debounce(function() {
-            searchEncyclopedia();
-        }, 300));
-    }
+    if (searchInputEncy) searchInputEncy.addEventListener('input', debounce(() => { searchEncyclopedia(); }, 300));
 });
 
 window.addEventListener('hashchange', handleHashScroll);
 
-// Đóng menu mobile khi click ra ngoài
 document.addEventListener('click', (e) => {
     const navMenu = document.getElementById('navMenu');
     const menuBtn = document.querySelector('.mobile-menu-btn');
