@@ -1,0 +1,15 @@
+name: Generate OG Images
+on:
+  push:
+    branches: [main]
+jobs:
+  og-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate OG Image
+        uses: BoyWithSilverWings/generate-og-image-action@v1
+        with:
+          # Bot sẽ đọc các tiêu đề bài viết và tạo ảnh tương ứng
+          input-directory: './data/tac-pham'
+          output-directory: './assets/og-images'
