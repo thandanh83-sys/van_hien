@@ -5,12 +5,14 @@
   "id": "/",
   "start_url": "./index.html",
   "scope": "./",
-  "display": "standalone",
+  
+  "display": "fullscreen",
   "display_override": [
-    "window-controls-overlay",
+    "fullscreen",
     "standalone",
     "minimal-ui"
   ],
+  
   "orientation": "portrait",
   "background_color": "#faf9f6",
   "theme_color": "#7da89e",
@@ -22,6 +24,7 @@
     "literature"
   ],
   "prefer_related_applications": false,
+  
   "icons": [
     {
       "src": "anh-logo_trang.png",
@@ -48,6 +51,7 @@
       "purpose": "maskable"
     }
   ],
+  
   "screenshots": [
     {
       "src": "anh-khung_sang.jpg",
@@ -64,6 +68,7 @@
       "label": "Giao diện Văn Đạo (Thủy Mặc)"
     }
   ],
+  
   "shortcuts": [
     {
       "name": "Văn Hiến (Tác phẩm)",
