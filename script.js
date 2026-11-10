@@ -1,11 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V104)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V105)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tích hợp hiệu ứng "Giọt nước rơi" (đã fix lỗi trắng màn hình iOS).
+   - Hiệu ứng "Giọt nước rơi" (đã fix lỗi chỉ chạy 1 lần).
    - Tự động đồng bộ màu thanh trạng thái điện thoại.
    - Tự động lưu/khôi phục nháp bài thơ khi có cập nhật.
    - Gợn sóng và hạt sương màu Vàng Kim.
+   - Sửa lỗi Smart Link và tối ưu hóa hiệu năng.
    ===================================================================== */
 
 /* =====================================================================
@@ -20,7 +21,7 @@ const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="v
 const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
 
 const THEME_KEY = 'vandao_theme';       
-const CACHE_KEY = 'vandao_cache_v21'; // Tăng version để xóa cache dữ liệu cũ
+const CACHE_KEY = 'vandao_cache_v22'; // Tăng version để xóa cache dữ liệu cũ
 const ITEMS_PER_PAGE = 20;              
 
 let THEORY_DATA = [];    
@@ -36,26 +37,26 @@ let currentEncyGroup = 'ly-thuyet';
 /* =====================================================================
    MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI) & FAVICON
    ===================================================================== */
-// Hàm chuyển đổi Sáng/Tối (Hiệu ứng giọt nước rơi giữa hồ)
+// Hàm chuyển đổi Sáng/Tối (Hiệu ứng giọt nước rơi & gợn sóng)
 function toggleTheme() {
     const isCurrentlyDark = document.body.classList.contains('dark-mode');
     const overlay = document.getElementById('theme-transition-overlay');
     if (!overlay) return;
     
     // 1. Chọn màu cho giọt nước (Lấy màu của chế độ SẮP chuyển tới)
-    // Nếu đang Tối -> chuyển sang Sáng (giọt nước màu trắng kem)
-    // Nếu đang Sáng -> chuyển sang Tối (giọt nước màu đen)
     overlay.style.backgroundColor = isCurrentlyDark ? '#faf9f6' : '#0a0a0a';
     
-    // 2. Đặt lại giọt nước về kích thước 0 ở giữa màn hình
+    // 2. Đặt lại giọt nước về kích thước 0 VÀ RESET LẠI ĐỘ MỜ (Sửa lỗi chỉ chạy 1 lần)
     overlay.style.transition = 'none';
+    overlay.style.opacity = '0'; 
     overlay.classList.remove('expand');
     
     // 3. Ép trình duyệt tính toán lại (bắt buộc để hiệu ứng chạy lại từ đầu)
     void overlay.offsetWidth;
     
-    // 4. Kích hoạt hiệu ứng giọt nước lan rộng
-    overlay.style.transition = 'transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease';
+    // 4. Kích hoạt hiệu ứng giọt nước lan rộng & gợn sóng
+    overlay.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease';
+    overlay.style.opacity = '1'; 
     overlay.classList.add('expand');
     
     // 5. Đợi 600ms (lúc giọt nước đã lan gần kín màn hình) thì đổi màu giao diện
@@ -69,15 +70,15 @@ function toggleTheme() {
         updateFavicon(isDark);
         updateThemeColor(isDark); 
         
-        // 6. Từ từ làm mờ giọt nước để lộ ra giao diện mới
-        overlay.style.transition = 'opacity 0.3s ease';
+        // 6. Từ từ làm mờ giọt nước để lộ ra giao diện mới (tạo cảm giác tan chảy)
+        overlay.style.transition = 'opacity 0.4s ease';
         overlay.style.opacity = '0';
         
-        // 7. Reset lại sau khi đã mờ hẳn
+        // 7. Reset lại sau khi đã mờ hẳn để chuẩn bị cho lần bấm tiếp theo
         setTimeout(() => {
             overlay.style.transition = 'none';
             overlay.classList.remove('expand');
-        }, 300);
+        }, 400);
 
     }, 600); 
 }
@@ -713,7 +714,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedPoem) {
         const poemInput = document.getElementById('poemInput');
         if (poemInput) poemInput.value = savedPoem;
-        // Khôi phục xong thì xóa đi để lần sau không bị dính chữ cũ
         localStorage.removeItem('vandao_draft_poem');
     }
 
