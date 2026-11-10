@@ -1,23 +1,23 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE EDITION V3.0)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE EDITION V6.0)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Quản lý bộ nhớ đệm (Cache) thông minh cho PWA.
-   - Hỗ trợ cấu trúc thư mục mới (assets/, data/, data/tac-pham/).
-   - Chiến lược: Network First (cho Code), Cache First (cho Ảnh/CDN), 
-     Stale-While-Revalidate (cho chi tiết tác phẩm).
-   - Tuân thủ quy tắc: 100% Text, KHÔNG dùng Emoji/Icon Unicode.
+   - Quản lý Offline Cache cho toàn bộ PWA.
+   - Chiến lược tối ưu: Network-First cho Code, Cache-First cho Ảnh/CDN, 
+     Stale-While-Revalidate cho chi tiết tác phẩm.
+   - Tự động dọn dẹp bộ nhớ rác khi nâng cấp phiên bản.
    ===================================================================== */
 
 // =====================================================================
 // I. CẤU HÌNH PHIÊN BẢN VÀ BỘ NHỚ ĐỆM
 // =====================================================================
-// Mỗi khi bạn sửa code (HTML/CSS/JS/JSON hoặc thay ảnh), BẮT BUỘC phải đổi số Version này
-// để Service Worker biết có phiên bản mới và tự động dọn dẹp bộ nhớ cũ.
-const CACHE_VERSION = 'vandao-cache-v3.0'; 
-const RUNTIME_CACHE = 'vandao-runtime-v3.0';
+// LƯU Ý: Mỗi khi bạn sửa bất kỳ file code, ảnh hay dữ liệu nào, 
+// BẮT BUỘC phải tăng số Version này để trình duyệt tải bản mới.
+const CACHE_VERSION = 'vandao-cache-v6.0'; 
+const PRECACHE_NAME = CACHE_VERSION;
+const RUNTIME_NAME = `${CACHE_VERSION}-runtime`;
 
-// Danh sách các file TĨNH cần tải về máy ngay từ lần đầu tiên (Precache).
+// Danh sách các file TĨNH cần tải về máy ngay từ lần đầu tiên (App Shell).
 // Lưu ý: TUYỆT ĐỐI KHÔNG đưa các file trong 'data/tac-pham/' vào đây 
 // để tránh việc tải hàng ngàn file cùng lúc làm treo App.
 const PRECACHE_ASSETS = [
@@ -28,16 +28,16 @@ const PRECACHE_ASSETS = [
     './script.js',
     './manifest.json',
     
-    // --- Hình ảnh Bạch Ngọc (Chỉ dùng 3 ảnh sáng) ---
-    './assets/nen-sang.jpg',
-    './assets/khung-sang.jpg',
-    './assets/logo-trang.png',
+    // --- Hình ảnh Bạch Ngọc ---
+    './assets/nen.jpg',
+    './assets/khung.jpg',
+    './assets/logo.png',
     
     // --- Dữ liệu danh mục và lý thuyết (Tải sẵn để dùng Offline) ---
     './data/data-ly-thuyet.json',
     './data/data-tac-gia.json',
     './data/data-danh-ngon.json',
-    './data/data-tac-pham-index.json'
+    './data/data-tac-pham.json' // File danh mục tác phẩm (Index)
 ];
 
 // =====================================================================
@@ -47,7 +47,7 @@ self.addEventListener('install', (event) => {
     console.log('[Service Worker] Đang tiến hành cài đặt phiên bản mới...');
     
     event.waitUntil(
-        caches.open(CACHE_VERSION)
+        caches.open(PRECACHE_NAME)
             .then((cache) => {
                 console.log('[Service Worker] Đang tải các file tĩnh vào Precache...');
                 // addAll sẽ tải tất cả file. Nếu 1 file lỗi, toàn bộ quá trình sẽ lỗi.
@@ -74,8 +74,8 @@ self.addEventListener('activate', (event) => {
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    // Nếu tên bộ nhớ đệm khác với phiên bản hiện tại -> Xóa nó đi
-                    if (cacheName !== CACHE_VERSION && cacheName !== RUNTIME_CACHE) {
+                    // Nếu tên bộ nhớ đệm bắt đầu bằng 'vandao-' nhưng KHÔNG PHẢI là phiên bản hiện tại -> Xóa nó đi
+                    if (cacheName.startsWith('vandao-') && cacheName !== PRECACHE_NAME && cacheName !== RUNTIME_NAME) {
                         console.log('[Service Worker] Phát hiện bộ nhớ đệm cũ, tiến hành xóa:', cacheName);
                         return caches.delete(cacheName);
                     }
@@ -93,7 +93,7 @@ self.addEventListener('activate', (event) => {
 // IV. SỰ KIỆN FETCH (LẤY DỮ LIỆU) - CHIẾN LƯỢC TỐI ƯU
 // =====================================================================
 self.addEventListener('fetch', (event) => {
-    // Bỏ qua các request không phải GET (như POST từ form) hoặc request từ extension
+    // Bỏ qua các request không phải GET (như POST) hoặc request từ extension trình duyệt
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
     const url = new URL(event.request.url);
@@ -105,21 +105,22 @@ self.addEventListener('fetch', (event) => {
     // -----------------------------------------------------------------
     if (url.pathname.includes('/data/tac-pham/')) {
         event.respondWith(
-            caches.open(RUNTIME_CACHE).then((cache) => {
-                return cache.match(event.request).then((cachedResponse) => {
-                    const fetchPromise = fetch(event.request).then((networkResponse) => {
-                        if (networkResponse.ok) {
-                            cache.put(event.request, networkResponse.clone());
-                        }
-                        return networkResponse;
-                    }).catch(() => {
-                        // Nếu mất mạng, trả về cache cũ (nếu có)
-                        return cachedResponse;
-                    });
-                    
-                    // Trả về cache ngay nếu có, nếu không thì chờ fetch
-                    return cachedResponse || fetchPromise;
+            caches.open(RUNTIME_NAME).then(async (cache) => {
+                const cachedResponse = await cache.match(event.request);
+                
+                const fetchPromise = fetch(event.request).then((networkResponse) => {
+                    // Nếu tải từ mạng thành công, cập nhật lại vào Cache
+                    if (networkResponse.ok) {
+                        cache.put(event.request, networkResponse.clone());
+                    }
+                    return networkResponse;
+                }).catch(() => {
+                    // Nếu mất mạng, trả về cache cũ (nếu có)
+                    return cachedResponse;
                 });
+                
+                // Trả về cache ngay nếu có (tốc độ 0.01s), nếu không thì chờ fetch
+                return cachedResponse || fetchPromise;
             })
         );
         return;
@@ -139,14 +140,15 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             caches.match(event.request).then((cachedResponse) => {
                 if (cachedResponse) {
-                    return cachedResponse;
+                    return cachedResponse; // Trả về ngay nếu có trong cache
                 }
                 // Nếu chưa có trong Cache, tải từ mạng và lưu lại
                 return fetch(event.request).then((networkResponse) => {
-                    if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic' && networkResponse.type !== 'cors') {
+                    // Chỉ cache các response hợp lệ (tránh cache lỗi 404, 500)
+                    if (!networkResponse || networkResponse.status !== 200) {
                         return networkResponse;
                     }
-                    return caches.open(CACHE_VERSION).then((cache) => {
+                    return caches.open(RUNTIME_NAME).then((cache) => {
                         cache.put(event.request, networkResponse.clone());
                         return networkResponse;
                     });
@@ -164,7 +166,7 @@ self.addEventListener('fetch', (event) => {
         fetch(event.request)
             .then((networkResponse) => {
                 // Nếu fetch thành công, cập nhật lại Cache
-                return caches.open(CACHE_VERSION).then((cache) => {
+                return caches.open(PRECACHE_NAME).then((cache) => {
                     cache.put(event.request, networkResponse.clone());
                     return networkResponse;
                 });
