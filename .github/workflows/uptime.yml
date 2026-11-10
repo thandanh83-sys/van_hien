@@ -1,0 +1,14 @@
+name: Uptime Monitor
+on:
+  schedule:
+    - cron: '*/15 * * * *' # 15 phút một lần
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Website Status
+        uses: Jtalk/url-health-check-action@v4
+        with:
+          url: https://<TÊN_GITHUB_CỦA_BẠN>.github.io/van_hien/
+          max-attempts: 3
+          retry-delay: 5s
