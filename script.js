@@ -1,9 +1,9 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V111)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V113)
    Tác giả: Văn Đạo
    Mô tả: 
+   - Đã loại bỏ Canvas Gooey để chống lag, thay bằng hiệu ứng CSS.
    - Hiệu ứng chuyển Theme loang Gradient (Thanh Ngọc / Đen ánh Kim).
-   - Hiệu ứng Canvas Gooey (Chất lỏng dính liền) khi click chuột.
    - Tự động khôi phục nháp bài thơ khi App cập nhật ngầm.
    - Đồng bộ màu thanh trạng thái điện thoại (Trắng/Đen).
    - Tối ưu hóa hiệu năng và sửa lỗi Smart Link.
@@ -21,7 +21,7 @@ const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="v
 const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
 
 const THEME_KEY = 'vandao_theme';       
-const CACHE_KEY = 'vandao_cache_v23'; // Tăng version để xóa cache dữ liệu cũ
+const CACHE_KEY = 'vandao_cache_v24'; // Tăng version để xóa cache dữ liệu cũ
 const ITEMS_PER_PAGE = 20;              
 
 let THEORY_DATA = [];    
@@ -46,11 +46,9 @@ function toggleTheme() {
     // 1. Chọn màu Gradient cho giọt nước
     if (isCurrentlyDark) {
         // Đang Tối -> Chuyển sang Sáng: Loang Thanh Ngọc
-        // Tâm là Xanh Ngọc Bích (#7da89e), loang dần ra màu trắng kem (#faf9f6)
         overlay.style.background = 'radial-gradient(circle, #7da89e 0%, #faf9f6 60%)';
     } else {
         // Đang Sáng -> Chuyển sang Tối: Loang Đen ánh kim
-        // Tâm là Vàng Kim (#d4af37), loang dần ra màu đen tuyền (#0a0a0a)
         overlay.style.background = 'radial-gradient(circle, #d4af37 0%, #0a0a0a 70%)';
     }
     
@@ -71,7 +69,6 @@ function toggleTheme() {
         const isDark = document.body.classList.contains('dark-mode');
         localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
         
-        updateCanvasColors(); 
         updateThemeText(isDark); 
         updateFavicon(isDark);
         updateThemeColor(isDark); 
@@ -158,7 +155,7 @@ function unloadView(viewId) {
         if (pag) pag.innerHTML = ''; 
     } else if (viewId === 'encyclopedia') {
         const container = document.getElementById('encyclopedia-container');
-        if (container) container.innerHTML = ''; 
+        if (container) container.innerHTML = '';
     } else if (viewId === 'analyze') {
         const panel = document.getElementById('results-panel');
         if (panel) panel.innerHTML = ''; 
@@ -559,77 +556,7 @@ function executePipeline() {
 /* =====================================================================
    MODULE 8: HIỆU ỨNG ĐỘNG (VISUAL EFFECTS)
    ===================================================================== */
-let canvas, ctx; let ripples = []; let isDarkTheme = false;
-
-function updateCanvasColors() { 
-    isDarkTheme = document.body.classList.contains('dark-mode'); 
-}
-
-function initCursorGlow() {
-    if (window.matchMedia('(pointer: fine)').matches) {
-        const glow = document.getElementById('cursor-glow'); if (!glow) return;
-        window.addEventListener('mousemove', (e) => { 
-            requestAnimationFrame(() => { 
-                glow.style.left = `${e.clientX}px`; 
-                glow.style.top = `${e.clientY}px`; 
-            }); 
-        });
-    } else { 
-        const glow = document.getElementById('cursor-glow'); 
-        if (glow) glow.style.display = 'none'; 
-    }
-}
-
-// Hiệu ứng gợn sóng nước (Canvas) - Kết hợp Gooey Filter & Ease-out
-function initWaterCanvas() {
-    canvas = document.getElementById('water-canvas'); if (!canvas) return;
-    ctx = canvas.getContext('2d');
-    
-    const resizeCanvas = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    resizeCanvas(); 
-    window.addEventListener('resize', resizeCanvas);
-    
-    let ripples = [];
-    
-    // Tạo gợn sóng khi click
-    window.addEventListener('click', (e) => { 
-        ripples.push({ 
-            x: e.clientX, 
-            y: e.clientY, 
-            radius: 2, 
-            alpha: 0.6, 
-            speed: 3.5, // Tốc độ loang ban đầu
-            fade: 0.015 
-        }); 
-    });
-    
-    function animateRipples() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Màu sắc: Tối dùng Vàng Kim (212, 175, 55) - Sáng dùng Thanh Ngọc (125, 168, 158)
-        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158'; 
-
-        for (let i = ripples.length - 1; i >= 0; i--) {
-            let p = ripples[i]; 
-            
-            // Cơ chế giảm tốc (Ease-out) - Càng loang càng chậm
-            p.radius += p.speed;
-            p.speed *= 0.96; 
-            p.alpha -= p.fade;
-            
-            if (p.alpha <= 0) { ripples.splice(i, 1); continue; }
-            
-            // Dùng fill (tô đặc) kết hợp Gooey Filter để tạo vẻ dính liền
-            ctx.beginPath(); 
-            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${color}, ${p.alpha})`; 
-            ctx.fill();
-        }
-        requestAnimationFrame(animateRipples);
-    }
-    animateRipples();
-}
-
+// Hàm khởi tạo Hạt sương (Vẫn giữ nguyên vì rất nhẹ)
 function initDewdrops() {
     const container = document.getElementById('dewdrop-container'); if (!container) return;
     setInterval(() => {
@@ -677,11 +604,8 @@ async function loadAllData() {
         }
         
         loadSavedTheme(); 
-        updateCanvasColors(); 
         initMainFilters(); 
-        initCursorGlow();
-        initWaterCanvas();
-        initDewdrops();
+        initDewdrops(); // Vẫn giữ hạt sương
         
         renderRandomQuote(); 
         setInterval(renderRandomQuote, 6000);
