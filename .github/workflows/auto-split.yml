@@ -1,0 +1,32 @@
+name: Auto Split Works Data
+
+on:
+  push:
+    paths:
+      - 'data/data-tac-pham-master.json' # Chỉ chạy khi bạn sửa file master
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Cần quyền ghi để bot tự commit
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Run split script
+        run: python tools/split_works.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "Văn Đạo Bot"
+          git config --global user.email "bot@vandao.com"
+          git add data/tac-pham/ data/data-tac-pham-index.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-split: Cập nhật từ file master"
+          git push
