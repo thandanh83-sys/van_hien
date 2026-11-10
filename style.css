@@ -1,10 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V100 - FULL SYNC)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V102)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Đồng bộ màu nền HTML (chặn dải xanh khi kéo lố).
+   - Hiệu ứng chuyển Theme "Giọt nước rơi" (Water Drop Ripple).
+   - Đồng bộ khoảng cách Menu Mobile (Sáng/Tối đều như nhau).
    - Menu Mobile đục 100% (không xuyên thấu).
-   - Thêm hiệu ứng mờ nhoè (Blur) khi chuyển Theme.
+   - Chặn dải màu xanh khi kéo lố trên Safari/Chrome.
    - Hạt sương & Gợn sóng màu Vàng Kim.
    ===================================================================== */
 
@@ -21,7 +22,7 @@
     --accent-gold: #cbb882;       /* Vàng kim nhạt */
     
     /* Hiệu ứng kính mờ (Glassmorphism) */
-    --glass-bg: rgba(255, 255, 255, 0.85); /* Tăng độ đục cho thẻ */
+    --glass-bg: rgba(255, 255, 255, 0.95); /* Tăng độ đục cho menu */
     --glass-border: rgba(255, 255, 255, 0.9);
     --glass-shadow: 0 15px 35px rgba(44, 66, 61, 0.06);
     
@@ -42,7 +43,7 @@ body.dark-mode {
     --accent-gold: #c5a059;       /* Vàng Đồng trầm */
     
     /* Hiệu ứng kính mờ (Glassmorphism tối) */
-    --glass-bg: rgba(15, 15, 15, 0.85);
+    --glass-bg: rgba(15, 15, 15, 0.95); /* Tăng độ đục cho menu */
     --glass-border: rgba(212, 175, 55, 0.25);
     --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
     
@@ -54,7 +55,6 @@ body.dark-mode {
 /* =====================================================================
    2. RESET & THIẾT LẬP CƠ BẢN (BASE & RESET)
    ===================================================================== */
-/* Đồng bộ màu nền html để không bị lộ màu xanh khi kéo lố trên điện thoại */
 html {
     background-color: var(--bg-base);
     overscroll-behavior-y: none; /* Chặn hiệu ứng kéo nảy của iOS/Android */
@@ -100,27 +100,34 @@ body.dark-mode {
 }
 
 /* =====================================================================
-   3. HIỆU ỨNG MỜ NHOÈ KHI CHUYỂN THEME (BLUR TRANSITION)
+   3. HIỆU ỨNG CHUYỂN THEME: GIỌT NƯỚC RƠI (WATER DROP RIPPLE)
    ===================================================================== */
 #theme-transition-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 9999; opacity: 0;
-    background-color: var(--bg-base);
-    transition: opacity 0.3s ease;
+    position: fixed;
+    top: 0; right: 0;
+    width: 250vmax; height: 250vmax;
+    border-radius: 50%;
+    
+    /* Bắt đầu từ một điểm nhỏ ở góc trên bên phải (nút đổi theme) */
+    transform: translate(50%, -50%) scale(0);
+    transform-origin: top right;
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    z-index: 9999;
+    pointer-events: none;
+    
+    /* Sẽ được JS đổi màu (Trắng hoặc Đen) */
+    background-color: #0a0a0a; 
+    
+    /* Tạo hiệu ứng 3 vòng gợn sóng (Ripple) bằng box-shadow */
+    box-shadow: 
+        0 0 0 2vw rgba(255, 255, 255, 0.4),
+        0 0 0 4vw rgba(255, 255, 255, 0.2),
+        0 0 0 8vw rgba(255, 255, 255, 0.1);
 }
 
-body.theme-fading #theme-transition-overlay { 
-    opacity: 0.95; 
-}
-
-body.theme-fading .container,
-body.theme-fading .navbar,
-body.theme-fading #cursor-glow,
-body.theme-fading .dewdrop-container,
-body.theme-fading #water-canvas {
-    filter: blur(8px);
-    opacity: 0.3;
-    transition: filter 0.3s ease, opacity 0.3s ease !important;
+/* Khi kích hoạt, giọt nước phóng to phủ kín màn hình */
+#theme-transition-overlay.expand {
+    transform: translate(50%, -50%) scale(1);
 }
 
 /* =====================================================================
@@ -146,6 +153,7 @@ body.dark-mode #cursor-glow {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     pointer-events: none; z-index: 0; overflow: hidden; 
 }
+
 /* ĐÃ ĐỔI HẠT SƯƠNG SANG MÀU VÀNG KIM */
 .dewdrop { 
     position: absolute; 
@@ -281,11 +289,14 @@ body.dark-mode .hero-content h1 i {
 .arch-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 190px 190px 14px 14px; transition: transform 1.5s ease; }
 .arch-frame:hover img { transform: scale(1.05); }
 
-/* Chỉ ẩn/hiện ảnh, giữ nguyên text đồng bộ */
-.light-img { display: block; }
-.dark-img { display: none; }
-body.dark-mode .light-img { display: none !important; }
-body.dark-mode .dark-img { display: block !important; }
+/* Chỉ ẩn/hiện ảnh và text ở trang chủ, giữ nguyên nội dung đồng bộ */
+.light-img, .light-text { display: block; }
+.dark-img, .dark-text { display: none; }
+body.dark-mode .light-img, body.dark-mode .light-text { display: none !important; }
+body.dark-mode .dark-img, body.dark-mode .dark-text { display: block !important; }
+body:not(.dark-mode) .btn .dark-text { display: none !important; }
+body.dark-mode .btn .dark-text { display: inline-block !important; }
+body.dark-mode .btn .light-text { display: none !important; }
 
 /* =====================================================================
    8. DÙNG CHUNG: TIÊU ĐỀ TRANG, TÌM KIẾM, BỘ LỌC
@@ -492,7 +503,7 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
 .quote-author { font-size: 0.95rem; font-weight: 600; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
 
 /* =====================================================================
-   14. RESPONSIVE (MOBILE - MENU ĐỤC 100% GIỐNG ZALO)
+   14. RESPONSIVE (MOBILE - ĐỒNG BỘ KHOẢNG CÁCH & NỀN ĐỤC)
    ===================================================================== */
 @media (max-width: 850px) {
     .container { padding: calc(80px + env(safe-area-inset-top)) 16px 30px 16px; }
@@ -507,20 +518,28 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
     .nav-brand { font-size: 1.3rem; }
     .mobile-menu-btn { display: block; }
     
-    /* ĐÃ XÓA BLUR VÀ ĐỔI SANG NỀN ĐỤC 100% (KHÔNG XUYÊN THẤU) */
+    /* FIX: MENU ĐỤC 100% & KHOẢNG CÁCH ĐỀU NHAU */
     .nav-links { 
         display: flex; position: absolute; top: calc(100% + 12px); right: 0; width: 260px; 
-        background: #faf9f6; /* Nền trắng đục hoàn toàn cho chế độ Sáng */
-        flex-direction: column; align-items: stretch; padding: 12px; border-radius: var(--radius-card); 
-        border: 1px solid var(--glass-border); box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 999;
-        opacity: 0; transform: scale(0.95) translateY(-10px); pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease;
-    }
-    body.dark-mode .nav-links { 
-        background: #0a0a0a; /* Nền đen đục hoàn toàn cho chế độ Tối */
+        background: var(--bg-base); /* Nền đục hoàn toàn */
+        flex-direction: column; align-items: stretch; 
+        padding: 12px; 
+        gap: 6px; /* Gap đồng bộ */
+        border-radius: var(--radius-card); 
+        border: 1px solid var(--glass-border); 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 999;
+        opacity: 0; transform: scale(0.95) translateY(-10px); pointer-events: none; 
+        transition: opacity 0.2s ease, transform 0.2s ease;
     }
     .nav-links.show { opacity: 1; transform: scale(1) translateY(0); pointer-events: auto; }
 
-    .nav-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; border-bottom: none; border-radius: 10px; font-size: 0.95rem; color: var(--text-main); text-align: left; text-transform: none; letter-spacing: 0.5px; }
+    .nav-btn { 
+        display: flex; align-items: center; gap: 12px; width: 100%; 
+        padding: 12px 16px; /* Padding đồng bộ */
+        border-bottom: none; border-radius: 10px; font-size: 0.95rem; 
+        color: var(--text-main); text-align: left; text-transform: none; letter-spacing: 0.5px; 
+        margin: 0; 
+    }
     .nav-btn:hover, .nav-btn.active { background: rgba(125, 168, 158, 0.15); }
     body.dark-mode .nav-btn:hover, body.dark-mode .nav-btn.active { background: rgba(212, 175, 55, 0.15); }
     .nav-btn::after { display: none; } 
@@ -531,7 +550,7 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
     body.dark-mode .sun-icon { display: block !important; } 
     body.dark-mode .moon-icon { display: none !important; }
 
-    .menu-divider { display: block; height: 1px; background: var(--glass-border); margin: 8px 0; }
+    .menu-divider { display: block; height: 1px; background: var(--glass-border); margin: 6px 0; }
     #cursor-glow { display: none; }
     
     .filter-bar { justify-content: flex-start; overflow-x: auto; padding-bottom: 10px; flex-wrap: nowrap; scrollbar-width: none; }
