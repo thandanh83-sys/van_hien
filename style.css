@@ -1,9 +1,9 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V116)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V122)
    Tác giả: Văn Đạo
    Mô tả: 
+   - Vòng sóng click nhỏ, thanh lịch (30px).
    - Dải lụa tĩnh duy nhất (Chống lag).
-   - Vòng sóng click tự tan (Nhiều vòng cùng lúc).
    - Đồng bộ Hạt sương ở cả 2 chế độ Sáng/Tối.
    - Menu Mobile đục 100%, đồng bộ khoảng cách.
    ===================================================================== */
@@ -21,7 +21,7 @@
     --accent-gold: #cbb882;       /* Vàng kim nhạt */
     
     /* Hiệu ứng kính mờ (Glassmorphism) */
-    --glass-bg: rgba(255, 255, 255, 0.85); /* Độ đục 85% */
+    --glass-bg: rgba(255, 255, 255, 0.85); 
     --glass-border: rgba(255, 255, 255, 0.9);
     --glass-shadow: 0 15px 35px rgba(44, 66, 61, 0.06);
     
@@ -128,26 +128,29 @@ body.dark-mode .silk-blob {
 }
 
 /* =====================================================================
-   5. HIỆU ỨNG CLICK CHUỘT: VÒNG SÓNG TỰ TAN (NHIỀU VÒNG CÙNG LÚC)
+   5. HIỆU ỨNG CLICK CHUỘT: VÒNG SÓNG NHỎ, THANH LỊCH
    ===================================================================== */
 .click-ripple {
     position: fixed;
-    width: 60px; height: 60px;
+    width: 30px; 
+    height: 30px;
     border-radius: 50%;
     pointer-events: none;
-    z-index: 9999;
+    z-index: 10000; 
     transform: translate(-50%, -50%) scale(0);
-    border: 2px solid var(--accent-gold);
-    animation: rippleFadeOut 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    border: 1.5px solid var(--accent-gold);
+    box-shadow: 0 0 10px rgba(203, 184, 130, 0.4); 
+    animation: rippleFadeOut 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
 
 body.dark-mode .click-ripple {
     border-color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
 }
 
 @keyframes rippleFadeOut {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-    100% { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
 }
 
 /* =====================================================================
@@ -249,6 +252,14 @@ body.dark-mode .hero-content h1 i { text-shadow: 2px 2px 8px rgba(212, 175, 55, 
 .arch-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 190px 190px 14px 14px; transition: transform 1.5s ease; }
 .arch-frame:hover img { transform: scale(1.05); }
 
+/* Onboarding */
+.onboarding-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 40px 0; }
+.onboard-card { background: var(--glass-bg); backdrop-filter: blur(10px); padding: 25px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center; transition: transform 0.3s, border-color 0.3s; cursor: pointer; }
+.onboard-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+.onboard-icon { display: flex; justify-content: center; align-items: center; margin-bottom: 15px; color: var(--accent); }
+.onboard-card h3 { font-family: var(--font-serif); font-size: 1.3rem; margin-bottom: 8px; color: var(--text-main); }
+.onboard-card p { font-size: 0.9rem; color: var(--text-muted); }
+
 .light-img, .light-text { display: block; }
 .dark-img, .dark-text { display: none; }
 body.dark-mode .light-img, body.dark-mode .light-text { display: none !important; }
@@ -336,7 +347,7 @@ body.dark-mode .accordion-item summary:hover { background: rgba(212, 175, 55, 0.
 body.dark-mode .accordion-content blockquote { background: rgba(212, 175, 55, 0.05); }
 
 /* =====================================================================
-   14. THI PHÁP
+   14. THI PHÁP & BIỂU ĐỒ
    ===================================================================== */
 .analyze-box { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: var(--radius-card); padding: 25px; margin-top: 40px; margin-bottom: 30px; box-shadow: var(--glass-shadow); }
 .analyze-box textarea { width: 100%; height: 150px; background: transparent; border: none; outline: none; resize: vertical; font-family: var(--font-serif); font-size: 1.2rem; color: var(--text-main); line-height: 1.8; }
@@ -364,6 +375,14 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
 .volume-link { color: var(--accent); cursor: pointer; font-size: 0.85rem; font-weight: 500; white-space: nowrap; text-decoration: underline; transition: color 0.2s; }
 .volume-link:hover { color: var(--accent-gold); }
 .question-item { padding: 8px 0; line-height: 1.6; color: var(--text-muted); font-size: 0.95rem; border-bottom: none !important; }
+
+/* Chart */
+.chart-container { margin: 15px 0 25px; background: var(--glass-bg); padding: 15px; border-radius: 10px; border: 1px solid var(--glass-border); }
+.chart-label { font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 10px; text-align: center; }
+.chart-bar { display: flex; height: 26px; border-radius: 13px; overflow: hidden; font-size: 0.75rem; font-weight: bold; color: #fff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
+.chart-fill { display: flex; align-items: center; justify-content: center; transition: width 1s ease-in-out; }
+.chart-bang { background: #3b82f6; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+.chart-trac { background: #ef4444; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
 
 /* =====================================================================
    15. KHỐI DANH NGÔN
