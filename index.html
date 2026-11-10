@@ -36,9 +36,9 @@
     <meta name="theme-color" content="#faf9f6" id="theme-color-meta">
     
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (?v=2636 để ép xóa cache)                    -->
+    <!-- 5. LIÊN KẾT FILE CSS (?v=2645 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2636">
+    <link rel="stylesheet" href="style.css?v=2645">
 </head>
 <body>
 
@@ -217,9 +217,9 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 8. SCRIPTS (?v=2636 để ép xóa cache)                              -->
+    <!-- 8. SCRIPTS (?v=2645 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2636"></script>
+    <script src="script.js?v=2645"></script>
 
     <!-- ================================================================= -->
     <!-- 9. TỰ ĐỘNG CẬP NHẬT KHI CÓ BẢN MỚI (TỰ LƯU NHÁP & TỰ RELOAD)       -->
@@ -266,6 +266,17 @@
                 }).catch(err => console.log('Lỗi đăng ký Service Worker:', err));
             });
         }
+
+        // TỰ ĐỘNG KIỂM TRA CẬP NHẬT KHI MỞ LẠI APP TỪ BACKGROUND
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistration().then(reg => {
+                        if (reg) reg.update(); // Hễ mở app lên là ngầm check bản mới
+                    });
+                }
+            }
+        });
     </script>
 </body>
 </html>
