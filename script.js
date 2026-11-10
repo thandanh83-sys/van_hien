@@ -1,13 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V98 - FULL FEATURES)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V100 - FULL SYNC)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tương thích 100% với PWA và chế độ Fullscreen.
-   - Đã cập nhật đường dẫn Logo mới (anh-logo...).
-   - Sửa lỗi Smart Link (tự động nhận diện quyen-v, quyen-viii).
-   - Tự động cuộn khi mở thẻ Bách Khoa (không bị Navbar che).
-   - Đã xóa Biểu đồ Bằng/Trắc (theo yêu cầu).
-   - Không sử dụng Bookmark/Emoji (Chỉ dùng SVG).
+   - Tích hợp hiệu ứng mờ (Blur) khi chuyển Sáng/Tối.
+   - Tự động đồng bộ màu thanh trạng thái điện thoại (giống Zalo).
+   - Đổi màu gợn sóng và hạt sương sang Vàng Kim.
+   - Sửa lỗi Smart Link (Quyển V, VIII).
+   - Tương thích 100% với giao diện Full màn hình (PWA).
    ===================================================================== */
 
 /* =====================================================================
@@ -30,7 +29,7 @@ const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke
 
 // Các hằng số cấu hình
 const THEME_KEY = 'vandao_theme';       // Key lưu chế độ Sáng/Tối
-const CACHE_KEY = 'vandao_cache_v17';   // Key lưu dữ liệu JSON (Tăng version để xóa cache cũ)
+const CACHE_KEY = 'vandao_cache_v19';   // Key lưu dữ liệu JSON (Tăng version để xóa cache cũ)
 const ITEMS_PER_PAGE = 20;              // Số lượng tác phẩm trên 1 trang
 
 // Biến toàn cục lưu trữ dữ liệu sau khi tải từ JSON
@@ -48,16 +47,27 @@ let currentEncyGroup = 'ly-thuyet'; // Nhóm đang xem ở Bách Khoa (Lý thuy�
 /* =====================================================================
    MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI) & FAVICON
    ===================================================================== */
-// Hàm chuyển đổi Sáng/Tối
+// Hàm chuyển đổi Sáng/Tối (Có hiệu ứng mờ nhoè)
 function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
-    
-    // Cập nhật các thành phần phụ thuộc
-    updateCanvasColors(); 
-    updateThemeText(isDark); 
-    updateFavicon(isDark);
+    // Bước 1: Kích hoạt hiệu ứng mờ toàn màn hình
+    document.body.classList.add('theme-fading');
+
+    // Bước 2: Chờ 300ms cho màn hình mờ hẳn đi, sau đó mới tiến hành đổi màu
+    setTimeout(() => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+        
+        updateCanvasColors(); 
+        updateThemeText(isDark); 
+        updateFavicon(isDark);
+        updateThemeColor(isDark); // Cập nhật màu thanh trạng thái Safari
+
+        // Bước 3: Đợi 50ms để trình duyệt kịp render màu nền mới, sau đó xoá mờ
+        setTimeout(() => {
+            document.body.classList.remove('theme-fading');
+        }, 50);
+    }, 300); 
 }
 
 // Hàm tải chế độ đã lưu khi mới vào web
@@ -68,6 +78,7 @@ function loadSavedTheme() {
     
     updateThemeText(isDark); 
     updateFavicon(isDark);
+    updateThemeColor(isDark); 
 }
 
 // Cập nhật chữ hiển thị trên nút bấm
@@ -81,6 +92,14 @@ function updateFavicon(isDark) {
     const favicon = document.getElementById('dynamic-favicon');
     if (favicon) {
         favicon.href = isDark ? 'anh-logo_toi.png' : 'anh-logo_trang.png';
+    }
+}
+
+// ĐỒNG BỘ MÀU THANH TRẠNG THÁI (Sáng thì Trắng, Tối thì Đen)
+function updateThemeColor(isDark) {
+    const metaThemeColor = document.getElementById('theme-color-meta');
+    if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', isDark ? '#0a0a0a' : '#faf9f6');
     }
 }
 
@@ -606,7 +625,7 @@ function initCursorGlow() {
     }
 }
 
-// Hiệu ứng gợn sóng nước (Canvas)
+// Hiệu ứng gợn sóng nước (Canvas) - Đã đổi sang màu Vàng
 function initWaterCanvas() {
     canvas = document.getElementById('water-canvas'); if (!canvas) return;
     ctx = canvas.getContext('2d');
@@ -622,7 +641,8 @@ function initWaterCanvas() {
     
     function animateRipples() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const color = isDarkTheme ? '212, 175, 55' : '125, 168, 158';
+        // Màu Vàng Kim cho gợn sóng
+        const color = isDarkTheme ? '212, 175, 55' : '203, 184, 130'; 
         for (let i = ripples.length - 1; i >= 0; i--) {
             let p = ripples[i]; p.radius += p.growth; p.alpha -= p.fade;
             if (p.alpha <= 0) { ripples.splice(i, 1); continue; }
@@ -634,7 +654,7 @@ function initWaterCanvas() {
     animateRipples();
 }
 
-// Hiệu ứng hạt sương bay lơ lửng
+// Hiệu ứng hạt sương bay lơ lửng (Màu vàng do CSS quy định)
 function initDewdrops() {
     const container = document.getElementById('dewdrop-container'); if (!container) return;
     setInterval(() => {
