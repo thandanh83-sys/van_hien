@@ -1,0 +1,15 @@
+name: Lint Code
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Super-Linter
+        uses: github/super-linter@v4
+        env:
+          VALIDATE_JSON: true
+          VALIDATE_HTML: true
+          VALIDATE_CSS: true
+          VALIDATE_JAVASCRIPT_ES: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
