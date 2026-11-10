@@ -1,8 +1,8 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V110)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V114)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tích hợp Gooey Filter cho hiệu ứng gợn sóng click chuột.
+   - Loại bỏ Gooey/Canvas, thay bằng hiệu ứng Dải lụa CSS (Siêu nhẹ, không lag).
    - Hỗ trợ hiệu ứng loang màu Gradient (Thanh Ngọc / Vàng Kim).
    - Menu Mobile đục 100%, đồng bộ khoảng cách.
    - Chặn dải màu xanh khi kéo lố trên Safari/Chrome.
@@ -130,14 +130,65 @@ body.dark-mode {
 }
 
 /* =====================================================================
-   4. HIỆU ỨNG ĐỘNG (CANVAS, CURSOR, DEWDROPS)
+   4. HIỆU ỨNG DẢI LỤA BỒNG BỀNH (THAY THẾ CANVAS - SIÊU NHẸ)
    ===================================================================== */
-#water-canvas { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    pointer-events: none; z-index: 1; 
-    filter: url("#gooey"); /* <-- BỘ LỌC CHẤT LỎNG DÍNH LIỀN */
+.silk-container {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1; /* Nằm trên nền, dưới giao diện */
 }
 
+.silk-blob {
+    position: absolute;
+    /* Kích thước lớn để tạo cảm giác bao phủ */
+    width: 60vmax; height: 60vmax;
+    /* Làm mờ viền để trông như lụa/khói */
+    filter: blur(60px);
+    opacity: 0.6;
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; /* Hình dáng hữu cơ */
+    animation: floatSilk 20s ease-in-out infinite alternate;
+    will-change: transform; /* Tối ưu hóa GPU cho animation */
+}
+
+/* Màu sắc theo chế độ Sáng (Thanh ngọc) */
+body:not(.dark-mode) .silk-blob {
+    background: radial-gradient(circle, rgba(125, 168, 158, 0.4) 0%, transparent 70%);
+}
+
+/* Màu sắc theo chế độ Tối (Vàng kim) */
+body.dark-mode .silk-blob {
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+}
+
+/* Vị trí xuất phát và tốc độ bay của từng dải lụa */
+.silk-1 {
+    top: -20%; left: -10%;
+    animation-duration: 25s;
+}
+.silk-2 {
+    bottom: -20%; right: -10%;
+    animation-duration: 30s;
+    animation-delay: -5s;
+}
+.silk-3 {
+    top: 30%; left: 40%;
+    width: 50vmax; height: 50vmax;
+    animation-duration: 22s;
+    animation-delay: -10s;
+}
+
+/* Animation bay lượn mềm mại */
+@keyframes floatSilk {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    50% { transform: translate(10vw, 5vh) rotate(180deg) scale(1.1); }
+    100% { transform: translate(-5vw, 15vh) rotate(360deg) scale(0.9); }
+}
+
+/* =====================================================================
+   5. HIỆU ỨNG PHỤ (CURSOR, DEWDROPS)
+   ===================================================================== */
 #cursor-glow {
     position: fixed; width: 400px; height: 400px; border-radius: 50%; pointer-events: none; 
     transform: translate(-50%, -50%); z-index: 0; transition: background 0.8s;
@@ -172,7 +223,7 @@ body.dark-mode .dewdrop { display: none; }
 }
 
 /* =====================================================================
-   5. NAVBAR (THANH ĐIỀU HƯỚNG)
+   6. NAVBAR (THANH ĐIỀU HƯỚNG)
    ===================================================================== */
 .container { 
     position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; 
@@ -236,7 +287,7 @@ body.dark-mode #theme-text { color: #fbbf24 !important; }
 .mobile-menu-btn svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
-   6. VIEW & TRANSITIONS (CHUYỂN TRANG)
+   7. VIEW & TRANSITIONS (CHUYỂN TRANG)
    ===================================================================== */
 .view { display: none; }
 .view.active { display: block; animation: bloomReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -246,7 +297,7 @@ body.dark-mode #theme-text { color: #fbbf24 !important; }
 }
 
 /* =====================================================================
-   7. TRANG CHỦ: HERO SECTION & KHUNG VÒM
+   8. TRANG CHỦ: HERO SECTION & KHUNG VÒM
    ===================================================================== */
 .hero { display: flex; align-items: center; justify-content: space-between; min-height: 65vh; gap: 50px; }
 .hero-content { flex: 1; }
@@ -299,7 +350,7 @@ body.dark-mode .btn .dark-text { display: inline-block !important; }
 body.dark-mode .btn .light-text { display: none !important; }
 
 /* =====================================================================
-   8. DÙNG CHUNG: TIÊU ĐỀ TRANG, TÌM KIẾM, BỘ LỌC
+   9. DÙNG CHUNG: TIÊU ĐỀ TRANG, TÌM KIẾM, BỘ LỌC
    ===================================================================== */
 .page-title { font-family: var(--font-serif); font-size: 3rem; text-align: center; margin-bottom: 10px; font-weight: 400; }
 .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-style: italic; }
@@ -343,7 +394,7 @@ body.dark-mode #sub-filter-bar .filter-btn:hover, body.dark-mode #sub-filter-bar
 #encyclopedia-filter-bar { margin-bottom: 30px; }
 
 /* =====================================================================
-   9. VĂN HIẾN (HERITAGE): LƯỚI TÁC PHẨM
+   10. VĂN HIẾN (HERITAGE): LƯỚI TÁC PHẨM
    ===================================================================== */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
 
@@ -415,7 +466,7 @@ body.dark-mode .highlight-card { animation: highlightCardDark 2s ease-out; }
 .highlight-card { animation: highlightCard 2s ease-out; }
 
 /* =====================================================================
-   10. PHÂN TRANG (PAGINATION)
+   11. PHÂN TRANG (PAGINATION)
    ===================================================================== */
 .pagination-container {
     display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 40px; padding: 20px 0; flex-wrap: wrap;
@@ -432,7 +483,7 @@ body.dark-mode .page-btn.active { color: #000; box-shadow: 0 4px 15px rgba(212, 
 .page-ellipsis { color: var(--text-muted); letter-spacing: 2px; }
 
 /* =====================================================================
-   11. ĐẠI BÁCH KHOA: ACCORDION
+   12. ĐẠI BÁCH KHOA: ACCORDION
    ===================================================================== */
 .accordion-item.hidden-by-search { display: none; }
 
@@ -455,7 +506,7 @@ body.dark-mode .accordion-item summary:hover { background: rgba(212, 175, 55, 0.
 body.dark-mode .accordion-content blockquote { background: rgba(212, 175, 55, 0.05); }
 
 /* =====================================================================
-   12. THI PHÁP (ANALYZE)
+   13. THI PHÁP (ANALYZE)
    ===================================================================== */
 .analyze-box { 
     background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); 
@@ -492,7 +543,7 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
 .question-item { padding: 8px 0; line-height: 1.6; color: var(--text-muted); font-size: 0.95rem; border-bottom: none !important; }
 
 /* =====================================================================
-   13. KHỐI DANH NGÔN
+   14. KHỐI DANH NGÔN
    ===================================================================== */
 #daily-quote-container { 
     margin-top: 60px; text-align: center; padding: 50px 20px; position: relative; 
@@ -503,7 +554,7 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
 .quote-author { font-size: 0.95rem; font-weight: 600; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
 
 /* =====================================================================
-   14. RESPONSIVE (MOBILE - ĐỒNG BỘ KHOẢNG CÁCH & NỀN ĐỤC)
+   15. RESPONSIVE (MOBILE - ĐỒNG BỘ KHOẢNG CÁCH & NỀN ĐỤC)
    ===================================================================== */
 @media (max-width: 850px) {
     .container { padding: calc(80px + env(safe-area-inset-top)) 16px 30px 16px; }
