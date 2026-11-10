@@ -36,9 +36,9 @@
     <meta name="theme-color" content="#faf9f6" id="theme-color-meta">
     
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (?v=2650 để ép xóa cache)                    -->
+    <!-- 5. LIÊN KẾT FILE CSS (?v=2651 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2650">
+    <link rel="stylesheet" href="style.css?v=2651">
 </head>
 <body>
 
@@ -232,73 +232,31 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 9. SCRIPTS (?v=2650 để ép xóa cache)                              -->
+    <!-- 9. SCRIPTS (?v=2651 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2650"></script>
+    <script src="script.js?v=2651"></script>
 
     <!-- ================================================================= -->
-    <!-- 10. TỰ ĐỘNG CẬP NHẬT & XỬ LÝ SERVICE WORKER (DÀNH CHO GITHUB PAGES)-->
+    <!-- 10. CẬP NHẬT NGẦM - KHÔNG GIẬT, KHÔNG THÔNG BÁO                    -->
     <!-- ================================================================= -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // TUYỆT CHIÊU GITHUB PAGES: Thêm timestamp để ép Safari tải sw.js mới
+                // Dùng timestamp để ép GitHub Pages tải sw.js mới nhất
                 const swUrl = `sw.js?v=${new Date().getTime()}`;
 
-                navigator.serviceWorker.register(swUrl)
-                    .then((reg) => {
-                        console.log('Đăng ký Service Worker thành công!');
-                        
-                        // Kiểm tra xem có bản cập nhật mới không
-                        reg.addEventListener('updatefound', () => {
-                            const newWorker = reg.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('Đã có bản cập nhật mới! Đang tự động làm mới...');
-                                    
-                                    // 1. Tự động lưu lại chữ đang viết dở ở tab Thi Pháp
-                                    const poemInput = document.getElementById('poemInput');
-                                    if (poemInput && poemInput.value.trim() !== '') {
-                                        localStorage.setItem('vandao_draft_poem', poemInput.value);
-                                    }
-
-                                    // 2. Hiển thị thông báo nhỏ (Toast)
-                                    const toast = document.createElement('div');
-                                    toast.textContent = 'Ứng dụng vừa được cập nhật phiên bản mới!';
-                                    toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:12px 24px; border-radius:30px; font-size:0.9rem; z-index:99999; box-shadow:0 4px 15px rgba(0,0,0,0.3); text-align:center; font-family:var(--font-sans);';
-                                    document.body.appendChild(toast);
-
-                                    // 3. Đợi 1.5 giây cho người dùng đọc thông báo rồi tự động tải lại
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 1500);
-                                }
-                            });
-                        });
-                    })
-                    .catch((err) => console.log('Lỗi đăng ký SW:', err));
-            });
-
-            // Đảm bảo không bị lặp vô tận khi reload
-            let refreshing = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (!refreshing) {
-                    window.location.reload();
-                    refreshing = true;
-                }
+                navigator.serviceWorker.register(swUrl).then((reg) => {
+                    console.log('Service Worker đã đăng ký!');
+                    
+                    // Tự động kiểm tra bản mới khi mở app
+                    document.addEventListener('visibilitychange', () => {
+                        if (document.visibilityState === 'visible') {
+                            reg.update(); 
+                        }
+                    });
+                }).catch((err) => console.log('Lỗi đăng ký SW:', err));
             });
         }
-
-        // TỰ ĐỘNG KIỂM TRA CẬP NHẬT KHI MỞ LẠI APP TỪ BACKGROUND
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistration().then(reg => {
-                        if (reg) reg.update(); // Hễ mở app lên là ngầm check bản mới
-                    });
-                }
-            }
-        });
     </script>
 </body>
 </html>
