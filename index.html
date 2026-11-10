@@ -3,6 +3,7 @@
 <head>
     <!-- ================================================================= -->
     <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                       -->
+    <!-- Giúp Google thu thập dữ liệu và hiển thị chuẩn trên điện thoại     -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,6 +13,8 @@
     
     <!-- ================================================================= -->
     <!-- 2. NHÚNG FONT CHỮ TỪ GOOGLE FONTS                                 -->
+    <!-- Sử dụng 4 font: Cormorant (cổ điển), Playfair (sang trọng),        -->
+    <!-- Montserrat (hiện đại), Inter (dễ đọc)                              -->
     <!-- ================================================================= -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,22 +22,31 @@
     
     <!-- ================================================================= -->
     <!-- 3. FAVICON ĐỘNG & PWA MANIFEST                                    -->
+    <!-- Đã cập nhật đường dẫn logo mới (có tiền tố "anh-")                 -->
     <!-- ================================================================= -->
-    <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
+    <link id="dynamic-favicon" rel="icon" type="image/png" href="anh-logo_trang.png">
     <link rel="manifest" href="manifest.json">
     
     <!-- ================================================================= -->
-    <!-- 4. LIÊN KẾT FILE CSS (?v=2610 để ép xóa cache)                    -->
+    <!-- 4. LIÊN KẾT FILE CSS (?v=2612 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2610">
+    <link rel="stylesheet" href="style.css?v=2612">
 </head>
 <body>
 
     <!-- ================================================================= -->
     <!-- 5. LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT, HẠT SƯƠNG)             -->
+    <!-- Các lớp này nằm dưới cùng và pointer-events: none để không cản     -->
+    <!-- trở việc click chuột vào nội dung chính.                          -->
     <!-- ================================================================= -->
+    
+    <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click -->
     <canvas id="water-canvas" aria-hidden="true"></canvas>
+    
+    <!-- Quầng sáng theo dõi chuột (chỉ hiện trên máy tính) -->
     <div id="cursor-glow" aria-hidden="true"></div>
+    
+    <!-- Container chứa các hạt sương bay lơ lửng (chỉ hiện ở chế độ Sáng) -->
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
 
     <!-- ================================================================= -->
@@ -46,9 +58,12 @@
         <!-- 6.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
         <!-- ============================================================= -->
         <nav class="navbar">
+            <!-- Logo chữ Văn Đạo (Bấm vào để về Trang Chủ) -->
             <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
             
+            <!-- Khối chứa các nút Menu -->
             <div class="nav-links" id="navMenu">
+                
                 <!-- Nút Trang Chủ -->
                 <button class="nav-btn active" onclick="switchView('home')" id="nav-home">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -73,9 +88,10 @@
                     Thi Pháp
                 </button>
                 
+                <!-- Đường gạch ngang ngăn cách (chỉ hiển thị trên Mobile) -->
                 <div class="menu-divider"></div>
 
-                <!-- Nút Đổi Theme -->
+                <!-- Nút Đổi Theme (Sáng/Tối) -->
                 <button class="nav-btn theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">
                     <span id="theme-icon-wrapper">
                         <svg class="sun-icon nav-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -85,7 +101,7 @@
                 </button>
             </div>
 
-            <!-- Nút Menu Hamburger (Mobile) -->
+            <!-- Nút Menu Hamburger (Chỉ hiển thị trên điện thoại di động) -->
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Mở Menu">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
@@ -95,31 +111,40 @@
         <!-- 6.2. VIEW 1: TRANG CHỦ (HOME)                                 -->
         <!-- ============================================================= -->
         <section id="view-home" class="view active">
+            <!-- Phần Hero (Ảnh bìa & Giới thiệu) -->
             <div class="hero">
+                <!-- Nội dung chữ bên trái -->
                 <div class="hero-content">
                     <h1>
+                        <!-- Chữ hiển thị ở chế độ Sáng (Bạch Ngọc) -->
                         <span class="light-text">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
+                        <!-- Chữ hiển thị ở chế độ Tối (Thủy Mặc) -->
                         <span class="dark-text">Vạn Tượng<br>Trong <i>Lời</i></span>
                     </h1>
                     <p>
+                        <!-- Đoạn mô tả chế độ Sáng -->
                         <span class="light-text">Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</span>
+                        <!-- Đoạn mô tả chế độ Tối -->
                         <span class="dark-text">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</span>
                     </p>
+                    <!-- Nút kêu gọi hành động (Nhảy sang tab Văn Hiến) -->
                     <button class="btn" onclick="switchView('heritage')">
                         <span class="light-text">Khám Phá Tuyệt Tác</span>
                         <span class="dark-text">Thưởng Lãm</span>
                     </button>
                 </div>
                 
+                <!-- Khung ảnh vòm bên phải (ĐÃ CẬP NHẬT TÊN FILE ẢNH MỚI) -->
                 <div class="hero-visual">
                     <div class="arch-frame">
-                        <img class="light-img" src="khung_sang.jpg" alt="Tranh sáo trúc">
-                        <img class="dark-img" src="khung_toi.jpg" alt="Tranh mây vàng">
+                        <img class="light-img" src="anh-khung_sang.jpg" alt="Tranh sáo trúc">
+                        <img class="dark-img" src="anh-khung_toi.jpg" alt="Tranh mây vàng">
                     </div>
                 </div>
             </div>
 
             <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
+            <!-- Container này sẽ được JS tự động render và đổi câu mỗi 6 giây -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
@@ -130,14 +155,21 @@
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Danh mục Tác phẩm</p>
             
+            <!-- THANH TÌM KIẾM VĂN HIẾN -->
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Tìm tên tác phẩm...">
             </div>
 
+            <!-- TẦNG 1: LỌC THEO 8 ĐẠI MÔN LOẠI -->
             <div class="filter-bar" id="main-filter-bar"></div>
+            
+            <!-- TẦNG 2: LỌC THEO THỂ LOẠI CON -->
             <div class="filter-bar" id="sub-filter-bar" style="display: none; margin-top: -20px;"></div>
             
+            <!-- Vùng chứa động: JS sẽ đổ các thẻ tác phẩm vào đây -->
             <div class="heritage-grid" id="heritage-grid"></div>
+
+            <!-- Container chứa nút chuyển trang -->
             <div id="pagination-container" class="pagination-container"></div>
         </section>
 
@@ -148,15 +180,18 @@
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Hệ thống tri thức</p>
             
+            <!-- THANH TÌM KIẾM BÁCH KHOA -->
             <div class="search-container">
                 <input type="text" id="encyclopedia-search" placeholder="Tìm tên Quyển hoặc nội dung chi tiết...">
             </div>
 
+            <!-- THANH LỌC 2 NHÓM -->
             <div class="filter-bar" id="encyclopedia-filter-bar">
                 <button class="filter-btn active" onclick="filterEncyclopediaGroup('ly-thuyet', this)">Lý Thuyết</button>
                 <button class="filter-btn" onclick="filterEncyclopediaGroup('tinh-hoa', this)">Tinh Hoa Tác Phẩm</button>
             </div>
 
+            <!-- NỘI DUNG CÁC QUYỂN (JS sẽ render nội dung dạng Accordion) -->
             <div id="encyclopedia-container"></div>
         </section>
 
@@ -166,20 +201,22 @@
         <section id="view-analyze" class="view">
             <h1 class="page-title">Thi Pháp Học</h1>
             
+            <!-- Khung nhập liệu -->
             <div class="analyze-box">
                 <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
                 <button onclick="executePipeline()">Phân Tích Ngay</button>
             </div>
             
+            <!-- Vùng chứa kết quả sau khi phân tích (Báo cáo 4 tầng) -->
             <div id="results-panel"></div>
         </section>
 
     </div>
 
     <!-- ================================================================= -->
-    <!-- 7. SCRIPTS (?v=2610)                                              -->
+    <!-- 7. SCRIPTS (?v=2612 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2610"></script>
+    <script src="script.js?v=2612"></script>
 
     <!-- ================================================================= -->
     <!-- 8. ĐĂNG KÝ SERVICE WORKER ĐỂ CHẠY OFFLINE (PWA)                   -->
