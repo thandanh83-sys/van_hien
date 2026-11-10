@@ -1,4 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+/* =====================================================================
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE EDITION V6.0)
+   Tác giả: Văn Đạo
+   Mô tả: 
+   - Hệ thống Typography 4 tầng (Thư pháp, Vintage, Đọc sách, Thơ ca).
+   - Tối ưu hóa hiệu năng (Game Dev Thinking) & Chống lag Mobile.
+   - Hiệu ứng Bạch Ngọc, Lụa bay, Kính mờ (Glassmorphism).
+   - Tuân thủ quy tắc: Không Emoji, Không Dark Mode.
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600&family=Cormorant+Garamond:ital,wght@1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
 
 /* =====================================================================
    1. HỆ THỐNG BIẾN VÀ CẤU HÌNH GỐC (BẠCH NGỌC LIÊN)
@@ -21,10 +31,13 @@
     --glass-shadow: 0 15px 35px rgba(139, 184, 168, 0.12), 0 5px 15px rgba(0,0,0,0.03);
     
     /* --- Typography (4 Tầng) --- */
-    --font-calligraphy: 'Alex Brush', cursive;       /* Tiêu đề lớn, Logo */
-    --font-vintage-ui: 'Cinzel', serif;              /* Nút bấm, Menu, Nhãn */
-    --font-elegant-read: 'EB Garamond', serif;       /* Đọc văn xuôi, mô tả */
+    --font-calligraphy: 'Alex Brush', cursive;          /* Tiêu đề lớn, Logo */
+    --font-vintage-ui: 'Cinzel', serif;                 /* Nút bấm, Menu, Nhãn */
+    --font-elegant-read: 'EB Garamond', serif;          /* Đọc văn xuôi, mô tả */
     --font-elegant-poetry: 'Cormorant Garamond', serif; /* Thơ ca, trích dẫn */
+    
+    /* --- Biến động cho Cỡ chữ (Được JS điều khiển) --- */
+    --read-font-size: 1.2rem;
     
     /* --- Layout --- */
     --radius-pill: 50px;          
@@ -48,7 +61,7 @@ html {
 body {
     background-color: var(--bg-base);
     /* Ảnh nền Bạch Ngọc kết hợp Gradient mờ */
-    background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.9) 0%, rgba(235, 243, 240, 0.95) 100%), url('assets/nen-sang.jpg');
+    background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.9) 0%, rgba(235, 243, 240, 0.95) 100%), url('assets/nen.jpg');
     background-size: cover; 
     background-position: center; 
     background-attachment: fixed; 
@@ -59,6 +72,8 @@ body {
     min-height: 100vh; 
     overflow-x: hidden; 
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 /* Tùy chỉnh thanh cuộn */
@@ -118,7 +133,7 @@ body {
     100% { transform: scale(1.05) rotate(2deg); }
 }
 
-/* Kích hoạt trượt đi */
+/* Kích hoạt trượt đi (Được gọi từ JS) */
 #jade-splash.leaving .silk-layer-1 { animation: sweepOut1 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
 #jade-splash.leaving .silk-layer-2 { animation: sweepOut2 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards; animation-delay: 0.1s; }
 #jade-splash.leaving .silk-layer-3 { animation: sweepOut3 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards; animation-delay: 0.2s; }
@@ -225,13 +240,16 @@ body {
 
 .nav-links { display: flex; align-items: center; gap: 25px; }
 
+.mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 4px; }
+.mobile-menu-btn svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
 /* =====================================================================
-   8. TYPOGRAPHY PHÂN CẤP (UI VINTAGE & ELEGANT)
+   8. TYPOGRAPHY PHÂN CẤP & NÚT BẤM VINTAGE
    ===================================================================== */
-.nav-btn, .btn, .filter-btn, .pagination-container button, .tier-label {
+.nav-btn, .btn, .filter-btn, .pagination-container button, .font-btn {
     font-family: var(--font-vintage-ui) !important;
     font-size: 0.75rem !important;
-    font-weight: 500 !important;
+    font-weight: 600 !important;
     letter-spacing: 2px !important;
     text-transform: uppercase;
     transition: all 0.3s ease;
@@ -249,10 +267,6 @@ body {
 }
 .nav-btn:hover::after, .nav-btn.active::after { transform: translateX(-50%) scale(1); }
 .nav-icon { width: 18px; height: 18px; stroke-width: 2; display: none; } 
-.menu-divider { display: none; }
-
-.mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 4px; }
-.mobile-menu-btn svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
    9. CÁC VIEW & HIỆU ỨNG CHUYỂN TAB
@@ -266,7 +280,7 @@ body {
 }
 
 /* =====================================================================
-   10. TRANG CHỦ (HERO)
+   10. TRANG CHỦ (HERO) & DANH NGÔN
    ===================================================================== */
 .hero { display: flex; align-items: center; justify-content: space-between; min-height: 65vh; gap: 50px; }
 .hero-content { flex: 1; }
@@ -274,21 +288,29 @@ body {
     font-family: var(--font-calligraphy); 
     font-size: 5rem; 
     font-weight: 400; 
-    line-height: 1.1; 
+    line-height: 1.2; /* Tăng line-height cho thư pháp */
     margin-bottom: 24px; 
     color: var(--text-main); 
     text-shadow: 2px 2px 4px rgba(139, 184, 168, 0.1);
+    text-wrap: balance;
 }
 .hero-content h1 i { font-style: italic; color: var(--accent-text); }
-.hero-content p { font-size: 1.25rem; color: var(--text-muted); max-width: 480px; margin-bottom: 40px; line-height: 1.7; }
+.hero-content p { 
+    font-family: var(--font-elegant-read);
+    font-size: var(--read-font-size); 
+    color: var(--text-muted); 
+    max-width: 480px; 
+    margin-bottom: 40px; 
+    line-height: 1.8;
+    text-align: justify;
+}
 
 .btn { 
     display: inline-block; padding: 16px 40px; 
     background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); 
     border: 1px solid var(--glass-border); border-radius: var(--radius-pill); 
     color: var(--accent-text); font-size: 0.85rem; 
-    font-weight: 600; box-shadow: var(--glass-shadow); 
-    position: relative; overflow: hidden; cursor: pointer; text-align: center;
+    box-shadow: var(--glass-shadow); position: relative; overflow: hidden; cursor: pointer; text-align: center;
 }
 .btn:hover { background: var(--accent); color: #fff; box-shadow: 0 8px 25px rgba(139, 184, 168, 0.3); }
 
@@ -304,14 +326,23 @@ body {
 /* Khối danh ngôn */
 #daily-quote-container { margin-top: 60px; text-align: center; padding: 50px 20px; transition: opacity 0.5s ease-in-out; }
 .quote-mark { font-family: var(--font-calligraphy); font-size: 5rem; color: var(--accent); line-height: 0.8; margin-bottom: 10px; opacity: 0.6; }
-.quote-text { font-family: var(--font-elegant-poetry); font-size: 2.5rem; color: var(--text-main); font-style: italic; line-height: 1.4; max-width: 800px; margin: 0 auto 25px; }
+.quote-text { 
+    font-family: var(--font-elegant-poetry); 
+    font-size: 2.5rem; 
+    color: var(--text-main); 
+    font-style: italic; 
+    line-height: 1.4; 
+    max-width: 800px; 
+    margin: 0 auto 25px; 
+    text-wrap: balance;
+}
 .quote-author { font-family: var(--font-vintage-ui); font-size: 0.85rem; font-weight: 600; color: var(--accent-text); letter-spacing: 2px; text-transform: uppercase; }
 
 /* =====================================================================
-   11. DÙNG CHUNG: TIÊU ĐỀ, TÌM KIẾM, BỘ LỌC
+   11. DÙNG CHUNG: TIÊU ĐỀ, TÌM KIẾM, BỘ LỌC, NÚT FONT
    ===================================================================== */
-.page-title { font-family: var(--font-calligraphy); font-size: 4.5rem; text-align: center; margin-bottom: 10px; font-weight: 400; line-height: 1.1; }
-.page-desc { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-style: italic; font-size: 1.2rem; }
+.page-title { font-family: var(--font-calligraphy); font-size: 4.5rem; text-align: center; margin-bottom: 10px; font-weight: 400; line-height: 1.2; }
+.page-desc { text-align: center; color: var(--text-muted); margin-bottom: 40px; font-style: italic; font-size: 1.2rem; font-family: var(--font-elegant-read); }
 
 .search-container { text-align: center; margin-bottom: 30px; animation: fadeUpReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .search-wrap { position: relative; display: inline-block; width: 80%; max-width: 500px; }
@@ -343,20 +374,42 @@ body {
     background: rgba(139, 184, 168, 0.15); color: var(--accent-text); border-color: var(--accent); box-shadow: none; 
 }
 
+/* Nút chỉnh cỡ chữ */
+.font-btn {
+    background: var(--bg-glass); border: 1px solid var(--glass-border); 
+    color: var(--text-main); padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    font-family: var(--font-vintage-ui); font-weight: 600;
+}
+.font-btn:hover { background: var(--accent); color: #fff; }
+
 /* =====================================================================
-   12. VĂN HIẾN (CARDS & GLASSMORPHISM)
+   12. VĂN HIẾN (CARDS & PERFORMANCE ENGINE)
    ===================================================================== */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
 
-.heritage-card { 
-    content-visibility: auto; contain-intrinsic-size: 320px;
+/* TRẠNG THÁI NGỦ ĐÔNG (Chưa lướt tới) */
+.heritage-card, .accordion-item { 
+    content-visibility: auto; contain-intrinsic-size: auto 320px;
     background: var(--bg-glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border); border-radius: var(--radius-card); padding: 30px;
     box-shadow: var(--glass-shadow); display: flex; flex-direction: column; position: relative; 
-    scroll-margin-top: 120px; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    scroll-margin-top: 120px; 
+    
+    /* Hiệu ứng Lò xo (Spring Physics) */
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    transition: opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+
+/* TRẠNG THÁI THỨC GIẤC (Đã lướt tới) */
+.heritage-card.is-visible, .accordion-item.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
 @media (hover: hover) { 
-    .heritage-card:hover { 
+    .heritage-card.is-visible:hover { 
         transform: translateY(-8px) scale(1.02); border-color: rgba(255, 255, 255, 1); 
         box-shadow: 0 25px 50px rgba(139, 184, 168, 0.2), 0 10px 20px rgba(0,0,0,0.05); 
         background: rgba(255, 255, 255, 0.6);
@@ -368,9 +421,23 @@ body {
     color: var(--accent-text); padding: 4px 10px; border-radius: 4px; align-self: flex-start; 
     text-transform: uppercase; display: inline-block; margin-right: 5px; margin-bottom: 5px; 
 }
-.heritage-card h3 { font-family: var(--font-calligraphy); font-size: 2rem; margin-bottom: 10px; line-height: 1.2; }
+.heritage-card h3 { 
+    font-family: var(--font-calligraphy); 
+    font-size: 2.2rem; 
+    margin-bottom: 10px; 
+    line-height: 1.3;
+    text-wrap: balance;
+}
 .h-author { font-family: var(--font-vintage-ui); font-size: 0.75rem; color: var(--accent-text); font-weight: 500; margin-bottom: 15px; display: flex; align-items: center; gap: 6px; letter-spacing: 1.5px; text-transform: uppercase; }
-.heritage-card p { font-size: 1.15rem; color: var(--text-muted); flex-grow: 1; margin-bottom: 20px; line-height: 1.6; }
+.heritage-card p { 
+    font-family: var(--font-elegant-read);
+    font-size: var(--read-font-size); 
+    color: var(--text-muted); 
+    flex-grow: 1; 
+    margin-bottom: 20px; 
+    line-height: 1.7;
+    text-align: justify;
+}
 
 .h-meta { font-size: 0.8rem; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: auto; }
 .h-meta span { display: inline-flex; align-items: center; gap: 6px; background: rgba(139, 184, 168, 0.15); color: var(--accent-text); padding: 6px 12px; border-radius: 8px; font-weight: 500; }
@@ -399,22 +466,53 @@ body {
    14. ĐẠI BÁCH KHOA (ACCORDION)
    ===================================================================== */
 .accordion-item.hidden-by-search { display: none; }
-.accordion-item { background: var(--bg-glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: var(--radius-card); margin-bottom: 15px; overflow: hidden; scroll-margin-top: 120px; }
+.accordion-item { padding: 0; overflow: hidden; }
 
-.accordion-item summary { padding: 20px 25px; font-family: var(--font-calligraphy); font-size: 2rem; font-weight: 400; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; transition: background 0.3s; }
+.accordion-item summary { padding: 20px 25px; font-family: var(--font-calligraphy); font-size: 2.2rem; font-weight: 400; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; transition: background 0.3s; }
 .accordion-item summary:hover { background: rgba(139, 184, 168, 0.1); }
 .accordion-item summary::-webkit-details-marker { display: none; }
 .summary-title { flex: 1; padding-right: 20px; }
 
 /* SVG Chevron xoay */
-.chevron-icon { color: var(--accent); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.chevron-icon { color: var(--accent); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; }
 .accordion-item[open] .chevron-icon { transform: rotate(180deg); }
 
-.accordion-content { padding: 0 25px 25px; color: var(--text-main); font-size: 1.2rem; border-top: 1px solid var(--glass-border); line-height: 1.8; font-family: var(--font-elegant-read); }
-.accordion-content h4 { font-family: var(--font-vintage-ui); color: var(--accent-text); margin: 25px 0 12px; font-size: 0.9rem; letter-spacing: 1.5px; border-bottom: 1px solid rgba(139, 184, 168, 0.2); padding-bottom: 6px; }
+.accordion-content { 
+    padding: 0 25px 25px; 
+    color: var(--text-main); 
+    font-size: var(--read-font-size); 
+    border-top: 1px solid var(--glass-border); 
+    line-height: 1.8; 
+    font-family: var(--font-elegant-read); 
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+}
+.accordion-content p { margin-bottom: 1.2em; }
+.accordion-content h4 { 
+    font-family: var(--font-vintage-ui); 
+    color: var(--accent-text); 
+    margin: 25px 0 12px; 
+    font-size: 0.9rem; 
+    letter-spacing: 1.5px; 
+    border-bottom: 1px solid rgba(139, 184, 168, 0.2); 
+    padding-bottom: 6px; 
+    text-align: left;
+}
 .accordion-content ul, .accordion-content ol { padding-left: 20px; margin-bottom: 15px; }
 .accordion-content li { margin-bottom: 8px; }
-.accordion-content blockquote { font-family: var(--font-elegant-poetry); border-left: 3px solid var(--accent); padding: 15px 20px; font-style: italic; margin: 15px 0; background: rgba(139, 184, 168, 0.05); border-radius: 0 8px 8px 0; font-size: 1.4rem; }
+.accordion-content blockquote { 
+    font-family: var(--font-elegant-poetry); 
+    border-left: none; 
+    border-top: 1px solid var(--glass-border);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 20px; 
+    font-style: italic; 
+    margin: 25px 0; 
+    background: rgba(139, 184, 168, 0.05); 
+    text-align: center;
+    font-size: 1.5rem; 
+}
 
 /* =====================================================================
    15. THI PHÁP HỌC (PHÂN TÍCH)
@@ -442,10 +540,10 @@ body {
 .pattern-text { font-family: monospace; color: var(--accent-text); font-weight: bold; letter-spacing: 2px; margin-left: 15px; }
 .symbol-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; flex-wrap: wrap; }
 .symbol-keyword { font-family: var(--font-calligraphy); font-weight: 600; font-size: 1.6rem; color: var(--text-main); min-width: 90px; }
-.symbol-meaning { flex: 1; color: var(--text-muted); font-size: 1.1rem; line-height: 1.5; }
+.symbol-meaning { flex: 1; color: var(--text-muted); font-size: 1.1rem; line-height: 1.5; text-align: left; }
 .volume-link { color: var(--accent-text); cursor: pointer; font-size: 0.85rem; font-family: var(--font-vintage-ui); font-weight: 600; white-space: nowrap; text-decoration: underline; transition: color 0.2s; }
 .volume-link:hover { color: var(--accent-hover); }
-.question-item { padding: 8px 0; line-height: 1.6; color: var(--text-main); font-size: 1.1rem; font-family: var(--font-elegant-read); }
+.question-item { padding: 8px 0; line-height: 1.6; color: var(--text-main); font-size: 1.1rem; font-family: var(--font-elegant-read); text-align: left; }
 
 /* =====================================================================
    16. SKELETON LOADING (TRẠNG THÁI CHỜ)
@@ -467,13 +565,25 @@ button, .btn, .filter-btn, .page-btn { transition: transform 0.15s cubic-bezier(
 button:active, .btn:active, .filter-btn:active, .page-btn:active { transform: scale(0.96) !important; }
 
 /* =====================================================================
-   18. RESPONSIVE (MOBILE) & GIẢM CHUYỂN ĐỘNG
+   18. RESPONSIVE (MOBILE & HIỆU NĂNG) & GIẢM CHUYỂN ĐỘNG
    ===================================================================== */
 @media (max-width: 850px) {
+    /* --- TỐI ƯU HIỆU NĂNG MOBILE (CHỐNG LAG) --- */
+    /* Tắt các hiệu ứng nặng */
+    .silk-container, .dewdrop-container, .touch-drop { display: none !important; }
+    
+    /* Giảm blur của kính xuống mức an toàn */
+    .navbar, .heritage-card, .accordion-item, .analyze-box, .result-step {
+        backdrop-filter: blur(5px) !important;
+        -webkit-backdrop-filter: blur(5px) !important;
+        background: rgba(253, 251, 247, 0.85) !important;
+    }
+
+    /* --- CĂN LỀ VÀ KÍCH THƯỚC CHỮ --- */
     .container { padding: calc(80px + env(safe-area-inset-top)) 16px 30px 16px; }
     .hero { flex-direction: column; text-align: center; padding-top: 10px; gap: 30px;}
-    .hero-content h1 { font-size: 3.8rem; }
-    .hero-content p { margin: 0 auto 30px; font-size: 1.1rem; }
+    .hero-content h1 { font-size: 3.5rem; line-height: 1.2; }
+    .hero-content p { margin: 0 auto 30px; text-align: left; }
     .hero-visual { justify-content: center; width: 100%;}
     .arch-frame { width: 280px; height: 380px; }
     
@@ -493,19 +603,17 @@ button:active, .btn:active, .filter-btn:active, .page-btn:active { transform: sc
     .nav-btn:hover, .nav-btn.active { background: rgba(139, 184, 168, 0.15); }
     .nav-btn::after { display: none; } 
     .nav-icon { display: block; } 
-    .menu-divider { display: block; height: 1px; background: var(--glass-border); margin: 6px 0; }
     
-    .page-title { font-size: 3.5rem; }
+    .page-title { font-size: 3.2rem; line-height: 1.2; }
     .filter-bar { justify-content: flex-start; overflow-x: auto; padding-bottom: 10px; flex-wrap: nowrap; scrollbar-width: none; }
     .filter-bar::-webkit-scrollbar { display: none; } 
     .filter-btn { white-space: nowrap; margin-right: 5px; }
     .search-wrap { width: 95%; }
     #search-input, #encyclopedia-search { font-size: 1rem; padding: 12px 18px 12px 40px; }
     
-    .heritage-card h3 { font-size: 1.8rem; }
-    .heritage-card p { font-size: 1.05rem; }
-    .accordion-item summary { font-size: 1.6rem; }
-    .accordion-content { font-size: 1.1rem; }
+    .heritage-card h3 { font-size: 2rem; }
+    .heritage-card p, .accordion-content { text-align: left; }
+    .accordion-item summary { font-size: 1.8rem; }
     .line-row { font-size: 1.1rem; }
     .quote-text { font-size: 2rem; }
     .quote-mark { font-size: 4rem; }
@@ -516,4 +624,5 @@ button:active, .btn:active, .filter-btn:active, .page-btn:active { transform: sc
 @media (prefers-reduced-motion: reduce) {
     .silk-layer, .silk-container, .dewdrop-container, .touch-drop, .touch-wave, .silk-inner { display: none !important; }
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    .heritage-card, .accordion-item { opacity: 1 !important; transform: none !important; }
 }
