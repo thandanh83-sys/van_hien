@@ -1,12 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V102)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V103)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Hiệu ứng chuyển Theme "Giọt nước rơi" (Water Drop Ripple).
+   - Hiệu ứng chuyển Theme "Giọt nước rơi" (Tối ưu cho iOS).
    - Đồng bộ khoảng cách Menu Mobile (Sáng/Tối đều như nhau).
    - Menu Mobile đục 100% (không xuyên thấu).
    - Chặn dải màu xanh khi kéo lố trên Safari/Chrome.
-   - Hạt sương & Gợn sóng màu Vàng Kim.
    ===================================================================== */
 
 /* =====================================================================
@@ -100,34 +99,42 @@ body.dark-mode {
 }
 
 /* =====================================================================
-   3. HIỆU ỨNG CHUYỂN THEME: GIỌT NƯỚC RƠI (WATER DROP RIPPLE)
+   3. HIỆU ỨNG CHUYỂN THEME: GIỌT NƯỚC RƠI GIỮA HỒ (FIX LỖI IOS)
    ===================================================================== */
 #theme-transition-overlay {
     position: fixed;
-    top: 0; right: 0;
-    width: 250vmax; height: 250vmax;
+    top: 50%; left: 50%;
+    /* Kích thước vừa phải để không làm treo GPU của iPhone */
+    width: 100vmax; height: 100vmax;
     border-radius: 50%;
     
-    /* Bắt đầu từ một điểm nhỏ ở góc trên bên phải (nút đổi theme) */
-    transform: translate(50%, -50%) scale(0);
-    transform-origin: top right;
-    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-    z-index: 9999;
-    pointer-events: none;
+    /* Bắt đầu từ một điểm nhỏ ở giữa màn hình */
+    transform: translate(-50%, -50%) scale(0);
+    transform-origin: center center;
     
     /* Sẽ được JS đổi màu (Trắng hoặc Đen) */
     background-color: #0a0a0a; 
     
-    /* Tạo hiệu ứng 3 vòng gợn sóng (Ripple) bằng box-shadow */
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    
+    /* Hiệu ứng phóng to mượt mà */
+    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease;
+    
+    /* Tạo hiệu ứng gợn sóng đồng tâm bằng box-shadow */
     box-shadow: 
-        0 0 0 2vw rgba(255, 255, 255, 0.4),
-        0 0 0 4vw rgba(255, 255, 255, 0.2),
-        0 0 0 8vw rgba(255, 255, 255, 0.1);
+        0 0 0 0 rgba(255, 255, 255, 0.4),
+        0 0 0 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Khi kích hoạt, giọt nước phóng to phủ kín màn hình */
+/* Khi kích hoạt, giọt nước phóng to phủ kín màn hình và tỏa sóng */
 #theme-transition-overlay.expand {
-    transform: translate(50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 1;
+    box-shadow: 
+        0 0 0 5vw rgba(255, 255, 255, 0.4),
+        0 0 0 10vw rgba(255, 255, 255, 0.1);
 }
 
 /* =====================================================================
@@ -518,7 +525,7 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
     .nav-brand { font-size: 1.3rem; }
     .mobile-menu-btn { display: block; }
     
-    /* FIX: MENU ĐỤC 100% & KHOẢNG CÁCH ĐỀU NHAU */
+    /* MENU ĐỤC 100% & KHOẢNG CÁCH ĐỀU NHAU */
     .nav-links { 
         display: flex; position: absolute; top: calc(100% + 12px); right: 0; width: 260px; 
         background: var(--bg-base); /* Nền đục hoàn toàn */
