@@ -6,7 +6,7 @@
     <!-- ================================================================= -->
     <meta charset="UTF-8">
     
-    <!-- Cấu hình Viewport để chạy Full màn hình, né tai thỏ (viewport-fit=cover) -->
+    <!-- Cấu hình Viewport: Chạy Full màn hình, né tai thỏ (viewport-fit=cover) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
@@ -27,23 +27,27 @@
     <link rel="manifest" href="manifest.json">
 
     <!-- ================================================================= -->
-    <!-- 4. CẤU HÌNH PWA CHO iOS (Ẩn thanh trạng thái)                     -->
+    <!-- 4. CẤU HÌNH PWA CHO iOS VÀ ĐỒNG BỘ MÀU THANH TRẠNG THÁI          -->
     <!-- ================================================================= -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Thẻ này sẽ được JS tự động đổi màu (Trắng/Đen) khi chuyển chế độ -->
+    <meta name="theme-color" content="#faf9f6" id="theme-color-meta">
     
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (?v=2616 để ép xóa cache)                    -->
+    <!-- 5. LIÊN KẾT FILE CSS (?v=2628 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2616">
+    <link rel="stylesheet" href="style.css?v=2628">
 </head>
 <body>
 
     <!-- ================================================================= -->
-    <!-- 6. LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT, HẠT SƯƠNG)             -->
+    <!-- 6. LỚP OVERLAY & HIỆU ỨNG NỀN                                     -->
     <!-- ================================================================= -->
-    
+    <!-- Lớp overlay dùng cho hiệu ứng mờ nhoè khi đổi Theme -->
+    <div id="theme-transition-overlay"></div>
+
     <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click -->
     <canvas id="water-canvas" aria-hidden="true"></canvas>
     
@@ -98,7 +102,9 @@
                 <!-- Nút Đổi Theme (Sáng/Tối) -->
                 <button class="nav-btn theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">
                     <span id="theme-icon-wrapper">
+                        <!-- Icon Mặt Trời (Hiện ở chế độ Tối) -->
                         <svg class="sun-icon nav-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <!-- Icon Mặt Trăng (Hiện ở chế độ Sáng) -->
                         <svg class="moon-icon nav-icon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                     </span>
                     <span id="theme-text">Chế độ Tối</span>
@@ -115,27 +121,12 @@
         <!-- 7.2. VIEW 1: TRANG CHỦ (HOME)                                 -->
         <!-- ============================================================= -->
         <section id="view-home" class="view active">
-            <!-- Phần Hero (Ảnh bìa & Giới thiệu) -->
             <div class="hero">
-                <!-- Nội dung chữ bên trái -->
                 <div class="hero-content">
-                    <h1>
-                        <!-- Chữ hiển thị ở chế độ Sáng (Bạch Ngọc) -->
-                        <span class="light-text">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
-                        <!-- Chữ hiển thị ở chế độ Tối (Thủy Mặc) -->
-                        <span class="dark-text">Vạn Tượng<br>Trong <i>Lời</i></span>
-                    </h1>
-                    <p>
-                        <!-- Đoạn mô tả chế độ Sáng -->
-                        <span class="light-text">Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</span>
-                        <!-- Đoạn mô tả chế độ Tối -->
-                        <span class="dark-text">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</span>
-                    </p>
-                    <!-- Nút kêu gọi hành động (Nhảy sang tab Văn Hiến) -->
-                    <button class="btn" onclick="switchView('heritage')">
-                        <span class="light-text">Khám Phá Tuyệt Tác</span>
-                        <span class="dark-text">Thưởng Lãm</span>
-                    </button>
+                    <!-- Nội dung chữ được đồng bộ cho cả 2 chế độ -->
+                    <h1>Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</h1>
+                    <p>Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</p>
+                    <button class="btn" onclick="switchView('heritage')">Khám Phá Tuyệt Tác</button>
                 </div>
                 
                 <!-- Khung ảnh vòm bên phải (ĐÃ CẬP NHẬT TÊN FILE ẢNH MỚI) -->
@@ -217,9 +208,9 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 8. SCRIPTS (?v=2616 để ép xóa cache)                              -->
+    <!-- 8. SCRIPTS (?v=2628 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2616"></script>
+    <script src="script.js?v=2628"></script>
 
     <!-- ================================================================= -->
     <!-- 9. ĐĂNG KÝ SERVICE WORKER ĐỂ CHẠY OFFLINE (PWA)                   -->
