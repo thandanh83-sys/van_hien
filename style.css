@@ -1,14 +1,14 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE EDITION V9.0)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (RESET VERSION 1.0)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Hệ thống Typography 4 tầng (Local Fonts).
-   - Tối ưu hóa hiệu năng (Game Dev Thinking) & Chống lag Mobile.
-   - Giao diện Bạch Ngọc, Kính mờ (Glassmorphism).
+   - Giao diện Bạch Ngọc duy nhất (Không Dark Mode).
+   - Typography 4 tầng (Local Fonts, tải 0ms).
+   - Tuyệt đối không dùng backdrop-filter (Chống lag).
    ===================================================================== */
 
 /* =====================================================================
-   1. KHAI BÁO FONT CHỮ CỤC BỘ (KHÔNG CẦN MẠNG)
+   1. KHAI BÁO FONT CHỮ CỤC BỘ
    ===================================================================== */
 @font-face {
     font-family: 'Alex Brush';
@@ -35,49 +35,47 @@
 }
 
 /* =====================================================================
-   2. HỆ THỐNG BIẾN VÀ CẤU HÌNH GỐC
+   2. HỆ THỐNG BIẾN GỐC
    ===================================================================== */
 :root {
-    /* --- Màu sắc chủ đạo (Bạch Ngọc) --- */
-    --bg-base: #fdfbf7;           /* Trắng ngà (ánh ngọc trai) */
-    --bg-glass: rgba(253, 251, 247, 0.6); /* Nền kính mờ */
-    --text-main: #2c3e38;         /* Xanh đen trầm (dễ đọc) */
-    --text-muted: #6a7c76;        /* Xám xanh nhạt */
+    /* Bảng màu Bạch Ngọc */
+    --bg-base: #fdfbf7;           
+    --text-main: #2c3e38;         
+    --text-muted: #6a7c76;        
     
-    /* --- Điểm nhấn --- */
-    --accent: #8bb8a8;            /* Xanh ngọc bích */
+    --accent: #8bb8a8;            
     --accent-hover: #739e8f;
-    --accent-gold: #d4c4a8;       /* Vàng kim nhạt */
-    --accent-text: #557a6f;       /* Xanh ngọc đậm cho text (đạt WCAG AA) */
+    --accent-gold: #d4c4a8;       
+    --accent-text: #557a6f;       
     
-    /* --- Hiệu ứng Kính --- */
-    --glass-border: rgba(255, 255, 255, 0.7);
-    --glass-shadow: 0 10px 25px rgba(139, 184, 168, 0.08);
+    /* Hiệu ứng Nền (Solid, không dùng kính mờ) */
+    --card-bg: rgba(253, 251, 247, 0.95);
+    --border-color: rgba(139, 184, 168, 0.2);
+    --shadow: 0 10px 25px rgba(139, 184, 168, 0.08);
     
-    /* --- Typography (Tối ưu tải) --- */
+    /* Typography */
     --font-calligraphy: 'Alex Brush', cursive;          
     --font-vintage-ui: 'Cinzel', serif;                 
     --font-elegant-read: Georgia, 'Times New Roman', Times, serif;          
     --font-elegant-poetry: Georgia, 'Times New Roman', Times, serif; 
     
-    /* --- Biến động cho Cỡ chữ (Được JS điều khiển qua nút A+ / A-) --- */
+    /* Biến động cho Cỡ chữ */
     --read-font-size: 1.15rem;
     
-    /* --- Layout --- */
+    /* Layout */
     --radius-pill: 50px;          
     --radius-card: 16px;
 }
 
 /* =====================================================================
-   3. RESET & THIẾT LẬP CƠ BẢN
+   3. RESET & BASE
    ===================================================================== */
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { background-color: var(--bg-base); overscroll-behavior-y: none; scroll-behavior: smooth; }
 
 body {
     background-color: var(--bg-base);
-    /* Ảnh nền Bạch Ngọc kết hợp Gradient mờ */
-    background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.92) 0%, rgba(235, 243, 240, 0.95) 100%), url('assets/nen.jpg');
+    background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.95) 0%, rgba(235, 243, 240, 0.98) 100%), url('assets/nen.jpg');
     background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat;
     color: var(--text-main); font-family: var(--font-elegant-read); line-height: 1.6;
     min-height: 100vh; overflow-x: hidden; 
@@ -89,16 +87,22 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
 ::selection { background: var(--accent); color: #fff; }
 
-/* =====================================================================
-   4. TRỢ NĂNG (ACCESSIBILITY)
-   ===================================================================== */
+/* Trợ năng (A11y) */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .skip-link { position: absolute; left: -9999px; top: .5rem; z-index: 10001; background: var(--accent); color: #fff; padding: .6rem 1rem; border-radius: 8px; font-family: var(--font-vintage-ui); text-decoration: none; font-weight: 600; }
 .skip-link:focus { left: .5rem; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
 /* =====================================================================
-   5. MÀN HÌNH CHỜ: LỤA NGỌC KHAI HOA (SPLASH SCREEN)
+   4. CANVAS SÓNG NƯỚC (Nằm dưới cùng, không chặn click)
+   ===================================================================== */
+#water-canvas {
+    position: fixed; inset: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 5;
+}
+
+/* =====================================================================
+   5. MÀN HÌNH CHỜ (SPLASH SCREEN - CSS THUẦN)
    ===================================================================== */
 #jade-splash { position: fixed; inset: 0; z-index: 999999; pointer-events: none; overflow: hidden; background: #fdfbf7; }
 .silk-layer { position: absolute; top: -20%; left: -20%; width: 140vw; height: 140vh; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; will-change: transform, opacity; transform-origin: center center; }
@@ -115,36 +119,42 @@ body {
 @keyframes sweepOut3 { 0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translate(-30vw, 50vh) rotate(-10deg) scale(1.6); opacity: 0; } }
 
 /* =====================================================================
-   6. HIỆU ỨNG HẠT SƯƠNG & GIỌT NGỌC
+   6. HẠT SƯƠNG (15 HẠT CSS TĨNH - SIÊU NHẸ)
    ===================================================================== */
 .dewdrop-container { position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
-.dewdrop { position: absolute; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ffffff, var(--accent)); box-shadow: 0 0 10px 2px rgba(139, 184, 168, 0.5), inset 0 0 4px #fff; animation: floatUp 15s linear infinite; opacity: 0; }
-@keyframes floatUp { 0% { transform: translateY(100vh) scale(0.5); opacity: 0; } 10% { opacity: 0.8; } 90% { opacity: 0.8; } 100% { transform: translateY(-10vh) scale(1.2); opacity: 0; } }
-
-.touch-drop { position: fixed; width: 20px; height: 20px; border-radius: 50%; pointer-events: none; z-index: 100000; transform: translate(-50%, -50%) scale(0); background: radial-gradient(circle at 35% 35%, #ffffff 0%, rgba(139, 184, 168, 0.4) 60%, transparent 100%); box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.9), 0 0 15px rgba(139, 184, 168, 0.3); animation: dropExpand 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
-.touch-wave { position: fixed; width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(139, 184, 168, 0.6); pointer-events: none; z-index: 99999; transform: translate(-50%, -50%) scale(0); animation: waveExpand 1s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
-@keyframes dropExpand { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 50% { opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(3); opacity: 0; } }
-@keyframes waveExpand { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; } 100% { transform: translate(-50%, -50%) scale(6); opacity: 0; } }
+.dewdrop {
+    position: absolute; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ffffff, var(--accent));
+    box-shadow: 0 0 10px 2px rgba(139, 184, 168, 0.5), inset 0 0 4px #fff;
+    bottom: -20px; will-change: transform, opacity; transform: translate3d(0, 0, 0);
+    animation: floatUp 15s linear infinite; opacity: 0;
+}
+@keyframes floatUp {
+    0% { transform: translate3d(0, 0, 0) scale(0.5); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translate3d(0, -110vh, 0) scale(1.2); opacity: 0; }
+}
 
 /* =====================================================================
-   7. NAVBAR & LAYOUT CHÍNH
+   7. NAVBAR & LAYOUT
    ===================================================================== */
 .container { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: calc(90px + env(safe-area-inset-top)) 20px 40px 20px; }
 
 .navbar {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 24px; background: rgba(253, 251, 247, 0.95); 
-    border: 1px solid var(--glass-border); border-radius: var(--radius-pill); box-shadow: var(--glass-shadow);
+    padding: 12px 24px; background: var(--card-bg); 
+    border: 1px solid var(--border-color); border-radius: var(--radius-pill); box-shadow: var(--shadow);
     position: fixed; top: calc(15px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
     width: calc(100% - 32px); max-width: 1050px; z-index: 999; 
 }
-.nav-brand { font-family: var(--font-calligraphy); font-size: 2.5rem; line-height: 0.8; margin-top: -5px; cursor: pointer; color: var(--text-main); text-shadow: 1px 1px 0px rgba(255,255,255,0.8); }
+.nav-brand { font-family: var(--font-calligraphy); font-size: 2.5rem; line-height: 0.8; margin-top: -5px; cursor: pointer; color: var(--text-main); }
 .nav-links { display: flex; align-items: center; gap: 24px; }
 .mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 4px; }
 .mobile-menu-btn svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
-   8. TYPOGRAPHY PHÂN CẤP & NÚT BẤM
+   8. BUTTONS & TYPOGRAPHY
    ===================================================================== */
 .nav-btn, .btn, .filter-btn, .pagination-container button, .font-btn {
     font-family: var(--font-vintage-ui) !important;
@@ -161,7 +171,7 @@ body {
 .nav-icon { width: 16px; height: 16px; stroke-width: 2; display: none; } 
 
 /* =====================================================================
-   9. CÁC VIEW & HIỆU ỨNG
+   9. VIEWS & HIỆU ỨNG CHUYỂN TAB
    ===================================================================== */
 .view { display: none; }
 .view.active { display: block; animation: fadeUpReveal 0.4s ease forwards; }
@@ -177,15 +187,15 @@ body {
 .hero-content .no-wrap { white-space: nowrap; } 
 .hero-content p { font-size: 1.15rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.7; text-align: left; }
 
-.btn { display: inline-block; padding: 14px 32px; background: var(--bg-glass); border: 1px solid var(--accent); border-radius: var(--radius-pill); color: var(--accent-text); box-shadow: var(--glass-shadow); cursor: pointer; }
+.btn { display: inline-block; padding: 14px 32px; background: var(--bg-base); border: 1px solid var(--accent); border-radius: var(--radius-pill); color: var(--accent-text); box-shadow: var(--shadow); cursor: pointer; }
 .btn:hover { background: var(--accent); color: #fff; }
 
 .hero-visual { flex: 1; display: flex; justify-content: flex-end; }
-.arch-frame { position: relative; width: 340px; height: 440px; border-radius: 170px 170px 16px 16px; padding: 10px; background: var(--bg-glass); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
+.arch-frame { position: relative; width: 340px; height: 440px; border-radius: 170px 170px 16px 16px; padding: 10px; background: var(--card-bg); border: 1px solid var(--border-color); box-shadow: var(--shadow); }
 .arch-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 160px 160px 10px 10px; transition: transform 1s ease; }
 .arch-frame:hover img { transform: scale(1.03); }
 
-#daily-quote-container { margin-top: 40px; text-align: center; padding: 40px 20px; transition: opacity 0.5s ease; border-top: 1px solid var(--glass-border); }
+#daily-quote-container { margin-top: 40px; text-align: center; padding: 40px 20px; transition: opacity 0.5s ease; border-top: 1px solid var(--border-color); }
 .quote-mark { font-family: var(--font-calligraphy); font-size: 4rem; color: var(--accent); line-height: 0.5; margin-bottom: 15px; opacity: 0.5; }
 .quote-text { font-family: var(--font-elegant-poetry); font-size: 2rem; color: var(--text-main); font-style: italic; line-height: 1.5; max-width: 700px; margin: 0 auto 15px; text-wrap: balance; }
 .quote-author { font-family: var(--font-vintage-ui); font-size: 0.75rem; font-weight: 600; color: var(--accent-text); letter-spacing: 2px; text-transform: uppercase; }
@@ -199,34 +209,31 @@ body {
 .search-container { text-align: center; margin-bottom: 25px; }
 .search-wrap { position: relative; display: inline-block; width: 100%; max-width: 480px; }
 .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-#search-input, #encyclopedia-search { width: 100%; padding: 12px 20px 12px 44px; border-radius: var(--radius-pill); border: 1px solid var(--glass-border); background: var(--bg-glass); color: var(--text-main); font-family: var(--font-elegant-read); outline: none; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+#search-input, #encyclopedia-search { width: 100%; padding: 12px 20px 12px 44px; border-radius: var(--radius-pill); border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: var(--font-elegant-read); outline: none; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
 #search-input:focus, #encyclopedia-search:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(139, 184, 168, 0.2); }
 
 .filter-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-.filter-btn { background: var(--bg-glass); border: 1px solid var(--glass-border); color: var(--text-main); padding: 8px 20px; border-radius: var(--radius-pill); cursor: pointer; }
+.filter-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 20px; border-radius: var(--radius-pill); cursor: pointer; }
 .filter-btn:hover, .filter-btn.active { background: var(--accent); color: #ffffff; border-color: var(--accent); }
 #sub-filter-bar { margin-top: -10px; margin-bottom: 30px; gap: 8px; }
 #sub-filter-bar .filter-btn { padding: 6px 14px; font-size: 0.65rem; background: transparent; }
 
 /* =====================================================================
-   12. VĂN HIẾN (CARDS & PERFORMANCE ENGINE)
+   12. VĂN HIẾN (CARDS)
    ===================================================================== */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
-/* Trạng thái "Ngủ đông" */
+/* Trạng thái "Ngủ đông" (Chưa lướt tới) */
 .heritage-card, .accordion-item { 
     content-visibility: auto; contain-intrinsic-size: auto 300px;
-    background: #fdfbf7; border: 1px solid var(--glass-border); border-radius: var(--radius-card); padding: 24px;
-    box-shadow: var(--glass-shadow); display: flex; flex-direction: column; position: relative; 
-    scroll-margin-top: 100px; 
-    opacity: 0;
-    transform: translateY(20px);
+    background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 24px;
+    box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; 
+    scroll-margin-top: 100px; opacity: 0; transform: translateY(20px);
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Trạng thái "Thức giấc" */
+/* Trạng thái "Thức giấc" (Đã lướt tới) */
 .heritage-card.is-visible, .accordion-item.is-visible { opacity: 1; transform: translateY(0); }
-
 .heritage-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(139, 184, 168, 0.15); border-color: var(--accent); }
 
 .h-tag { font-family: var(--font-vintage-ui); font-size: 0.6rem; border: 1px solid var(--accent); color: var(--accent-text); padding: 3px 8px; border-radius: 4px; align-self: flex-start; text-transform: uppercase; display: inline-block; margin-right: 5px; margin-bottom: 5px; }
@@ -240,7 +247,7 @@ body {
 
 /* Phân trang */
 .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 30px; padding: 20px 0; }
-.page-btn { background: var(--bg-glass); border: 1px solid var(--glass-border); color: var(--text-main); min-width: 36px; height: 36px; border-radius: 6px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-family: var(--font-vintage-ui); font-weight: 600; font-size: 0.8rem; transition: 0.2s; }
+.page-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); min-width: 36px; height: 36px; border-radius: 6px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-family: var(--font-vintage-ui); font-weight: 600; font-size: 0.8rem; transition: 0.2s; }
 .page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -256,31 +263,31 @@ body {
 .chevron-icon { color: var(--accent); transition: transform 0.3s ease; flex-shrink: 0; }
 .accordion-item[open] .chevron-icon { transform: rotate(180deg); }
 
-.accordion-content { padding: 0 20px 20px; color: var(--text-main); font-size: var(--read-font-size); border-top: 1px solid var(--glass-border); line-height: 1.7; text-align: justify; }
+.accordion-content { padding: 0 20px 20px; color: var(--text-main); font-size: var(--read-font-size); border-top: 1px solid var(--border-color); line-height: 1.7; text-align: justify; }
 .accordion-content p { margin-bottom: 1em; }
 .accordion-content h4 { font-family: var(--font-vintage-ui); color: var(--accent-text); margin: 20px 0 10px; font-size: 0.8rem; letter-spacing: 1.5px; border-bottom: 1px solid rgba(139, 184, 168, 0.2); padding-bottom: 5px; text-align: left; }
 .accordion-content ul, .accordion-content ol { padding-left: 20px; margin-bottom: 15px; }
 .accordion-content li { margin-bottom: 6px; }
-.accordion-content blockquote { font-family: var(--font-elegant-poetry); border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border); padding: 15px; font-style: italic; margin: 20px 0; background: rgba(139, 184, 168, 0.05); text-align: center; font-size: 1.3rem; }
+.accordion-content blockquote { font-family: var(--font-elegant-poetry); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 15px; font-style: italic; margin: 20px 0; background: rgba(139, 184, 168, 0.05); text-align: center; font-size: 1.3rem; }
 
 /* Nút đổi cỡ chữ */
 .font-settings { display: flex; gap: 8px; }
-.font-btn { background: var(--bg-glass); border: 1px solid var(--glass-border); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: var(--font-vintage-ui); font-size: 0.75rem; font-weight: 600; transition: 0.3s; }
+.font-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: var(--font-vintage-ui); font-size: 0.75rem; font-weight: 600; transition: 0.3s; }
 .font-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 /* =====================================================================
    14. THI PHÁP HỌC (PHÂN TÍCH)
    ===================================================================== */
-.analyze-box { background: #fdfbf7; border: 1px solid var(--glass-border); border-radius: var(--radius-card); padding: 20px; margin-top: 30px; margin-bottom: 30px; box-shadow: var(--glass-shadow); }
+.analyze-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 20px; margin-top: 30px; margin-bottom: 30px; box-shadow: var(--shadow); }
 .analyze-box textarea { width: 100%; height: 140px; background: transparent; border: none; outline: none; resize: vertical; font-family: var(--font-elegant-poetry); font-size: 1.2rem; color: var(--text-main); line-height: 1.7; }
 .analyze-box button { margin-top: 10px; width: 100%; padding: 14px; background: var(--text-main); color: var(--bg-base); border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-family: var(--font-vintage-ui); letter-spacing: 1px; text-transform: uppercase; transition: 0.3s; }
 .analyze-box button:hover { background: var(--accent); color: #fff; }
 
-.result-step { background: #fdfbf7; border-left: 3px solid var(--accent); border-radius: 8px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow-x: auto; }
+.result-step { background: var(--card-bg); border-left: 3px solid var(--accent); border-radius: 8px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); overflow-x: auto; }
 .result-step.tier-0 { border-left-color: var(--text-muted); }
 .result-step.tier-2 { border-left-color: var(--accent-gold); }
 .result-step.tier-3 { border-left-color: #8b5a2b; }
-.tier-label { display: inline-block; font-family: var(--font-vintage-ui); font-size: 0.65rem; letter-spacing: 1px; padding: 3px 8px; background: var(--bg-glass); border: 1px solid var(--glass-border); border-radius: 6px; margin-bottom: 10px; text-transform: uppercase; }
+.tier-label { display: inline-block; font-family: var(--font-vintage-ui); font-size: 0.65rem; letter-spacing: 1px; padding: 3px 8px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 10px; text-transform: uppercase; }
 .tier-0 .tier-label { color: var(--text-muted); }
 .tier-1 .tier-label { color: var(--accent-text); border-color: var(--accent); }
 .tier-2 .tier-label { color: #b89a64; border-color: var(--accent-gold); }
@@ -310,23 +317,13 @@ body {
 .footer__version { font-family: var(--font-vintage-ui); letter-spacing: 0.05em; margin: 0; }
 
 /* =====================================================================
-   16. RESPONSIVE (MOBILE) - TỐI ƯU TRIỆT ĐỂ
+   16. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
-    /* Tắt các hiệu ứng nặng để chống lag */
-    .silk-container, .dewdrop-container, .touch-drop { display: none !important; }
+    .dewdrop-container, .touch-drop { display: none !important; }
     #jade-splash { display: none !important; } 
     
-    /* Giảm mạnh blur, tăng độ đục của kính */
-    .navbar, .heritage-card, .accordion-item, .analyze-box { 
-        backdrop-filter: none !important; 
-        -webkit-backdrop-filter: none !important;
-        background: rgba(253, 251, 247, 0.98) !important; 
-    }
-
     .container { padding: calc(80px + env(safe-area-inset-top)) 16px 30px 16px; }
-    
-    /* Hero */
     .hero { flex-direction: column; text-align: center; gap: 20px; }
     .hero-content h1 { font-size: 3.2rem; line-height: 1.1; }
     .hero-content .no-wrap { white-space: normal; }
@@ -335,25 +332,22 @@ body {
     .arch-frame { width: 260px; height: 340px; border-radius: 130px 130px 12px 12px; }
     .arch-frame img { border-radius: 120px 120px 8px 8px; }
     
-    /* Navbar */
     .navbar { padding: 10px 16px; top: calc(10px + env(safe-area-inset-top)); }
     .nav-brand { font-size: 2rem; }
     .mobile-menu-btn { display: block; }
-    .nav-links { display: flex; position: absolute; top: calc(100% + 10px); right: 0; width: 240px; background: #fdfbf7; flex-direction: column; align-items: stretch; padding: 10px; gap: 5px; border-radius: var(--radius-card); border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 999; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: 0.2s; }
+    .nav-links { display: flex; position: absolute; top: calc(100% + 10px); right: 0; width: 240px; background: var(--bg-base); flex-direction: column; align-items: stretch; padding: 10px; gap: 5px; border-radius: var(--radius-card); border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 999; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: 0.2s; }
     .nav-links.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .nav-btn { padding: 10px 12px; border-radius: 8px; width: 100%; text-align: left; }
     .nav-btn:hover, .nav-btn.active { background: rgba(139, 184, 168, 0.1); }
     .nav-icon { display: block; }
     .nav-btn::after { display: none; }
     
-    /* Search & Filter */
     .page-title { font-size: 2.8rem; }
     .filter-bar { justify-content: flex-start; overflow-x: auto; padding-bottom: 10px; flex-wrap: nowrap; scrollbar-width: none; }
     .filter-bar::-webkit-scrollbar { display: none; }
     .filter-btn { white-space: nowrap; }
     .search-wrap { width: 100%; }
     
-    /* Cards & Accordion */
     .heritage-grid { grid-template-columns: 1fr; }
     .heritage-card h3 { font-size: 1.6rem; }
     .heritage-card p { text-align: left; }
@@ -364,13 +358,7 @@ body {
     .quote-text { font-size: 1.6rem; }
 }
 
-/* Giảm chuyển động (Tôn trọng cài đặt hệ thống) */
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-    .heritage-card, .accordion-item { opacity: 1 !important; transform: none !important; }
-}
-
-/* Phản hồi khi chạm (Touch Feedback) */
+/* Chống giật khi chạm (Touch Feedback) */
 button:active, .btn:active, .filter-btn:active, .page-btn:active, .nav-btn:active {
     transform: scale(0.95) !important;
     transition: transform 0.1s ease !important;
