@@ -1,0 +1,9 @@
+name: Minify Code
+on: [push]
+jobs:
+  minify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Minify HTML, CSS, JS
+        uses: anthonyftwang/minify-action@v1
