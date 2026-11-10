@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V99 - FULLSCREEN & SYNC)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V100 - FULL SYNC)
    Tác giả: Văn Đạo
    Mô tả: 
    - Đồng bộ màu nền HTML (chặn dải xanh khi kéo lố).
@@ -21,7 +21,7 @@
     --accent-gold: #cbb882;       /* Vàng kim nhạt */
     
     /* Hiệu ứng kính mờ (Glassmorphism) */
-    --glass-bg: rgba(255, 255, 255, 0.85); /* Tăng độ đục */
+    --glass-bg: rgba(255, 255, 255, 0.85); /* Tăng độ đục cho thẻ */
     --glass-border: rgba(255, 255, 255, 0.9);
     --glass-shadow: 0 15px 35px rgba(44, 66, 61, 0.06);
     
@@ -57,7 +57,7 @@ body.dark-mode {
 /* Đồng bộ màu nền html để không bị lộ màu xanh khi kéo lố trên điện thoại */
 html {
     background-color: var(--bg-base);
-    overscroll-behavior-y: none; 
+    overscroll-behavior-y: none; /* Chặn hiệu ứng kéo nảy của iOS/Android */
     transition: background-color 0.8s ease;
 }
 
@@ -492,7 +492,7 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
 .quote-author { font-size: 0.95rem; font-weight: 600; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
 
 /* =====================================================================
-   14. RESPONSIVE (MOBILE - MENU ĐỤC 100%)
+   14. RESPONSIVE (MOBILE - MENU ĐỤC 100% GIỐNG ZALO)
    ===================================================================== */
 @media (max-width: 850px) {
     .container { padding: calc(80px + env(safe-area-inset-top)) 16px 30px 16px; }
@@ -507,7 +507,7 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
     .nav-brand { font-size: 1.3rem; }
     .mobile-menu-btn { display: block; }
     
-    /* ĐÃ CHUYỂN THÀNH NỀN ĐỤC 100% (KHÔNG XUYÊN THẤU) */
+    /* ĐÃ XÓA BLUR VÀ ĐỔI SANG NỀN ĐỤC 100% (KHÔNG XUYÊN THẤU) */
     .nav-links { 
         display: flex; position: absolute; top: calc(100% + 12px); right: 0; width: 260px; 
         background: #faf9f6; /* Nền trắng đục hoàn toàn cho chế độ Sáng */
