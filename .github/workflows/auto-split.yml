@@ -2,32 +2,35 @@ name: Auto Split Works Data
 on:
   push:
     paths:
-      - 'data/data-tac-pham-master.json'
-  workflow_dispatch:
+      - 'data/data-tac-pham-master.json' # Chỉ chạy khi có thay đổi ở file master
+  workflow_dispatch: # Cho phép bấm chạy thủ công nếu muốn
 
 concurrency:
-  group: git-push-group
-  cancel-in-progress: false
+  group: auto-split-group
+  cancel-in-progress: false # Không hủy tiến trình đang chạy
 
 jobs:
   split:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Cần quyền ghi để bot có thể tự động commit
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Run split script
         run: python tools/split_works.py
+
       - name: Commit and Push with Retry
         uses: EndBug/add-and-commit@v11
         with:
-          message: "chore: auto-split data [skip ci]"
-          push_attempts: 5
+          message: "chore: auto-split data [skip ci]" # [skip ci] để tránh vòng lặp vô tận
+          push_attempts: 5 # Tự động thử lại 5 lần nếu mạng lag
           default_author: github_actions
