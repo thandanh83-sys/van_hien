@@ -1,11 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE EDITION V9.0)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (RESET VERSION 10.0)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tích hợp Động cơ Hiệu năng (Performance Engine) chống lag.
-   - Tính năng đổi cỡ chữ (Lưu LocalStorage).
-   - Tối ưu hóa Mobile, Hệ thống Icon SVG 100%.
-   - Bộ máy phân tích Thi pháp (Thanh điệu NFD, Vần điệu, Thể thơ).
+   - Tối ưu hóa hiệu năng (Chỉ vẽ khi lướt tới, Canvas ngủ đông).
+   - Xử lý dữ liệu Lazy Load (Tách file danh mục & chi tiết).
+   - Đầy đủ tính năng: Tìm kiếm, Phân trang, Đổi cỡ chữ, Thi pháp (NFD).
+   - Tuyệt đối không dùng GSAP, không dùng thư viện ngoài.
    ===================================================================== */
 
 /* =====================================================================
@@ -23,7 +23,7 @@ const ICONS = {
     chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`
 };
 
-const CACHE_KEY = 'vandao_cache_v9';
+const CACHE_KEY = 'vandao_cache_v10';
 const FONT_SIZE_KEY = 'vandao_font_size';
 const ITEMS_PER_PAGE = 20;
 
@@ -46,7 +46,7 @@ const viewScrollPositions = { 'home': 0, 'heritage': 0, 'encyclopedia': 0, 'anal
    MODULE 1: ĐỘNG CƠ HIỆU NĂNG (PERFORMANCE ENGINE)
    ===================================================================== */
 const PerformanceEngine = (() => {
-    // Camera quan sát: Chỉ vẽ thẻ khi lướt tới (Chống lag)
+    // "Camera" quan sát: Chỉ vẽ thẻ khi lướt tới
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -72,13 +72,13 @@ function switchView(viewId) {
     
     if (currentViewId === viewId) return;
 
-    // Lưu vị trí cuộn tab cũ & Dọn dẹp
+    // 1. Lưu vị trí cuộn tab cũ & Dọn dẹp
     if (currentViewId) {
         viewScrollPositions[currentViewId] = window.scrollY;
         unloadView(currentViewId);
     }
     
-    // Đổi trạng thái Active
+    // 2. Đổi trạng thái Active
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(link => {
         link.classList.remove('active');
@@ -96,7 +96,7 @@ function switchView(viewId) {
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
     
-    // Tải dữ liệu (Lazy Load)
+    // 3. Tải dữ liệu (Lazy Load + Skeleton)
     let isRendering = false;
     if (viewId === 'heritage') {
         const grid = document.getElementById('heritage-grid');
@@ -113,7 +113,7 @@ function switchView(viewId) {
         }
     }
     
-    // Phục hồi vị trí cuộn
+    // 4. Phục hồi vị trí cuộn
     const savedY = viewScrollPositions[viewId] || 0;
     if (savedY > 0) {
         setTimeout(() => window.scrollTo({ top: savedY, behavior: 'instant' }), isRendering ? 60 : 10);
@@ -123,6 +123,7 @@ function switchView(viewId) {
 }
 
 function unloadView(viewId) {
+    // Dọn dẹp DOM để giải phóng RAM
     if (viewId === 'heritage') {
         const grid = document.getElementById('heritage-grid');
         if (grid) grid.innerHTML = ''; 
@@ -168,7 +169,7 @@ function scrollToCenter(element) {
     window.scrollTo({ top: Math.max(0, middle), behavior: 'smooth' });
 }
 
-// Hàm đổi cỡ chữ (Lưu vào LocalStorage)
+// Đổi cỡ chữ (Lưu LocalStorage)
 function changeFontSize(step) {
     const currentSize = parseFloat(localStorage.getItem(FONT_SIZE_KEY) || '1.15');
     const newSize = Math.min(Math.max(currentSize + (step * 0.1), 1.0), 2.0); // Giới hạn 1.0 - 2.0rem
@@ -226,6 +227,7 @@ function renderHeritage() {
     const searchInput = document.getElementById('search-input');
     const keyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
     if (!grid) return;
+    
     let data = WORKS_DATA;
     if (currentMainCat !== 'all') data = data.filter(item => item.loai_hinh === currentMainCat);
     if (currentGenre !== 'all') data = data.filter(item => item.the_loai && item.the_loai.includes(currentGenre));
@@ -270,7 +272,7 @@ function renderHeritage() {
     const countEl = document.getElementById('heritage-count');
     if (countEl) countEl.textContent = `Tìm thấy ${data.length} tác phẩm`;
     
-    // Kích hoạt Performance Engine cho các thẻ vừa render
+    // Kích hoạt Performance Engine
     PerformanceEngine.observe('.heritage-card');
 }
 
@@ -356,7 +358,7 @@ function renderEncyclopedia() {
         });
     });
     
-    // Kích hoạt Performance Engine cho các Accordion
+    // Kích hoạt Performance Engine
     PerformanceEngine.observe('.accordion-item');
 }
 
@@ -416,7 +418,10 @@ function gotoEncyclopediaById(id) {
                 scrollToCenter(target);
             }
         }, 300);
-    } else { alert('Chưa có bài viết chi tiết cho mục này trong Đại Bách Khoa.'); }
+    } else { 
+        // Bỏ alert, chỉ log ra console để không làm phiền người dùng
+        console.warn('Chưa có bài viết chi tiết cho mục này trong Đại Bách Khoa.'); 
+    }
 }
 
 /* =====================================================================
@@ -523,32 +528,126 @@ function executePipeline() {
 }
 
 /* =====================================================================
-   MODULE 7: HIỆU ỨNG ĐỘNG (GIỌT NGỌC KHI CHẠM)
+   MODULE 7: HIỆU ỨNG ĐỘNG (CANVAS SÓNG NƯỚC TỐI ƯU)
    ===================================================================== */
-function initTouchDrop() {
-    const isMobile = window.innerWidth <= 850;
-    let lastDrop = 0;
-    const createDrop = (x, y) => {
-        const now = Date.now();
-        if (now - lastDrop < 120) return;
-        lastDrop = now;
-        
-        const wave = document.createElement('div');
-        wave.className = 'touch-wave';
-        wave.style.left = `${x}px`; wave.style.top = `${y}px`;
-        document.body.appendChild(wave);
+function initWaterCanvas() {
+    const canvas = document.getElementById('water-canvas');
+    if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        if (!isMobile) {
-            const drop = document.createElement('div');
-            drop.className = 'touch-drop';
-            drop.style.left = `${x}px`; drop.style.top = `${y}px`;
-            document.body.appendChild(drop);
-            setTimeout(() => drop.remove(), 1000);
-        }
-        setTimeout(() => wave.remove(), 1000);
+    const ctx = canvas.getContext('2d');
+    let ripples = [];
+    let isAnimating = false; // Cờ hiệu kiểm soát vòng lặp
+
+    const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     };
-    window.addEventListener('touchstart', (e) => { const t = e.touches[0]; if (t) createDrop(t.clientX, t.clientY); }, { passive: true });
-    window.addEventListener('mousedown', (e) => { if (window.matchMedia('(pointer: fine)').matches) createDrop(e.clientX, e.clientY); }, { passive: true });
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const createRipple = (x, y) => {
+        if (ripples.length > 15) return; // Giới hạn tối đa 15 sóng cùng lúc
+
+        // Lấy màu chủ đạo từ CSS
+        const color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#8bb8a8';
+
+        ripples.push({
+            x: x, 
+            y: y,
+            radius: 0,
+            maxRadius: 80 + Math.random() * 40,
+            alpha: 0.8,
+            color: color
+        });
+
+        if (!isAnimating) {
+            isAnimating = true;
+            requestAnimationFrame(animate);
+        }
+    };
+
+    const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = ripples.length - 1; i >= 0; i--) {
+            const p = ripples[i];
+            p.radius += 2.5; 
+            p.alpha -= 0.015;
+
+            if (p.alpha <= 0 || p.radius > p.maxRadius) {
+                ripples.splice(i, 1);
+                continue;
+            }
+
+            // Vẽ vòng ngoài (Xanh ngọc)
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.strokeStyle = p.color;
+            ctx.globalAlpha = p.alpha;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Vẽ vòng trong (Trắng sáng)
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius * 0.6, 0, Math.PI * 2);
+            ctx.strokeStyle = '#ffffff';
+            ctx.globalAlpha = p.alpha * 0.5;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+        
+        ctx.globalAlpha = 1; 
+
+        // Tự động dừng vòng lặp khi hết sóng để tiết kiệm pin
+        if (ripples.length > 0) {
+            requestAnimationFrame(animate);
+        } else {
+            isAnimating = false; 
+        }
+    };
+
+    window.addEventListener('touchstart', (e) => {
+        const t = e.touches[0];
+        if (t) createRipple(t.clientX, t.clientY);
+    }, { passive: true });
+
+    window.addEventListener('mousedown', (e) => {
+        if (window.matchMedia('(pointer: fine)').matches) {
+            createRipple(e.clientX, e.clientY);
+        }
+    }, { passive: true });
+}
+
+function initDewdrops() {
+    const container = document.getElementById('dewdrop-container');
+    if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    
+    // Chỉ tạo 15 hạt sương duy nhất 1 lần (Không tạo/xóa liên tục gây lag)
+    for (let i = 0; i < 15; i++) {
+        const drop = document.createElement('div'); 
+        drop.className = 'dewdrop';
+        
+        const layer = Math.floor(Math.random() * 3) + 1; 
+        let size, blur, opacity, duration;
+        
+        if (layer === 1) { // Xa
+            size = Math.random() * 3 + 1; blur = 2; opacity = 0.3; duration = Math.random() * 10 + 15;
+        } else if (layer === 2) { // Vừa
+            size = Math.random() * 4 + 3; blur = 1; opacity = 0.6; duration = Math.random() * 10 + 10;
+        } else { // Gần
+            size = Math.random() * 6 + 5; blur = 0; opacity = 0.9; duration = Math.random() * 5 + 8;
+        }
+
+        drop.style.width = `${size}px`; 
+        drop.style.height = `${size}px`;
+        drop.style.left = `${Math.random() * 100}vw`; 
+        drop.style.animationDuration = `${duration}s`;
+        drop.style.animationDelay = `-${Math.random() * duration}s`; 
+        drop.style.filter = `blur(${blur}px)`;
+        drop.style.opacity = opacity;
+        
+        container.appendChild(drop); 
+    }
 }
 
 function playSplashAnimation() {
@@ -603,7 +702,8 @@ async function loadAllData() {
         localStorage.setItem(CACHE_KEY, JSON.stringify({ theory: THEORY_DATA, authors: AUTHOR_DATA, quotes: QUOTES_DATA }));
         
         initMainFilters(); 
-        initTouchDrop(); 
+        initWaterCanvas(); 
+        initDewdrops();
         
         renderRandomQuote(); 
         if (quoteIntervalId) clearInterval(quoteIntervalId);
@@ -615,9 +715,20 @@ async function loadAllData() {
         playSplashAnimation();
         
     } catch (error) { 
-        console.error("Lỗi tải dữ liệu:", error);
-        playSplashAnimation();
-        alert("Lỗi kết nối mạng. Vui lòng kiểm tra và thử lại."); 
+        console.error("Lỗi tải dữ liệu (có thể do mạng yếu):", error);
+        playSplashAnimation(); 
+        
+        // Tự động phục hồi từ Cache nếu có (Không dùng alert)
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            THEORY_DATA = parsed.theory || [];
+            AUTHOR_DATA = parsed.authors || [];
+            QUOTES_DATA = parsed.quotes || [];
+            initMainFilters();
+            renderRandomQuote();
+            renderHeritage();
+        }
     }
 }
 
@@ -664,11 +775,11 @@ function handleHashScroll() {
    MODULE 9: KHỞI CHẠY & GẮN SỰ KIỆN
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => { 
-    // 1. Khôi phục cỡ chữ đã lưu
+    // 1. Khôi phục cỡ chữ
     const savedFontSize = localStorage.getItem(FONT_SIZE_KEY);
     if (savedFontSize) document.documentElement.style.setProperty('--read-font-size', `${savedFontSize}rem`);
 
-    // 2. Khôi phục nháp bài thơ (nếu có)
+    // 2. Khôi phục nháp bài thơ
     const savedPoem = localStorage.getItem('vandao_draft_poem');
     if (savedPoem) {
         const poemInput = document.getElementById('poemInput');
@@ -679,7 +790,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Tải dữ liệu
     loadAllData(); 
 
-    // 4. Gắn Debounce cho thanh tìm kiếm
+    // 4. Gắn Debounce tìm kiếm
     const searchInputHeritage = document.getElementById('search-input');
     if (searchInputHeritage) searchInputHeritage.addEventListener('input', debounce(() => { currentPage = 1; renderHeritage(); }, 300)); 
     const searchInputEncy = document.getElementById('encyclopedia-search');
