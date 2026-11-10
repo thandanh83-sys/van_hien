@@ -3,8 +3,8 @@
    Tác giả: Văn Đạo
    Mô tả: 
    - Quản lý Offline Cache cho toàn bộ PWA.
-   - Chiến lược "Cache First" toàn diện: Tải tức thì (0.01s), chống lag.
-   - Hỗ trợ Local Fonts, ảnh nén và dữ liệu tách nhỏ.
+   - Chiến lược thông minh: Cache First cho giao diện/hình ảnh, 
+     Stale-While-Revalidate cho dữ liệu chi tiết.
    - Tự động dọn dẹp bộ nhớ rác khi nâng cấp phiên bản.
    - Tuân thủ: 100% Text, không Emoji.
    ===================================================================== */
@@ -36,6 +36,7 @@ const PRECACHE_ASSETS = [
     
     // --- Font chữ cục bộ (Chạy Offline 100%) ---
     './assets/fonts/alex-brush.woff2',
+    './assets/fonts/alex-brush.ttf',      // Fallback nếu dùng file .ttf
     './assets/fonts/cinzel-bold.woff2',
     './assets/fonts/cinzel-regular.woff2',
     
