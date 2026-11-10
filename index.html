@@ -36,34 +36,49 @@
     <meta name="theme-color" content="#faf9f6" id="theme-color-meta">
     
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (?v=2635 để ép xóa cache lần đầu)            -->
+    <!-- 5. LIÊN KẾT FILE CSS (?v=2650 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2635">
+    <link rel="stylesheet" href="style.css?v=2650">
 </head>
 <body>
 
     <!-- ================================================================= -->
-    <!-- 6. LỚP OVERLAY & HIỆU ỨNG NỀN                                     -->
+    <!-- 6. BỘ LỌC SVG GOOEY (TẠO HIỆU ỨNG CHẤT LỎNG DÍNH LIỀN)           -->
     <!-- ================================================================= -->
-    <!-- Lớp overlay dùng cho hiệu ứng "Giọt nước rơi" khi đổi Theme -->
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display:none;">
+        <defs>
+            <filter id="gooey">
+                <!-- Làm nhòe để tạo độ mềm mại -->
+                <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+                <!-- Tăng độ tương phản để hút các vòng tròn lại với nhau -->
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+        </defs>
+    </svg>
+
+    <!-- ================================================================= -->
+    <!-- 7. LỚP OVERLAY & HIỆU ỨNG NỀN                                     -->
+    <!-- ================================================================= -->
+    <!-- Lớp overlay dùng cho hiệu ứng chuyển Theme -->
     <div id="theme-transition-overlay"></div>
 
-    <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click (Màu Vàng) -->
+    <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click -->
     <canvas id="water-canvas" aria-hidden="true"></canvas>
     
     <!-- Quầng sáng theo dõi chuột (chỉ hiện trên máy tính) -->
     <div id="cursor-glow" aria-hidden="true"></div>
     
-    <!-- Container chứa các hạt sương bay lơ lửng màu Vàng (chỉ hiện ở chế độ Sáng) -->
+    <!-- Container chứa các hạt sương bay lơ lửng (chỉ hiện ở chế độ Sáng) -->
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
 
     <!-- ================================================================= -->
-    <!-- 7. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                          -->
+    <!-- 8. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                          -->
     <!-- ================================================================= -->
     <div class="container">
         
         <!-- ============================================================= -->
-        <!-- 7.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
+        <!-- 8.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
         <!-- ============================================================= -->
         <nav class="navbar">
             <!-- Logo chữ Văn Đạo (Bấm vào để về Trang Chủ) -->
@@ -118,12 +133,12 @@
         </nav>
 
         <!-- ============================================================= -->
-        <!-- 7.2. VIEW 1: TRANG CHỦ (HOME)                                 -->
+        <!-- 8.2. VIEW 1: TRANG CHỦ (HOME)                                 -->
         <!-- ============================================================= -->
         <section id="view-home" class="view active">
             <div class="hero">
                 <div class="hero-content">
-                    <!-- Chữ đổi theo chế độ Sáng/Tối -->
+                    <!-- Nội dung chữ thay đổi theo chế độ Sáng/Tối -->
                     <h1>
                         <span class="light-text">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
                         <span class="dark-text">Vạn Tượng<br>Trong <i>Lời</i></span>
@@ -138,7 +153,7 @@
                     </button>
                 </div>
                 
-                <!-- Khung ảnh vòm bên phải (Cập nhật tên file ảnh mới) -->
+                <!-- Khung ảnh vòm bên phải (ĐÃ CẬP NHẬT TÊN FILE ẢNH MỚI) -->
                 <div class="hero-visual">
                     <div class="arch-frame">
                         <img class="light-img" src="anh-khung_sang.jpg" alt="Tranh sáo trúc">
@@ -152,107 +167,138 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- 7.3. VIEW 2: VĂN HIẾN (HERITAGE)                              -->
+        <!-- 8.3. VIEW 2: VĂN HIẾN (HERITAGE)                              -->
         <!-- ============================================================= -->
         <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
             <p class="page-desc">Danh mục Tác phẩm</p>
             
+            <!-- THANH TÌM KIẾM VĂN HIẾN -->
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Tìm tên tác phẩm...">
             </div>
 
+            <!-- TẦNG 1: LỌC THEO 8 ĐẠI MÔN LOẠI -->
             <div class="filter-bar" id="main-filter-bar"></div>
+            
+            <!-- TẦNG 2: LỌC THEO THỂ LOẠI CON -->
             <div class="filter-bar" id="sub-filter-bar" style="display: none; margin-top: -20px;"></div>
             
+            <!-- Vùng chứa động: JS sẽ đổ các thẻ tác phẩm vào đây -->
             <div class="heritage-grid" id="heritage-grid"></div>
+
+            <!-- Container chứa nút chuyển trang -->
             <div id="pagination-container" class="pagination-container"></div>
         </section>
 
         <!-- ============================================================= -->
-        <!-- 7.4. VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)                     -->
+        <!-- 8.4. VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)                     -->
         <!-- ============================================================= -->
         <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa</h1>
             <p class="page-desc">Hệ thống tri thức</p>
             
+            <!-- THANH TÌM KIẾM BÁCH KHOA -->
             <div class="search-container">
                 <input type="text" id="encyclopedia-search" placeholder="Tìm tên Quyển hoặc nội dung chi tiết...">
             </div>
 
+            <!-- THANH LỌC 2 NHÓM -->
             <div class="filter-bar" id="encyclopedia-filter-bar">
                 <button class="filter-btn active" onclick="filterEncyclopediaGroup('ly-thuyet', this)">Lý Thuyết</button>
                 <button class="filter-btn" onclick="filterEncyclopediaGroup('tinh-hoa', this)">Tinh Hoa Tác Phẩm</button>
             </div>
 
+            <!-- NỘI DUNG CÁC QUYỂN (JS sẽ render nội dung dạng Accordion) -->
             <div id="encyclopedia-container"></div>
         </section>
 
         <!-- ============================================================= -->
-        <!-- 7.5. VIEW 4: THI PHÁP (ANALYZE)                               -->
+        <!-- 8.5. VIEW 4: THI PHÁP (ANALYZE)                               -->
         <!-- ============================================================= -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Thi Pháp Học</h1>
             
+            <!-- Khung nhập liệu -->
             <div class="analyze-box">
                 <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
                 <button onclick="executePipeline()">Phân Tích Ngay</button>
             </div>
             
+            <!-- Vùng chứa kết quả sau khi phân tích (Báo cáo 4 tầng) -->
             <div id="results-panel"></div>
         </section>
 
     </div>
 
     <!-- ================================================================= -->
-    <!-- 8. SCRIPTS (?v=2635)                                              -->
+    <!-- 9. SCRIPTS (?v=2650 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2635"></script>
+    <script src="script.js?v=2650"></script>
 
     <!-- ================================================================= -->
-    <!-- 9. ĐĂNG KÝ SERVICE WORKER & TỰ ĐỘNG CẬP NHẬT NGẦM                 -->
+    <!-- 10. TỰ ĐỘNG CẬP NHẬT & XỬ LÝ SERVICE WORKER (DÀNH CHO GITHUB PAGES)-->
     <!-- ================================================================= -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(registration => {
-                    
-                    // Kiểm tra cập nhật mỗi khi mở app
-                    registration.update();
-                    
-                    // Lắng nghe xem có bản cập nhật mới không
-                    registration.onupdatefound = () => {
-                        const installingWorker = registration.installing;
-                        if (installingWorker == null) return;
+                // TUYỆT CHIÊU GITHUB PAGES: Thêm timestamp để ép Safari tải sw.js mới
+                const swUrl = `sw.js?v=${new Date().getTime()}`;
 
-                        installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed') {
-                                if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.register(swUrl)
+                    .then((reg) => {
+                        console.log('Đăng ký Service Worker thành công!');
+                        
+                        // Kiểm tra xem có bản cập nhật mới không
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                                     console.log('Đã có bản cập nhật mới! Đang tự động làm mới...');
                                     
-                                    // Tự động lưu lại chữ đang viết dở ở tab Thi Pháp (nếu có)
+                                    // 1. Tự động lưu lại chữ đang viết dở ở tab Thi Pháp
                                     const poemInput = document.getElementById('poemInput');
                                     if (poemInput && poemInput.value.trim() !== '') {
                                         localStorage.setItem('vandao_draft_poem', poemInput.value);
                                     }
 
-                                    // Hiển thị thông báo nhỏ (Toast)
+                                    // 2. Hiển thị thông báo nhỏ (Toast)
                                     const toast = document.createElement('div');
                                     toast.textContent = 'Ứng dụng vừa được cập nhật phiên bản mới!';
                                     toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:12px 24px; border-radius:30px; font-size:0.9rem; z-index:99999; box-shadow:0 4px 15px rgba(0,0,0,0.3); text-align:center; font-family:var(--font-sans);';
                                     document.body.appendChild(toast);
 
-                                    // Đợi 1.5 giây cho người dùng đọc thông báo rồi tự động tải lại trang
+                                    // 3. Đợi 1.5 giây cho người dùng đọc thông báo rồi tự động tải lại
                                     setTimeout(() => {
                                         window.location.reload();
                                     }, 1500);
                                 }
-                            }
-                        };
-                    };
-                }).catch(err => console.log('Lỗi đăng ký SW:', err));
+                            });
+                        });
+                    })
+                    .catch((err) => console.log('Lỗi đăng ký SW:', err));
+            });
+
+            // Đảm bảo không bị lặp vô tận khi reload
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
             });
         }
+
+        // TỰ ĐỘNG KIỂM TRA CẬP NHẬT KHI MỞ LẠI APP TỪ BACKGROUND
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistration().then(reg => {
+                        if (reg) reg.update(); // Hễ mở app lên là ngầm check bản mới
+                    });
+                }
+            }
+        });
     </script>
 </body>
 </html>
