@@ -3,41 +3,45 @@
 <head>
     <!-- ================================================================= -->
     <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                       -->
-    <!-- Giúp Google thu thập dữ liệu và hiển thị chuẩn trên điện thoại     -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Cấu hình Viewport để chạy Full màn hình, né tai thỏ (viewport-fit=cover) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
     <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
     <title>VĂN ĐẠO — Đại Bách Khoa Toàn Thư</title>
     
     <!-- ================================================================= -->
     <!-- 2. NHÚNG FONT CHỮ TỪ GOOGLE FONTS                                 -->
-    <!-- Sử dụng 4 font: Cormorant (cổ điển), Playfair (sang trọng),        -->
-    <!-- Montserrat (hiện đại), Inter (dễ đọc)                              -->
     <!-- ================================================================= -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- ================================================================= -->
-    <!-- 3. FAVICON ĐỘNG & PWA MANIFEST                                    -->
-    <!-- Đã cập nhật đường dẫn logo mới (có tiền tố "anh-")                 -->
+    <!-- 3. FAVICON & PWA MANIFEST (Đã cập nhật tên file ảnh mới)         -->
     <!-- ================================================================= -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="anh-logo_trang.png">
     <link rel="manifest" href="manifest.json">
+
+    <!-- ================================================================= -->
+    <!-- 4. CẤU HÌNH PWA CHO iOS (Ẩn thanh trạng thái)                     -->
+    <!-- ================================================================= -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <!-- ================================================================= -->
-    <!-- 4. LIÊN KẾT FILE CSS (?v=2612 để ép xóa cache)                    -->
+    <!-- 5. LIÊN KẾT FILE CSS (?v=2616 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2612">
+    <link rel="stylesheet" href="style.css?v=2616">
 </head>
 <body>
 
     <!-- ================================================================= -->
-    <!-- 5. LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT, HẠT SƯƠNG)             -->
-    <!-- Các lớp này nằm dưới cùng và pointer-events: none để không cản     -->
-    <!-- trở việc click chuột vào nội dung chính.                          -->
+    <!-- 6. LỚP NỀN & HIỆU ỨNG ĐỘNG (CANVAS, CHUỘT, HẠT SƯƠNG)             -->
     <!-- ================================================================= -->
     
     <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click -->
@@ -50,12 +54,12 @@
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
 
     <!-- ================================================================= -->
-    <!-- 6. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                          -->
+    <!-- 7. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                          -->
     <!-- ================================================================= -->
     <div class="container">
         
         <!-- ============================================================= -->
-        <!-- 6.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
+        <!-- 7.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
         <!-- ============================================================= -->
         <nav class="navbar">
             <!-- Logo chữ Văn Đạo (Bấm vào để về Trang Chủ) -->
@@ -108,7 +112,7 @@
         </nav>
 
         <!-- ============================================================= -->
-        <!-- 6.2. VIEW 1: TRANG CHỦ (HOME)                                 -->
+        <!-- 7.2. VIEW 1: TRANG CHỦ (HOME)                                 -->
         <!-- ============================================================= -->
         <section id="view-home" class="view active">
             <!-- Phần Hero (Ảnh bìa & Giới thiệu) -->
@@ -144,12 +148,11 @@
             </div>
 
             <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
-            <!-- Container này sẽ được JS tự động render và đổi câu mỗi 6 giây -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
         <!-- ============================================================= -->
-        <!-- 6.3. VIEW 2: VĂN HIẾN (HERITAGE)                              -->
+        <!-- 7.3. VIEW 2: VĂN HIẾN (HERITAGE)                              -->
         <!-- ============================================================= -->
         <section id="view-heritage" class="view">
             <h1 class="page-title">Văn Hiến</h1>
@@ -174,7 +177,7 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- 6.4. VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)                     -->
+        <!-- 7.4. VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)                     -->
         <!-- ============================================================= -->
         <section id="view-encyclopedia" class="view">
             <h1 class="page-title">Đại Bách Khoa</h1>
@@ -196,7 +199,7 @@
         </section>
 
         <!-- ============================================================= -->
-        <!-- 6.5. VIEW 4: THI PHÁP (ANALYZE)                               -->
+        <!-- 7.5. VIEW 4: THI PHÁP (ANALYZE)                               -->
         <!-- ============================================================= -->
         <section id="view-analyze" class="view">
             <h1 class="page-title">Thi Pháp Học</h1>
@@ -214,12 +217,12 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 7. SCRIPTS (?v=2612 để ép xóa cache)                              -->
+    <!-- 8. SCRIPTS (?v=2616 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2612"></script>
+    <script src="script.js?v=2616"></script>
 
     <!-- ================================================================= -->
-    <!-- 8. ĐĂNG KÝ SERVICE WORKER ĐỂ CHẠY OFFLINE (PWA)                   -->
+    <!-- 9. ĐĂNG KÝ SERVICE WORKER ĐỂ CHẠY OFFLINE (PWA)                   -->
     <!-- ================================================================= -->
     <script>
         if ('serviceWorker' in navigator) {
