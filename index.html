@@ -36,16 +36,16 @@
     <meta name="theme-color" content="#faf9f6" id="theme-color-meta">
     
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (?v=2628 để ép xóa cache)                    -->
+    <!-- 5. LIÊN KẾT FILE CSS (?v=2636 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2628">
+    <link rel="stylesheet" href="style.css?v=2636">
 </head>
 <body>
 
     <!-- ================================================================= -->
     <!-- 6. LỚP OVERLAY & HIỆU ỨNG NỀN                                     -->
     <!-- ================================================================= -->
-    <!-- Lớp overlay dùng cho hiệu ứng mờ nhoè khi đổi Theme -->
+    <!-- Lớp overlay dùng cho hiệu ứng giọt nước rơi khi đổi Theme -->
     <div id="theme-transition-overlay"></div>
 
     <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click -->
@@ -123,10 +123,19 @@
         <section id="view-home" class="view active">
             <div class="hero">
                 <div class="hero-content">
-                    <!-- Nội dung chữ được đồng bộ cho cả 2 chế độ -->
-                    <h1>Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</h1>
-                    <p>Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</p>
-                    <button class="btn" onclick="switchView('heritage')">Khám Phá Tuyệt Tác</button>
+                    <!-- Nội dung chữ thay đổi theo chế độ Sáng/Tối -->
+                    <h1>
+                        <span class="light-text">Vẻ Đẹp <i>Bạch Ngọc</i><br>Giữa Làn Nước Tĩnh</span>
+                        <span class="dark-text">Vạn Tượng<br>Trong <i>Lời</i></span>
+                    </h1>
+                    <p>
+                        <span class="light-text">Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</span>
+                        <span class="dark-text">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.</span>
+                    </p>
+                    <button class="btn" onclick="switchView('heritage')">
+                        <span class="light-text">Khám Phá Tuyệt Tác</span>
+                        <span class="dark-text">Thưởng Lãm</span>
+                    </button>
                 </div>
                 
                 <!-- Khung ảnh vòm bên phải (ĐÃ CẬP NHẬT TÊN FILE ẢNH MỚI) -->
@@ -208,23 +217,53 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 8. SCRIPTS (?v=2628 để ép xóa cache)                              -->
+    <!-- 8. SCRIPTS (?v=2636 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2628"></script>
+    <script src="script.js?v=2636"></script>
 
     <!-- ================================================================= -->
-    <!-- 9. ĐĂNG KÝ SERVICE WORKER ĐỂ CHẠY OFFLINE (PWA)                   -->
+    <!-- 9. TỰ ĐỘNG CẬP NHẬT KHI CÓ BẢN MỚI (TỰ LƯU NHÁP & TỰ RELOAD)       -->
     <!-- ================================================================= -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('Service Worker đã đăng ký thành công!', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('Lỗi đăng ký Service Worker:', error);
-                    });
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    
+                    // Ép kiểm tra xem file sw.js trên GitHub có thay đổi không
+                    registration.update();
+                    
+                    // Lắng nghe xem có bản cập nhật mới không
+                    registration.onupdatefound = () => {
+                        const installingWorker = registration.installing;
+                        if (installingWorker == null) return;
+
+                        installingWorker.onstatechange = () => {
+                            // Khi bản cập nhật mới đã tải xong ngầm
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    console.log('Đã có bản cập nhật mới! Đang tự động làm mới...');
+                                    
+                                    // 1. Tự động lưu lại chữ đang viết dở ở tab Thi Pháp (nếu có)
+                                    const poemInput = document.getElementById('poemInput');
+                                    if (poemInput && poemInput.value.trim() !== '') {
+                                        localStorage.setItem('vandao_draft_poem', poemInput.value);
+                                    }
+
+                                    // 2. Hiển thị thông báo nhỏ (Toast)
+                                    const toast = document.createElement('div');
+                                    toast.textContent = 'Ứng dụng vừa được cập nhật phiên bản mới!';
+                                    toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:12px 24px; border-radius:30px; font-size:0.9rem; z-index:99999; box-shadow:0 4px 15px rgba(0,0,0,0.3); text-align:center; font-family:var(--font-sans);';
+                                    document.body.appendChild(toast);
+
+                                    // 3. Đợi 1.5 giây cho người dùng đọc thông báo rồi tự động tải lại trang
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 1500);
+                                }
+                            }
+                        };
+                    };
+                }).catch(err => console.log('Lỗi đăng ký Service Worker:', err));
             });
         }
     </script>
