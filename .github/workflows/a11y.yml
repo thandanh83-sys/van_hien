@@ -10,12 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Pa11y CI
+      
+      - name: Audit Accessibility
         uses: treosh/lighthouse-ci-action@v12
         env:
           CHROME_FLAGS: "--no-sandbox --disable-dev-shm-usage"
         with:
           urls: |
-            https://<TÊN_GITHUB_CỦA_BẠN>.github.io/van_hien/
+            https://thandanh83-sys.github.io/van_hien/
           onlyCategories: accessibility
-          runs: 1
+          minScore: 90
