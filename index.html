@@ -3,32 +3,30 @@
 <head>
     <!-- ================================================================= -->
     <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                       -->
-    <!-- Giúp Google thu thập dữ liệu và hiển thị chuẩn trên điện thoại     -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
     <title>VĂN ĐẠO — Đại Bách Khoa Toàn Thư</title>
     
     <!-- ================================================================= -->
     <!-- 2. NHÚNG FONT CHỮ TỪ GOOGLE FONTS                                 -->
-    <!-- Sử dụng 4 font: Cormorant (cổ điển), Playfair (sang trọng),        -->
-    <!-- Montserrat (hiện đại), Inter (dễ đọc)                              -->
     <!-- ================================================================= -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,600;0,900;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     
     <!-- ================================================================= -->
-    <!-- 3. FAVICON ĐỘNG (Tự động đổi Logo Sáng/Tối)                       -->
+    <!-- 3. FAVICON ĐỘNG & PWA MANIFEST                                    -->
     <!-- ================================================================= -->
     <link id="dynamic-favicon" rel="icon" type="image/png" href="logo_trang.png">
+    <link rel="manifest" href="manifest.json">
     
     <!-- ================================================================= -->
-    <!-- 4. LIÊN KẾT FILE CSS (?v=2606 để ép xóa cache)                    -->
+    <!-- 4. LIÊN KẾT FILE CSS (?v=2610 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2606">
+    <link rel="stylesheet" href="style.css?v=2610">
 </head>
 <body>
 
@@ -51,7 +49,6 @@
             <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
             
             <div class="nav-links" id="navMenu">
-                
                 <!-- Nút Trang Chủ -->
                 <button class="nav-btn active" onclick="switchView('home')" id="nav-home">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -98,7 +95,6 @@
         <!-- 6.2. VIEW 1: TRANG CHỦ (HOME)                                 -->
         <!-- ============================================================= -->
         <section id="view-home" class="view active">
-            <!-- Phần Hero (Ảnh bìa & Giới thiệu) -->
             <div class="hero">
                 <div class="hero-content">
                     <h1>
@@ -124,7 +120,6 @@
             </div>
 
             <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
-            <!-- Đã xóa hoàn toàn khối Onboarding, phần này sẽ hiển thị ngay dưới Hero -->
             <div id="daily-quote-container" style="border: none !important; border-top: none !important; border-bottom: none !important;"></div>
         </section>
 
@@ -182,8 +177,25 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 7. SCRIPTS (?v=2606 để ép xóa cache)                              -->
+    <!-- 7. SCRIPTS (?v=2610)                                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2606"></script>
+    <script src="script.js?v=2610"></script>
+
+    <!-- ================================================================= -->
+    <!-- 8. ĐĂNG KÝ SERVICE WORKER ĐỂ CHẠY OFFLINE (PWA)                   -->
+    <!-- ================================================================= -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker đã đăng ký thành công!', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Lỗi đăng ký Service Worker:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
