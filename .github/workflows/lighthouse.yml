@@ -1,5 +1,10 @@
 name: Lighthouse CI
-on: [push]
+on: [push, workflow_dispatch]
+
+concurrency:
+  group: lighthouse-group
+  cancel-in-progress: true
+
 jobs:
   lighthouse:
     runs-on: ubuntu-latest
@@ -10,4 +15,3 @@ jobs:
         with:
           urls: |
             https://<TÊN_GITHUB_CỦA_BẠN>.github.io/van_hien/
-          budgetPath: ./budget.json # Tùy chọn: file cấu hình điểm tối thiểu
