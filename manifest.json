@@ -2,7 +2,7 @@
   "name": "VĂN ĐẠO — Đại Bách Khoa Toàn Thư",
   "short_name": "Văn Đạo",
   "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.",
-  "version": "1.0.0",
+  "version": "11.0.0",
   "id": "/van_hien/",
   "start_url": "./index.html",
   "scope": "./",
