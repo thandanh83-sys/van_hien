@@ -36,9 +36,9 @@
     <meta name="theme-color" content="#faf9f6" id="theme-color-meta">
     
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (?v=2645 để ép xóa cache)                    -->
+    <!-- 5. LIÊN KẾT FILE CSS (?v=2647 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2645">
+    <link rel="stylesheet" href="style.css?v=2647">
 </head>
 <body>
 
@@ -217,33 +217,31 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 8. SCRIPTS (?v=2645 để ép xóa cache)                              -->
+    <!-- 8. SCRIPTS (?v=2647 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2645"></script>
+    <script src="script.js?v=2647"></script>
 
     <!-- ================================================================= -->
-    <!-- 9. TỰ ĐỘNG CẬP NHẬT KHI CÓ BẢN MỚI (TỰ LƯU NHÁP & TỰ RELOAD)       -->
+    <!-- 9. TỰ ĐỘNG CẬP NHẬT & XỬ LÝ SERVICE WORKER (DÀNH CHO GITHUB PAGES)-->
     <!-- ================================================================= -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(registration => {
-                    
-                    // Ép kiểm tra xem file sw.js trên GitHub có thay đổi không
-                    registration.update();
-                    
-                    // Lắng nghe xem có bản cập nhật mới không
-                    registration.onupdatefound = () => {
-                        const installingWorker = registration.installing;
-                        if (installingWorker == null) return;
+                // TUYỆT CHIÊU GITHUB PAGES: Thêm timestamp để ép Safari tải sw.js mới
+                const swUrl = `sw.js?v=${new Date().getTime()}`;
 
-                        installingWorker.onstatechange = () => {
-                            // Khi bản cập nhật mới đã tải xong ngầm
-                            if (installingWorker.state === 'installed') {
-                                if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.register(swUrl)
+                    .then((reg) => {
+                        console.log('Đăng ký Service Worker thành công!');
+                        
+                        // Kiểm tra xem có bản cập nhật mới không
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                                     console.log('Đã có bản cập nhật mới! Đang tự động làm mới...');
                                     
-                                    // 1. Tự động lưu lại chữ đang viết dở ở tab Thi Pháp (nếu có)
+                                    // 1. Tự động lưu lại chữ đang viết dở ở tab Thi Pháp
                                     const poemInput = document.getElementById('poemInput');
                                     if (poemInput && poemInput.value.trim() !== '') {
                                         localStorage.setItem('vandao_draft_poem', poemInput.value);
@@ -255,15 +253,24 @@
                                     toast.style.cssText = 'position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--accent); color:#fff; padding:12px 24px; border-radius:30px; font-size:0.9rem; z-index:99999; box-shadow:0 4px 15px rgba(0,0,0,0.3); text-align:center; font-family:var(--font-sans);';
                                     document.body.appendChild(toast);
 
-                                    // 3. Đợi 1.5 giây cho người dùng đọc thông báo rồi tự động tải lại trang
+                                    // 3. Đợi 1.5 giây cho người dùng đọc thông báo rồi tự động tải lại
                                     setTimeout(() => {
                                         window.location.reload();
                                     }, 1500);
                                 }
-                            }
-                        };
-                    };
-                }).catch(err => console.log('Lỗi đăng ký Service Worker:', err));
+                            });
+                        });
+                    })
+                    .catch((err) => console.log('Lỗi đăng ký SW:', err));
+            });
+
+            // Đảm bảo không bị lặp vô tận khi reload
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
             });
         }
 
