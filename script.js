@@ -1,44 +1,33 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V102 - FULL SYNC)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V104)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tích hợp hiệu ứng "Giọt nước rơi" khi chuyển Sáng/Tối.
+   - Tích hợp hiệu ứng "Giọt nước rơi" (đã fix lỗi trắng màn hình iOS).
    - Tự động đồng bộ màu thanh trạng thái điện thoại.
    - Tự động lưu/khôi phục nháp bài thơ khi có cập nhật.
    - Gợn sóng và hạt sương màu Vàng Kim.
-   - Sửa lỗi Smart Link và tối ưu hóa hiệu năng.
    ===================================================================== */
 
 /* =====================================================================
    MODULE 1: HỆ THỐNG ICONS (SVG) & HẰNG SỐ TOÀN CỤC
    ===================================================================== */
-// Icon cây bút (Dùng cho tác giả/tác phẩm)
 const ICON_PEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-// Icon cuốn sách (Dùng cho thể loại)
 const ICON_BOOK = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
-// Icon đồng hồ (Dùng cho thời gian/năm tháng)
 const ICON_CLOCK = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
-// Icon cuộn giấy (Dùng cho văn tự/chữ viết)
 const ICON_SCROLL = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`;
-// Icon dấu tích xanh (Dùng cho kết quả đúng/vần khớp)
 const ICON_CHECK_GREEN = `<svg viewBox="0 0 24 24" width="16" height="16" stroke="#10b981" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-right: 6px; display: inline-block;"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-// Icon dấu hỏi (Dùng cho phần gợi mở tư duy)
 const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--accent-gold)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px; display: inline-block; flex-shrink: 0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
-// Icon mũi tên phải (Thay thế cho ký tự unicode →)
 const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
 
-// Các hằng số cấu hình
 const THEME_KEY = 'vandao_theme';       
-const CACHE_KEY = 'vandao_cache_v20'; // Tăng version để xóa cache dữ liệu cũ
+const CACHE_KEY = 'vandao_cache_v21'; // Tăng version để xóa cache dữ liệu cũ
 const ITEMS_PER_PAGE = 20;              
 
-// Biến toàn cục lưu trữ dữ liệu sau khi tải từ JSON
 let THEORY_DATA = [];    
 let AUTHOR_DATA = [];    
 let WORKS_DATA = [];     
 let QUOTES_DATA = [];    
 
-// Biến trạng thái của các bộ lọc
 let currentMainCat = 'all';       
 let currentGenre = 'all';         
 let currentPage = 1;              
@@ -47,16 +36,18 @@ let currentEncyGroup = 'ly-thuyet';
 /* =====================================================================
    MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI) & FAVICON
    ===================================================================== */
-// Hàm chuyển đổi Sáng/Tối (Hiệu ứng giọt nước rơi)
+// Hàm chuyển đổi Sáng/Tối (Hiệu ứng giọt nước rơi giữa hồ)
 function toggleTheme() {
     const isCurrentlyDark = document.body.classList.contains('dark-mode');
     const overlay = document.getElementById('theme-transition-overlay');
     if (!overlay) return;
     
     // 1. Chọn màu cho giọt nước (Lấy màu của chế độ SẮP chuyển tới)
+    // Nếu đang Tối -> chuyển sang Sáng (giọt nước màu trắng kem)
+    // Nếu đang Sáng -> chuyển sang Tối (giọt nước màu đen)
     overlay.style.backgroundColor = isCurrentlyDark ? '#faf9f6' : '#0a0a0a';
     
-    // 2. Đặt lại giọt nước về kích thước 0
+    // 2. Đặt lại giọt nước về kích thước 0 ở giữa màn hình
     overlay.style.transition = 'none';
     overlay.classList.remove('expand');
     
@@ -64,7 +55,7 @@ function toggleTheme() {
     void overlay.offsetWidth;
     
     // 4. Kích hoạt hiệu ứng giọt nước lan rộng
-    overlay.style.transition = 'transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)';
+    overlay.style.transition = 'transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s ease';
     overlay.classList.add('expand');
     
     // 5. Đợi 600ms (lúc giọt nước đã lan gần kín màn hình) thì đổi màu giao diện
@@ -76,15 +67,21 @@ function toggleTheme() {
         updateCanvasColors(); 
         updateThemeText(isDark); 
         updateFavicon(isDark);
-        updateThemeColor(isDark); // Đồng bộ màu thanh trạng thái
+        updateThemeColor(isDark); 
         
-        // 6. Xóa giọt nước để lộ ra giao diện mới
-        overlay.style.transition = 'none';
-        overlay.classList.remove('expand');
+        // 6. Từ từ làm mờ giọt nước để lộ ra giao diện mới
+        overlay.style.transition = 'opacity 0.3s ease';
+        overlay.style.opacity = '0';
+        
+        // 7. Reset lại sau khi đã mờ hẳn
+        setTimeout(() => {
+            overlay.style.transition = 'none';
+            overlay.classList.remove('expand');
+        }, 300);
+
     }, 600); 
 }
 
-// Hàm tải chế độ đã lưu khi mới vào web
 function loadSavedTheme() {
     const savedTheme = localStorage.getItem(THEME_KEY);
     const isDark = savedTheme === 'dark';
@@ -95,13 +92,11 @@ function loadSavedTheme() {
     updateThemeColor(isDark); 
 }
 
-// Cập nhật chữ hiển thị trên nút bấm
 function updateThemeText(isDark) {
     const textEl = document.getElementById('theme-text');
     if (textEl) textEl.textContent = isDark ? 'Chế độ Sáng' : 'Chế độ Tối';
 }
 
-// ĐỔI FAVICON (Sử dụng tên file ảnh mới)
 function updateFavicon(isDark) {
     const favicon = document.getElementById('dynamic-favicon');
     if (favicon) {
@@ -535,7 +530,6 @@ function executePipeline() {
     
     const report = POETRY_ANALYZER.generateReport(rawText); if (!report) { resultsPanel.innerHTML = ''; return; }
 
-    // Không hiển thị biểu đồ, chỉ hiển thị text
     const tier0 = report.bangTrac.map(l => `<div class="line-row" style="border-bottom: none !important; padding: 8px 0;"><span style="color:var(--text-muted);font-family:var(--font-sans);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${l.text}</span><span class="pattern-text">${l.pattern}</span></div>`).join('');
     
     const renderRhymeList = (title, arr, color) => {
