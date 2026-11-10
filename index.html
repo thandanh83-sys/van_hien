@@ -36,35 +36,26 @@
     <meta name="theme-color" content="#faf9f6" id="theme-color-meta">
     
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (?v=2651 để ép xóa cache)                    -->
+    <!-- 5. LIÊN KẾT FILE CSS (?v=2652 để ép xóa cache)                    -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=2651">
+    <link rel="stylesheet" href="style.css?v=2652">
 </head>
 <body>
 
     <!-- ================================================================= -->
-    <!-- 6. BỘ LỌC SVG GOOEY (TẠO HIỆU ỨNG CHẤT LỎNG DÍNH LIỀN)           -->
+    <!-- 6. LỚP HIỆU ỨNG DẢI LỤA BỒNG BỀNH (THAY THẾ CANVAS & GOOEY)       -->
     <!-- ================================================================= -->
-    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display:none;">
-        <defs>
-            <filter id="gooey">
-                <!-- Làm nhòe để tạo độ mềm mại -->
-                <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
-                <!-- Tăng độ tương phản để hút các vòng tròn lại với nhau -->
-                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
-                <feBlend in="SourceGraphic" in2="goo" />
-            </filter>
-        </defs>
-    </svg>
+    <div class="silk-container">
+        <div class="silk-blob silk-1"></div>
+        <div class="silk-blob silk-2"></div>
+        <div class="silk-blob silk-3"></div>
+    </div>
 
     <!-- ================================================================= -->
-    <!-- 7. LỚP OVERLAY & HIỆU ỨNG NỀN                                     -->
+    <!-- 7. LỚP OVERLAY & HIỆU ỨNG NỀN PHỤ                                 -->
     <!-- ================================================================= -->
     <!-- Lớp overlay dùng cho hiệu ứng chuyển Theme -->
     <div id="theme-transition-overlay"></div>
-
-    <!-- Canvas vẽ hiệu ứng gợn sóng nước khi click -->
-    <canvas id="water-canvas" aria-hidden="true"></canvas>
     
     <!-- Quầng sáng theo dõi chuột (chỉ hiện trên máy tính) -->
     <div id="cursor-glow" aria-hidden="true"></div>
@@ -232,9 +223,9 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 9. SCRIPTS (?v=2651 để ép xóa cache)                              -->
+    <!-- 9. SCRIPTS (?v=2652 để ép xóa cache)                              -->
     <!-- ================================================================= -->
-    <script src="script.js?v=2651"></script>
+    <script src="script.js?v=2652"></script>
 
     <!-- ================================================================= -->
     <!-- 10. CẬP NHẬT NGẦM - KHÔNG GIẬT, KHÔNG THÔNG BÁO                    -->
