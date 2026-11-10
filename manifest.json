@@ -2,7 +2,8 @@
   "name": "VĂN ĐẠO — Đại Bách Khoa Toàn Thư",
   "short_name": "Văn Đạo",
   "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.",
-  "id": "/",
+  "version": "1.0.0",
+  "id": "/van_hien/",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",
@@ -11,7 +12,7 @@
     "standalone",
     "minimal-ui"
   ],
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "background_color": "#fdfbf7",
   "theme_color": "#fdfbf7",
   "lang": "vi",
@@ -19,30 +20,31 @@
   "categories": [
     "books",
     "education",
-    "literature"
+    "literature",
+    "reference"
   ],
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "assets/logo-trang.png",
+      "src": "assets/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/logo-trang.png",
+      "src": "assets/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/logo-trang.png",
+      "src": "assets/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "assets/logo-trang.png",
+      "src": "assets/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -50,14 +52,14 @@
   ],
   "screenshots": [
     {
-      "src": "assets/khung-sang.jpg",
+      "src": "assets/khung.jpg",
       "sizes": "1080x1920",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "Giao diện Văn Đạo (Bạch Ngọc)"
+      "label": "Giao diện Bạch Ngọc - Trang chủ"
     },
     {
-      "src": "assets/nen-sang.jpg",
+      "src": "assets/nen.jpg",
       "sizes": "1080x1920",
       "type": "image/jpeg",
       "form_factor": "narrow",
@@ -70,21 +72,21 @@
       "short_name": "Văn Hiến",
       "description": "Tra cứu danh mục tác phẩm văn học",
       "url": "./index.html#view-heritage",
-      "icons": [{ "src": "assets/logo-trang.png", "sizes": "192x192" }]
+      "icons": [{ "src": "assets/logo.png", "sizes": "192x192" }]
     },
     {
       "name": "Đại Bách Khoa",
       "short_name": "Bách Khoa",
       "description": "Hệ thống tri thức lý thuyết và tác giả",
       "url": "./index.html#view-encyclopedia",
-      "icons": [{ "src": "assets/logo-trang.png", "sizes": "192x192" }]
+      "icons": [{ "src": "assets/logo.png", "sizes": "192x192" }]
     },
     {
       "name": "Thi Pháp Học",
       "short_name": "Thi Pháp",
       "description": "Phân tích cấu trúc thơ (Bằng/Trắc)",
       "url": "./index.html#view-analyze",
-      "icons": [{ "src": "assets/logo-trang.png", "sizes": "192x192" }]
+      "icons": [{ "src": "assets/logo.png", "sizes": "192x192" }]
     }
   ]
 }
