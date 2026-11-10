@@ -1,10 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE EDITION V6.0)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE EDITION V7.0)
    Tác giả: Văn Đạo
    Mô tả: 
    - Quản lý Offline Cache cho toàn bộ PWA.
    - Chiến lược tối ưu: Network-First cho Code, Cache-First cho Ảnh/CDN, 
      Stale-While-Revalidate cho chi tiết tác phẩm.
+   - Hỗ trợ cấu trúc thư mục mới (assets/, data/, data/tac-pham/).
    - Tự động dọn dẹp bộ nhớ rác khi nâng cấp phiên bản.
    ===================================================================== */
 
@@ -13,7 +14,7 @@
 // =====================================================================
 // LƯU Ý: Mỗi khi bạn sửa bất kỳ file code, ảnh hay dữ liệu nào, 
 // BẮT BUỘC phải tăng số Version này để trình duyệt tải bản mới.
-const CACHE_VERSION = 'vandao-cache-v6.0'; 
+const CACHE_VERSION = 'vandao-cache-v7.0'; 
 const PRECACHE_NAME = CACHE_VERSION;
 const RUNTIME_NAME = `${CACHE_VERSION}-runtime`;
 
@@ -28,10 +29,13 @@ const PRECACHE_ASSETS = [
     './script.js',
     './manifest.json',
     
-    // --- Hình ảnh Bạch Ngọc ---
+    // --- Hình ảnh Bạch Ngọc (Đã nén) ---
     './assets/nen.jpg',
     './assets/khung.jpg',
     './assets/logo.png',
+    
+    // --- Thư viện cục bộ (Không cần mạng) ---
+    './assets/gsap.min.js',
     
     // --- Dữ liệu danh mục và lý thuyết (Tải sẵn để dùng Offline) ---
     './data/data-ly-thuyet.json',
@@ -127,14 +131,12 @@ self.addEventListener('fetch', (event) => {
     }
 
     // -----------------------------------------------------------------
-    // CHIẾN LƯỢC 2: CACHE FIRST cho Hình ảnh & CDN (Fonts, GSAP)
+    // CHIẾN LƯỢC 2: CACHE FIRST cho Hình ảnh & CDN (Fonts, v.v...)
     // (Tải từ Cache trước, giúp tiết kiệm Data 3G/4G và tăng tốc độ)
     // -----------------------------------------------------------------
     const isImage = /\.(jpg|jpeg|png|gif|svg|webp)$/i.test(url.pathname);
     const isCDN = url.hostname.includes('fonts.googleapis.com') || 
-                  url.hostname.includes('fonts.gstatic.com') || 
-                  url.hostname.includes('cdnjs.cloudflare.com') ||
-                  url.hostname.includes('jsdelivr.net');
+                  url.hostname.includes('fonts.gstatic.com');
 
     if (isImage || isCDN) {
         event.respondWith(
