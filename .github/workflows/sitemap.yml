@@ -1,0 +1,13 @@
+name: Generate Sitemap
+on:
+  push:
+    branches: [main]
+jobs:
+  sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Sitemap
+        uses: cicirello/generate-sitemap@v1
+        with:
+          base-url-path: https://<TÊN_GITHUB_CỦA_BẠN>.github.io/van_hien/
