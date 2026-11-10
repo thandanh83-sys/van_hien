@@ -12,16 +12,16 @@
     <title>VĂN ĐẠO — Đại Bách Khoa Toàn Thư</title>
     
     <!-- ================================================================= -->
-    <!-- 2. NHÚNG FONT CHỮ (THƯ PHÁP, VINTAGE, SERIF, SANS)                -->
+    <!-- 2. NHÚNG FONT CHỮ (ĐÃ TỐI ƯU DUNG LƯỢNG)                          -->
     <!-- ================================================================= -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@600&family=Cormorant+Garamond:ital,wght@1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <!-- ================================================================= -->
     <!-- 3. FAVICON & PWA MANIFEST                                         -->
     <!-- ================================================================= -->
-    <link rel="icon" type="image/png" href="assets/logo-trang.png">
+    <link rel="icon" type="image/png" href="assets/logo.png">
     <link rel="manifest" href="manifest.json">
 
     <!-- ================================================================= -->
@@ -33,10 +33,10 @@
     <meta name="theme-color" content="#fdfbf7" id="theme-color-meta">
     
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS & THƯ VIỆN GSAP (HIỆU ỨNG LỤA)               -->
+    <!-- 5. LIÊN KẾT FILE CSS & THƯ VIỆN GSAP                              -->
     <!-- ================================================================= -->
     <link rel="stylesheet" href="style.css?v=1.0">
-    <!-- Nhúng GSAP để xử lý hiệu ứng chuyển cảnh mượt mà -->
+    <!-- Thư viện GSAP cho hiệu ứng Lụa khởi động -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
@@ -56,7 +56,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 8. DẢI LỤA NỀN TƯƠNG TÁC (PARALLAX)                               -->
+    <!-- 8. DẢI LỤA NỀN TƯƠNG TÁC (PARALLAX 3 LỚP)                         -->
     <!-- ================================================================= -->
     <div class="silk-container" id="silk-container" aria-hidden="true">
         <!-- Lớp 1: Xa (Mờ, bay chậm) -->
@@ -137,7 +137,8 @@
                     
                     <div class="hero-visual">
                         <div class="arch-frame">
-                            <img src="assets/khung-sang.jpg" alt="Tranh sáo trúc">
+                            <!-- Đã cập nhật tên file ảnh mới -->
+                            <img src="assets/khung.jpg" alt="Tranh sáo trúc">
                         </div>
                     </div>
                 </div>
@@ -177,14 +178,23 @@
                     <label for="encyclopedia-search" class="sr-only">Tìm trong Bách Khoa</label>
                     <div class="search-wrap">
                         <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="search" id="encyclopedia-search" placeholder="Tìm tên Quyển hoặc nội dung chi tiết..." aria-describedby="encyclopedia-count">
+                        <input type="search" id="encyclopedia-search" placeholder="Tìm tên Quyển hoặc nội dung..." aria-describedby="encyclopedia-count">
                     </div>
                     <p id="encyclopedia-count" class="sr-only" role="status" aria-live="polite"></p>
                 </div>
 
-                <div class="filter-bar" id="encyclopedia-filter-bar">
-                    <button class="filter-btn active" aria-pressed="true" onclick="filterEncyclopediaGroup('ly-thuyet', this)">Lý Thuyết</button>
-                    <button class="filter-btn" aria-pressed="false" onclick="filterEncyclopediaGroup('tinh-hoa', this)">Tinh Hoa Tác Phẩm</button>
+                <!-- Thanh công cụ đổi cỡ chữ & Bộ lọc nhóm -->
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                    <div class="filter-bar" id="encyclopedia-filter-bar" style="margin-bottom: 0;">
+                        <button class="filter-btn active" aria-pressed="true" onclick="filterEncyclopediaGroup('ly-thuyet', this)">Lý Thuyết</button>
+                        <button class="filter-btn" aria-pressed="false" onclick="filterEncyclopediaGroup('tinh-hoa', this)">Tinh Hoa Tác Phẩm</button>
+                    </div>
+                    
+                    <!-- Nút đổi cỡ chữ -->
+                    <div class="font-settings" style="display:flex; gap: 8px;">
+                        <button class="font-btn" onclick="changeFontSize(-1)" aria-label="Giảm cỡ chữ">A-</button>
+                        <button class="font-btn" onclick="changeFontSize(1)" aria-label="Tăng cỡ chữ">A+</button>
+                    </div>
                 </div>
 
                 <div id="encyclopedia-container"></div>
@@ -238,13 +248,11 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Dùng timestamp để ép trình duyệt tải sw.js mới nhất
                 const swUrl = `sw.js?v=${new Date().getTime()}`;
 
                 navigator.serviceWorker.register(swUrl).then((reg) => {
                     console.log('[PWA] Service Worker đã đăng ký thành công!');
                     
-                    // Tự động kiểm tra bản mới khi mở app
                     document.addEventListener('visibilitychange', () => {
                         if (document.visibilityState === 'visible') {
                             reg.update(); 
