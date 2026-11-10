@@ -2,16 +2,31 @@ name: Prettier Format
 on:
   push:
     branches: [main]
-permissions:
-  contents: write
+  workflow_dispatch:
+
+concurrency:
+  group: git-push-group
+  cancel-in-progress: false
+
 jobs:
   format:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm install
-      - run: npx prettier . --write
-      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "style: Auto-format code with Prettier"
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Prettier
+        run: npm install prettier
+      - name: Run Prettier
+        run: npx prettier . --write
+      - name: Commit and Push with Retry
+        uses: EndBug/add-and-commit@v11
+        with:
+          message: "style: auto-format code [skip ci]"
+          push_attempts: 5
+          default_author: github_actions
