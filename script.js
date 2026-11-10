@@ -1,9 +1,9 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V97 - FULL FEATURES)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V98 - FULL FEATURES)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tương thích 100% với PWA (Offline).
-   - Cập nhật đường dẫn Logo mới (anh-logo...).
+   - Tương thích 100% với PWA và chế độ Fullscreen.
+   - Đã cập nhật đường dẫn Logo mới (anh-logo...).
    - Sửa lỗi Smart Link (tự động nhận diện quyen-v, quyen-viii).
    - Tự động cuộn khi mở thẻ Bách Khoa (không bị Navbar che).
    - Đã xóa Biểu đồ Bằng/Trắc (theo yêu cầu).
