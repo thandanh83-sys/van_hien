@@ -24,25 +24,25 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "logo_trang.png",
+      "src": "anh-logo_trang.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "logo_trang.png",
+      "src": "anh-logo_trang.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "logo_trang.png",
+      "src": "anh-logo_trang.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "logo_trang.png",
+      "src": "anh-logo_trang.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -50,14 +50,14 @@
   ],
   "screenshots": [
     {
-      "src": "khung_sang.jpg",
+      "src": "anh-khung_sang.jpg",
       "sizes": "1080x1920",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Giao diện Văn Đạo (Bạch Ngọc)"
     },
     {
-      "src": "khung_toi.jpg",
+      "src": "anh-khung_toi.jpg",
       "sizes": "1080x1920",
       "type": "image/jpeg",
       "form_factor": "narrow",
@@ -70,21 +70,21 @@
       "short_name": "Văn Hiến",
       "description": "Tra cứu danh mục tác phẩm văn học",
       "url": "./index.html#view-heritage",
-      "icons": [{ "src": "logo_trang.png", "sizes": "192x192" }]
+      "icons": [{ "src": "anh-logo_trang.png", "sizes": "192x192" }]
     },
     {
       "name": "Đại Bách Khoa",
       "short_name": "Bách Khoa",
       "description": "Hệ thống tri thức lý thuyết và tác giả",
       "url": "./index.html#view-encyclopedia",
-      "icons": [{ "src": "logo_trang.png", "sizes": "192x192" }]
+      "icons": [{ "src": "anh-logo_trang.png", "sizes": "192x192" }]
     },
     {
       "name": "Thi Pháp Học",
       "short_name": "Thi Pháp",
       "description": "Phân tích cấu trúc thơ (Bằng/Trắc)",
       "url": "./index.html#view-analyze",
-      "icons": [{ "src": "logo_trang.png", "sizes": "192x192" }]
+      "icons": [{ "src": "anh-logo_trang.png", "sizes": "192x192" }]
     }
   ]
 }
