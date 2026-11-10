@@ -3,8 +3,14 @@ on:
   push:
     tags:
       - 'v*'
+
+concurrency:
+  group: release-group
+  cancel-in-progress: false
+
 permissions:
   contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
