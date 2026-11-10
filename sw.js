@@ -1,9 +1,10 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (RESET VERSION 11.0)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (VERSION 1.0)
    Tác giả: Văn Đạo
    Mô tả: 
+   - Quản lý Offline Cache cho toàn bộ PWA.
    - Chiến lược "Cache First" toàn diện: Tải tức thì (0.01s), chống lag.
-   - Hỗ trợ Local Fonts và ảnh nén.
+   - Hỗ trợ Local Fonts, ảnh nén và dữ liệu tách nhỏ.
    - Tự động dọn dẹp bộ nhớ rác khi nâng cấp phiên bản.
    - Tuân thủ: 100% Text, không Emoji.
    ===================================================================== */
@@ -11,13 +12,15 @@
 // =====================================================================
 // I. CẤU HÌNH PHIÊN BẢN VÀ BỘ NHỚ ĐỆM
 // =====================================================================
-// LƯU Ý: Mỗi khi bạn sửa code (HTML, CSS, JS, JSON), BẮT BUỘC phải đổi số Version này
-// để trình duyệt biết có phiên bản mới và tự động xóa cache cũ.
-const CACHE_VERSION = 'vandao-cache-v11.0'; 
+// LƯU Ý QUAN TRỌNG: Mỗi khi bạn sửa bất kỳ file code nào (HTML, CSS, JS, JSON), 
+// BẮT BUỘC phải đổi số Version này (Ví dụ: v1.0 -> v1.1) để trình duyệt tải bản mới.
+const CACHE_VERSION = 'vandao-cache-v1.0'; 
 const PRECACHE_NAME = CACHE_VERSION;
 const RUNTIME_NAME = `${CACHE_VERSION}-runtime`;
 
 // Danh sách các file TĨNH cần tải về máy ngay từ lần đầu tiên (App Shell).
+// Lưu ý: TUYỆT ĐỐI KHÔNG đưa các file trong 'data/tac-pham/' vào đây 
+// để tránh việc tải hàng ngàn file cùng lúc làm treo App.
 const PRECACHE_ASSETS = [
     // --- Lõi giao diện ---
     './',
@@ -53,6 +56,7 @@ self.addEventListener('install', (event) => {
         caches.open(PRECACHE_NAME)
             .then((cache) => {
                 console.log('[Service Worker] Đang tải các file tĩnh vào Precache...');
+                // addAll sẽ tải tất cả file. Nếu 1 file lỗi (404), toàn bộ quá trình sẽ lỗi.
                 return cache.addAll(PRECACHE_ASSETS);
             })
             .then(() => {
@@ -85,6 +89,7 @@ self.addEventListener('activate', (event) => {
             );
         }).then(() => {
             console.log('[Service Worker] Đã dọn dẹp xong. Giành quyền kiểm soát toàn bộ App.');
+            // Giành quyền kiểm soát tất cả các tab đang mở ngay lập tức
             return self.clients.claim();
         })
     );
@@ -94,7 +99,7 @@ self.addEventListener('activate', (event) => {
 // IV. SỰ KIỆN FETCH (LẤY DỮ LIỆU) - CHIẾN LƯỢC TỐI ƯU
 // =====================================================================
 self.addEventListener('fetch', (event) => {
-    // Bỏ qua các request không phải GET hoặc request từ extension
+    // Bỏ qua các request không phải GET (như POST) hoặc request từ extension trình duyệt
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
     const url = new URL(event.request.url);
@@ -110,12 +115,17 @@ self.addEventListener('fetch', (event) => {
                 const cachedResponse = await cache.match(event.request);
                 
                 const fetchPromise = fetch(event.request).then((networkResponse) => {
+                    // Nếu tải từ mạng thành công, cập nhật lại vào Cache
                     if (networkResponse.ok) {
                         cache.put(event.request, networkResponse.clone());
                     }
                     return networkResponse;
-                }).catch(() => cachedResponse);
+                }).catch(() => {
+                    // Nếu mất mạng, trả về cache cũ (nếu có)
+                    return cachedResponse;
+                });
                 
+                // Trả về cache ngay nếu có (tốc độ 0.01s), nếu không thì chờ fetch
                 return cachedResponse || fetchPromise;
             })
         );
@@ -132,9 +142,11 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             caches.match(event.request).then((cachedResponse) => {
                 if (cachedResponse) {
-                    return cachedResponse;
+                    return cachedResponse; // Trả về ngay nếu có trong cache
                 }
+                // Nếu chưa có trong Cache, tải từ mạng và lưu lại
                 return fetch(event.request).then((networkResponse) => {
+                    // Chỉ cache các response hợp lệ (tránh cache lỗi 404, 500)
                     if (!networkResponse || networkResponse.status !== 200) {
                         return networkResponse;
                     }
