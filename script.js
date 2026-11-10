@@ -1,11 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE EDITION V5.0)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE EDITION V9.0)
    Tác giả: Văn Đạo
    Mô tả: 
    - Tích hợp Động cơ Hiệu năng (Performance Engine) chống lag.
    - Tính năng đổi cỡ chữ (Lưu LocalStorage).
-   - Tối ưu hóa Mobile (Tắt hiệu ứng nặng).
-   - Hệ thống Icon SVG 100%, Bộ máy phân tích Thi pháp.
+   - Tối ưu hóa Mobile, Hệ thống Icon SVG 100%.
+   - Bộ máy phân tích Thi pháp (Thanh điệu NFD, Vần điệu, Thể thơ).
    ===================================================================== */
 
 /* =====================================================================
@@ -23,7 +23,7 @@ const ICONS = {
     chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`
 };
 
-const CACHE_KEY = 'vandao_cache_v5';
+const CACHE_KEY = 'vandao_cache_v9';
 const FONT_SIZE_KEY = 'vandao_font_size';
 const ITEMS_PER_PAGE = 20;
 
@@ -43,12 +43,10 @@ const worksDetailCache = new Map();
 const viewScrollPositions = { 'home': 0, 'heritage': 0, 'encyclopedia': 0, 'analyze': 0 };
 
 /* =====================================================================
-   MODULE 1: ĐỘNG CƠ HIỆU NĂNG (PERFORMANCE ENGINE - GAME DEV TƯ DUY)
+   MODULE 1: ĐỘNG CƠ HIỆU NĂNG (PERFORMANCE ENGINE)
    ===================================================================== */
 const PerformanceEngine = (() => {
-    let isPaused = false;
-
-    // 1. Camera quan sát: Chỉ vẽ thẻ khi lướt tới
+    // Camera quan sát: Chỉ vẽ thẻ khi lướt tới (Chống lag)
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -56,43 +54,13 @@ const PerformanceEngine = (() => {
                 observer.unobserve(entry.target); // Ngừng quan sát khi đã hiện
             }
         });
-    }, { rootMargin: "0px 0px 300px 0px", threshold: 0.01 });
-
-    // 2. Tạm dừng hiệu ứng nền (Lụa, Hạt sương) khi cuộn xuống sâu hoặc chuyển tab
-    function toggleAnimations(shouldPause) {
-        if (isPaused === shouldPause) return;
-        isPaused = shouldPause;
-        
-        const elements = document.querySelectorAll('.silk-inner, .dewdrop, .silk-layer');
-        elements.forEach(el => {
-            el.style.animationPlayState = shouldPause ? 'paused' : 'running';
-        });
-    }
-
-    function initListeners() {
-        document.addEventListener('visibilitychange', () => {
-            toggleAnimations(document.hidden);
-        });
-
-        let scrollTick = false;
-        window.addEventListener('scroll', () => {
-            if (!scrollTick) {
-                window.requestAnimationFrame(() => {
-                    const scrollY = window.scrollY;
-                    if (scrollY > 400) toggleAnimations(true);
-                    else if (scrollY < 200) toggleAnimations(false);
-                    scrollTick = false;
-                });
-                scrollTick = true;
-            }
-        }, { passive: true });
-    }
+    }, { rootMargin: "0px 0px 200px 0px", threshold: 0.01 });
 
     function observeNewElements(selector) {
         document.querySelectorAll(selector).forEach(el => observer.observe(el));
     }
 
-    return { init: initListeners, observe: observeNewElements };
+    return { observe: observeNewElements };
 })();
 
 /* =====================================================================
@@ -104,11 +72,13 @@ function switchView(viewId) {
     
     if (currentViewId === viewId) return;
 
+    // Lưu vị trí cuộn tab cũ & Dọn dẹp
     if (currentViewId) {
         viewScrollPositions[currentViewId] = window.scrollY;
         unloadView(currentViewId);
     }
     
+    // Đổi trạng thái Active
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(link => {
         link.classList.remove('active');
@@ -126,6 +96,7 @@ function switchView(viewId) {
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
     
+    // Tải dữ liệu (Lazy Load)
     let isRendering = false;
     if (viewId === 'heritage') {
         const grid = document.getElementById('heritage-grid');
@@ -142,6 +113,7 @@ function switchView(viewId) {
         }
     }
     
+    // Phục hồi vị trí cuộn
     const savedY = viewScrollPositions[viewId] || 0;
     if (savedY > 0) {
         setTimeout(() => window.scrollTo({ top: savedY, behavior: 'instant' }), isRendering ? 60 : 10);
@@ -178,7 +150,7 @@ function toggleMobileMenu() {
 }
 
 /* =====================================================================
-   MODULE 3: CÁC HÀM TIỆN ÍCH (UTILITIES)
+   MODULE 3: CÁC HÀM TIỆN ÍCH
    ===================================================================== */
 function debounce(func, wait) {
     let timeout;
@@ -196,10 +168,10 @@ function scrollToCenter(element) {
     window.scrollTo({ top: Math.max(0, middle), behavior: 'smooth' });
 }
 
-// Hàm đổi cỡ chữ
+// Hàm đổi cỡ chữ (Lưu vào LocalStorage)
 function changeFontSize(step) {
-    const currentSize = parseFloat(localStorage.getItem(FONT_SIZE_KEY) || '1.2');
-    const newSize = Math.min(Math.max(currentSize + (step * 0.1), 1.0), 2.0);
+    const currentSize = parseFloat(localStorage.getItem(FONT_SIZE_KEY) || '1.15');
+    const newSize = Math.min(Math.max(currentSize + (step * 0.1), 1.0), 2.0); // Giới hạn 1.0 - 2.0rem
     localStorage.setItem(FONT_SIZE_KEY, newSize);
     document.documentElement.style.setProperty('--read-font-size', `${newSize}rem`);
 }
@@ -257,12 +229,18 @@ function renderHeritage() {
     let data = WORKS_DATA;
     if (currentMainCat !== 'all') data = data.filter(item => item.loai_hinh === currentMainCat);
     if (currentGenre !== 'all') data = data.filter(item => item.the_loai && item.the_loai.includes(currentGenre));
-    if (keyword) data = data.filter(item => item.title.toLowerCase().includes(keyword) || item.author.toLowerCase().includes(keyword) || (item.desc && item.desc.toLowerCase().includes(keyword)));
+    if (keyword) data = data.filter(item => 
+        item.title.toLowerCase().includes(keyword) || 
+        item.author.toLowerCase().includes(keyword) || 
+        (item.desc && item.desc.toLowerCase().includes(keyword))
+    );
+    
     if (data.length === 0) {
         grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted); font-style: italic;">Không tìm thấy mục từ nào phù hợp.</p>`;
         document.getElementById('pagination-container').innerHTML = '';
         return;
     }
+    
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
     if (currentPage > totalPages) currentPage = totalPages;
     if (currentPage < 1) currentPage = 1;
@@ -273,7 +251,7 @@ function renderHeritage() {
         if (Array.isArray(item.the_loai)) genreTags = item.the_loai.map(g => `<span class="h-tag" style="margin-right: 5px; margin-bottom: 5px;">${g}</span>`).join(' ');
         const detailBtn = item.id ? `<button onclick="gotoEncyclopediaById('${item.id}')" class="detail-btn">Chi tiết ${ICONS.arrowRight}</button>` : '';
         return `
-        <div class="heritage-card lazy-card" id="${item.id}">
+        <div class="heritage-card" id="${item.id}">
             <div style="display: flex; flex-wrap: wrap; margin-bottom: 10px;">${genreTags}</div>
             <h3>${item.title}</h3>
             <div class="h-author">${ICONS.pen} ${item.author}</div>
@@ -292,7 +270,7 @@ function renderHeritage() {
     const countEl = document.getElementById('heritage-count');
     if (countEl) countEl.textContent = `Tìm thấy ${data.length} tác phẩm`;
     
-    // Kích hoạt Performance Engine
+    // Kích hoạt Performance Engine cho các thẻ vừa render
     PerformanceEngine.observe('.heritage-card');
 }
 
@@ -378,7 +356,7 @@ function renderEncyclopedia() {
         });
     });
     
-    // Kích hoạt Performance Engine
+    // Kích hoạt Performance Engine cho các Accordion
     PerformanceEngine.observe('.accordion-item');
 }
 
@@ -433,7 +411,7 @@ function gotoEncyclopediaById(id) {
         setTimeout(() => {
             const target = document.getElementById(`vol-${volIndex}`);
             if (target) {
-                target.classList.add('is-visible'); // Ép hiển thị nếu nằm trong Performance Engine
+                target.classList.add('is-visible'); // Đảm bảo hiển thị
                 target.querySelector('details').open = true;
                 scrollToCenter(target);
             }
@@ -545,30 +523,9 @@ function executePipeline() {
 }
 
 /* =====================================================================
-   MODULE 7: HIỆU ỨNG ĐỘNG (CHỈ CHẠY TRÊN DESKTOP ĐỂ CHỐNG LAG MOBILE)
+   MODULE 7: HIỆU ỨNG ĐỘNG (GIỌT NGỌC KHI CHẠM)
    ===================================================================== */
-function initDewdrops() {
-    // Bỏ qua nếu là mobile
-    if (window.innerWidth <= 850) return;
-    const container = document.getElementById('dewdrop-container'); 
-    if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    for (let i = 0; i < 20; i++) {
-        const drop = document.createElement('div'); drop.className = 'dewdrop';
-        const layer = Math.floor(Math.random() * 3) + 1; 
-        let size, blur, opacity, speed;
-        if (layer === 1) { size = Math.random() * 3 + 1; blur = 2; opacity = 0.3; speed = Math.random() * 15 + 20; }
-        else if (layer === 2) { size = Math.random() * 4 + 3; blur = 1; opacity = 0.6; speed = Math.random() * 10 + 15; }
-        else { size = Math.random() * 6 + 5; blur = 0; opacity = 0.9; speed = Math.random() * 5 + 10; }
-        drop.style.width = `${size}px`; drop.style.height = `${size}px`;
-        drop.style.left = `${Math.random() * 100}vw`; drop.style.animationDuration = `${speed}s`;
-        drop.style.animationDelay = `-${Math.random() * speed}s`;
-        drop.style.filter = `blur(${blur}px)`; drop.style.opacity = opacity;
-        container.appendChild(drop); 
-    }
-}
-
 function initTouchDrop() {
-    // Trên mobile chỉ giữ vòng sóng nhẹ, desktop có thêm giọt nước
     const isMobile = window.innerWidth <= 850;
     let lastDrop = 0;
     const createDrop = (x, y) => {
@@ -594,33 +551,7 @@ function initTouchDrop() {
     window.addEventListener('mousedown', (e) => { if (window.matchMedia('(pointer: fine)').matches) createDrop(e.clientX, e.clientY); }, { passive: true });
 }
 
-function initInteractiveSilk() {
-    // Tắt trên mobile để chống lag
-    if (window.innerWidth <= 850) return;
-    const container = document.getElementById('silk-container');
-    if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const layers = container.querySelectorAll('.silk-wrapper');
-    let targetX = 0, targetY = 0, currentX = 0, currentY = 0;
-    window.addEventListener('pointermove', (e) => {
-        targetX = (e.clientX / window.innerWidth - 0.5) * 2;
-        targetY = (e.clientY / window.innerHeight - 0.5) * 2;
-    }, { passive: true });
-    window.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; });
-    
-    function render() {
-        currentX += (targetX - currentX) * 0.05;
-        currentY += (targetY - currentY) * 0.05;
-        layers.forEach(layer => {
-            const depth = parseFloat(layer.getAttribute('data-depth'));
-            layer.style.transform = `translate3d(${currentX * -depth}px, ${currentY * -depth}px, 0)`;
-        });
-        requestAnimationFrame(render);
-    }
-    render();
-}
-
 function playSplashAnimation() {
-    // Bỏ qua hiệu ứng Splash trên mobile để vào app nhanh
     if (window.innerWidth <= 850) {
         const splash = document.getElementById('jade-splash');
         if (splash) splash.remove();
@@ -638,7 +569,7 @@ function playSplashAnimation() {
 }
 
 /* =====================================================================
-   MODULE 8: TẢI DỮ LIỆU & QUẢN LÝ BỘ NHỚ ĐỆM (CACHE)
+   MODULE 8: TẢI DỮ LIỆU & BỘ NHỚ ĐỆM (CACHE)
    ===================================================================== */
 async function loadWorkDetail(id) {
     if (worksDetailCache.has(id)) return worksDetailCache.get(id);
@@ -661,7 +592,7 @@ async function loadAllData() {
         const [resT, resA, resW, resQ] = await Promise.all([
             fetch('./data/data-ly-thuyet.json',  { cache: 'no-store' }),
             fetch('./data/data-tac-gia.json',    { cache: 'no-store' }),
-            fetch('./data/data-tac-pham.json',   { cache: 'no-store' }), // Đã đổi tên
+            fetch('./data/data-tac-pham.json',   { cache: 'no-store' }),
             fetch('./data/data-danh-ngon.json',  { cache: 'no-store' })
         ]);
         THEORY_DATA = await resT.json();
@@ -672,10 +603,7 @@ async function loadAllData() {
         localStorage.setItem(CACHE_KEY, JSON.stringify({ theory: THEORY_DATA, authors: AUTHOR_DATA, quotes: QUOTES_DATA }));
         
         initMainFilters(); 
-        initDewdrops(); 
         initTouchDrop(); 
-        initInteractiveSilk();
-        PerformanceEngine.init(); // Khởi động động cơ
         
         renderRandomQuote(); 
         if (quoteIntervalId) clearInterval(quoteIntervalId);
@@ -722,7 +650,7 @@ function handleHashScroll() {
             setTimeout(() => {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.classList.add('is-visible'); // Đảm bảo hiện ra
+                    element.classList.add('is-visible'); 
                     scrollToCenter(element);
                     element.classList.add('highlight-card');
                     setTimeout(() => element.classList.remove('highlight-card'), 2000);
@@ -740,7 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedFontSize = localStorage.getItem(FONT_SIZE_KEY);
     if (savedFontSize) document.documentElement.style.setProperty('--read-font-size', `${savedFontSize}rem`);
 
-    // 2. Khôi phục nháp bài thơ
+    // 2. Khôi phục nháp bài thơ (nếu có)
     const savedPoem = localStorage.getItem('vandao_draft_poem');
     if (savedPoem) {
         const poemInput = document.getElementById('poemInput');
