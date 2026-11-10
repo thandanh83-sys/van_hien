@@ -1,21 +1,19 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 1.0)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 1.0 - HOÀN HẢO)
    Tác giả: Văn Đạo
    Mô tả: 
    - Bộ não trung tâm xử lý toàn bộ logic của ứng dụng.
    - Tích hợp Động cơ hiệu năng (IntersectionObserver) chống lag.
    - Hiệu ứng Sóng nước Canvas tối ưu (tự ngủ đông khi không có sóng).
    - Thuật toán phân tích Thi pháp chuẩn xác (NFD Unicode).
-   - Tuyệt đối không dùng thư viện ngoài, 100% JS thuần.
+   - Tuyệt đối không dùng thư viện ngoài, không dùng alert(), 100% JS thuần.
    ===================================================================== */
 
 /* =====================================================================
    MODULE 0: KHO ICON SVG & HẰNG SỐ TOÀN CỤC
    ===================================================================== */
-// Cấu hình chung cho tất cả SVG để code gọn hơn
 const SVG_ATTR = `viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"`;
 
-// Kho chứa các Icon SVG (Tuyệt đối không dùng Emoji)
 const ICONS = {
     pen:        `<svg ${SVG_ATTR} width="16" height="16"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`,
     clock:      `<svg ${SVG_ATTR} width="14" height="14"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
@@ -26,18 +24,15 @@ const ICONS = {
     chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`
 };
 
-// Các hằng số cấu hình
-const CACHE_KEY = 'vandao_cache_v1';        // Key lưu LocalStorage
-const FONT_SIZE_KEY = 'vandao_font_size';   // Key lưu cỡ chữ
-const ITEMS_PER_PAGE = 20;                  // Số tác phẩm mỗi trang
+const CACHE_KEY = 'vandao_cache_v1';        
+const FONT_SIZE_KEY = 'vandao_font_size';   
+const ITEMS_PER_PAGE = 20;                  
 
-// Biến toàn cục lưu trữ dữ liệu
-let THEORY_DATA = [];    // Lý thuyết
-let AUTHOR_DATA = [];    // Tác giả
-let WORKS_DATA = [];     // Danh mục tác phẩm
-let QUOTES_DATA = [];    // Danh ngôn
+let THEORY_DATA = [];    
+let AUTHOR_DATA = [];    
+let WORKS_DATA = [];     
+let QUOTES_DATA = [];    
 
-// Biến trạng thái (State)
 let currentMainCat = 'all';       
 let currentGenre = 'all';         
 let currentPage = 1;              
@@ -45,7 +40,6 @@ let currentEncyGroup = 'ly-thuyet';
 let currentQuoteIndex = -1;
 let quoteIntervalId = null;
 
-// Bộ nhớ đệm (Cache) cho chi tiết tác phẩm và vị trí cuộn
 const worksDetailCache = new Map();
 const viewScrollPositions = { 'home': 0, 'heritage': 0, 'encyclopedia': 0, 'analyze': 0 };
 
@@ -172,7 +166,6 @@ function toggleMobileMenu() {
 /* =====================================================================
    MODULE 3: CÁC HÀM TIỆN ÍCH
    ===================================================================== */
-// Hàm Debounce: Giới hạn tần suất gọi hàm (Dùng cho tìm kiếm)
 function debounce(func, wait) {
     let timeout;
     return function(...args) {
@@ -181,7 +174,6 @@ function debounce(func, wait) {
     };
 }
 
-// Hàm cuộn phần tử ra chính giữa màn hình
 function scrollToCenter(element) {
     if (!element) return;
     const rect = element.getBoundingClientRect();
@@ -190,7 +182,6 @@ function scrollToCenter(element) {
     window.scrollTo({ top: Math.max(0, middle), behavior: 'smooth' });
 }
 
-// Hàm thay đổi cỡ chữ (Lưu vào LocalStorage)
 function changeFontSize(step) {
     const currentSize = parseFloat(localStorage.getItem(FONT_SIZE_KEY) || '1.15');
     const newSize = Math.min(Math.max(currentSize + (step * 0.1), 1.0), 2.0); // Giới hạn 1.0 - 2.0rem
@@ -255,7 +246,6 @@ function renderHeritage() {
     if (!grid) return;
     
     let data = WORKS_DATA;
-    // Áp dụng bộ lọc
     if (currentMainCat !== 'all') data = data.filter(item => item.loai_hinh === currentMainCat);
     if (currentGenre !== 'all') data = data.filter(item => item.the_loai && item.the_loai.includes(currentGenre));
     if (keyword) data = data.filter(item => 
@@ -270,13 +260,11 @@ function renderHeritage() {
         return;
     }
     
-    // Tính toán phân trang
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
     if (currentPage > totalPages) currentPage = totalPages;
     if (currentPage < 1) currentPage = 1;
     const paginatedData = data.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-    // Render HTML
     grid.innerHTML = paginatedData.map(item => {
         let genreTags = '';
         if (Array.isArray(item.the_loai)) {
@@ -306,7 +294,6 @@ function renderHeritage() {
     const countEl = document.getElementById('heritage-count');
     if (countEl) countEl.textContent = `Tìm thấy ${data.length} tác phẩm`;
     
-    // Kích hoạt Động cơ hiệu năng cho các thẻ vừa render
     PerformanceEngine.observe('.heritage-card');
 }
 
@@ -372,7 +359,6 @@ function renderEncyclopedia() {
         </div>
     `).join('');
 
-    // Lắng nghe sự kiện mở/đóng Accordion
     const allDetails = container.querySelectorAll('details');
     allDetails.forEach(detail => {
         detail.addEventListener('toggle', async function() {
@@ -381,10 +367,8 @@ function renderEncyclopedia() {
             const dataItem = data[index];
             
             if (this.open) {
-                // Đóng các cái khác
                 allDetails.forEach(other => { if (other !== this && other.open) other.open = false; });
                 
-                // Lazy Load nội dung chi tiết
                 if (contentDiv.innerHTML.trim() === '') {
                     const isWorks = currentEncyGroup === 'tinh-hoa' && index >= AUTHOR_DATA.length;
                     
@@ -402,12 +386,11 @@ function renderEncyclopedia() {
                 }
                 scrollToCenter(this);
             } else { 
-                contentDiv.innerHTML = ''; // Xóa DOM khi đóng để giải phóng RAM
+                contentDiv.innerHTML = ''; 
             }
         });
     });
     
-    // Kích hoạt Động cơ hiệu năng
     PerformanceEngine.observe('.accordion-item');
 }
 
@@ -422,7 +405,6 @@ function searchEncyclopedia() {
         const index = parseInt(details.getAttribute('data-index'));
         const datum = data[index];
         
-        // Tìm kiếm cả trong tiêu đề và nội dung (nếu có trong cache)
         let searchable = (datum.content || '').toLowerCase();
         if (!searchable && datum.id) {
             const cached = worksDetailCache.get(datum.id);
@@ -473,7 +455,7 @@ function gotoEncyclopediaById(id) {
         setTimeout(() => {
             const target = document.getElementById(`vol-${volIndex}`);
             if (target) {
-                target.classList.add('is-visible'); // Đảm bảo hiển thị
+                target.classList.add('is-visible'); 
                 target.querySelector('details').open = true;
                 scrollToCenter(target);
             }
@@ -488,22 +470,16 @@ function gotoEncyclopediaById(id) {
    MODULE 6: ĐỘNG CƠ PHÂN TÍCH THI PHÁP (4 TẦNG)
    ===================================================================== */
 const POETRY_ANALYZER = (() => {
-    // 1. Lấy thanh điệu bằng NFD (Chuẩn 100%)
     function getTone(syllable) { 
         const nfd = syllable.normalize('NFD'); 
-        // Trắc (T): sắc, ngã, hỏi, nặng. Bằng (B): không dấu, huyền.
         return (nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) ? 'T' : 'B'; 
     }
-    
-    // 2. Lấy phần vần (Bỏ dấu và phụ âm đầu)
     function getRhymePart(word) { 
         if (!word) return ''; 
         const clean = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); 
         const match = clean.match(/[aeiouy]+[^aeiouy]*$/); 
         return match ? match[0] : clean.slice(-2); 
     }
-    
-    // 3. Phân tích cấu trúc câu
     function analyzeBangTrac(text) {
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         return lines.map((line, i) => {
@@ -512,8 +488,6 @@ const POETRY_ANALYZER = (() => {
             return { lineNum: i + 1, text: line, count: syllables.length, pattern, lastSyllable: syllables[syllables.length - 1] || '' };
         });
     }
-    
-    // 4. Nhận diện thể thơ
     function detectForm(lines) {
         const counts = lines.map(l => l.count); 
         const n = counts.length; 
@@ -532,21 +506,17 @@ const POETRY_ANALYZER = (() => {
         if (!uniform) return { form: 'Thơ tự do hoặc biến thể', confidence: 'thấp', note: `Số chữ mỗi câu: ${counts.join(' - ')}` };
         return { form: `Thơ ${c} chữ`, confidence: 'trung bình', note: `${n} câu × ${c} chữ` };
     }
-    
-    // 5. Phân tích vần
     function checkRhymeDetails(lines) {
         const result = { chan: [], lung: [], lien: [], cach: [] };
         const lastSyl = lines.map(l => l.lastSyllable); 
         const rhymeParts = lastSyl.map(s => getRhymePart(s));
         
-        // Vần chân
         for (let i = 0; i < lines.length; i++) { 
             for (let j = i + 1; j < lines.length; j++) { 
                 const match = (rhymeParts[i] === rhymeParts[j] && rhymeParts[i] !== ''); 
                 result.chan.push({ text: `Câu ${i+1} & Câu ${j+1} ("${lastSyl[i]}" - "${lastSyl[j]}")`, isMatch: match, rhyme: rhymeParts[i] }); 
             } 
         }
-        // Vần lưng
         for (let i = 0; i < lines.length - 1; i++) { 
             const endPart = rhymeParts[i]; 
             const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || []; 
@@ -559,20 +529,16 @@ const POETRY_ANALYZER = (() => {
                 } 
             } 
         }
-        // Vần liền
         for (let i = 0; i < lines.length - 1; i += 2) { 
             const match = (rhymeParts[i] === rhymeParts[i+1] && rhymeParts[i] !== ''); 
             result.lien.push({ text: `Câu ${i+1} & Câu ${i+2} ("${lastSyl[i]}" - "${lastSyl[i+1]}")`, isMatch: match, rhyme: rhymeParts[i] }); 
         }
-        // Vần cách
         for (let i = 0; i < lines.length - 2; i += 2) { 
             const match = (rhymeParts[i] === rhymeParts[i+2] && rhymeParts[i] !== ''); 
             result.cach.push({ text: `Câu ${i+1} & Câu ${i+3} ("${lastSyl[i]}" - "${lastSyl[i+2]}")`, isMatch: match, rhyme: rhymeParts[i] }); 
         }
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
-    
-    // 6. Nhận diện biểu tượng, điển tích
     const SYMBOLS = { 'trăng': { vol: 'V', sec: '5.2', mean: 'đoàn viên, nhớ quê, cô đơn' }, 'nguyệt': { vol: 'V', sec: '5.2', mean: 'Hán Việt của "trăng"' }, 'liễu': { vol: 'V', sec: '5.2', mean: 'chia biệt' }, 'đào': { vol: 'V', sec: '5.2', mean: 'tuổi trẻ, mùa xuân' }, 'sen': { vol: 'V', sec: '5.2', mean: 'thanh khiết' }, 'hạc': { vol: 'V', sec: '5.2', mean: 'thanh cao, trường thọ' }, 'nhạn': { vol: 'V', sec: '5.2', mean: 'tin tức' }, 'mây': { vol: 'V', sec: '5.2', mean: 'phiêu du' }, 'nước': { vol: 'V', sec: '5.2', mean: 'thời gian, mềm mại' }, 'thuyền': { vol: 'V', sec: '5.2', mean: 'hành trình' }, 'bến đò': { vol: 'V', sec: '5.2', mean: 'gặp gỡ, chia tay' } };
     const DIEN_TICH = { 'sân lai': { vol: 'V', sec: '5.2', mean: 'lòng hiếu thảo' }, 'ngưu lang': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'chức nữ': { vol: 'V', sec: '5.2', mean: 'tình yêu bị ngăn cách' }, 'gót sen': { vol: 'V', sec: '5.2', mean: 'đôi chân phụ nữ phong kiến' }, 'bèo dạt': { vol: 'V', sec: '5.2', mean: 'thân phận trôi nổi' }, 'chim lồng': { vol: 'V', sec: '5.2', mean: 'bị giam hãm' } };
     const HAN_VIET = { 'vọng': { vol: 'VIII', sec: '8.5', mean: '望 — trông về, ngóng đợi.' }, 'khúc': { vol: 'VIII', sec: '8.5', mean: '曲 — khúc nhạc.' }, 'dặm trường': { vol: 'VIII', sec: '8.5', mean: 'trường = 長 (dài) — đường xa.' } };
@@ -585,7 +551,6 @@ const POETRY_ANALYZER = (() => {
         return out; 
     }
     
-    // 7. Tạo câu hỏi mở ngỏ
     function buildQuestions(form, rhymes, symbols) {
         const qs = [];
         if (form.confidence !== 'cao') qs.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay chỉ là ngẫu nhiên? (Xem Quyển I, mục 1.3)`);
@@ -595,7 +560,6 @@ const POETRY_ANALYZER = (() => {
         return qs.slice(0, 5);
     }
     
-    // 8. Tạo báo cáo tổng hợp
     function generateReport(text) { 
         const bangTrac = analyzeBangTrac(text); 
         if (bangTrac.length === 0) return null; 
@@ -623,7 +587,6 @@ function executePipeline() {
     const report = POETRY_ANALYZER.generateReport(rawText); 
     if (!report) { resultsPanel.innerHTML = ''; return; }
     
-    // Tạo HTML cho từng tầng
     const tier0 = report.bangTrac.map(l => `<div class="line-row" style="border-bottom: none !important; padding: 8px 0;"><span style="color:var(--text-muted);font-family:var(--font-sans);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${l.text}</span><span class="pattern-text">${l.pattern}</span></div>`).join('');
     
     const renderRhymeList = (title, arr, color) => {
@@ -654,7 +617,7 @@ function initWaterCanvas() {
 
     const ctx = canvas.getContext('2d');
     let ripples = [];
-    let isAnimating = false; // Cờ hiệu kiểm soát vòng lặp
+    let isAnimating = false; 
 
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
@@ -664,9 +627,8 @@ function initWaterCanvas() {
     window.addEventListener('resize', resizeCanvas);
 
     const createRipple = (x, y) => {
-        if (ripples.length > 15) return; // Giới hạn tối đa 15 sóng cùng lúc
+        if (ripples.length > 15) return; 
 
-        // Lấy màu chủ đạo từ CSS
         const color = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#8bb8a8';
 
         ripples.push({
@@ -697,7 +659,6 @@ function initWaterCanvas() {
                 continue;
             }
 
-            // Vẽ vòng ngoài (Xanh ngọc)
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
             ctx.strokeStyle = p.color;
@@ -705,7 +666,6 @@ function initWaterCanvas() {
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
-            // Vẽ vòng trong (Trắng sáng)
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.radius * 0.6, 0, Math.PI * 2);
             ctx.strokeStyle = '#ffffff';
@@ -716,7 +676,6 @@ function initWaterCanvas() {
         
         ctx.globalAlpha = 1; 
 
-        // Tự động dừng vòng lặp khi hết sóng để tiết kiệm pin
         if (ripples.length > 0) {
             requestAnimationFrame(animate);
         } else {
@@ -740,7 +699,6 @@ function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     
-    // Chỉ tạo 15 hạt sương duy nhất 1 lần (Không tạo/xóa liên tục gây lag)
     for (let i = 0; i < 15; i++) {
         const drop = document.createElement('div'); 
         drop.className = 'dewdrop';
@@ -748,11 +706,11 @@ function initDewdrops() {
         const layer = Math.floor(Math.random() * 3) + 1; 
         let size, blur, opacity, duration;
         
-        if (layer === 1) { // Xa
+        if (layer === 1) { 
             size = Math.random() * 3 + 1; blur = 2; opacity = 0.3; duration = Math.random() * 10 + 15;
-        } else if (layer === 2) { // Vừa
+        } else if (layer === 2) { 
             size = Math.random() * 4 + 3; blur = 1; opacity = 0.6; duration = Math.random() * 10 + 10;
-        } else { // Gần
+        } else { 
             size = Math.random() * 6 + 5; blur = 0; opacity = 0.9; duration = Math.random() * 5 + 8;
         }
 
@@ -807,7 +765,6 @@ function prefetchAllWorkDetails() {
 
 async function loadAllData() {
     try {
-        // Tải song song 4 file dữ liệu
         const [resT, resA, resW, resQ] = await Promise.all([
             fetch('./data/data-ly-thuyet.json',  { cache: 'no-store' }),
             fetch('./data/data-tac-gia.json',    { cache: 'no-store' }),
@@ -820,14 +777,9 @@ async function loadAllData() {
         WORKS_DATA  = await resW.json();
         QUOTES_DATA = await resQ.json();
         
-        // Lưu cache
         localStorage.setItem(CACHE_KEY, JSON.stringify({ theory: THEORY_DATA, authors: AUTHOR_DATA, quotes: QUOTES_DATA }));
         
-        // Khởi tạo UI
         initMainFilters(); 
-        initWaterCanvas(); 
-        initDewdrops();
-        
         renderRandomQuote(); 
         if (quoteIntervalId) clearInterval(quoteIntervalId);
         quoteIntervalId = setInterval(renderRandomQuote, 6000);
@@ -835,13 +787,11 @@ async function loadAllData() {
         handleHashScroll();
         prefetchAllWorkDetails(); 
         renderHeritage();
-        playSplashAnimation();
         
     } catch (error) { 
         console.error("Lỗi tải dữ liệu (có thể do mạng yếu):", error);
-        playSplashAnimation(); 
         
-        // Tự động phục hồi từ Cache nếu có (Không dùng alert làm phiền)
+        // Tự động phục hồi từ Cache nếu có
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             const parsed = JSON.parse(cached);
@@ -852,6 +802,11 @@ async function loadAllData() {
             renderRandomQuote();
             renderHeritage();
         }
+    } finally {
+        // DÙ MẠNG CÓ LỖI HAY KHÔNG, HIỆU ỨNG VẪN PHẢI CHẠY
+        initWaterCanvas(); 
+        initDewdrops();
+        playSplashAnimation();
     }
 }
 
@@ -899,11 +854,9 @@ function handleHashScroll() {
    MODULE 9: KHỞI CHẠY & GẮN SỰ KIỆN
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => { 
-    // 1. Khôi phục cỡ chữ đã lưu
     const savedFontSize = localStorage.getItem(FONT_SIZE_KEY);
     if (savedFontSize) document.documentElement.style.setProperty('--read-font-size', `${savedFontSize}rem`);
 
-    // 2. Khôi phục nháp bài thơ (nếu có)
     const savedPoem = localStorage.getItem('vandao_draft_poem');
     if (savedPoem) {
         const poemInput = document.getElementById('poemInput');
@@ -911,10 +864,8 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // 3. Bắt đầu tải dữ liệu
     loadAllData(); 
 
-    // 4. Gắn Debounce cho thanh tìm kiếm
     const searchInputHeritage = document.getElementById('search-input');
     if (searchInputHeritage) {
         searchInputHeritage.addEventListener('input', debounce(() => { currentPage = 1; renderHeritage(); }, 300)); 
@@ -925,10 +876,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Lắng nghe sự kiện thay đổi hash (Dùng cho PWA shortcuts)
 window.addEventListener('hashchange', handleHashScroll);
 
-// Đóng menu mobile khi click ra ngoài
 document.addEventListener('click', (e) => {
     const navMenu = document.getElementById('navMenu');
     const menuBtn = document.querySelector('.mobile-menu-btn');
