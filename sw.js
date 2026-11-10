@@ -1,19 +1,19 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE EDITION V8.0)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (RESET VERSION 11.0)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Quản lý Offline Cache cho toàn bộ PWA.
-   - Tải trước (Precache) toàn bộ App Shell bao gồm Font, GSAP, và Ảnh.
-   - Chiến lược thông minh cho dữ liệu tác phẩm chi tiết.
+   - Chiến lược "Cache First" toàn diện: Tải tức thì (0.01s), chống lag.
+   - Hỗ trợ Local Fonts và ảnh nén.
    - Tự động dọn dẹp bộ nhớ rác khi nâng cấp phiên bản.
+   - Tuân thủ: 100% Text, không Emoji.
    ===================================================================== */
 
 // =====================================================================
 // I. CẤU HÌNH PHIÊN BẢN VÀ BỘ NHỚ ĐỆM
 // =====================================================================
-// LƯU Ý: Mỗi khi bạn sửa bất kỳ file code, ảnh hay dữ liệu nào, 
-// BẮT BUỘC phải tăng số Version này để trình duyệt tải bản mới.
-const CACHE_VERSION = 'vandao-cache-v8.0'; 
+// LƯU Ý: Mỗi khi bạn sửa code (HTML, CSS, JS, JSON), BẮT BUỘC phải đổi số Version này
+// để trình duyệt biết có phiên bản mới và tự động xóa cache cũ.
+const CACHE_VERSION = 'vandao-cache-v11.0'; 
 const PRECACHE_NAME = CACHE_VERSION;
 const RUNTIME_NAME = `${CACHE_VERSION}-runtime`;
 
@@ -31,9 +31,6 @@ const PRECACHE_ASSETS = [
     './assets/khung.jpg',
     './assets/logo.png',
     
-    // --- Thư viện cục bộ (Chạy Offline 100%) ---
-    './assets/gsap.min.js',
-    
     // --- Font chữ cục bộ (Chạy Offline 100%) ---
     './assets/fonts/alex-brush.woff2',
     './assets/fonts/cinzel-bold.woff2',
@@ -43,7 +40,7 @@ const PRECACHE_ASSETS = [
     './data/data-ly-thuyet.json',
     './data/data-tac-gia.json',
     './data/data-danh-ngon.json',
-    './data/data-tac-pham.json' 
+    './data/data-tac-pham.json' // File danh mục tác phẩm (Index)
 ];
 
 // =====================================================================
@@ -56,7 +53,6 @@ self.addEventListener('install', (event) => {
         caches.open(PRECACHE_NAME)
             .then((cache) => {
                 console.log('[Service Worker] Đang tải các file tĩnh vào Precache...');
-                // addAll sẽ tải tất cả file. Nếu 1 file lỗi, toàn bộ quá trình sẽ lỗi.
                 return cache.addAll(PRECACHE_ASSETS);
             })
             .then(() => {
@@ -80,7 +76,7 @@ self.addEventListener('activate', (event) => {
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    // Nếu tên bộ nhớ đệm bắt đầu bằng 'vandao-' nhưng KHÔNG PHẢI là phiên bản hiện tại -> Xóa nó đi
+                    // Nếu tên bộ nhớ đệm bắt đầu bằng 'vandao-' nhưng KHÔNG PHẢI là phiên bản hiện tại -> Xóa
                     if (cacheName.startsWith('vandao-') && cacheName !== PRECACHE_NAME && cacheName !== RUNTIME_NAME) {
                         console.log('[Service Worker] Phát hiện bộ nhớ đệm cũ, tiến hành xóa:', cacheName);
                         return caches.delete(cacheName);
@@ -89,7 +85,6 @@ self.addEventListener('activate', (event) => {
             );
         }).then(() => {
             console.log('[Service Worker] Đã dọn dẹp xong. Giành quyền kiểm soát toàn bộ App.');
-            // Giành quyền kiểm soát tất cả các tab đang mở ngay lập tức
             return self.clients.claim();
         })
     );
@@ -99,14 +94,14 @@ self.addEventListener('activate', (event) => {
 // IV. SỰ KIỆN FETCH (LẤY DỮ LIỆU) - CHIẾN LƯỢC TỐI ƯU
 // =====================================================================
 self.addEventListener('fetch', (event) => {
-    // Bỏ qua các request không phải GET (như POST) hoặc request từ extension trình duyệt
+    // Bỏ qua các request không phải GET hoặc request từ extension
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
     const url = new URL(event.request.url);
 
     // -----------------------------------------------------------------
     // CHIẾN LƯỢC 1: STALE-WHILE-REVALIDATE cho Tác phẩm chi tiết
-    // (Dùng cho thư mục data/tac-pham/ - Tải từ Cache ngay lập tức, 
+    // (Dùng cho data/tac-pham/ - Tải từ Cache ngay lập tức, 
     // đồng thời ngầm tải bản mới để cập nhật cho lần sau)
     // -----------------------------------------------------------------
     if (url.pathname.includes('/data/tac-pham/')) {
@@ -115,17 +110,12 @@ self.addEventListener('fetch', (event) => {
                 const cachedResponse = await cache.match(event.request);
                 
                 const fetchPromise = fetch(event.request).then((networkResponse) => {
-                    // Nếu tải từ mạng thành công, cập nhật lại vào Cache
                     if (networkResponse.ok) {
                         cache.put(event.request, networkResponse.clone());
                     }
                     return networkResponse;
-                }).catch(() => {
-                    // Nếu mất mạng, trả về cache cũ (nếu có)
-                    return cachedResponse;
-                });
+                }).catch(() => cachedResponse);
                 
-                // Trả về cache ngay nếu có (tốc độ 0.01s), nếu không thì chờ fetch
                 return cachedResponse || fetchPromise;
             })
         );
@@ -142,11 +132,9 @@ self.addEventListener('fetch', (event) => {
         event.respondWith(
             caches.match(event.request).then((cachedResponse) => {
                 if (cachedResponse) {
-                    return cachedResponse; // Trả về ngay nếu có trong cache
+                    return cachedResponse;
                 }
-                // Nếu chưa có trong Cache, tải từ mạng và lưu lại
                 return fetch(event.request).then((networkResponse) => {
-                    // Chỉ cache các response hợp lệ (tránh cache lỗi 404, 500)
                     if (!networkResponse || networkResponse.status !== 200) {
                         return networkResponse;
                     }
@@ -161,26 +149,23 @@ self.addEventListener('fetch', (event) => {
     }
 
     // -----------------------------------------------------------------
-    // CHIẾN LƯỢC 3: NETWORK FIRST cho Code (HTML/CSS/JS/JSON chính)
-    // (Luôn cố gắng lấy code mới nhất từ mạng. Nếu mất mạng mới lấy Cache)
+    // CHIẾN LƯỢC 3: CACHE FIRST cho Code (HTML/CSS/JS/JSON chính)
+    // (Đã sửa từ Network First thành Cache First để chống lag)
+    // Lấy từ bộ nhớ máy ra dùng ngay lập tức, không chờ mạng
     // -----------------------------------------------------------------
     event.respondWith(
-        fetch(event.request)
-            .then((networkResponse) => {
-                // Nếu fetch thành công, cập nhật lại Cache
+        caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+                return cachedResponse; // Trả về ngay (0.01s)
+            }
+            // Nếu chưa có trong cache (lần đầu mở), mới tải từ mạng
+            return fetch(event.request).then((networkResponse) => {
                 return caches.open(PRECACHE_NAME).then((cache) => {
                     cache.put(event.request, networkResponse.clone());
                     return networkResponse;
                 });
-            })
-            .catch(() => {
-                // Nếu mất mạng, lấy bản cũ trong Cache ra chạy
-                return caches.match(event.request).then((cachedResponse) => {
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
-                });
-            })
+            });
+        })
     );
 });
 
