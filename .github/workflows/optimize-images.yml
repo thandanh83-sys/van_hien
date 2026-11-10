@@ -1,0 +1,14 @@
+name: Optimize Images
+on:
+  push:
+    paths:
+      - 'assets/**' # Chỉ chạy khi có ảnh mới trong thư mục assets
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compress Images
+        uses: calibreapp/image-actions@main
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
