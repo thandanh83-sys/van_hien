@@ -5,6 +5,7 @@
     <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                       -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
+    <!-- Cấu hình Viewport: Chạy Full màn hình, né tai thỏ (viewport-fit=cover) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
@@ -14,9 +15,8 @@
     <!-- ================================================================= -->
     <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang)             -->
     <!-- ================================================================= -->
-    <!-- Preload Font chữ (Đã tải về máy) -->
+    <!-- Preload Font chữ Thư pháp (Đã tải về máy, không cần mạng) -->
     <link rel="preload" href="assets/fonts/alex-brush.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="assets/fonts/cinzel-bold.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Preload ảnh nền Trang chủ -->
     <link rel="preload" href="assets/khung.jpg" as="image">
 
@@ -75,6 +75,7 @@
         <!-- ============================================================= -->
         <header>
             <nav class="navbar" aria-label="Điều hướng chính">
+                <!-- Logo VĂN ĐẠO (Dùng Times New Roman theo yêu cầu) -->
                 <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
                 
                 <div class="nav-links" id="navMenu" role="menubar">
@@ -103,7 +104,7 @@
                     </button>
                 </div>
 
-                <!-- Nút Menu Hamburger (Mobile) -->
+                <!-- Nút Menu Hamburger (Chỉ hiện trên Mobile) -->
                 <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
@@ -121,6 +122,7 @@
             <section id="view-home" class="view active" role="tabpanel" aria-label="Trang chủ">
                 <div class="hero">
                     <div class="hero-content">
+                        <!-- Tiêu đề lớn dùng font Thư pháp (Alex Brush) -->
                         <h1>Vẻ Đẹp <i>Bạch Ngọc</i><br><span class="no-wrap">Giữa Làn Nước Tĩnh</span></h1>
                         <p>Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</p>
                         <button class="btn" onclick="switchView('heritage')">Khám Phá Tuyệt Tác</button>
@@ -128,6 +130,7 @@
                     
                     <div class="hero-visual">
                         <div class="arch-frame">
+                            <!-- Ảnh khung vòm, sử dụng lazy load để tối ưu -->
                             <img src="assets/khung.jpg" alt="Tranh sáo trúc" loading="lazy" decoding="async">
                         </div>
                     </div>
@@ -141,9 +144,11 @@
             <!-- VIEW 2: VĂN HIẾN (HERITAGE)                               -->
             <!-- ========================================================= -->
             <section id="view-heritage" class="view" role="tabpanel" aria-label="Văn Hiến">
+                <!-- Tiêu đề trang dùng font Thư pháp -->
                 <h1 class="page-title">Văn Hiến</h1>
                 <p class="page-desc">Danh mục Tác phẩm</p>
                 
+                <!-- Thanh tìm kiếm -->
                 <div class="search-container" role="search">
                     <label for="search-input" class="sr-only">Tìm tên tác phẩm hoặc tác giả</label>
                     <div class="search-wrap">
@@ -153,7 +158,7 @@
                     <p id="heritage-count" class="sr-only" role="status" aria-live="polite"></p>
                 </div>
 
-                <!-- Bộ lọc 2 tầng -->
+                <!-- Bộ lọc 2 tầng (JS sẽ đổ nút vào) -->
                 <div class="filter-bar" id="main-filter-bar"></div>
                 <div class="filter-bar" id="sub-filter-bar" style="display: none;"></div>
                 
@@ -169,6 +174,7 @@
                 <h1 class="page-title">Đại Bách Khoa</h1>
                 <p class="page-desc">Hệ thống tri thức</p>
                 
+                <!-- Thanh tìm kiếm Bách Khoa -->
                 <div class="search-container" role="search">
                     <label for="encyclopedia-search" class="sr-only">Tìm trong Bách Khoa</label>
                     <div class="search-wrap">
@@ -192,6 +198,7 @@
                     </div>
                 </div>
 
+                <!-- Nội dung Bách Khoa (JS đổ Accordion vào) -->
                 <div id="encyclopedia-container"></div>
             </section>
 
@@ -201,6 +208,7 @@
             <section id="view-analyze" class="view" role="tabpanel" aria-label="Thi Pháp Học">
                 <h1 class="page-title">Thi Pháp Học</h1>
                 
+                <!-- Khung nhập bài thơ -->
                 <div class="analyze-box">
                     <label for="poemInput" class="sr-only">Nhập bài thơ cần phân tích</label>
                     <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
@@ -214,11 +222,8 @@
         </main>
 
         <!-- ============================================================= -->
-        <!-- 10.3. FOOTER & VERSION BADGE                                  -->
+        <!-- 10.3. FOOTER (ĐÃ XÓA THEO YÊU CẦU)                            -->
         <!-- ============================================================= -->
-        <footer class="app-footer">
-            <p id="vd-version" class="footer__version" aria-label="Phiên bản ứng dụng"></p>
-        </footer>
 
     </div>
 
@@ -226,15 +231,9 @@
     <!-- 11. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
-        // Khai báo phiên bản toàn cục (Dùng cho footer và các script khác)
+        // Khai báo phiên bản ngầm (Chỉ để trong file code, không hiển thị ra UI)
         window.VD_APP_VERSION = '1.0.0';
         window.VD_BUILD_DATE  = '2026-11-11';
-        
-        // Hiển thị phiên bản ở footer
-        document.addEventListener('DOMContentLoaded', () => {
-            const vEl = document.getElementById('vd-version');
-            if (vEl) vEl.textContent = `Phiên bản ${window.VD_APP_VERSION} · Cập nhật: ${window.VD_BUILD_DATE}`;
-        });
     </script>
     
     <!-- File script chính xử lý logic -->
