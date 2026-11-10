@@ -2,12 +2,22 @@ name: Optimize Images
 on:
   push:
     paths:
-      - 'assets/**' # Chỉ chạy khi có ảnh mới trong thư mục assets
+      - 'assets/**'
+  workflow_dispatch:
+
+concurrency:
+  group: git-push-group
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Compress Images
         uses: calibreapp/image-actions@main
         with:
