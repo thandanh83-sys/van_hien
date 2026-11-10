@@ -1,12 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V103)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (ULTIMATE V110)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Hiệu ứng chuyển Theme "Giọt nước rơi" (Water Drop Ripple).
-   - Đồng bộ khoảng cách Menu Mobile (Sáng/Tối đều như nhau).
-   - Menu Mobile đục 100% (không xuyên thấu).
+   - Tích hợp Gooey Filter cho hiệu ứng gợn sóng click chuột.
+   - Hỗ trợ hiệu ứng loang màu Gradient (Thanh Ngọc / Vàng Kim).
+   - Menu Mobile đục 100%, đồng bộ khoảng cách.
    - Chặn dải màu xanh khi kéo lố trên Safari/Chrome.
-   - Hạt sương & Gợn sóng màu Vàng Kim.
    ===================================================================== */
 
 /* =====================================================================
@@ -22,12 +21,11 @@
     --accent-gold: #cbb882;       /* Vàng kim nhạt */
     
     /* Hiệu ứng kính mờ (Glassmorphism) */
-    --glass-bg: rgba(255, 255, 255, 0.95); /* Độ đục cao cho menu */
+    --glass-bg: rgba(255, 255, 255, 0.95); 
     --glass-border: rgba(255, 255, 255, 0.9);
     --glass-shadow: 0 15px 35px rgba(44, 66, 61, 0.06);
     
     /* Typography & Layout */
-    /* (Nếu bạn đã tải font Thư Pháp, hãy thay 'Cormorant Garamond' bằng tên font đó) */
     --font-serif: 'Cormorant Garamond', serif;
     --font-sans: 'Montserrat', sans-serif;
     --radius-pill: 50px;          
@@ -44,7 +42,7 @@ body.dark-mode {
     --accent-gold: #c5a059;       /* Vàng Đồng trầm */
     
     /* Hiệu ứng kính mờ (Glassmorphism tối) */
-    --glass-bg: rgba(15, 15, 15, 0.95);
+    --glass-bg: rgba(15, 15, 15, 0.95); 
     --glass-border: rgba(212, 175, 55, 0.25);
     --glass-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
     
@@ -58,7 +56,7 @@ body.dark-mode {
    ===================================================================== */
 html {
     background-color: var(--bg-base);
-    overscroll-behavior-y: none; /* Chặn hiệu ứng kéo lố (bounce) của iOS/Android */
+    overscroll-behavior-y: none; /* Chặn hiệu ứng kéo nảy của iOS/Android */
     transition: background-color 0.8s ease;
 }
 
@@ -101,34 +99,34 @@ body.dark-mode {
 }
 
 /* =====================================================================
-   3. HIỆU ỨNG CHUYỂN THEME: GIỌT NƯỚC RƠI (WATER DROP RIPPLE)
+   3. HIỆU ỨNG CHUYỂN THEME: LOANG GRADIENT (THANH NGỌC / ĐEN ÁNH KIM)
    ===================================================================== */
 #theme-transition-overlay {
     position: fixed;
-    top: 0; right: 0;
-    width: 250vmax; height: 250vmax;
+    top: 50%; left: 50%;
+    /* Kích thước vừa phải để không làm treo GPU của iPhone */
+    width: 100vmax; height: 100vmax;
     border-radius: 50%;
     
-    /* Bắt đầu từ một điểm nhỏ ở góc trên bên phải (nút đổi theme) */
-    transform: translate(50%, -50%) scale(0);
-    transform-origin: top right;
-    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* Bắt đầu từ một điểm nhỏ ở giữa màn hình */
+    transform: translate(-50%, -50%) scale(0);
+    transform-origin: center center;
+    
+    /* Màu nền sẽ được JS gán bằng Radial Gradient */
+    background: #0a0a0a; 
+    
     z-index: 9999;
     pointer-events: none;
+    opacity: 0;
     
-    /* Màu nền sẽ được JS ghi đè (Trắng hoặc Đen) */
-    background-color: #0a0a0a; 
-    
-    /* Tạo hiệu ứng 3 vòng gợn sóng (Ripple) bằng box-shadow */
-    box-shadow: 
-        0 0 0 2vw rgba(255, 255, 255, 0.4),
-        0 0 0 4vw rgba(255, 255, 255, 0.2),
-        0 0 0 8vw rgba(255, 255, 255, 0.1);
+    /* Hiệu ứng phóng to mượt mà */
+    transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s ease;
 }
 
-/* Khi JS kích hoạt, giọt nước phóng to phủ kín màn hình */
+/* Khi kích hoạt, giọt nước phóng to phủ kín màn hình */
 #theme-transition-overlay.expand {
-    transform: translate(50%, -50%) scale(1);
+    transform: translate(-50%, -50%) scale(2.5);
+    opacity: 1;
 }
 
 /* =====================================================================
@@ -137,6 +135,7 @@ body.dark-mode {
 #water-canvas { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     pointer-events: none; z-index: 1; 
+    filter: url("#gooey"); /* <-- BỘ LỌC CHẤT LỎNG DÍNH LIỀN */
 }
 
 #cursor-glow {
@@ -290,7 +289,7 @@ body.dark-mode .hero-content h1 i {
 .arch-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 190px 190px 14px 14px; transition: transform 1.5s ease; }
 .arch-frame:hover img { transform: scale(1.05); }
 
-/* ĐỒNG BỘ CHỮ & ẢNH Ở TRANG CHỦ */
+/* Chỉ ẩn/hiện ảnh và text ở trang chủ, giữ nguyên nội dung đồng bộ */
 .light-img, .light-text { display: block; }
 .dark-img, .dark-text { display: none; }
 body.dark-mode .light-img, body.dark-mode .light-text { display: none !important; }
@@ -519,7 +518,7 @@ body.dark-mode .analyze-box button:hover { color: #000; box-shadow: 0 4px 15px r
     .nav-brand { font-size: 1.3rem; }
     .mobile-menu-btn { display: block; }
     
-    /* FIX: MENU ĐỤC 100% & KHOẢNG CÁCH ĐỀU NHAU */
+    /* MENU ĐỤC 100% & KHOẢNG CÁCH ĐỀU NHAU */
     .nav-links { 
         display: flex; position: absolute; top: calc(100% + 12px); right: 0; width: 260px; 
         background: var(--bg-base); /* Nền đục hoàn toàn */
