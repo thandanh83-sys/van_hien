@@ -2,13 +2,26 @@
   "name": "VĂN ĐẠO — Đại Bách Khoa Toàn Thư",
   "short_name": "Văn Đạo",
   "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.",
+  "id": "/",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#faf9f6",
   "theme_color": "#7da89e",
   "lang": "vi",
   "dir": "ltr",
+  "categories": [
+    "books",
+    "education",
+    "literature"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "logo_trang.png",
@@ -41,7 +54,37 @@
       "sizes": "1080x1920",
       "type": "image/jpeg",
       "form_factor": "narrow",
-      "label": "Trang chủ Văn Đạo"
+      "label": "Giao diện Văn Đạo (Bạch Ngọc)"
+    },
+    {
+      "src": "khung_toi.jpg",
+      "sizes": "1080x1920",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Giao diện Văn Đạo (Thủy Mặc)"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Văn Hiến (Tác phẩm)",
+      "short_name": "Văn Hiến",
+      "description": "Tra cứu danh mục tác phẩm văn học",
+      "url": "./index.html#view-heritage",
+      "icons": [{ "src": "logo_trang.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Đại Bách Khoa",
+      "short_name": "Bách Khoa",
+      "description": "Hệ thống tri thức lý thuyết và tác giả",
+      "url": "./index.html#view-encyclopedia",
+      "icons": [{ "src": "logo_trang.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Thi Pháp Học",
+      "short_name": "Thi Pháp",
+      "description": "Phân tích cấu trúc thơ (Bằng/Trắc)",
+      "url": "./index.html#view-analyze",
+      "icons": [{ "src": "logo_trang.png", "sizes": "192x192" }]
     }
   ]
 }
