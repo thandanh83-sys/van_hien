@@ -1,12 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V113)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (ULTIMATE V120)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Đã loại bỏ Canvas Gooey để chống lag, thay bằng hiệu ứng CSS.
    - Hiệu ứng chuyển Theme loang Gradient (Thanh Ngọc / Đen ánh Kim).
+   - Hiệu ứng Click vòng sóng tự tan (Nhiều vòng cùng lúc, không lag).
+   - Đồng bộ Hạt sương ở cả 2 chế độ Sáng/Tối.
    - Tự động khôi phục nháp bài thơ khi App cập nhật ngầm.
    - Đồng bộ màu thanh trạng thái điện thoại (Trắng/Đen).
-   - Tối ưu hóa hiệu năng và sửa lỗi Smart Link.
    ===================================================================== */
 
 /* =====================================================================
@@ -21,7 +21,7 @@ const ICON_QUESTION = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="v
 const ICON_ARROW_RIGHT = `<svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom; margin-left: 4px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
 
 const THEME_KEY = 'vandao_theme';       
-const CACHE_KEY = 'vandao_cache_v24'; // Tăng version để xóa cache dữ liệu cũ
+const CACHE_KEY = 'vandao_cache_v26'; // Tăng version để xóa cache dữ liệu cũ
 const ITEMS_PER_PAGE = 20;              
 
 let THEORY_DATA = [];    
@@ -37,7 +37,6 @@ let currentEncyGroup = 'ly-thuyet';
 /* =====================================================================
    MODULE 2: QUẢN LÝ THEME (SÁNG/TỐI) & FAVICON
    ===================================================================== */
-// Hàm chuyển đổi Sáng/Tối (Hiệu ứng giọt nước loang Gradient)
 function toggleTheme() {
     const isCurrentlyDark = document.body.classList.contains('dark-mode');
     const overlay = document.getElementById('theme-transition-overlay');
@@ -556,17 +555,38 @@ function executePipeline() {
 /* =====================================================================
    MODULE 8: HIỆU ỨNG ĐỘNG (VISUAL EFFECTS)
    ===================================================================== */
-// Hàm khởi tạo Hạt sương (Vẫn giữ nguyên vì rất nhẹ)
+// Hàm khởi tạo Hạt sương (Đã gỡ bỏ cấm chế độ Tối)
 function initDewdrops() {
     const container = document.getElementById('dewdrop-container'); if (!container) return;
     setInterval(() => {
-        if (document.body.classList.contains('dark-mode')) return;
         const drop = document.createElement('div'); drop.className = 'dewdrop';
         const size = Math.random() * 6 + 2; drop.style.width = `${size}px`; drop.style.height = `${size}px`;
         drop.style.left = `${Math.random() * 100}vw`; drop.style.animationDuration = `${Math.random() * 10 + 10}s`;
         container.appendChild(drop); 
         setTimeout(() => drop.remove(), 20000);
     }, 800);
+}
+
+// Hàm tạo vòng sóng khi click (Cho phép nhiều vòng cùng lúc, tự tan)
+function initClickRipple() {
+    window.addEventListener('click', (e) => {
+        // Tạo một thẻ div mới cho mỗi lần chạm
+        const ripple = document.createElement('div');
+        ripple.className = 'click-ripple';
+        
+        // Đặt vị trí tại điểm chạm
+        ripple.style.left = e.clientX + 'px';
+        ripple.style.top = e.clientY + 'px';
+        
+        // Thêm vào màn hình
+        document.body.appendChild(ripple);
+
+        // Tự động xóa thẻ div sau khi animation chạy xong (800ms)
+        // Việc này giúp giải phóng bộ nhớ, không bao giờ gây lag
+        setTimeout(() => {
+            ripple.remove();
+        }, 800);
+    });
 }
 
 /* =====================================================================
@@ -605,7 +625,8 @@ async function loadAllData() {
         
         loadSavedTheme(); 
         initMainFilters(); 
-        initDewdrops(); // Vẫn giữ hạt sương
+        initDewdrops(); 
+        initClickRipple(); // Kích hoạt vòng sóng click
         
         renderRandomQuote(); 
         setInterval(renderRandomQuote, 6000);
