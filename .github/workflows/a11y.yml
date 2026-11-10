@@ -1,14 +1,19 @@
 name: Accessibility Check
-on: [push]
+on: [push, workflow_dispatch]
+
+concurrency:
+  group: a11y-group
+  cancel-in-progress: true
+
 jobs:
   a11y:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Pa11y CI
-        uses: treosh/lighthouse-ci-action@v12 # Dùng tạm lighthouse
+        uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
             https://<TÊN_GITHUB_CỦA_BẠN>.github.io/van_hien/
           onlyCategories: accessibility
-          minScore: 90 # Cảnh báo nếu điểm A11y dưới 90
+          minScore: 90
