@@ -1,0 +1,652 @@
+[
+    {
+        "id": "than-thoai",
+        "title": "Thần Thoại",
+        "author": "Dân gian",
+        "desc": "Thể loại tự sự dân gian cổ xưa nhất, kể về các vị thần, nguồn gốc vũ trụ và loài người.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Thần thoại"],
+        "era": "Cổ đại",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "than-tru-troi",
+        "title": "Thần Trụ Trời",
+        "author": "Dân gian",
+        "desc": "Thần thoại kể về sự hình thành trời đất, vũ trụ.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Thần thoại"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "truyen-thuyet",
+        "title": "Truyền Thuyết",
+        "author": "Dân gian",
+        "desc": "Thể loại tự sự dân gian kể về các nhân vật, sự kiện lịch sử qua lăng kính dân gian.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Truyền thuyết"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "con-rong-chau-tien",
+        "title": "Con Rồng Cháu Tiên",
+        "author": "Dân gian",
+        "desc": "Giải thích nguồn gốc dân tộc Việt Nam, thể hiện ý thức cộng đồng.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Truyền thuyết"],
+        "era": "Thời Hồng Bàng",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "son-tinh-thuy-tinh",
+        "title": "Sơn Tinh Thủy Tinh",
+        "author": "Dân gian",
+        "desc": "Ca ngợi công cuộc trị thủy và bảo vệ đất nước.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Truyền thuyết"],
+        "era": "Thời Hùng Vương",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "thanh-giong",
+        "title": "Thánh Gióng",
+        "author": "Dân gian",
+        "desc": "Ca ngợi tinh thần yêu nước, chống giặc ngoại xâm.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Truyền thuyết"],
+        "era": "Thời Hùng Vương",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "co-tich",
+        "title": "Cổ Tích",
+        "author": "Dân gian",
+        "desc": "Thể loại tự sự dân gian kể về số phận con người, thể hiện ước mơ về công lý và hạnh phúc.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Cổ tích"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "tam-cam",
+        "title": "Tấm Cám",
+        "author": "Dân gian",
+        "desc": "Hành trình đấu tranh giành hạnh phúc, thể hiện khát vọng công lý.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Cổ tích"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "thach-sanh",
+        "title": "Thạch Sanh",
+        "author": "Dân gian",
+        "desc": "Người hùng diệt chằn tinh, đại bàng, ca ngợi cái thiện thắng cái ác.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Cổ tích"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "ngu-ngon",
+        "title": "Ngụ Ngôn",
+        "author": "Dân gian / Aesop",
+        "desc": "Thể loại tự sự ngắn, mượn chuyện loài vật để gửi gắm bài học triết lý, đạo đức.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Ngụ ngôn"],
+        "era": "Cổ đại",
+        "script": "Đa ngôn ngữ"
+    },
+    {
+        "id": "thay-boi-xem-voi",
+        "title": "Thầy Bói Xem Voi",
+        "author": "Dân gian",
+        "desc": "Bài học về việc nhìn nhận sự vật một cách phiến diện.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Ngụ ngôn"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "truyen-cuoi",
+        "title": "Truyện Cười",
+        "author": "Dân gian",
+        "desc": "Thể loại tự sự dân gian ngắn gọn, chứa đựng yếu tố gây cười.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Truyện cười"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "treo-bien",
+        "title": "Treo Biển",
+        "author": "Dân gian",
+        "desc": "Phê phán những người thiếu bản lĩnh, thiếu lập trường.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Truyện cười"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "ca-dao",
+        "title": "Ca Dao",
+        "author": "Dân gian",
+        "desc": "Thể loại trữ tình dân gian, kết hợp lời thơ và giai điệu.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Ca dao"],
+        "era": "Không rõ",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "tuc-ngu",
+        "title": "Tục Ngữ",
+        "author": "Dân gian",
+        "desc": "Câu nói ngắn gọn, đúc kết kinh nghiệm sống, triết lý dân gian.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Tục ngữ"],
+        "era": "Không rõ",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "su-thi",
+        "title": "Sử Thi",
+        "author": "Dân gian",
+        "desc": "Thể loại tự sự dân gian hoành tráng, ca ngợi các anh hùng và sự kiện trọng đại.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Sử thi"],
+        "era": "Cổ đại",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "dam-san",
+        "title": "Đăm Săn",
+        "author": "Dân gian Ê-đê",
+        "desc": "Bản anh hùng ca của người Ê-đê, ca ngợi người tù trưởng và lý tưởng anh hùng.",
+        "loai_hinh": "van-hoc-dan-gian",
+        "the_loai": ["Sử thi"],
+        "era": "Không rõ",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "truyen-tho",
+        "title": "Truyện Thơ",
+        "author": "Đa tác giả",
+        "desc": "Thể loại tự sự bằng thơ, kết hợp giữa kể chuyện và trữ tình.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Truyện thơ"],
+        "era": "Đa thời đại",
+        "script": "Đa ngôn ngữ"
+    },
+    {
+        "id": "truyen-kieu",
+        "title": "Truyện Kiều",
+        "author": "Nguyễn Du",
+        "desc": "Kiệt tác thơ Nôm lục bát, phản ánh số phận bi kịch của người phụ nữ tài hoa bạc mệnh.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Truyện thơ Nôm", "Lục bát"],
+        "era": "TK 19",
+        "script": "Chữ Nôm"
+    },
+    {
+        "id": "luc-van-tien",
+        "title": "Lục Vân Tiên",
+        "author": "Nguyễn Đình Chiểu",
+        "desc": "Truyện thơ kết hợp tự sự và trữ tình, ca ngợi đạo lý làm người.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Truyện thơ Nôm", "Lục bát"],
+        "era": "TK 19",
+        "script": "Chữ Nôm"
+    },
+    {
+        "id": "chinh-phu-ngam-khuc",
+        "title": "Chinh Phụ Ngâm Khúc",
+        "author": "Đặng Trần Côn (sáng tác) - Đoàn Thị Điểm (dịch)",
+        "desc": "Thể song thất lục bát diễn tả nỗi sầu muộn, cô đơn của người vợ.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Ngâm khúc", "Song thất lục bát"],
+        "era": "TK 18",
+        "script": "Chữ Hán / Nôm"
+    },
+    {
+        "id": "cung-oan-ngam-khuc",
+        "title": "Cung Oán Ngâm Khúc",
+        "author": "Nguyễn Gia Thiều",
+        "desc": "Tiếng lòng oán hận, cay đắng của người cung nữ bị vua chúa lãng quên.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Ngâm khúc", "Song thất lục bát"],
+        "era": "TK 18",
+        "script": "Chữ Nôm"
+    },
+    {
+        "id": "tho-duong-luat",
+        "title": "Thơ Đường Luật",
+        "author": "Văn học Trung Hoa / Việt Nam",
+        "desc": "Thể thơ có niêm luật chặt chẽ, thường gồm 4 câu hoặc 8 câu.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Thơ Đường luật"],
+        "era": "Nhà Đường",
+        "script": "Chữ Hán / Nôm"
+    },
+    {
+        "id": "thu-dieu",
+        "title": "Thu Điếu",
+        "author": "Nguyễn Khuyến",
+        "desc": "Thể thất ngôn bát cú, khắc họa bức tranh mùa thu làng quê Bắc Bộ.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Thơ Đường luật"],
+        "era": "TK 19",
+        "script": "Chữ Nôm"
+    },
+    {
+        "id": "banh-troi-nuoc",
+        "title": "Bánh Trôi Nước",
+        "author": "Hồ Xuân Hương",
+        "desc": "Thể tứ tuyệt Đường luật, khẳng định vẻ đẹp và tấm lòng son sắt.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Thơ Đường luật"],
+        "era": "TK 19",
+        "script": "Chữ Nôm"
+    },
+    {
+        "id": "qua-deo-ngang",
+        "title": "Qua Đèo Ngang",
+        "author": "Bà Huyện Thanh Quan",
+        "desc": "Bức tranh thiên nhiên và tâm trạng hoài cổ, cô đơn.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Thơ Đường luật"],
+        "era": "TK 19",
+        "script": "Chữ Nôm"
+    },
+    {
+        "id": "hoang-hac-lau",
+        "title": "Hoàng Hạc Lâu",
+        "author": "Thôi Hiệu",
+        "desc": "Đỉnh cao thơ Đường luật, thể hiện nỗi niềm hoài cổ.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Thơ Đường luật"],
+        "era": "Nhà Đường",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "tinh-da-tu",
+        "title": "Tĩnh Dạ Tứ",
+        "author": "Lý Bạch",
+        "desc": "Nỗi nhớ quê hương da diết của thi tiên Lý Bạch.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Thơ Đường luật"],
+        "era": "Thịnh Đường",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "thuy-dieu-ca-dau",
+        "title": "Thủy Điệu Ca Đầu",
+        "author": "Tô Thức",
+        "desc": "Thể loại Từ điệu chương hồi vĩ đại, bày tỏ triết lý nhân sinh.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Từ"],
+        "era": "Nhà Tống",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "sonnet",
+        "title": "Sonnet",
+        "author": "Văn học phương Tây",
+        "desc": "Thể thức thơ 14 câu, cấu trúc vần điệu chặt chẽ.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Sonnet"],
+        "era": "TK 13",
+        "script": "Đa ngôn ngữ"
+    },
+    {
+        "id": "haiku",
+        "title": "Haiku",
+        "author": "Văn học Nhật Bản",
+        "desc": "Thể thơ cực ngắn (17 âm tiết) tập trung vào thiên nhiên.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Haiku"],
+        "era": "TK 17",
+        "script": "Chữ Hán / Kanji"
+    },
+    {
+        "id": "voi-vang",
+        "title": "Vội Vàng",
+        "author": "Xuân Diệu",
+        "desc": "Khát vọng sống cuồng nhiệt, trân trọng từng phút giây tuổi trẻ.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Thơ tự do", "Thơ Mới"],
+        "era": "1938",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "tay-tien",
+        "title": "Tây Tiến",
+        "author": "Quang Dũng",
+        "desc": "Hình tượng người lính hào hoa, bi tráng giữa núi rừng Tây Bắc.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Thơ tự do", "Thơ kháng chiến"],
+        "era": "1948",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "mat-duong-khat-vong",
+        "title": "Mặt đường khát vọng",
+        "author": "Nguyễn Khoa Điềm",
+        "desc": "Bản trường ca hiện đại về sự thức tỉnh của tuổi trẻ.",
+        "loai_hinh": "thi-ca",
+        "the_loai": ["Trường ca", "Thơ tự do"],
+        "era": "1971",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "van-xuoi",
+        "title": "Văn Xuôi",
+        "author": "Đa tác giả",
+        "desc": "Loại hình văn học viết bằng ngôn ngữ tự sự.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Văn xuôi"],
+        "era": "Đa thời đại",
+        "script": "Đa ngôn ngữ"
+    },
+    {
+        "id": "chi-pheo",
+        "title": "Chí Phèo",
+        "author": "Nam Cao",
+        "desc": "Bi kịch bị cự tuyệt quyền làm người.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện ngắn"],
+        "era": "1941",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "so-do",
+        "title": "Số Đỏ",
+        "author": "Vũ Trọng Phụng",
+        "desc": "Bức tranh lố lăng của xã hội thực dân.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Tiểu thuyết"],
+        "era": "1936",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "tam-long-vang",
+        "title": "Tấm Lòng Vàng",
+        "author": "Nguyễn Công Hoan",
+        "desc": "Châm biếm thói đạo đức giả, hám tiền.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện ngắn"],
+        "era": "1938",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "mot-nguoi-ha-noi",
+        "title": "Một Người Hà Nội",
+        "author": "Nguyễn Khải",
+        "desc": "Khẳng định những giá trị cốt cách văn hóa Tràng An.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện ngắn"],
+        "era": "1990",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "manh-trang-cuoi-rung",
+        "title": "Mảnh Trăng Cuối Rừng",
+        "author": "Nguyễn Minh Châu",
+        "desc": "Ngợi ca vẻ đẹp tâm hồn con người trong bom đạn.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện ngắn"],
+        "era": "1970",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "de-men-phieu-luu-ky",
+        "title": "Dế Mèn Phiêu Lưu Ký",
+        "author": "Tô Hoài",
+        "desc": "Truyện đồng thoại, giáo dục lý tưởng hòa bình.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Tiểu thuyết"],
+        "era": "1941",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "tam-quoc-dien-nghia",
+        "title": "Tam Quốc Diễn Nghĩa",
+        "author": "La Quán Trung",
+        "desc": "Bộ tiểu thuyết chương hồi vĩ đại.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện chương hồi"],
+        "era": "Nhà Minh",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "tay-du-ky",
+        "title": "Tây Du Ký",
+        "author": "Ngô Thừa Ân",
+        "desc": "Hành trình thỉnh kinh của thầy trò Đường Tăng.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện chương hồi"],
+        "era": "Nhà Minh",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "hong-lau-mong",
+        "title": "Hồng Lâu Mộng",
+        "author": "Tào Tuyết Cần",
+        "desc": "Đỉnh cao tiểu thuyết chương hồi.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện chương hồi"],
+        "era": "Nhà Thanh",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "hoang-le-nhat-thong-chi",
+        "title": "Hoàng Lê Nhất Thống Chí",
+        "author": "Ngô gia văn phái",
+        "desc": "Tiểu thuyết chương hồi lịch sử xuất sắc nhất Việt Nam.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện chương hồi"],
+        "era": "Thời Tây Sơn",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "ong-gia-va-bien-ca",
+        "title": "Ông Già Và Biển Cả",
+        "author": "Ernest Hemingway",
+        "desc": "Ca ngợi ý chí kiên cường của con người.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Truyện ngắn"],
+        "era": "1952",
+        "script": "Tiếng Anh"
+    },
+    {
+        "id": "chien-tranh-va-hoa-binh",
+        "title": "Chiến tranh và Hòa bình",
+        "author": "Leo Tolstoy",
+        "desc": "Kiệt tác tiểu thuyết sử thi.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Tiểu thuyết"],
+        "era": "Thế kỷ 19",
+        "script": "Tiếng Nga"
+    },
+    {
+        "id": "toi-ac-va-hinh-phat",
+        "title": "Tội ác và Hình phạt",
+        "author": "Fyodor Dostoevsky",
+        "desc": "Đỉnh cao tiểu thuyết tâm lý.",
+        "loai_hinh": "van-xuoi",
+        "the_loai": ["Tiểu thuyết"],
+        "era": "Thế kỷ 19",
+        "script": "Tiếng Nga"
+    },
+    {
+        "id": "thuong-kinh-ky-su",
+        "title": "Thượng Kinh Ký Sự",
+        "author": "Lê Hữu Trác",
+        "desc": "Ghi chép hành trình ra kinh đô chữa bệnh.",
+        "loai_hinh": "ky-khao-cuu",
+        "the_loai": ["Ký sự"],
+        "era": "TK 18",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "nhat-ky-trong-tu",
+        "title": "Nhật Ký Trong Tù",
+        "author": "Hồ Chí Minh",
+        "desc": "Tập thơ nhật ký.",
+        "loai_hinh": "ky-khao-cuu",
+        "the_loai": ["Nhật ký"],
+        "era": "1942-1943",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "ai-da-dat-ten-cho-dong-song",
+        "title": "Ai Đã Đặt Tên Cho Dòng Sông?",
+        "author": "Hoàng Phủ Ngọc Tường",
+        "desc": "Thể kí giàu chất trữ tình.",
+        "loai_hinh": "ky-khao-cuu",
+        "the_loai": ["Bút ký"],
+        "era": "1981",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "nguoi-lai-do-song-da",
+        "title": "Người Lái Đò Sông Đà",
+        "author": "Nguyễn Tuân",
+        "desc": "Ca ngợi vẻ đẹp thiên nhiên Tây Bắc.",
+        "loai_hinh": "ky-khao-cuu",
+        "the_loai": ["Tùy bút"],
+        "era": "1960",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "hamlet",
+        "title": "Hamlet",
+        "author": "William Shakespeare",
+        "desc": "Kiệt tác bi kịch.",
+        "loai_hinh": "kich-san-khau",
+        "the_loai": ["Bi kịch"],
+        "era": "TK 16-17",
+        "script": "Tiếng Anh"
+    },
+    {
+        "id": "quan-am-thi-kinh",
+        "title": "Quan Âm Thị Kính",
+        "author": "Khuyết danh",
+        "desc": "Vở chèo kinh điển.",
+        "loai_hinh": "kich-san-khau",
+        "the_loai": ["Chèo"],
+        "era": "Không rõ",
+        "script": "Chữ Nôm"
+    },
+    {
+        "id": "vu-nhu-to",
+        "title": "Vũ Như Tô",
+        "author": "Nguyễn Huy Tưởng",
+        "desc": "Bi kịch về người nghệ sĩ.",
+        "loai_hinh": "kich-san-khau",
+        "the_loai": ["Bi kịch"],
+        "era": "1941",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "hon-truong-ba-da-hang-thit",
+        "title": "Hồn Trương Ba, Da Hàng Thịt",
+        "author": "Lưu Quang Vũ",
+        "desc": "Xung đột linh hồn và thể xác.",
+        "loai_hinh": "kich-san-khau",
+        "the_loai": ["Chính kịch"],
+        "era": "1981",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "da-co-hoai-lang",
+        "title": "Dạ Cổ Hoài Lang",
+        "author": "Cao Văn Lầu",
+        "desc": "Bản đờn ca tài tử nổi tiếng.",
+        "loai_hinh": "am-nhac-mua",
+        "the_loai": ["Đờn ca tài tử"],
+        "era": "Đầu TK 20",
+        "script": "Quốc ngữ"
+    },
+    {
+        "id": "nha-nhac-cung-dinh-hue",
+        "title": "Nhã nhạc cung đình Huế",
+        "author": "Triều Nguyễn",
+        "desc": "Âm nhạc cung đình.",
+        "loai_hinh": "am-nhac-mua",
+        "the_loai": ["Nhã nhạc"],
+        "era": "Thời nhà Nguyễn",
+        "script": "Chữ Nôm"
+    },
+    {
+        "id": "quan-ho",
+        "title": "Dân ca Quan họ",
+        "author": "Dân gian Bắc Ninh",
+        "desc": "Hát giao duyên đối đáp.",
+        "loai_hinh": "am-nhac-mua",
+        "the_loai": ["Quan họ"],
+        "era": "Cổ đại",
+        "script": "Truyền miệng"
+    },
+    {
+        "id": "tranh-dong-ho",
+        "title": "Tranh Đông Hồ",
+        "author": "Làng Mái Đông Hồ",
+        "desc": "Tranh khắc gỗ dân gian.",
+        "loai_hinh": "my-thuat",
+        "the_loai": ["Tranh khắc gỗ"],
+        "era": "Thời phong kiến",
+        "script": "Truyền nghề"
+    },
+    {
+        "id": "binh-ngo-dai-cao",
+        "title": "Bình Ngô Đại Cáo",
+        "author": "Nguyễn Trãi",
+        "desc": "Bản tuyên ngôn độc lập.",
+        "loai_hinh": "mo-rong",
+        "the_loai": ["Cáo", "Văn chính luận"],
+        "era": "Nhà Lê sơ",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "hich-tuong-si",
+        "title": "Hịch Tướng Sĩ",
+        "author": "Trần Quốc Tuấn",
+        "desc": "Lời kêu gọi chống giặc.",
+        "loai_hinh": "mo-rong",
+        "the_loai": ["Hịch"],
+        "era": "Nhà Trần",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "chieu-doi-do",
+        "title": "Chiếu Dời Đô",
+        "author": "Lý Công Uẩn",
+        "desc": "Dời đô về Thăng Long.",
+        "loai_hinh": "mo-rong",
+        "the_loai": ["Chiếu"],
+        "era": "Nhà Lý",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "san-lai",
+        "title": "Sân Lai",
+        "author": "Khuyết danh",
+        "desc": "Lòng hiếu thảo.",
+        "loai_hinh": "mo-rong",
+        "the_loai": ["Điển tích"],
+        "era": "Thời Xuân Thu",
+        "script": "Chữ Hán"
+    },
+    {
+        "id": "tai-ong-that-ma",
+        "title": "Tái Ông Thất Mã",
+        "author": "Hoài Nam Tử",
+        "desc": "Họa phúc khôn lường.",
+        "loai_hinh": "mo-rong",
+        "the_loai": ["Điển tích"],
+        "era": "Thời Tây Hán",
+        "script": "Chữ Hán"
+    }
+]
