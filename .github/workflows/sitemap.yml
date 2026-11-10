@@ -2,11 +2,21 @@ name: Generate Sitemap
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: git-push-group
+  cancel-in-progress: false
+
 jobs:
   sitemap:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Generate Sitemap
         uses: cicirello/generate-sitemap@v1
         with:
