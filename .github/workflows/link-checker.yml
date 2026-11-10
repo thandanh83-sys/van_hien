@@ -1,0 +1,14 @@
+name: Check Broken Links
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Tự động chạy vào Chủ Nhật hàng tuần
+  workflow_dispatch: # Hoặc tự bấm chạy khi muốn
+jobs:
+  linkChecker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check links
+        uses: ruzickap/action-my-broken-link-checker@v3
+        with:
+          url: https://<TÊN_GITHUB_CỦA_BẠN>.github.io/van_hien/
