@@ -2,17 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 =====================================================================
-VĂN ĐẠO ENGINE - TOOL: SPLIT AUTHORS (TÁCH & NỐI DỮ LIỆU TÁC GIẢ)
+VĂN ĐẠO ENGINE - TOOL: SPLIT AUTHORS (NHÀ LUYỆN ĐAN TÁC GIẢ)
 =====================================================================
 Tác giả: Văn Đạo
-Mô tả chi tiết:
-1. Đọc file gốc 'data/data-tac-gia-master.json'.
-2. Kiểm tra tính hợp lệ của dữ liệu (phải là mảng JSON, có trường 'id').
-3. Tách từng tác giả thành các file JSON nhỏ lẻ trong thư mục 'data/tac-gia/'.
-4. Tự động trích xuất thông tin (bỏ phần content) để nối vào file danh mục 'data/data-tac-gia.json'.
-5. TỰ ĐỘNG SẮP XẾP danh mục theo thứ tự Bảng chữ cái (A-Z).
-6. TỰ ĐỘNG XÓA file Master sau khi xử lý thành công để dọn dẹp dự án.
-7. Tự động bỏ qua êm đẹp nếu không có file Master (tránh báo lỗi đỏ trên GitHub).
+
+TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+1. Tách hạt giống: File Master chứa toàn bộ tiểu sử, sự nghiệp nặng nề. 
+   Script này tách nó thành hàng ngàn file JSON nhỏ trong 'data/tac-gia/'. 
+   Nhờ vậy, App chỉ tải đúng chân dung tác giả khi người dùng bấm xem.
+2. Ghi chép sổ bộ (Index): Tự động trích xuất thông tin (bỏ phần content) 
+   để nối vào 'data-tac-gia.json' (danh mục). Danh mục luôn nhẹ và sắp xếp A-Z.
+3. Dọn dẹp chiến trường: Tự động xóa file Master sau khi xử lý xong, 
+   để lại một kho lưu trữ gọn gàng, thanh tịnh.
+4. Kỷ luật thép: Kiểm tra cú pháp JSON, kiểm tra trùng lặp ID, và bỏ qua 
+   êm đẹp nếu không có file Master (tránh báo lỗi đỏ trên GitHub Actions).
 =====================================================================
 """
 
@@ -36,7 +39,9 @@ C_RESET = "\033[0m"   # Reset màu
 # =====================================================================
 # Lấy thư mục chứa file script hiện tại (tools/), sau đó lùi ra 1 cấp để lấy thư mục gốc dự án
 ROOT_DIR = Path(__file__).parent.parent
-os.chdir(ROOT_DIR) # Di chuyển con trỏ làm việc về thư mục gốc để các đường dẫn tương đối hoạt động chuẩn
+
+# Di chuyển con trỏ làm việc về thư mục gốc để các đường dẫn tương đối hoạt động chuẩn
+os.chdir(ROOT_DIR)
 
 # Định nghĩa các đường dẫn file và thư mục
 MASTER_FILE = ROOT_DIR / "data" / "data-tac-gia-master.json"
@@ -81,6 +86,23 @@ def process_authors():
         sys.exit(1)
         
     print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Đã đọc {len(new_authors)} tác giả từ file Master.\n")
+
+    # -----------------------------------------------------------------
+    # BƯỚC 1.5: KIỂM TRA TRÙNG LẶP ID TRONG MASTER (LÁ CHẮN AN TOÀN)
+    # -----------------------------------------------------------------
+    seen_ids = set()
+    duplicates = []
+    for item in new_authors:
+        aid = item.get('id')
+        if aid:
+            if aid in seen_ids:
+                duplicates.append(aid)
+            seen_ids.add(aid)
+    
+    if duplicates:
+        print(f"  {C_RED}[CẢNH BÁO]{C_RESET} Phát hiện ID trùng trong file Master: {duplicates}")
+        print(f"  {C_GRAY}[GHI CHÚ]{C_RESET} Item sau sẽ ghi đè item trước. Hãy kiểm tra lại file Master.\n")
+    # -----------------------------------------------------------------
 
     # -----------------------------------------------------------------
     # BƯỚC 2: TÁCH FILE VÀ NỐI DANH MỤC
