@@ -1,13 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 1.0 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 1.0 - KNOWLEDGE NETWORK)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tối ưu hóa Data & Hiệu năng (Lazy Load cho cả Tác phẩm và Tác giả).
-   - Bộ máy tìm kiếm VDSearchEngine (Inverted Index, TF-IDF, Phrase Matching).
-   - Highlight tiếng Việt không dấu, chống XSS.
-   - Cuộn thông minh (Polling) kết hợp hiệu ứng Tỏa sáng (Glow).
-   - Trải nghiệm Khởi tạo 5 giai đoạn (Boot Experience) - Đã tối ưu LCP.
-   - TÍCH HỢP 2 "BÁC SĨ DỮ LIỆU" (Audit Works & Audit Authors).
+   - Tuyệt đối không dùng Emoji, chỉ dùng SVG.
+   - Mạng lưới tri thức: Liên kết chéo (Smart Link) chính xác 100%.
+   - Lazy Load Kép (Tác phẩm & Tác giả).
+   - VDSearchEngine (Inverted Index, TF-IDF).
+   - Tối ưu LCP (Không dùng opacity:0 ở container).
    ===================================================================== */
 
 /* =====================================================================
@@ -39,7 +38,6 @@ let currentEncyGroup = 'triet-thuyet';
 let currentQuoteIndex = -1;
 let quoteIntervalId = null;
 
-// Bộ nhớ đệm dùng chung cho cả Tác phẩm và Tác giả
 const worksDetailCache = new Map();
 const viewScrollPositions = { 'home': 0, 'heritage': 0, 'encyclopedia': 0, 'analyze': 0 };
 
@@ -65,7 +63,7 @@ const PerformanceEngine = (() => {
 
 
 /* =====================================================================
-   MODULE 2: ĐIỀU HƯỚNG (ROUTING) & QUẢN LÝ VIEW (TÍCH HỢP SILK TRANSITION)
+   MODULE 2: ĐIỀU HƯỚNG (ROUTING) & QUẢN LÝ VIEW
    ===================================================================== */
 function switchView(viewId) {
     const currentActive = document.querySelector('.view.active');
@@ -73,21 +71,20 @@ function switchView(viewId) {
     
     if (currentViewId === viewId) return;
 
-    // 1. KÍCH HOẠT HIỆU ỨNG DẢI LỤA (Tối ưu GPU)
+    // Kích hoạt hiệu ứng Dải lụa (Silk Transition)
     const silkOverlay = document.getElementById('silkTransition');
     if (silkOverlay) {
         silkOverlay.classList.remove('entering', 'leaving', 'active');
-        void silkOverlay.offsetWidth; // Force reflow
+        void silkOverlay.offsetWidth;
         silkOverlay.style.transform = 'translateZ(0)';
         silkOverlay.style.willChange = 'transform, opacity';
-        
         silkOverlay.classList.add('active', 'entering');
         setTimeout(() => {
             silkOverlay.classList.remove('active', 'entering');
         }, 1000);
     }
 
-    // 2. ĐỢI 300MS RỒI TRÁO ĐỔI NỘI DUNG
+    // Đợi 300ms (lúc lụa đang che) rồi tráo đổi nội dung
     setTimeout(() => {
         if (currentViewId) {
             viewScrollPositions[currentViewId] = window.scrollY;
@@ -162,7 +159,7 @@ function toggleMobileMenu() {
 
 
 /* =====================================================================
-   MODULE 3: CÁC HÀM TIỆN ÍCH & XỬ LÝ TÌM KIẾM (HIGHLIGHT, XSS)
+   MODULE 3: CÁC HÀM TIỆN ÍCH (XSS, TÌM KIẾM, HIGHLIGHT)
    ===================================================================== */
 function debounce(func, wait) {
     let timeout;
@@ -204,7 +201,6 @@ function handleSearchInput() {
     const input = document.getElementById('encyclopedia-search');
     const clearBtn = document.getElementById('clear-search-btn');
     if (!input || !clearBtn) return;
-
     if (input.value.length > 0) clearBtn.classList.add('show');
     else clearBtn.classList.remove('show');
 }
@@ -355,7 +351,7 @@ function changePage(page) {
 
 
 /* =====================================================================
-   MODULE 5: BÁCH KHOA (VĂN ĐẠO SEARCH ENGINE - LOCAL RETRIEVAL)
+   MODULE 5: BÁCH KHOA (MẠNG LƯỚI SUỐI NGUỒN TRI THỨC)
    ===================================================================== */
 function romanToInt(roman) {
     if (roman === '0') return 0;
@@ -525,11 +521,7 @@ function renderEncyclopedia() {
                         contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải nội dung...</p>`;
                         try {
                             const full = await loadWorkDetail(dataItem.id);
-                            if (full.content && full.content.trim() !== '') {
-                                contentDiv.innerHTML = full.content;
-                            } else {
-                                contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Văn bản này đang được Văn Đạo hiệu đính.</p></div>`;
-                            }
+                            contentDiv.innerHTML = full.content && full.content.trim() !== '' ? full.content : `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Văn bản này đang được Văn Đạo hiệu đính.</p></div>`;
                         } catch (err) {
                             contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung. Vui lòng kiểm tra mạng.</p>`;
                         }
@@ -537,11 +529,7 @@ function renderEncyclopedia() {
                         contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải tiểu sử...</p>`;
                         try {
                             const full = await loadAuthorDetail(dataItem.id);
-                            if (full.content && full.content.trim() !== '') {
-                                contentDiv.innerHTML = full.content;
-                            } else {
-                                contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Tiểu sử này đang được Văn Đạo hiệu đính.</p></div>`;
-                            }
+                            contentDiv.innerHTML = full.content && full.content.trim() !== '' ? full.content : `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Tiểu sử này đang được Văn Đạo hiệu đính.</p></div>`;
                         } catch (err) {
                             contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung. Vui lòng kiểm tra mạng.</p>`;
                         }
@@ -635,15 +623,13 @@ function searchEncyclopedia() {
                             contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải nội dung...</p>`;
                             try {
                                 const full = await loadWorkDetail(dataItem.id);
-                                if (full.content && full.content.trim() !== '') contentDiv.innerHTML = full.content;
-                                else contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Văn bản này đang được hiệu đính.</p></div>`;
+                                contentDiv.innerHTML = full.content && full.content.trim() !== '' ? full.content : `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Văn bản này đang được hiệu đính.</p></div>`;
                             } catch (err) { contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung.</p>`; }
                         } else if (isAuthor) {
                             contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải tiểu sử...</p>`;
                             try {
                                 const full = await loadAuthorDetail(dataItem.id);
-                                if (full.content && full.content.trim() !== '') contentDiv.innerHTML = full.content;
-                                else contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Tiểu sử này đang được hiệu đính.</p></div>`;
+                                contentDiv.innerHTML = full.content && full.content.trim() !== '' ? full.content : `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Tiểu sử này đang được hiệu đính.</p></div>`;
                             } catch (err) { contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung.</p>`; }
                         } else {
                             contentDiv.innerHTML = dataItem.content;
@@ -675,7 +661,11 @@ function gotoEncyclopediaById(id) {
     if (targetGroup !== '') {
         currentEncyGroup = targetGroup;
         
-        // Cập nhật UI Nút bấm
+        const searchInput = document.getElementById('encyclopedia-search');
+        if (searchInput) searchInput.value = '';
+        const clearBtn = document.getElementById('clear-search-btn');
+        if (clearBtn) clearBtn.classList.remove('show');
+
         document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(btn => {
             btn.classList.remove('active');
             btn.setAttribute('aria-pressed', 'false');
@@ -685,58 +675,36 @@ function gotoEncyclopediaById(id) {
         if (targetGroup === 'ky-tai' && btns[1]) { btns[1].classList.add('active'); btns[1].setAttribute('aria-pressed', 'true'); }
         if (targetGroup === 'tinh-hoa' && btns[2]) { btns[2].classList.add('active'); btns[2].setAttribute('aria-pressed', 'true'); }
         
-        // Xóa thanh tìm kiếm (nếu có) để đảm bảo nó render đúng danh sách
-        const searchInput = document.getElementById('encyclopedia-search');
-        if (searchInput) searchInput.value = '';
-        const clearBtn = document.getElementById('clear-search-btn');
-        if (clearBtn) clearBtn.classList.remove('show');
-
         const currentActive = document.querySelector('.view.active');
         const currentViewId = currentActive ? currentActive.id.replace('view-', '') : null;
-        
-        // Nếu đang ở tab Bách Khoa thì render lại, nếu không thì chuyển tab
-        if (currentViewId === 'encyclopedia') {
-            renderEncyclopedia();
-        } else {
-            switchView('encyclopedia');
-        }
+        if (currentViewId === 'encyclopedia') renderEncyclopedia();
+        else switchView('encyclopedia');
 
-        // THUẬT TOÁN CHỜ DOM ỔN ĐỊNH (Polling)
-        let checkCount = 0;
-        const checkInterval = setInterval(() => {
-            const finalTarget = document.getElementById(searchId);
-            checkCount++;
-
-            if (finalTarget && finalTarget.offsetHeight > 0) {
-                clearInterval(checkInterval); // Dừng kiểm tra
+        let retries = 0;
+        const attemptScroll = () => {
+            const targetElement = document.getElementById(searchId);
+            if (targetElement) {
+                targetElement.classList.add('is-visible'); 
+                targetElement.style.opacity = '1';
+                targetElement.style.transform = 'translateY(0)';
                 
-                finalTarget.classList.add('is-visible'); 
-                finalTarget.style.opacity = '1';
-                finalTarget.style.transform = 'translateY(0)';
+                const detailsEl = targetElement.querySelector('details');
+                if (detailsEl) detailsEl.open = false;
                 
-                const detailsEl = finalTarget.querySelector('details');
-                if(detailsEl) detailsEl.open = false;
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
                 setTimeout(() => {
-                    const rect = finalTarget.getBoundingClientRect();
-                    const absoluteTop = rect.top + window.pageYOffset;
-                    const windowHeight = window.innerHeight;
-                    const offset = (windowHeight / 2) - (rect.height / 2);
-                    
-                    window.scrollTo({ top: Math.max(0, absoluteTop - offset), behavior: 'smooth' });
-
-                    finalTarget.classList.add('highlight-target');
-                    setTimeout(() => finalTarget.classList.remove('highlight-target'), 2500);
-                }, 100);
-
-            } else if (checkCount > 20) {
-                clearInterval(checkInterval);
-                console.warn('Không tìm thấy thẻ sau 2 giây:', searchId);
+                    targetElement.classList.add('highlight-target');
+                    setTimeout(() => targetElement.classList.remove('highlight-target'), 2500);
+                }, 600);
+            } else if (retries < 10) {
+                retries++;
+                setTimeout(attemptScroll, 100);
             }
-        }, 100);
-
+        };
+        setTimeout(attemptScroll, 400);
     } else { 
-        console.warn('Không tìm thấy mục này trong Bách Khoa.'); 
+        console.warn('[SYSTEM] Không tìm thấy mục này trong hệ thống.'); 
     }
 }
 
@@ -795,12 +763,10 @@ const POETRY_ANALYZER = (() => {
         for (let i = 0; i < lines.length - 1; i++) { 
             const endPart = rhymeParts[i]; 
             const nextWords = lines[i+1].text.match(/[\p{L}\p{N}]+/gu) || []; 
-            let hasMatch = false; 
             for (let k = 0; k < nextWords.length - 1; k++) { 
                 const match = (getRhymePart(nextWords[k]) === endPart && endPart !== ''); 
                 if (match) { 
                     result.lung.push({ text: `Cuối câu ${i+1} vần với chữ ${k+1} câu ${i+2} ("${nextWords[k]}")`, isMatch: true, rhyme: endPart }); 
-                    hasMatch = true; 
                 } 
             } 
         }
@@ -926,7 +892,7 @@ function executePipeline() {
 
 
 /* =====================================================================
-   MODULE 7: HIỆU ỨNG ĐỘNG (CANVAS SÓNG NƯỚC & HẠT SƯƠNG TỐI ƯU)
+   MODULE 7: HIỆU ỨNG ĐỘNG (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
    ===================================================================== */
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
@@ -993,14 +959,13 @@ function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     
-    // TỐI ƯU: CHỈ TẠO 6 HẠT ĐỂ ĐẢM BẢO HIỆU NĂNG VÀ SỰ TINH TẾ
     for (let i = 0; i < 6; i++) {
         const drop = document.createElement('div'); 
         drop.className = 'dewdrop';
         
-        const size = Math.random() * 6 + 4; // Kích thước to hơn (4px - 10px)
-        const opacity = Math.random() * 0.4 + 0.6; // Độ mờ đậm hơn (0.6 - 1)
-        const duration = Math.random() * 10 + 15; // Thời gian trôi chậm (15s - 25s)
+        const size = Math.random() * 6 + 4; 
+        const opacity = Math.random() * 0.4 + 0.6; 
+        const duration = Math.random() * 10 + 15; 
 
         drop.style.width = `${size}px`; 
         drop.style.height = `${size}px`;
@@ -1008,7 +973,6 @@ function initDewdrops() {
         drop.style.animationDuration = `${duration}s`;
         drop.style.animationDelay = `-${Math.random() * duration}s`; 
         
-        // Làm cho hạt sương sáng lấp lánh (hiệu ứng ánh ngọc)
         drop.style.background = `radial-gradient(circle at 30% 30%, #ffffff, #8bb8a8)`;
         drop.style.boxShadow = `0 0 12px 3px rgba(139, 184, 168, 0.6), inset 0 0 5px #ffffff`;
         drop.style.opacity = opacity;
@@ -1019,7 +983,7 @@ function initDewdrops() {
 
 
 /* =====================================================================
-   MODULE 8: TẢI DỮ LIỆU & BÁC SĨ DỮ LIỆU KÉP (AUDIT WORKS & AUTHORS)
+   MODULE 8: TẢI DỮ LIỆU & BÁC SĨ DỮ LIỆU KÉP
    ===================================================================== */
 async function loadWorkDetail(id) {
     if (worksDetailCache.has(id)) return worksDetailCache.get(id);
@@ -1062,16 +1026,15 @@ async function loadAllData() {
         renderHeritage();
         
     } catch (error) { 
-        console.error("Lỗi tải dữ liệu (có thể do mạng yếu):", error);
+        console.error("[SYSTEM] Lỗi tải dữ liệu:", error);
     } finally {
         initWaterCanvas(); 
         initDewdrops();
     }
 }
 
-// HÀM BÁC SĨ DỮ LIỆU 1: KHÁM TÁC PHẨM
 async function auditWorksData() {
-    console.log("%c🔍 BẮT ĐẦU KIỂM TRA DỮ LIỆU VÀ NỘI DUNG TÁC PHẨM...", "color: #8bb8a8; font-weight: bold; font-size: 14px;");
+    console.log("%c[AUDIT] BẮT ĐẦU KIỂM TRA DỮ LIỆU VÀ NỘI DUNG TÁC PHẨM...", "color: #8bb8a8; font-weight: bold; font-size: 14px;");
     const results = [];
     let successCount = 0, emptyCount = 0, errorCount = 0;
 
@@ -1085,27 +1048,26 @@ async function auditWorksData() {
             const cleanContent = content.replace(/<[^>]*>/g, '').trim();
             
             if (cleanContent.length > 100 && !cleanContent.includes('đang được Văn Đạo hiệu đính')) {
-                results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": "✅ Có nội dung" });
+                results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": "[OK] Có nội dung" });
                 successCount++;
             } else {
-                results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": "⚠️ File rỗng (Chưa có bài)" });
+                results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": "[RỖNG] Chưa có bài" });
                 emptyCount++;
             }
         } catch (err) {
-            results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": `❌ LỖI: ${err.message}` });
+            results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": `[LỖI] ${err.message}` });
             errorCount++;
         }
     }
     
-    console.log(`%c✅ Tổng kết: ${successCount} CÓ NỘI DUNG | ⚠️ ${emptyCount} RỖNG | ❌ ${errorCount} LỖI.`, "color: #10b981; font-weight: bold; font-size: 13px;");
-    if (emptyCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('⚠️')));
-    if (errorCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('❌')));
+    console.log(`%c[RESULT] Tổng kết: ${successCount} CÓ NỘI DUNG | ${emptyCount} RỖNG | ${errorCount} LỖI.`, "color: #10b981; font-weight: bold; font-size: 13px;");
+    if (emptyCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('[RỖNG]')));
+    if (errorCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('[LỖI]')));
     console.table(results);
 }
 
-// HÀM BÁC SĨ DỮ LIỆU 2: KHÁM TÁC GIẢ
 async function auditAuthorsData() {
-    console.log("%c🔍 BẮT ĐẦU KIỂM TRA DỮ LIỆU TÁC GIẢ...", "color: #8bb8a8; font-weight: bold; font-size: 14px;");
+    console.log("%c[AUDIT] BẮT ĐẦU KIỂM TRA DỮ LIỆU TÁC GIẢ...", "color: #8bb8a8; font-weight: bold; font-size: 14px;");
     const results = [];
     let successCount = 0, emptyCount = 0, errorCount = 0;
 
@@ -1119,25 +1081,24 @@ async function auditAuthorsData() {
             const cleanContent = content.replace(/<[^>]*>/g, '').trim();
             
             if (cleanContent.length > 100 && !cleanContent.includes('đang được Văn Đạo hiệu đính')) {
-                results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": "✅ Có nội dung" });
+                results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": "[OK] Có nội dung" });
                 successCount++;
             } else {
-                results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": "⚠️ File rỗng (Chưa có bài)" });
+                results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": "[RỖNG] Chưa có bài" });
                 emptyCount++;
             }
         } catch (err) {
-            results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": `❌ LỖI: ${err.message}` });
+            results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": `[LỖI] ${err.message}` });
             errorCount++;
         }
     }
     
-    console.log(`%c✅ Tổng kết: ${successCount} CÓ NỘI DUNG | ⚠️ ${emptyCount} RỖNG | ❌ ${errorCount} LỖI.`, "color: #10b981; font-weight: bold; font-size: 13px;");
-    if (emptyCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('⚠️')));
-    if (errorCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('❌')));
+    console.log(`%c[RESULT] Tổng kết: ${successCount} CÓ NỘI DUNG | ${emptyCount} RỖNG | ${errorCount} LỖI.`, "color: #10b981; font-weight: bold; font-size: 13px;");
+    if (emptyCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('[RỖNG]')));
+    if (errorCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('[LỖI]')));
     console.table(results);
 }
 
-// Gắn hàm vào window để có thể gọi từ Console
 window.auditWorksData = auditWorksData;
 window.auditAuthorsData = auditAuthorsData;
 
@@ -1190,7 +1151,7 @@ function handleHashScroll() {
 
 
 /* =====================================================================
-   MODULE 9: KHỞI CHẠY & ĐIỀU PHỐI BOOT EXPERIENCE (5 PHASES - ĐÃ FIX LCP)
+   MODULE 9: KHỞI CHẠY & ĐIỀU PHỐI BOOT EXPERIENCE
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', async () => { 
     const splash = document.getElementById('jade-splash');
@@ -1198,28 +1159,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const quoteContainer = document.querySelector('.boot-quote');
     const quoteText = document.getElementById('splash-quote-text');
 
-    // PHASE 1: AWAKENING (Đánh thức - Hiệu ứng lụa bắt đầu, chờ 800ms)
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    // PHASE 2: INITIALIZATION (Khởi tạo dữ liệu thực tế)
     if (statusText) statusText.textContent = "Đang kết nối tri thức...";
     const startTime = Date.now();
     try {
         await loadAllData(); 
     } catch (error) {
-        console.error("Lỗi tải dữ liệu:", error);
+        console.error("[SYSTEM] Lỗi tải dữ liệu:", error);
         if (statusText) statusText.textContent = "Kết nối yếu. Đang dùng bộ nhớ tạm...";
         await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    // PHASE 3: MATERIALIZATION (Hiện thực hóa - Hiện danh ngôn)
     if (QUOTES_DATA.length > 0 && quoteContainer && quoteText) {
         const randomQuote = QUOTES_DATA[Math.floor(Math.random() * QUOTES_DATA.length)];
         quoteText.innerHTML = `&ldquo;${randomQuote.text}&rdquo; <br><span style="font-size: 0.8rem; opacity: 0.7; margin-top: 8px; display: inline-block;">— ${randomQuote.author} —</span>`;
         quoteContainer.classList.add('show');
     }
 
-    // TĂNG THỜI GIAN CHỜ LÊN 5 GIÂY (5000ms) ĐỂ NGƯỜI DÙNG ĐỌC DANH NGÔN
     const minSplashTime = 5000; 
     const elapsedTime = Date.now() - startTime;
     const remainingTime = Math.max(0, minSplashTime - elapsedTime);
@@ -1227,15 +1184,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (statusText) statusText.textContent = "Sẵn sàng trải nghiệm...";
     await new Promise(resolve => setTimeout(resolve, remainingTime));
 
-    // PHASE 4: TRANSITION (ĐÃ XÓA LOGIC THÊM CLASS APP-READY ĐỂ TỐI ƯU LCP)
     if (splash) {
         splash.classList.add('leaving'); 
-        
-        // PHASE 5: READY (Dọn dẹp DOM)
         setTimeout(() => splash.remove(), 2000);
     }
 
-    // Khôi phục bài thơ đang viết dở (nếu có)
     const savedPoem = localStorage.getItem('vandao_draft_poem');
     if (savedPoem) {
         const poemInput = document.getElementById('poemInput');
@@ -1243,7 +1196,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // Gắn sự kiện tìm kiếm
     const searchInputHeritage = document.getElementById('search-input');
     if (searchInputHeritage) {
         searchInputHeritage.addEventListener('input', debounce(() => { currentPage = 1; renderHeritage(); }, 300)); 
