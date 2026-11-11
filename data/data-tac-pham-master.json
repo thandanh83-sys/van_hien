@@ -1,0 +1,112 @@
+[
+  {
+    "id": "nam-quoc-son-ha",
+    "title": "Nam Quốc Sơn Hà",
+    "author": "Lý Thường Kiệt",
+    "desc": "Bản tuyên ngôn độc lập đầu tiên, khẳng định chủ quyền dân tộc.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ chữ Hán", "Thất ngôn tứ tuyệt"],
+    "era": "Nhà Lý",
+    "script": "Chữ Hán",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Bài thơ ra đời trong bối cảnh cuộc kháng chiến chống quân Tống xâm lược lần thứ hai (1075-1077). Tương truyền, Lý Thường Kiệt cho người đọc bài thơ này trong đền thờ Trương Hống, Trương Hát bên bờ sông Như Nguyệt để khích lệ tinh thần quân sĩ.</p><h4>II. Giá trị nội dung</h4><p>Bài thơ là lời khẳng định đanh thép về chủ quyền lãnh thổ (Nam quốc, sơn hà) và quyền tự chủ của dân tộc. Hai câu đầu nêu cao chân lý: Đất nước ta là của vua Nam, điều đó đã được định rõ ở sách trời. Hai câu sau là lời cảnh báo, khẳng định ý chí quyết tâm bảo vệ độc lập, khiến kẻ thù (nghịch lỗ) phải chuốc lấy thất bại.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ thất ngôn tứ tuyệt Đường luật chặt chẽ, giọng điệu hào hùng, đanh thép. Ngôn ngữ hàm súc, sử dụng hình ảnh mang tính biểu tượng cao (sách trời - thiên thư). Lối nói khẳng định dứt khoát, tạo nên sức mạnh của một bản tuyên ngôn.</p>"
+  },
+  {
+    "id": "quoc-am-thi-tap",
+    "title": "Quốc Âm Thi Tập",
+    "author": "Nguyễn Trãi",
+    "desc": "Tập thơ Nôm đầu tiên của văn học Việt Nam, phản ánh tâm hồn thanh cao.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ Nôm", "Đường luật"],
+    "era": "Nhà Lê sơ",
+    "script": "Chữ Nôm",
+    "content": "<h4>I. Giới thiệu chung</h4><p>Quốc âm thi tập là tập thơ chữ Nôm cổ nhất còn lại của văn học Việt Nam, gồm 254 bài thơ, được sáng tác trong thời gian Nguyễn Trãi về ở ẩn tại Côn Sơn.</p><h4>II. Nội dung</h4><p>Tập thơ phản ánh chân thực và sâu sắc con người Nguyễn Trãi: một nhà nho yêu nước thương dân nhưng bất lực trước thời cuộc; một tâm hồn nghệ sĩ gắn bó tha thiết với thiên nhiên, quê hương. Đồng thời, tác phẩm cũng thể hiện triết lý nhân sinh sâu sắc của tác giả.</p><h4>III. Giá trị nghệ thuật</h4><p>Việc sử dụng chữ Nôm và thể thơ thất ngôn Đường luật (có biến thể) đã khẳng định sự trưởng thành vượt bậc của tiếng Việt và thơ ca dân tộc. Ngôn ngữ vừa trang nhã, vừa giản dị, đậm chất trữ tình.</p>"
+  },
+  {
+    "id": "cung-oan-ngam-khuc",
+    "title": "Cung Oán Ngâm Khúc",
+    "author": "Nguyễn Gia Thiều",
+    "desc": "Tiếng lòng ai oán của người cung nữ bị vua lãng quên.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Ngâm khúc", "Song thất lục bát"],
+    "era": "TK 18",
+    "script": "Chữ Nôm",
+    "content": "<h4>I. Thể loại và cảm hứng</h4><p>Tác phẩm thuộc thể ngâm khúc, viết bằng thể thơ song thất lục bát. Nội dung kể về cuộc đời của một người cung nữ, từ lúc được sủng ái cho đến khi bị nhà vua lãng quên, phải sống trong cô đơn và buồn tủi.</p><h4>II. Giá trị nội dung</h4><p>Vượt ra ngoài nỗi oán hờn của một cá nhân, tác phẩm là tiếng nói đồng cảm với thân phận người phụ nữ trong xã hội phong kiến, đồng thời phản ánh sự bất công, ngang trái của một chế độ đa thê. Tác phẩm thể hiện khát vọng được sống, được yêu thương và được tôn trọng của con người.</p><h4>III. Giá trị nghệ thuật</h4><p>Ngòi bút miêu tả tâm lý nhân vật cực kỳ tinh tế và sâu sắc. Ngôn từ giàu hình ảnh, âm điệu ai oán, não nùng. Tác phẩm được đánh giá là đỉnh cao của thể loại ngâm khúc trong văn học trung đại.</p>"
+  },
+  {
+    "id": "luu-huong-ky",
+    "title": "Lưu Hương Ký",
+    "author": "Hồ Xuân Hương",
+    "desc": "Tập thơ chữ Hán thể hiện tình cảm và tâm sự thầm kín của nữ sĩ.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ chữ Hán"],
+    "era": "TK 18-19",
+    "script": "Chữ Hán",
+    "content": "<h4>I. Giới thiệu</h4><p>Lưu Hương Ký là tập thơ chữ Hán của Hồ Xuân Hương, được phát hiện vào năm 1964. Tập thơ gồm 24 bài thơ, bao gồm cả thơ và lời tựa, ghi lại những tình cảm, tâm sự của nữ sĩ với một người tình (được cho là ông Phạm Đình Hổ).</p><h4>II. Nội dung</h4><p>Nếu thơ Nôm của Hồ Xuân Hương thường sắc sảo, trào phúng và táo bạo, thì Lưu Hương Ký lại hé lộ một góc nhìn khác: một tâm hồn đa cảm, một trái tim khao khát yêu thương và một nỗi buồn sâu lắng về duyên phận. Tập thơ thể hiện sự tinh tế trong cảm xúc và tài năng sử dụng ngôn từ chữ Hán của tác giả.</p><h4>III. Giá trị</h4><p>Tác phẩm giúp người đọc có cái nhìn toàn diện và sâu sắc hơn về con người Hồ Xuân Hương, đồng thời là tư liệu quý để nghiên cứu về cuộc đời và tư tưởng của bà.</p>"
+  },
+  {
+    "id": "van-te-nghia-si-can-giuoc",
+    "title": "Văn Tế Nghĩa Sĩ Cần Giuộc",
+    "author": "Nguyễn Đình Chiểu",
+    "desc": "Áng văn tế bất hủ ca ngợi những người nông dân anh hùng.",
+    "loai_hinh": "mo-rong",
+    "the_loai": ["Văn tế"],
+    "era": "TK 19",
+    "script": "Chữ Nôm",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Năm 1861, nghĩa quân Cần Giuộc (Long An) đã tấn công đồn giặc Pháp và hy sinh. Nguyễn Đình Chiểu đã viết bài văn tế này để tưởng nhớ những người đã khuất.</p><h4>II. Nội dung</h4><p>Tác phẩm ca ngợi lòng yêu nước, tinh thần quả cảm và sự hy sinh anh dũng của những người nông dân nghĩa sĩ. Đồng thời, bài văn cũng là lời khóc thương đau xót cho số phận của những con người bình dị nhưng vĩ đại, và là lời tố cáo tội ác của giặc xâm lược.</p><h4>III. Giá trị nghệ thuật</h4><p>Đây là một áng văn chính luận - trữ tình xuất sắc. Ngôn ngữ bình dị, chân thực, kết hợp với những hình ảnh giàu sức gợi. Giọng điệu vừa bi tráng, vừa xót thương, tạo nên sức lay động mãnh liệt trong lòng người đọc.</p>"
+  },
+  {
+    "id": "tuc-ngu-ve-thien-nhien",
+    "title": "Tục Ngữ Về Thiên Nhiên",
+    "author": "Dân gian",
+    "desc": "Kho tàng tri thức về thời tiết, mùa màng, kinh nghiệm sống.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Tục ngữ"],
+    "era": "Không rõ",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Định nghĩa và đặc điểm</h4><p>Tục ngữ là những câu nói ngắn gọn, súc tích, có nhịp điệu, đúc kết kinh nghiệm sống, kinh nghiệm sản xuất của nhân dân lao động.</p><h4>II. Nội dung</h4><p>Tục ngữ về thiên nhiên phản ánh sự hiểu biết của người xưa về các hiện tượng tự nhiên như nắng, mưa, bão, thủy triều, và mối quan hệ giữa chúng với mùa màng, sản xuất nông nghiệp. Ví dụ: \"Mau sao thì nắng, vắng sao thì mưa\", \"Chuồn chuồn bay thấp thì mưa...\".</p><h4>III. Giá trị</h4><p>Đây là kho tàng tri thức quý báu, giúp người nông dân dự đoán thời tiết để chủ động trong sản xuất và sinh hoạt. Tục ngữ cũng thể hiện sự gắn bó mật thiết của con người với tự nhiên.</p>"
+  },
+  {
+    "id": "ca-dao-than-than",
+    "title": "Ca Dao Than Thân",
+    "author": "Dân gian",
+    "desc": "Tiếng lòng đau xót của người phụ nữ trong xã hội phong kiến.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Ca dao"],
+    "era": "Không rõ",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Định nghĩa</h4><p>Ca dao than thân là những câu hát phản ánh số phận bất hạnh, long đong, lận đận của những người nghèo khổ, đặc biệt là người phụ nữ trong xã hội cũ.</p><h4>II. Nội dung</h4><p>Tác phẩm thể hiện tiếng nói xót xa cho thân phận mỏng manh, không tự quyết định được số phận của mình (như \"thân em như tấm lụa đào...\", \"thân em như củ ấu gai...\"). Đồng thời, ca dao cũng là tiếng nói oán trách xã hội bất công đã chà đạp lên quyền sống và nhân phẩm con người.</p><h4>III. Giá trị nghệ thuật</h4><p>Sử dụng nhiều hình ảnh ẩn dụ, so sánh tinh tế (tấm lụa đào, củ ấu gai, giếng giữa đàng...). Giọng điệu tha thiết, buồn thương nhưng vẫn ẩn chứa sự phản kháng.</p>"
+  },
+  {
+    "id": "ca-dao-tinh-yeu",
+    "title": "Ca Dao Tình Yêu",
+    "author": "Dân gian",
+    "desc": "Những câu ca dao ngọt ngào, tinh tế về tình yêu đôi lứa.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Ca dao"],
+    "era": "Không rõ",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Nội dung</h4><p>Ca dao tình yêu là một bộ phận đặc sắc của ca dao Việt Nam, phản ánh thế giới tình cảm phong phú, tinh tế của người bình dân. Đó có thể là tình cảm chớm nở (nhớ nhung, thương thầm), là nỗi lòng của người đang yêu (mong manh, lo lắng), hay những triết lý về tình yêu (thủy chung, son sắt).</p><h4>II. Đặc sắc nghệ thuật</h4><p>Ca dao tình yêu sử dụng rất nhiều biểu tượng (trầu cau, thuyền - bến, cây đa - bến nước...), hình ảnh thiên nhiên để bộc lộ tình cảm. Ngôn ngữ mộc mạc nhưng giàu sức gợi, tạo nên vẻ đẹp vừa dân dã vừa tinh tế.</p><h4>III. Giá trị</h4><p>Thể hiện vẻ đẹp tâm hồn của con người Việt Nam: chân thành, sâu sắc, kín đáo mà vẫn mãnh liệt. Đây là một phần di sản văn hóa phi vật thể vô cùng quý giá.</p>"
+  },
+  {
+    "id": "su-tich-trau-cau",
+    "title": "Sự Tích Trầu Cau",
+    "author": "Dân gian",
+    "desc": "Giải thích phong tục ăn trầu và tình nghĩa anh em, vợ chồng.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Cổ tích"],
+    "era": "Không rõ",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Nội dung</h4><p>Truyện kể về hai anh em Tân và Lang giống nhau như hai giọt nước. Khi Tân lấy vợ, vì hiểu lầm mà anh em xa cách. Lang buồn bã bỏ đi, hóa thành đá vôi. Tân và vợ đi tìm, cũng hóa thành cây cau và dây trầu. Vua Hùng đi qua, nghe chuyện liền sai lấy trầu, cau, vôi nhai thử, thấy đỏ môi, thơm miệng, bèn truyền cho nhân dân gìn giữ tục lệ ăn trầu.</p><h4>II. Giá trị nội dung</h4><p>Giải thích nguồn gốc tục ăn trầu của người Việt. Đề cao tình cảm anh em ruột thịt, tình nghĩa vợ chồng thắm thiết, son sắt. Ca ngợi lối sống trọng tình, trọng nghĩa của dân tộc.</p><h4>III. Đặc sắc nghệ thuật</h4><p>Cốt truyện đơn giản nhưng giàu ý nghĩa biểu tượng. Sử dụng yếu tố kỳ ảo (hóa thân) để lý tưởng hóa tình cảm và lý giải phong tục. Các chi tiết (đá vôi, cây cau, dây trầu) gắn bó chặt chẽ với đời sống văn hóa Việt Nam.</p>"
+  },
+  {
+    "id": "su-tich-banh-chung-banh-giay",
+    "title": "Sự Tích Bánh Chưng Bánh Giầy",
+    "author": "Dân gian",
+    "desc": "Đề cao lòng hiếu thảo và sự sáng tạo trong văn hóa ẩm thực.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Truyền thuyết"],
+    "era": "Thời Hùng Vương",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Nội dung</h4><p>Truyện kể về Lang Liêu, một hoàng tử nghèo, nhờ có giấc mộng được thần báo, đã làm ra hai loại bánh dâng lên vua Hùng: bánh chưng (hình vuông, tượng trưng cho đất) và bánh giầy (hình tròn, tượng trưng cho trời). Nhờ vậy, chàng được vua truyền ngôi.</p><h4>II. Giá trị nội dung</h4><p>Lý giải nguồn gốc của bánh chưng, bánh giầy trong văn hóa Việt Nam. Đề cao lòng hiếu thảo, sự kính trọng tổ tiên. Ca ngợi sự sáng tạo, sự cần cù trong lao động sản xuất của người nông dân.</p><h4>III. Đặc sắc nghệ thuật</h4><p>Yếu tố kỳ ảo (giấc mộng được thần báo) giúp giải thích nguồn gốc ra đời của sản phẩm. Câu chuyện mang đậm triết lý vũ trụ phương Đông (trời tròn, đất vuông) và tín ngưỡng thờ cúng tổ tiên.</p>"
+  }
+]
