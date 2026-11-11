@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 """
 =====================================================================
-VĂN ĐẠO ENGINE - TOOL: SPLIT WORKS (TÁCH & NỐI DỮ LIỆU)
+VĂN ĐẠO ENGINE - TOOL: SPLIT WORKS (TÁCH & NỐI DỮ LIỆU TỰ ĐỘNG)
 =====================================================================
 Tác giả: Văn Đạo
 Mô tả: 
-- Đọc file 'data-tac-pham-master.json'.
-- Tách thành các file nhỏ trong thư mục 'data/tac-pham/'.
-- TỰ ĐỘNG NỐI (MERGE) vào file danh mục 'data-tac-pham-index.json' 
-  mà không làm mất các tác phẩm cũ.
-- Tự động bỏ qua êm đẹp nếu không có file Master (tránh lỗi đỏ).
+- Đọc file gốc 'data/data-tac-pham-master.json' (chứa toàn bộ tác phẩm).
+- Tách từng tác phẩm thành các file JSON nhỏ lẻ trong thư mục 'data/tac-pham/'.
+- Tự động trích xuất thông tin (bỏ phần content) để nối vào file danh mục 
+  'data/data-tac-pham-index.json' mà không làm mất dữ liệu cũ.
+- TỰ ĐỘNG SẮP XẾP danh mục theo thứ tự Bảng chữ cái (A-Z) để dễ quản lý.
+- Tự động bỏ qua êm đẹp nếu không có file Master (tránh báo lỗi đỏ trên GitHub).
 =====================================================================
 """
 
@@ -20,40 +21,50 @@ import json
 from pathlib import Path
 
 # =====================================================================
-# I. CẤU HÌNH MÀU SẮC TERMINAL
+# I. CẤU HÌNH MÀU SẮC TERMINAL (Để log trên GitHub Actions dễ đọc)
 # =====================================================================
-C_TEAL = "\033[96m"
-C_GOLD = "\033[93m"
-C_GRAY = "\033[90m"
-C_GREEN = "\033[92m"
-C_RED = "\033[91m"
-C_RESET = "\033[0m"
+C_TEAL = "\033[96m"   # Màu xanh ngọc
+C_GOLD = "\033[93m"   # Màu vàng
+C_GRAY = "\033[90m"   # Màu xám
+C_GREEN = "\033[92m"  # Màu xanh lá (Thành công)
+C_RED = "\033[91m"    # Màu đỏ (Lỗi)
+C_RESET = "\033[0m"   # Reset màu
 
 # =====================================================================
-# II. CẤU HÌNH ĐƯỜNG DẪN
+# II. CẤU HÌNH ĐƯỜNG DẪN (Đảm bảo chạy đúng dù ở thư mục nào)
 # =====================================================================
-# Đảm bảo script luôn chạy ở thư mục gốc của dự án
+# Lấy thư mục chứa file script hiện tại, sau đó lùi ra 1 cấp (thư mục gốc dự án)
 ROOT_DIR = Path(__file__).parent.parent
+# Di chuyển con trỏ làm việc về thư mục gốc để các đường dẫn tương đối hoạt động chuẩn
 os.chdir(ROOT_DIR)
 
+# Định nghĩa các đường dẫn file và thư mục
 MASTER_FILE = ROOT_DIR / "data" / "data-tac-pham-master.json"
 DATA_DIR = ROOT_DIR / "data"
 WORKS_DIR = DATA_DIR / "tac-pham"
 INDEX_FILE = DATA_DIR / "data-tac-pham-index.json"
 
 def print_header():
+    """In tiêu đề khởi chạy ra màn hình Terminal"""
     print(f"\n{C_TEAL}====================================================================={C_RESET}")
     print(f"{C_GOLD}  VĂN ĐẠO ENGINE - TÁCH & NỐI DỮ LIỆU TÁC PHẨM{C_RESET}")
     print(f"{C_TEAL}====================================================================={C_RESET}")
     print(f"{C_GRAY}  Thư mục làm việc: {ROOT_DIR}{C_RESET}\n")
 
 def process_works():
-    # KIỂM TRA AN TOÀN: Nếu không có file Master thì bỏ qua êm đẹp (Không báo lỗi)
+    """Hàm xử lý chính: Đọc Master -> Tách file -> Nối Index -> Sắp xếp"""
+    
+    # -----------------------------------------------------------------
+    # BƯỚC 0: KIỂM TRA AN TOÀN (Nếu không có file Master thì bỏ qua êm đẹp)
+    # -----------------------------------------------------------------
     if not MASTER_FILE.exists():
         print(f"{C_GRAY}[BỎ QUA]{C_RESET} Không tìm thấy file 'data/data-tac-pham-master.json'.")
         print(f"  (Bình thường, bạn không cần làm gì cả. Bot kết thúc an toàn).")
         return
         
+    # -----------------------------------------------------------------
+    # BƯỚC 1: ĐỌC DỮ LIỆU TỪ FILE MASTER
+    # -----------------------------------------------------------------
     print(f"{C_GOLD}> BƯỚC 1: ĐỌC DỮ LIỆU TỪ MASTER{C_RESET}")
     print(f"  {C_GRAY}[ĐANG ĐỌC]{C_RESET} File: {MASTER_FILE.name}")
     
@@ -62,38 +73,46 @@ def process_works():
             new_works = json.load(f)
     except json.JSONDecodeError as e:
         print(f"{C_RED}[LỖI]{C_RESET} File JSON Master bị lỗi cú pháp: {e}")
-        sys.exit(1)
+        sys.exit(1) # Dừng bot nếu file JSON hỏng
         
+    # Kiểm tra xem dữ liệu có phải là một mảng (list) không
     if not isinstance(new_works, list):
         print(f"{C_RED}[LỖI]{C_RESET} Cấu trúc file Master không hợp lệ (Phải là một mảng []).")
         sys.exit(1)
         
     print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Đã đọc {len(new_works)} tác phẩm từ file Master.\n")
 
+    # -----------------------------------------------------------------
+    # BƯỚC 2: TÁCH FILE VÀ NỐI DANH MỤC
+    # -----------------------------------------------------------------
     print(f"{C_GOLD}> BƯỚC 2: TÁCH FILE VÀ NỐI DANH MỤC{C_RESET}")
     
+    # Tạo thư mục 'data/tac-pham' nếu chưa tồn tại
     if not WORKS_DIR.exists():
         WORKS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Đọc Index cũ (nếu có) để nối thêm vào
+    # Đọc file Index cũ (nếu có) để chuẩn bị nối thêm vào
     if INDEX_FILE.exists():
         try:
             with open(INDEX_FILE, 'r', encoding='utf-8') as f:
                 index_data = json.load(f)
         except Exception:
-            index_data = []
+            index_data = [] # Nếu file Index cũ bị lỗi, tạo mảng rỗng mới
     else:
         index_data = []
 
-    # Chuyển Index cũ thành Dictionary để dễ tìm và cập nhật (tránh trùng lặp)
+    # Chuyển Index cũ thành Dictionary (dạng {id: data}) để dễ tìm và cập nhật
+    # Việc này giúp chống trùng lặp: Nếu ID đã có, nó sẽ ghi đè thay vì thêm mới
     index_dict = {item['id']: item for item in index_data if 'id' in item}
     
     new_count = 0
     error_count = 0
     
+    # Duyệt qua từng tác phẩm trong file Master
     for item in new_works:
         work_id = item.get('id')
         
+        # Nếu tác phẩm không có 'id', bỏ qua và báo cảnh báo
         if not work_id:
             title = item.get('title', 'Không rõ tên')
             print(f"  {C_RED}[CẢNH BÁO]{C_RESET} Bỏ qua tác phẩm không có 'id': {title}")
@@ -101,15 +120,16 @@ def process_works():
             continue
             
         try:
-            # 1. Tạo/ghi đè file chi tiết
+            # 2.1. Tạo/Ghi đè file chi tiết (VD: data/tac-pham/truyen-kieu.json)
             detail_file_path = WORKS_DIR / f"{work_id}.json"
             with open(detail_file_path, 'w', encoding='utf-8') as f:
+                # ensure_ascii=False để giữ nguyên tiếng Việt, indent=2 để dễ đọc
                 json.dump(item, f, ensure_ascii=False, indent=2)
                 
-            # 2. Tạo dữ liệu cho Index (bỏ content cho nhẹ)
+            # 2.2. Tạo dữ liệu cho Index: Loại bỏ trường 'content' để nhẹ file
             index_item = {k: v for k, v in item.items() if k != 'content'}
             
-            # 3. Nối vào danh sách (Tự động ghi đè nếu ID đã tồn tại)
+            # 2.3. Nối vào danh sách (Tự động ghi đè nếu ID đã tồn tại)
             index_dict[work_id] = index_item
             new_count += 1
             
@@ -117,8 +137,16 @@ def process_works():
             print(f"  {C_RED}[LỖI]{C_RESET} Không thể tách tác phẩm '{work_id}': {e}")
             error_count += 1
 
-    # 4. Ghi lại toàn bộ Index
-    final_index = list(index_dict.values())
+    # -----------------------------------------------------------------
+    # BƯỚC 3: SẮP XẾP VÀ GHI LẠI FILE INDEX
+    # -----------------------------------------------------------------
+    # CẢI TIẾN TỐI ƯU: Sắp xếp danh sách theo Tiêu đề (title) từ A-Z
+    # Dùng .get('title', '') để tránh lỗi nếu một tác phẩm bị thiếu trường title
+    final_index = sorted(
+        list(index_dict.values()), 
+        key=lambda x: x.get('title', '').lower()
+    )
+    
     try:
         with open(INDEX_FILE, 'w', encoding='utf-8') as f:
             json.dump(final_index, f, ensure_ascii=False, indent=2)
@@ -126,16 +154,20 @@ def process_works():
         print(f"  {C_RED}[LỖI]{C_RESET} Không thể tạo file danh mục: {e}")
         sys.exit(1)
 
+    # -----------------------------------------------------------------
+    # BƯỚC 4: IN BÁO CÁO TỔNG KẾT
+    # -----------------------------------------------------------------
     print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Đã xử lý: {new_count} tác phẩm mới/cập nhật.")
     if error_count > 0:
         print(f"  {C_RED}[CẢNH BÁO]{C_RESET} Có {error_count} tác phẩm bị lỗi (Đã bỏ qua).")
-    print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Tổng số tác phẩm trên hệ thống: {len(final_index)}\n")
+    print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Tổng số tác phẩm trên hệ thống: {len(final_index)} (Đã sắp xếp A-Z)\n")
 
     print(f"{C_GOLD}> BƯỚC 3: BÁO CÁO{C_RESET}")
     print(f"  {C_GRAY}[GHI CHÚ]{C_RESET} Các tác phẩm cũ trong thư mục 'data/tac-pham/' vẫn được giữ nguyên vẹn.")
     print(f"  {C_GRAY}[GHI CHÚ]{C_RESET} Bạn có thể yên tâm xóa file Master sau khi bot chạy xong.")
 
 def main():
+    """Hàm khởi chạy chính của toàn bộ script"""
     print_header()
     process_works()
     
@@ -143,5 +175,6 @@ def main():
     print(f"{C_GREEN}  HOÀN TẤT!{C_RESET} Hệ thống đã được cập nhật.")
     print(f"{C_TEAL}====================================================================={C_RESET}\n")
 
+# Điểm khởi chạy của Python
 if __name__ == "__main__":
     main()
