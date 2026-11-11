@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 """
 =====================================================================
-VĂN ĐẠO ENGINE - TOOL: SPLIT WORKS (TÁCH & NỐI DỮ LIỆU TỰ ĐỘNG)
+VĂN ĐẠO ENGINE - TOOL: SPLIT WORKS (TÁCH, NỐI & TỰ ĐỘNG DỌN DẸP)
 =====================================================================
 Tác giả: Văn Đạo
 Mô tả: 
-- Đọc file gốc 'data/data-tac-pham-master.json' (chứa toàn bộ tác phẩm).
+- Đọc file gốc 'data/data-tac-pham-master.json'.
 - Tách từng tác phẩm thành các file JSON nhỏ lẻ trong thư mục 'data/tac-pham/'.
-- Tự động trích xuất thông tin (bỏ phần content) để nối vào file danh mục 
-  'data/data-tac-pham-index.json' mà không làm mất dữ liệu cũ.
-- TỰ ĐỘNG SẮP XẾP danh mục theo thứ tự Bảng chữ cái (A-Z) để dễ quản lý.
-- Tự động bỏ qua êm đẹp nếu không có file Master (tránh báo lỗi đỏ trên GitHub).
+- Tự động trích xuất thông tin để nối vào file danh mục 'data-tac-pham-index.json'.
+- TỰ ĐỘNG SẮP XẾP danh mục theo thứ tự Bảng chữ cái (A-Z).
+- TỰ ĐỘNG XÓA file Master sau khi xử lý thành công để dọn dẹp dự án.
 =====================================================================
 """
 
@@ -27,15 +26,14 @@ C_TEAL = "\033[96m"   # Màu xanh ngọc
 C_GOLD = "\033[93m"   # Màu vàng
 C_GRAY = "\033[90m"   # Màu xám
 C_GREEN = "\033[92m"  # Màu xanh lá (Thành công)
-C_RED = "\033[91m"    # Màu đỏ (Lỗi)
+C_RED = "\033[91m"    # Màu đỏ (Lỗi/Cảnh báo)
 C_RESET = "\033[0m"   # Reset màu
 
 # =====================================================================
-# II. CẤU HÌNH ĐƯỜNG DẪN (Đảm bảo chạy đúng dù ở thư mục nào)
+# II. CẤU HÌNH ĐƯỜNG DẪN
 # =====================================================================
 # Lấy thư mục chứa file script hiện tại, sau đó lùi ra 1 cấp (thư mục gốc dự án)
 ROOT_DIR = Path(__file__).parent.parent
-# Di chuyển con trỏ làm việc về thư mục gốc để các đường dẫn tương đối hoạt động chuẩn
 os.chdir(ROOT_DIR)
 
 # Định nghĩa các đường dẫn file và thư mục
@@ -47,12 +45,12 @@ INDEX_FILE = DATA_DIR / "data-tac-pham-index.json"
 def print_header():
     """In tiêu đề khởi chạy ra màn hình Terminal"""
     print(f"\n{C_TEAL}====================================================================={C_RESET}")
-    print(f"{C_GOLD}  VĂN ĐẠO ENGINE - TÁCH & NỐI DỮ LIỆU TÁC PHẨM{C_RESET}")
+    print(f"{C_GOLD}  VĂN ĐẠO ENGINE - TÁCH, NỐI & DỌN DẸP DỮ LIỆU TÁC PHẨM{C_RESET}")
     print(f"{C_TEAL}====================================================================={C_RESET}")
     print(f"{C_GRAY}  Thư mục làm việc: {ROOT_DIR}{C_RESET}\n")
 
 def process_works():
-    """Hàm xử lý chính: Đọc Master -> Tách file -> Nối Index -> Sắp xếp"""
+    """Hàm xử lý chính: Đọc Master -> Tách file -> Nối Index -> Sắp xếp -> Xóa Master"""
     
     # -----------------------------------------------------------------
     # BƯỚC 0: KIỂM TRA AN TOÀN (Nếu không có file Master thì bỏ qua êm đẹp)
@@ -75,7 +73,6 @@ def process_works():
         print(f"{C_RED}[LỖI]{C_RESET} File JSON Master bị lỗi cú pháp: {e}")
         sys.exit(1) # Dừng bot nếu file JSON hỏng
         
-    # Kiểm tra xem dữ liệu có phải là một mảng (list) không
     if not isinstance(new_works, list):
         print(f"{C_RED}[LỖI]{C_RESET} Cấu trúc file Master không hợp lệ (Phải là một mảng []).")
         sys.exit(1)
@@ -102,7 +99,6 @@ def process_works():
         index_data = []
 
     # Chuyển Index cũ thành Dictionary (dạng {id: data}) để dễ tìm và cập nhật
-    # Việc này giúp chống trùng lặp: Nếu ID đã có, nó sẽ ghi đè thay vì thêm mới
     index_dict = {item['id']: item for item in index_data if 'id' in item}
     
     new_count = 0
@@ -123,7 +119,6 @@ def process_works():
             # 2.1. Tạo/Ghi đè file chi tiết (VD: data/tac-pham/truyen-kieu.json)
             detail_file_path = WORKS_DIR / f"{work_id}.json"
             with open(detail_file_path, 'w', encoding='utf-8') as f:
-                # ensure_ascii=False để giữ nguyên tiếng Việt, indent=2 để dễ đọc
                 json.dump(item, f, ensure_ascii=False, indent=2)
                 
             # 2.2. Tạo dữ liệu cho Index: Loại bỏ trường 'content' để nhẹ file
@@ -140,8 +135,7 @@ def process_works():
     # -----------------------------------------------------------------
     # BƯỚC 3: SẮP XẾP VÀ GHI LẠI FILE INDEX
     # -----------------------------------------------------------------
-    # CẢI TIẾN TỐI ƯU: Sắp xếp danh sách theo Tiêu đề (title) từ A-Z
-    # Dùng .get('title', '') để tránh lỗi nếu một tác phẩm bị thiếu trường title
+    # Tự động sắp xếp danh sách theo Tiêu đề (title) từ A-Z
     final_index = sorted(
         list(index_dict.values()), 
         key=lambda x: x.get('title', '').lower()
@@ -155,16 +149,22 @@ def process_works():
         sys.exit(1)
 
     # -----------------------------------------------------------------
-    # BƯỚC 4: IN BÁO CÁO TỔNG KẾT
+    # BƯỚC 4: IN BÁO CÁO VÀ TỰ ĐỘNG XÓA FILE MASTER
     # -----------------------------------------------------------------
     print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Đã xử lý: {new_count} tác phẩm mới/cập nhật.")
     if error_count > 0:
         print(f"  {C_RED}[CẢNH BÁO]{C_RESET} Có {error_count} tác phẩm bị lỗi (Đã bỏ qua).")
     print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Tổng số tác phẩm trên hệ thống: {len(final_index)} (Đã sắp xếp A-Z)\n")
 
-    print(f"{C_GOLD}> BƯỚC 3: BÁO CÁO{C_RESET}")
-    print(f"  {C_GRAY}[GHI CHÚ]{C_RESET} Các tác phẩm cũ trong thư mục 'data/tac-pham/' vẫn được giữ nguyên vẹn.")
-    print(f"  {C_GRAY}[GHI CHÚ]{C_RESET} Bạn có thể yên tâm xóa file Master sau khi bot chạy xong.")
+    print(f"{C_GOLD}> BƯỚC 4: DỌN DẸP DỰ ÁN{C_RESET}")
+    try:
+        # Nếu file Master tồn tại thì tiến hành xóa
+        if MASTER_FILE.exists():
+            MASTER_FILE.unlink()
+            print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Đã tự động xóa file '{MASTER_FILE.name}' để dọn dẹp Repository.")
+            print(f"  {C_GRAY}[GHI CHÚ]{C_RESET} Bạn có thể tạo lại file Master mới nếu muốn thêm tác phẩm khác.")
+    except Exception as e:
+        print(f"  {C_RED}[CẢNH BÁO]{C_RESET} Không thể xóa file Master (có thể do quyền hệ thống): {e}")
 
 def main():
     """Hàm khởi chạy chính của toàn bộ script"""
