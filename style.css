@@ -4,7 +4,7 @@
    Mô tả: 
    - Giao diện Bạch Ngọc duy nhất (Chống lag, tối ưu GPU).
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
-   - Trải nghiệm khởi tạo (Boot Experience) và Dải lụa uốn lượn.
+   - Trải nghiệm khởi tạo (Boot Experience) chậm rãi, tĩnh tại.
    - Sửa lỗi giãn chữ, mất màu nút Active, chống Header che khi cuộn.
    ===================================================================== */
 
@@ -135,7 +135,7 @@ body {
     display: flex; justify-content: center; align-items: center; flex-direction: column;
 }
 
-/* 3 Dải lụa Bạch Ngọc */
+/* 3 Dải lụa Bạch Ngọc uốn lượn chậm rãi */
 .silk-layer { 
     position: absolute; 
     width: 40vw; height: 150vh; 
@@ -145,22 +145,23 @@ body {
     filter: blur(20px);
 }
 
+/* Thời gian chạy được tăng lên 16s, 20s, 24s để lụa trôi siêu chậm, thanh thoát */
 .silk-layer-1 { 
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 20%, #8bb8a8 50%, rgba(255,255,255,0.9) 80%, rgba(255,255,255,0) 100%);
     transform: rotate(-30deg) translateX(-20vw);
-    animation: silkRibbon1 8s ease-in-out infinite alternate;
+    animation: silkRibbon1 16s ease-in-out infinite alternate;
     opacity: 0.9;
 }
 .silk-layer-2 { 
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(220,235,230,0.8) 30%, #739e8f 50%, rgba(220,235,230,0.8) 70%, rgba(255,255,255,0) 100%);
     transform: rotate(45deg) translateX(20vw);
-    animation: silkRibbon2 10s ease-in-out infinite alternate-reverse;
+    animation: silkRibbon2 20s ease-in-out infinite alternate-reverse;
     opacity: 0.7;
 }
 .silk-layer-3 { 
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(212,196,168,0.6) 40%, rgba(255,255,255,0.9) 50%, rgba(212,196,168,0.6) 60%, rgba(255,255,255,0) 100%);
     transform: rotate(10deg) scale(1.2);
-    animation: silkRibbon3 12s ease-in-out infinite alternate;
+    animation: silkRibbon3 24s ease-in-out infinite alternate;
     opacity: 0.6;
     filter: blur(30px);
 }
@@ -178,25 +179,30 @@ body {
     100% { transform: rotate(15deg) scale(1.4) translateY(5vh); opacity: 0.8; } 
 }
 
-/* Nội dung Boot (Text và Danh ngôn) */
+/* Nội dung Boot (Text và Danh ngôn) - Hiện chậm rãi */
 .boot-content {
     position: relative; z-index: 10; text-align: center;
     opacity: 0; transform: translateY(20px);
-    animation: bootFadeIn 1.5s ease-out forwards; animation-delay: 0.5s;
+    /* Tăng thời gian hiện lên 2.5s, delay 1.2s để lụa hiện ra trước */
+    animation: bootFadeIn 2.5s ease-out forwards; 
+    animation-delay: 1.2s; 
 }
 .boot-brand { font-family: var(--font-body); font-size: 2rem; letter-spacing: 8px; color: var(--text-main); font-weight: 700; margin-bottom: 5px; }
 .boot-subtitle { font-family: var(--font-body); font-size: 0.8rem; letter-spacing: 4px; color: var(--accent-text); text-transform: uppercase; margin-bottom: 40px; }
 .boot-status { font-family: var(--font-body); font-size: 1rem; color: var(--text-muted); font-style: italic; margin-bottom: 20px; height: 24px; }
-.boot-quote { max-width: 400px; padding: 0 20px; font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.6; opacity: 0; transition: opacity 1s ease; }
+.boot-quote { 
+    max-width: 400px; padding: 0 20px; font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.6; 
+    opacity: 0; transition: opacity 2.5s ease; /* Chữ hiện ra từ từ trong 2.5s */
+}
 .boot-quote.show { opacity: 1; }
 
 @keyframes bootFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-/* Kích hoạt tan lụa và ẩn text */
-#jade-splash.leaving .silk-layer-1 { animation: ribbonOut1 1.2s var(--ease-silk-sharp) forwards; }
-#jade-splash.leaving .silk-layer-2 { animation: ribbonOut2 1.2s var(--ease-silk-sharp) forwards; animation-delay: 0.1s; }
-#jade-splash.leaving .silk-layer-3 { animation: ribbonOut3 1.2s var(--ease-silk-sharp) forwards; animation-delay: 0.2s; }
-#jade-splash.leaving .boot-content { animation: bootFadeOut 0.8s ease-in forwards; }
+/* Kích hoạt tan lụa và ẩn text (Kéo dài thời gian rút lụa) */
+#jade-splash.leaving .silk-layer-1 { animation: ribbonOut1 1.8s var(--ease-silk-sharp) forwards; }
+#jade-splash.leaving .silk-layer-2 { animation: ribbonOut2 1.8s var(--ease-silk-sharp) forwards; animation-delay: 0.1s; }
+#jade-splash.leaving .silk-layer-3 { animation: ribbonOut3 1.8s var(--ease-silk-sharp) forwards; animation-delay: 0.2s; }
+#jade-splash.leaving .boot-content { animation: bootFadeOut 1.2s ease-in forwards; }
 
 @keyframes ribbonOut1 { 
     0% { transform: rotate(-30deg) translateX(-20vw) scaleY(1); opacity: 1; } 
@@ -273,7 +279,7 @@ body {
     position: relative; z-index: 10; max-width: 1100px; 
     margin: 0 auto; padding: calc(90px + env(safe-area-inset-top)) 20px 40px 20px; 
     opacity: 0; 
-    transition: opacity 1.2s ease-in-out; 
+    transition: opacity 1.5s ease-in-out; /* Làm chậm hiệu ứng sáng lên của trang chủ */
 }
 .container.app-ready { opacity: 1; }
 
