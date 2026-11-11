@@ -6,7 +6,7 @@
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
    - Trải nghiệm khởi tạo (Boot Experience) chậm rãi, tĩnh tại.
    - Sửa lỗi giãn chữ, mất màu nút Active, chống Header che khi cuộn.
-   - Tối ưu hiệu ứng lụa (Silk) và responsive trên Mobile.
+   - Tinh chỉnh Hạt sương (6 hạt) và Hiệu ứng Highlight (Glow).
    ===================================================================== */
 
 /* =====================================================================
@@ -258,25 +258,23 @@ body {
 }
 
 /* =====================================================================
-   8. HIỆU ỨNG HẠT SƯƠNG
+   8. HIỆU ỨNG HẠT SƯƠNG (ĐÃ TINH CHỈNH - CHỈ 6 HẠT, KHÔNG LAG)
    ===================================================================== */
 .dewdrop-container { 
     position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; 
 }
 .dewdrop {
     position: absolute; border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #ffffff, var(--accent));
-    box-shadow: 0 0 10px 2px rgba(139, 184, 168, 0.5), inset 0 0 4px #fff;
-    bottom: -20px; 
+    /* JS sẽ đổ màu Gradient Ngọc Bích lấp lánh vào đây */
     will-change: transform, opacity; 
     transform: translate3d(0, 0, 0); 
-    animation: floatUp 15s linear infinite; 
+    animation: floatUp 20s linear infinite; /* Tăng thời gian bay để trôi chậm rãi */
     opacity: 0;
 }
 @keyframes floatUp {
     0% { transform: translate3d(0, 0, 0) scale(0.5); opacity: 0; }
-    10% { opacity: 0.8; }
-    90% { opacity: 0.8; }
+    10% { opacity: 0.9; }
+    90% { opacity: 0.9; }
     100% { transform: translate3d(0, -110vh, 0) scale(1.2); opacity: 0; }
 }
 
@@ -406,6 +404,27 @@ body {
 #sub-filter-bar { margin-top: -10px; margin-bottom: 30px; gap: 8px; }
 #sub-filter-bar .filter-btn { padding: 6px 14px; font-size: 0.7rem; background: transparent; border-radius: var(--radius-pill); }
 
+/* TỐI ƯU THANH TÌM KIẾM (Thêm nút X) */
+.search-box-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+#encyclopedia-search { padding-right: 45px !important; }
+.clear-btn {
+    position: absolute; right: 15px; background: transparent; border: none;
+    font-size: 1.5rem; color: var(--text-muted); cursor: pointer;
+    padding: 0; display: none; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%; transition: 0.2s;
+}
+.clear-btn:hover { background-color: rgba(139, 184, 168, 0.2); color: var(--text-main); }
+.clear-btn.show { display: flex; }
+
+/* Highlight từ khóa: Màu Vàng Kem Hoài Cổ */
+mark {
+    background-color: #f3e5ab; 
+    color: #2c221e;
+    padding: 0 3px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
 /* =====================================================================
    14. VĂN HIẾN (CARDS) & BÁCH KHOA (ACCORDION CHỐNG CHE HEADER)
    ===================================================================== */
@@ -427,11 +446,17 @@ body {
 .heritage-card.is-visible, .accordion-item.is-visible { opacity: 1; transform: translateY(0); }
 .heritage-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(139, 184, 168, 0.15); border-color: var(--accent); }
 
-/* HIỆU ỨNG HIGHLIGHT TỐI ƯU (Dùng outline thay vì box-shadow để chống lag) */
+/* HIỆU ỨNG HIGHLIGHT TỎA SÁNG RỰC RỠ */
 .accordion-item.highlight-target, .heritage-card.highlight-target {
     border-color: var(--accent) !important;
-    outline: 2px solid var(--accent) !important; 
-    background-color: rgba(139, 184, 168, 0.05) !important; 
+    background-color: rgba(139, 184, 168, 0.15) !important; 
+    animation: glowPulse 2.5s ease-out forwards;
+}
+
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 0 0 rgba(139, 184, 168, 0.8); transform: scale(1); }
+    30% { box-shadow: 0 0 0 10px rgba(139, 184, 168, 0); transform: scale(1.02); }
+    100% { box-shadow: var(--shadow); transform: scale(1); }
 }
 
 .h-tag { font-family: var(--font-body); font-size: 0.7rem; border: 1px solid var(--accent); color: var(--accent-text); padding: 3px 8px; border-radius: 8px; align-self: flex-start; text-transform: uppercase; display: inline-block; margin-right: 5px; margin-bottom: 5px; font-weight: 700; }
