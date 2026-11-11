@@ -1,20 +1,22 @@
 # =====================================================================
-# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TÁCH DỮ LIỆU TÁC GIẢ
-# Tên file: auto-split-authors.yml (Đồng bộ với auto-split-works.yml)
+# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TÁCH DỮ LIỆU TÁC PHẨM
+# Tên file: auto-split-works.yml (Đồng bộ với auto-split-authors.yml)
 # Tác giả: Văn Đạo
 # 
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
 # - Khiêm nhường: Chỉ thức giậy khi thực sự có "hạt giống" mới được gieo 
-#   (file data-tac-gia-master.json thay đổi).
+#   (file data-tac-pham-master.json thay đổi).
 # - Kỷ luật: Không chạy hỗn loạn. Phải xếp hàng (concurrency) để không 
-#   dẫm đạp lên các bot khác (tác phẩm, deploy).
+#   dẫm đạp lên các bot khác (tác giả, deploy).
 # - Trung thực: Kiểm tra kỹ cú pháp và sự thay đổi trước khi commit, 
 #   không bao giờ tạo ra "commit rác".
 # - Thanh tịnh: Xử lý xong thì tự động dọn dẹp (xóa file master) để 
 #   kho lưu trữ luôn gọn gàng.
+# - Bất khả xâm phạm: Lá chắn "rm -f" đảm bảo file Master bị xóa tuyệt đối 
+#   trước khi commit, chặn đứng mọi nguy cơ vòng lặp vô tận (infinite loop).
 # =====================================================================
 
-name: Auto Split Authors Data
+name: Auto Split Works Data
 
 # =====================================================================
 # 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
@@ -22,10 +24,10 @@ name: Auto Split Authors Data
 on:
   push:
     paths:
-      # Chỉ thức giậy khi file Master Tác Giả này bị thay đổi.
+      # Chỉ thức giậy khi file Master Tác Phẩm này bị thay đổi.
       # Việc giới hạn `paths` giúp tiết kiệm tài nguyên của GitHub Actions,
       # tránh việc bot chạy vô ích khi bạn chỉ sửa file CSS hay JS.
-      - 'data/data-tac-gia-master.json'
+      - 'data/data-tac-pham-master.json'
       
   # Thêm nút bấm chạy thủ công trên giao diện GitHub (Tab Actions) 
   # để bạn có thể test bất cứ lúc nào mà không cần tạo file Master.
@@ -34,7 +36,7 @@ on:
 # =====================================================================
 # 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
 # =====================================================================
-# Đảm bảo bot Tác Giả này không chạy cùng lúc với bot Tác Phẩm (auto-split-works)
+# Đảm bảo bot Tác Phẩm này không chạy cùng lúc với bot Tác Giả (auto-split-authors)
 # hay bot Deploy. Mọi thứ phải xếp hàng chạy tuần tự để tránh lỗi Git Push.
 concurrency:
   group: git-push-group
@@ -46,7 +48,7 @@ concurrency:
 # 3. CÁC BƯỚC THỰC THI (JOBS)
 # =====================================================================
 jobs:
-  split-authors:
+  split-works:
     # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
     
@@ -88,19 +90,32 @@ jobs:
       # nửa chừng rồi crash. Việc kiểm tra cú pháp (py_compile) trước khi chạy 
       # giúp phát hiện lỗi ngay lập tức, báo đỏ cho bạn biết mà sửa.
       - name: 3. Check Python syntax (Kiểm tra cú pháp)
-        run: python -m py_compile tools/split_authors.py
+        run: python -m py_compile tools/split_works.py
 
       # -----------------------------------------------------------------
       # BƯỚC 4: CHẠY FILE PYTHON ĐỂ TÁCH DỮ LIỆU
       # -----------------------------------------------------------------
-      - name: 4. Run split authors script (Chạy script tách tác giả)
+      - name: 4. Run split works script (Chạy script tách tác phẩm)
         # Gọi file script nằm trong thư mục tools/ để tách file và xóa file Master
-        run: python tools/split_authors.py
+        run: python tools/split_works.py
 
       # -----------------------------------------------------------------
-      # BƯỚC 5: KIỂM TRA XEM CÓ SỰ THAY ĐỔI NÀO KHÔNG
+      # BƯỚC 5: LÁ CHẮN CHỐNG VÒNG LẶP (BẢO HIỂM KÉP)
       # -----------------------------------------------------------------
-      - name: 5. Check for changes (Kiểm tra thay đổi)
+      # TẠI SAO CẦN BƯỚC NÀY?
+      # Script Python đã có lệnh unlink() để xóa file Master. Tuy nhiên, nếu 
+      # vì lý do nào đó (file bị khóa, lỗi quyền), file Master vẫn còn sót lại.
+      # Khi bot commit, file Master này lại kích hoạt chính nó chạy lại -> 
+      # Vòng lặp vô tận (Infinite Loop).
+      # Lệnh "rm -f" dưới đây là lá chắn cuối cùng, đảm bảo file Master 
+      # BỊ XÓA TUYỆT ĐỐI trước khi commit.
+      - name: 5. Force remove master file (Chống vòng lặp)
+        run: rm -f data/data-tac-pham-master.json
+
+      # -----------------------------------------------------------------
+      # BƯỚC 6: KIỂM TRA XEM CÓ SỰ THAY ĐỔI NÀO KHÔNG
+      # -----------------------------------------------------------------
+      - name: 6. Check for changes (Kiểm tra thay đổi)
         id: git-check
         # Lệnh git diff --exit-code sẽ trả về mã lỗi nếu có thay đổi.
         # Nếu có thay đổi, ta ghi "changes=true" vào biến môi trường của bước này.
@@ -109,16 +124,16 @@ jobs:
           git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
 
       # -----------------------------------------------------------------
-      # BƯỚC 6: TỰ ĐỘNG COMMIT VÀ PUSH (CÓ CƠ CHẾ THỬ LẠI)
+      # BƯỚC 7: TỰ ĐỘNG COMMIT VÀ PUSH (CÓ CƠ CHẾ THỬ LẠI)
       # -----------------------------------------------------------------
-      # Chỉ chạy bước này nếu Bước 5 báo có sự thay đổi (changes == 'true').
-      - name: 6. Commit and Push with Retry (Commit & Push)
+      # Chỉ chạy bước này nếu Bước 6 báo có sự thay đổi (changes == 'true').
+      - name: 7. Commit and Push with Retry (Commit & Push)
         if: steps.git-check.outputs.changes == 'true'
         uses: EndBug/add-and-commit@v11
         with:
           # Tin nhắn commit. ĐÃ XÓA [skip ci] để bot deploy.yml có thể chạy ngay lập tức
-          # giúp đẩy các tác giả mới lên web cho người dùng đọc.
-          message: "chore: auto-split authors data and update index"
+          # giúp đẩy các tác phẩm mới lên web cho người dùng đọc.
+          message: "chore: auto-split works data and update index"
           
           # Tự động thử lại 5 lần nếu việc Push bị lỗi do xung đột mạng hoặc Git lag.
           # GitHub Pages đôi khi bị chậm, việc retry giúp tăng tỷ lệ thành công lên 99.9%.
