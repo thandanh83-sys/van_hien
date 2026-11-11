@@ -31,8 +31,7 @@ const PRECACHE_ASSETS = [
     './assets/logo.png',
     
     // --- Font chữ cục bộ (Chạy Offline 100%) ---
-    './assets/fonts/alex-brush.woff2',
-    './assets/fonts/AlexBrush-Regular.ttf',
+    './assets/fonts/AlexBrush-Regular.woff2',
     
     // --- Dữ liệu danh mục và lý thuyết (Tải sẵn để dùng Offline) ---
     './data/data-ly-thuyet.json',
