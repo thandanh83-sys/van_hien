@@ -2,13 +2,12 @@
   "name": "VĂN ĐẠO — Đại Bách Khoa Toàn Thư",
   "short_name": "Văn Đạo",
   "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.",
-  "version": "1.0.0",
+  "version": "4.2.0",
   "id": "/van_hien/",
   "start_url": "./index.html",
   "scope": "./",
-  "display": "fullscreen",
+  "display": "standalone",
   "display_override": [
-    "fullscreen",
     "standalone",
     "minimal-ui"
   ],
@@ -75,21 +74,21 @@
       "name": "Văn Hiến (Tác phẩm)",
       "short_name": "Văn Hiến",
       "description": "Tra cứu danh mục tác phẩm văn học",
-      "url": "./index.html#view-heritage",
+      "url": "./index.html?tab=heritage",
       "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Đại Bách Khoa",
       "short_name": "Bách Khoa",
       "description": "Hệ thống tri thức lý thuyết và tác giả",
-      "url": "./index.html#view-encyclopedia",
+      "url": "./index.html?tab=encyclopedia",
       "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Thi Pháp Học",
       "short_name": "Thi Pháp",
       "description": "Phân tích cấu trúc thơ (Bằng/Trắc)",
-      "url": "./index.html#view-analyze",
+      "url": "./index.html?tab=analyze",
       "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     }
   ]
