@@ -1,0 +1,112 @@
+[
+  {
+    "id": "hoan-chau",
+    "title": "Hoàn Châu",
+    "author": "Nguyễn Trãi",
+    "desc": "Khúc ngâm hoài niệm về quê hương và triều đại xưa.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ chữ Hán"],
+    "era": "Nhà Lê sơ",
+    "script": "Chữ Hán",
+    "content": "<h4>I. Giới thiệu chung</h4><p>Hoàn Châu là một tác phẩm thơ chữ Hán của Nguyễn Trãi, thể hiện tình cảm sâu nặng của ông với quê hương, đất nước và những hoài niệm về một thời kỳ lịch sử đã qua. Tác phẩm mang đậm dấu ấn của một tâm hồn yêu nước, thương dân nhưng luôn trăn trở trước thời cuộc.</p><h4>II. Giá trị nội dung</h4><p>Tác phẩm thể hiện nỗi niềm hoài cổ, sự tiếc nuối về những giá trị tốt đẹp của quá khứ. Đồng thời, nó cũng phản ánh khát vọng của tác giả về một đất nước thái bình, thịnh trị, nơi nhân dân được sống ấm no, hạnh phúc. Qua đó, người đọc thấy được tấm lòng son sắt của Nguyễn Trãi với non sông, xã tắc.</p><h4>III. Giá trị nghệ thuật</h4><p>Ngôn ngữ thơ chữ Hán trang trọng, hàm súc. Sử dụng nhiều hình ảnh ước lệ, tượng trưng mang đậm phong cách thơ ca trung đại. Giọng điệu vừa bi tráng, vừa trữ tình, tạo nên sức lay động lòng người.</p>"
+  },
+  {
+    "id": "dong-chi",
+    "title": "Đồng Chí",
+    "author": "Chính Hữu",
+    "desc": "Bài thơ hay nhất về tình đồng đội trong kháng chiến chống Pháp.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ tự do"],
+    "era": "1948",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Bài thơ được sáng tác vào đầu năm 1948, sau khi tác giả Chính Hữu cùng đồng đội tham gia chiến đấu trong chiến dịch Việt Bắc (Thu Đông 1947). Đây là thời kỳ cuộc kháng chiến chống Pháp đang diễn ra vô cùng ác liệt và gian khổ.</p><h4>II. Giá trị nội dung</h4><p>Bài thơ ca ngợi vẻ đẹp của tình đồng chí, đồng đội - thứ tình cảm thiêng liêng được xây đắp trên cơ sở chung lý tưởng, chung hoàn cảnh chiến đấu. Tình cảm ấy bắt nguồn từ những người nông dân nghèo khổ, từ những miền quê khác nhau nhưng đã gắn bó keo sơn, sẵn sàng chia sẻ mọi gian nan, thiếu thốn. Đó là tình cảm chân thành, mộc mạc nhưng vô cùng cao đẹp.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ tự do, câu thơ ngắn gọn, súc tích, giọng điệu thủ thỉ, tâm tình. Ngôn ngữ thơ mộc mạc, bình dị như lời ăn tiếng nói hàng ngày của người nông dân. Hình ảnh thơ chân thực, gợi cảm (nước mặn đồng chua, đất cày lên sỏi đá, ánh trăng...).</p>"
+  },
+  {
+    "id": "vieng-lang-bac",
+    "title": "Viếng Lăng Bác",
+    "author": "Viễn Phương",
+    "desc": "Lòng thành kính và biết ơn vô hạn đối với Bác Hồ.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ trữ tình"],
+    "era": "1976",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Bài thơ được sáng tác năm 1976, khi đất nước vừa thống nhất, lăng Chủ tịch Hồ Chí Minh vừa được khánh thành. Nhà thơ Viễn Phương từ miền Nam ra thăm lăng Bác và đã ghi lại những cảm xúc vô cùng xúc động của mình.</p><h4>II. Giá trị nội dung</h4><p>Bài thơ thể hiện tấm lòng thành kính, biết ơn và niềm xúc động sâu sắc của một người con miền Nam nói riêng, và của toàn dân tộc Việt Nam nói chung, đối với vị lãnh tụ vĩ đại Hồ Chí Minh. Tác giả ca ngợi sự vĩ đại, cao cả của Bác, đồng thời bày tỏ nỗi đau xót khi Bác đã ra đi.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ 8 chữ, nhịp điệu chậm rãi, trang nghiêm. Giọng điệu thành kính, tha thiết. Ngôn ngữ thơ giàu hình ảnh ẩn dụ, biểu tượng (hàng tre, mặt trời, tràng hoa...). Sự chuyển đổi linh hoạt giữa các cung bậc cảm xúc (từ tự hào, kính phục đến đau xót, nghẹn ngào).</p>"
+  },
+  {
+    "id": "sang-thu",
+    "title": "Sang Thu",
+    "author": "Hữu Thỉnh",
+    "desc": "Những cảm nhận tinh tế về thiên nhiên và cuộc sống khi thu sang.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ tự do"],
+    "era": "1977",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Bài thơ ra đời năm 1977, được in trong tập \"Từ chiến hào đến thành phố\". Tác phẩm thể hiện những rung cảm tinh tế của tác giả trước sự chuyển mình của đất trời khi mùa thu đến.</p><h4>II. Giá trị nội dung</h4><p>Bài thơ khắc họa bức tranh thiên nhiên nông thôn Bắc Bộ lúc giao mùa, từ cuối hạ sang đầu thu. Qua đó, tác giả thể hiện tình yêu thiên nhiên, quê hương tha thiết. Đồng thời, bài thơ còn mang những triết lý sâu sắc về con người và cuộc sống: những biến chuyển âm thầm mà mạnh mẽ của tự nhiên, sự trải nghiệm để trưởng thành của con người.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ 5 chữ, nhịp điệu nhẹ nhàng, uyển chuyển. Sử dụng nhiều hình ảnh thơ độc đáo, gợi cảm (hương ổi, gió se, sương chùng chình...). Ngôn ngữ thơ giàu chất gợi, kết hợp hài hòa giữa cảnh và tình.</p>"
+  },
+  {
+    "id": "mua-xuan-nho-nho",
+    "title": "Mùa Xuân Nho Nhỏ",
+    "author": "Thanh Hải",
+    "desc": "Khát vọng cống hiến một mùa xuân nhỏ cho đất nước.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ tự do"],
+    "era": "1980",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Bài thơ được viết vào tháng 11 năm 1980, không lâu trước khi nhà thơ Thanh Hải qua đời vì bệnh nặng. Tác phẩm được xem là \"khúc ca cuối cùng\" của ông, thể hiện tình yêu cuộc sống và khát vọng cống hiến mãnh liệt.</p><h4>II. Giá trị nội dung</h4><p>Bài thơ là lời ngợi ca vẻ đẹp của thiên nhiên, đất nước và con người Việt Nam. Đồng thời, tác phẩm thể hiện niềm tự hào về truyền thống dân tộc và khát vọng được hòa nhập, được cống hiến những điều tốt đẹp nhất (một mùa xuân nho nhỏ) của cá nhân vào mùa xuân lớn của dân tộc. Đó là một lẽ sống cao đẹp và đầy ý nghĩa.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ tự do (có khổ 5 chữ, có khổ 7 chữ), nhạc điệu trong sáng, tha thiết. Hình ảnh thơ đẹp, giản dị, giàu sức gợi (dòng sông xanh, bông hoa tím, chim chiền chiện...). Sử dụng khéo léo các biện pháp tu từ (ẩn dụ, hoán dụ...).</p>"
+  },
+  {
+    "id": "noi-voi-con",
+    "title": "Nói Với Con",
+    "author": "Y Phương",
+    "desc": "Tình yêu thương con và niềm tự hào về quê hương.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ tự do"],
+    "era": "1980",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Bài thơ được sáng tác vào năm 1980, khi nhà thơ Y Phương đang sống và làm việc tại quê hương Cao Bằng. Tác phẩm thể hiện tình cảm của một người cha dành cho đứa con yêu quý của mình.</p><h4>II. Giá trị nội dung</h4><p>Bài thơ thể hiện tình yêu thương con sâu sắc và niềm tự hào của người cha về quê hương, về dân tộc mình. Qua những lời tâm tình với con, tác giả muốn truyền dạy cho con những phẩm chất tốt đẹp: lòng can đảm, sự kiên cường, sự chân thành và tình yêu quê hương đất nước. Đó là những hành trang quý giá để con bước vào đời.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ tự do, giọng điệu ân cần, tha thiết. Ngôn ngữ thơ mộc mạc, giản dị, mang đậm bản sắc dân tộc Tày (cách nói, cách ví von độc đáo). Hình ảnh thơ chân thực, sinh động (chân phải bước tới cha, chân trái bước tới mẹ...).</p>"
+  },
+  {
+    "id": "nhung-ngoi-sao-xa-xoi",
+    "title": "Những Ngôi Sao Xa Xôi",
+    "author": "Lê Minh Khuê",
+    "desc": "Cuộc sống và chiến đấu của ba cô gái thanh niên xung phong.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": ["Truyện ngắn"],
+    "era": "1971",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Truyện ngắn được viết vào năm 1971, khi cuộc kháng chiến chống Mỹ đang diễn ra ác liệt nhất. Tác phẩm lấy bối cảnh là một trọng điểm giao thông trên tuyến đường Trường Sơn, nơi ba cô gái thanh niên xung phong đang làm nhiệm vụ phá bom, san lấp hố bom để đảm bảo thông suốt con đường huyết mạch.</p><h4>II. Giá trị nội dung</h4><p>Truyện ngắn khắc họa vẻ đẹp tâm hồn của thế hệ trẻ Việt Nam trong chiến tranh: hồn nhiên, trong sáng, mơ mộng nhưng cũng vô cùng dũng cảm, kiên cường và giàu lòng yêu nước. Ba cô gái (Phương Định, Thao, Nho) tuy tính cách khác nhau nhưng đều có chung một tinh thần trách nhiệm cao cả, sẵn sàng hy sinh tuổi trẻ vì lý tưởng độc lập dân tộc.</p><h4>III. Giá trị nghệ thuật</h4><p>Nghệ thuật kể chuyện theo ngôi thứ nhất (qua lời kể của Phương Định) tạo sự chân thực, gần gũi. Nghệ thuật phân tích tâm lý nhân vật tinh tế, sắc sảo. Ngôn ngữ trần thuật giản dị, đậm chất khẩu ngữ. Tác phẩm mang đậm chất trữ tình và triết lý.</p>"
+  },
+  {
+    "id": "chiec-luoc-nga",
+    "title": "Chiếc Lược Ngà",
+    "author": "Nguyễn Quang Sáng",
+    "desc": "Tình cha con sâu nặng trong hoàn cảnh chiến tranh khắc nghiệt.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": ["Truyện ngắn"],
+    "era": "1966",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Truyện ngắn được sáng tác năm 1966, giữa lúc cuộc kháng chiến chống Mỹ đang diễn ra vô cùng gian khổ. Tác phẩm được đưa vào tập truyện ngắn cùng tên, ca ngợi tình cảm cha con thiêng liêng trong bối cảnh chiến tranh ly biệt.</p><h4>II. Giá trị nội dung</h4><p>Tác phẩm kể về tình cảm cha con của ông Sáu và bé Thu. Vì chiến tranh, ông Sáu phải xa nhà khi con gái còn nhỏ. Khi trở về, bé Thu không nhận ra cha vì vết thẹo trên mặt. Tình cảm của bé Thu dành cho cha được thể hiện qua những hành động, lời nói tưởng chừng như ương ngạnh nhưng thực chất lại vô cùng sâu sắc. Chiếc lược ngà là kỷ vật thiêng liêng, là cầu nối tình cảm của cha và con, vượt qua cả bom đạn chiến tranh.</p><h4>III. Giá trị nghệ thuật</h4><p>Nghệ thuật xây dựng nhân vật đặc sắc (nhất là nhân vật bé Thu). Cốt truyện chặt chẽ, tình huống bất ngờ, éo le. Ngôn ngữ kể chuyện giản dị, giàu cảm xúc. Tác phẩm mang đậm tính nhân văn, ca ngợi tình cảm gia đình cao đẹp.</p>"
+  },
+  {
+    "id": "lang",
+    "title": "Làng",
+    "author": "Kim Lân",
+    "desc": "Tình yêu làng, yêu nước của người nông dân trong kháng chiến.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": ["Truyện ngắn"],
+    "era": "1948",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Truyện ngắn được sáng tác năm 1948, in trong tập truyện \"Con chó xấu xí\". Tác phẩm lấy bối cảnh cuộc kháng chiến chống Pháp, tại một làng quê Việt Nam.</p><h4>II. Giá trị nội dung</h4><p>Tác phẩm kể về nhân vật ông Hai, một người nông dân yêu làng Chợ Dầu tha thiết. Khi nghe tin làng mình theo giặc, ông vô cùng đau khổ, tủi nhục, không dám ra khỏi nhà. Nhưng sau đó, khi biết tin làng mình đã phá hủy tàu giặc, ông lại vô cùng vui sướng, hạnh phúc. Từ tình yêu làng, tác giả đã khẳng định tình yêu nước, tinh thần kháng chiến của người nông dân Việt Nam.</p><h4>III. Giá trị nghệ thuật</h4><p>Nghệ thuật xây dựng nhân vật sinh động, khắc họa tâm lý nhân vật tinh tế. Ngôn ngữ thơ mộc mạc, giản dị, đậm chất nông thôn Bắc Bộ. Tình huống truyện độc đáo, gây bất ngờ và cảm xúc mạnh mẽ. Tác phẩm là một bức tranh sinh động về cuộc sống, con người và tinh thần kháng chiến của nhân dân ta.</p>"
+  },
+  {
+    "id": "ben-que",
+    "title": "Bến Quê",
+    "author": "Nguyễn Minh Châu",
+    "desc": "Chiêm nghiệm về cuộc đời và những giá trị bình dị.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": ["Truyện ngắn"],
+    "era": "1985",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Truyện ngắn ra đời năm 1985, khi đất nước đã bước vào thời kỳ đổi mới. Tác phẩm được in trong tập truyện ngắn \"Bến quê\", thể hiện những suy ngẫm sâu sắc của nhà văn về cuộc sống và con người.</p><h4>II. Giá trị nội dung</h4><p>Tác phẩm kể về nhân vật Nhĩ, một người đàn ông từng trải qua nhiều nơi, nhưng đến khi bị bệnh nặng, không thể đi lại được, anh mới nhận ra những giá trị bình dị của quê hương. Tác phẩm gửi gắm bài học về sự trân trọng những gì gần gũi, bình dị xung quanh ta. Đôi khi, những điều đẹp đẽ nhất lại ở ngay bên cạnh chứ không phải ở những miền đất xa xôi.</p><h4>III. Giá trị nghệ thuật</h4><p>Nghệ thuật xây dựng tình huống truyện độc đáo, đầy nghịch lý. Nghệ thuật miêu tả tâm lý nhân vật tinh tế. Ngôn ngữ trữ tình, giàu hình ảnh ẩn dụ, triết lý. Tác phẩm mang đậm phong cách văn học của Nguyễn Minh Châu: luôn trăn trở về con người, về cuộc đời.</p>"
+  }
+]
