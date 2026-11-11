@@ -1,0 +1,94 @@
+# =====================================================================
+# VĂN ĐẠO ENGINE - GITHUB ACTION: KIỂM TRA TOÀN VẸN DỮ LIỆU
+# Tên file: validate-data.yml
+# Tác giả: Văn Đạo
+# 
+# TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+# - Người Gác Cổng (The Gatekeeper): Bot này KHÔNG viết code, KHÔNG commit. 
+#   Nó chỉ đọc và kiểm tra. Mục đích là phát hiện sớm các lỗi dữ liệu 
+#   (JSON hỏng, thiếu ID, đứt gãy liên kết Index - Detail) trước khi 
+#   chúng được đưa lên mạng lưới tri thức.
+# - Cảnh báo sớm: Chạy tự động mỗi khi có thay đổi trong thư mục `data/`. 
+#   Nếu dữ liệu có lỗi, bot sẽ báo Đỏ (Fail) ngay lập tức để bạn biết 
+#   mà sửa, tránh việc người dùng đọc phải một trang trắng.
+# - Kỷ luật: Xếp hàng riêng (không dùng chung git-push-group) để không 
+#   cản trở các bot đang cần Push dữ liệu.
+# =====================================================================
+
+name: Validate Data Integrity
+
+# =====================================================================
+# 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
+# =====================================================================
+on:
+  push:
+    paths:
+      # Chạy khi bất kỳ file nào trong thư mục data/ thay đổi.
+      # Đây là lúc mạng lưới tri thức có nguy cơ bị ảnh hưởng cao nhất.
+      - 'data/**'
+      # Chạy khi bản thân script kiểm tra bị thay đổi (để test lại logic)
+      - 'tools/validate_data.py'
+      
+  # Nút bấm thủ công để bạn có thể "Khám sức khỏe" toàn bộ dữ liệu 
+  # bất cứ lúc nào bạn muốn.
+  workflow_dispatch:
+
+# =====================================================================
+# 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# =====================================================================
+concurrency:
+  # Dùng một nhóm riêng biệt, không dùng chung với "git-push-group".
+  # Lý do: Bot này chỉ đọc (read-only), không ghi (write), nên nó có thể 
+  # chạy song song với các bot khác mà không sợ xung đột Git.
+  group: validate-data
+  
+  # Nếu bạn push 2 lần liên tiếp, hãy hủy lần kiểm tra cũ và chạy lần mới nhất.
+  # Việc này an toàn vì bot chỉ đọc, không sợ dữ liệu bị "nửa nọ nửa kia".
+  cancel-in-progress: true
+
+# =====================================================================
+# 3. CÁC BƯỚC THỰC THI (JOBS)
+# =====================================================================
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    # KỶ LUẬT THỜI GIAN: Tự động hủy nếu chạy quá 5 phút.
+    # Script kiểm tra chỉ đọc file, không có tác vụ nặng. 
+    # Nếu quá 5 phút, chắc chắn có lỗi I/O hoặc file JSON bị lỗi vòng lặp.
+    timeout-minutes: 5
+    
+    steps:
+      # -----------------------------------------------------------------
+      # BƯỚC 1: LẤY CODE MỚI NHẤT TỪ KHO VỀ MÁY ẢO
+      # -----------------------------------------------------------------
+      - name: 1. Checkout code (Lấy code về)
+        uses: actions/checkout@v4
+        # Chỉ cần lấy code mới nhất, không cần lịch sử commit.
+        
+      # -----------------------------------------------------------------
+      # BƯỚC 2: CÀI ĐẶT MÔI TRƯỜNG PYTHON
+      # -----------------------------------------------------------------
+      - name: 2. Set up Python (Cài đặt Python)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # -----------------------------------------------------------------
+      # BƯỚC 3: KIỂM TRA CÚ PHÁP CỦA SCRIPT KIỂM TRA
+      # -----------------------------------------------------------------
+      # "Ai gác cổng thì cũng phải biết võ". Đảm bảo bản thân script 
+      # validate_data.py không bị lỗi cú pháp trước khi nó đi kiểm tra người khác.
+      - name: 3. Check Python syntax (Kiểm tra cú pháp)
+        run: python -m py_compile tools/validate_data.py
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: CHẠY SCRIPT KIỂM TRA (TRÁI TIM CỦA BOT)
+      # -----------------------------------------------------------------
+      - name: 4. Run Data Integrity Check (Khám sức khỏe dữ liệu)
+        run: python tools/validate_data.py
+        
+        # GHI CHÚ QUAN TRỌNG: 
+        # Nếu script trả về mã lỗi (exit code 1), bước này sẽ bị đánh dấu ĐỎ (Fail).
+        # Bạn sẽ thấy ngay trên giao diện GitHub Actions.
+        # Bot này KHÔNG tự động sửa lỗi, việc sửa là của con người (bạn).
