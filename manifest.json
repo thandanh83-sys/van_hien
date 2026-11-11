@@ -30,25 +30,25 @@
   "handle_links": "preferred",
   "icons": [
     {
-      "src": "assets/logo.png",
+      "src": "assets/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/logo.png",
+      "src": "assets/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/logo.png",
+      "src": "assets/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "assets/logo.png",
+      "src": "assets/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -76,21 +76,21 @@
       "short_name": "Văn Hiến",
       "description": "Tra cứu danh mục tác phẩm văn học",
       "url": "./index.html#view-heritage",
-      "icons": [{ "src": "assets/logo.png", "sizes": "192x192" }]
+      "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Đại Bách Khoa",
       "short_name": "Bách Khoa",
       "description": "Hệ thống tri thức lý thuyết và tác giả",
       "url": "./index.html#view-encyclopedia",
-      "icons": [{ "src": "assets/logo.png", "sizes": "192x192" }]
+      "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Thi Pháp Học",
       "short_name": "Thi Pháp",
       "description": "Phân tích cấu trúc thơ (Bằng/Trắc)",
       "url": "./index.html#view-analyze",
-      "icons": [{ "src": "assets/logo.png", "sizes": "192x192" }]
+      "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     }
   ]
 }
