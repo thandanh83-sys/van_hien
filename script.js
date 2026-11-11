@@ -2,10 +2,11 @@
    VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 1.0 - FINAL)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tối ưu hóa hiệu năng (Chỉ vẽ khi lướt tới, Canvas ngủ đông).
-   - Phân chia Bách Khoa thành 3 nhóm: Triết Thuyết, Kỳ Tài, Tinh Hoa.
-   - Tự động sắp xếp A-Z, cuộn thông minh không bị Header che.
-   - Điều phối Màn hình chờ Dải lụa (Splash Screen) mượt mà.
+   - Tích hợp hiệu ứng Dải lụa (Silk Transition) tối ưu GPU.
+   - Trải nghiệm Khởi tạo 5 giai đoạn (Boot Experience).
+   - Tự động sắp xếp Lý thuyết theo Số La Mã, Tác giả/Tác phẩm theo A-Z.
+   - Tìm kiếm thông minh (bỏ dấu tiếng Việt, tìm cả tác giả/tác phẩm).
+   - Cuộn thông minh không bị Header che, không tự mở nội dung.
    ===================================================================== */
 
 /* =====================================================================
@@ -63,7 +64,7 @@ const PerformanceEngine = (() => {
 
 
 /* =====================================================================
-   MODULE 2: ĐIỀU HƯỚNG (ROUTING) & QUẢN LÝ VIEW
+   MODULE 2: ĐIỀU HƯỚNG (ROUTING) & QUẢN LÝ VIEW (TÍCH HỢP SILK TRANSITION)
    ===================================================================== */
 function switchView(viewId) {
     const currentActive = document.querySelector('.view.active');
@@ -71,50 +72,68 @@ function switchView(viewId) {
     
     if (currentViewId === viewId) return;
 
-    if (currentViewId) {
-        viewScrollPositions[currentViewId] = window.scrollY;
-        unloadView(currentViewId);
+    // 1. KÍCH HOẠT HIỆU ỨNG DẢI LỤA (Đã tối ưu GPU chống giật)
+    const silkOverlay = document.getElementById('silkTransition');
+    if (silkOverlay) {
+        silkOverlay.classList.remove('entering', 'leaving', 'active');
+        void silkOverlay.offsetWidth; // Force reflow để trình duyệt nhận diện layer mới
+        silkOverlay.style.transform = 'translateZ(0)';
+        silkOverlay.style.willChange = 'transform, opacity';
+        
+        silkOverlay.classList.add('active', 'entering');
+        
+        setTimeout(() => {
+            silkOverlay.classList.remove('active', 'entering');
+        }, 1000);
     }
-    
-    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(link => {
-        link.classList.remove('active');
-        link.removeAttribute('aria-current');
-    });
-    
-    const targetView = document.getElementById(`view-${viewId}`);
-    const targetNav = document.getElementById(`nav-${viewId}`);
-    if (targetView) targetView.classList.add('active');
-    if (targetNav) {
-        targetNav.classList.add('active');
-        targetNav.setAttribute('aria-current', 'page');
-    }
-    
-    const navMenu = document.getElementById('navMenu');
-    if (navMenu) navMenu.classList.remove('show');
-    
-    let isRendering = false;
-    if (viewId === 'heritage') {
-        const grid = document.getElementById('heritage-grid');
-        if (grid && grid.innerHTML.trim() === '') {
-            grid.innerHTML = Array(6).fill(`<div class="skeleton skeleton-card"><div class="skeleton-line title"></div><div class="skeleton-line desc"></div></div>`).join('');
-            setTimeout(() => renderHeritage(), 10); 
-            isRendering = true;
+
+    // 2. ĐỢI 300MS (LÚC DẢI LỤA ĐANG CHE MÀN HÌNH) RỒI TRÁO ĐỔI NỘI DUNG
+    setTimeout(() => {
+        if (currentViewId) {
+            viewScrollPositions[currentViewId] = window.scrollY;
+            unloadView(currentViewId);
         }
-    } else if (viewId === 'encyclopedia') {
-        const container = document.getElementById('encyclopedia-container');
-        if (container && container.innerHTML.trim() === '') {
-            setTimeout(() => renderEncyclopedia(), 10);
-            isRendering = true;
+        
+        document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(link => {
+            link.classList.remove('active');
+            link.removeAttribute('aria-current');
+        });
+        
+        const targetView = document.getElementById(`view-${viewId}`);
+        const targetNav = document.getElementById(`nav-${viewId}`);
+        if (targetView) targetView.classList.add('active');
+        if (targetNav) {
+            targetNav.classList.add('active');
+            targetNav.setAttribute('aria-current', 'page');
         }
-    }
-    
-    const savedY = viewScrollPositions[viewId] || 0;
-    if (savedY > 0) {
-        setTimeout(() => window.scrollTo({ top: savedY, behavior: 'instant' }), isRendering ? 60 : 10);
-    } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+        
+        const navMenu = document.getElementById('navMenu');
+        if (navMenu) navMenu.classList.remove('show');
+        
+        let isRendering = false;
+        if (viewId === 'heritage') {
+            const grid = document.getElementById('heritage-grid');
+            if (grid && grid.innerHTML.trim() === '') {
+                grid.innerHTML = Array(6).fill(`<div class="skeleton skeleton-card"><div class="skeleton-line title"></div><div class="skeleton-line desc"></div></div>`).join('');
+                setTimeout(() => renderHeritage(), 10); 
+                isRendering = true;
+            }
+        } else if (viewId === 'encyclopedia') {
+            const container = document.getElementById('encyclopedia-container');
+            if (container && container.innerHTML.trim() === '') {
+                setTimeout(() => renderEncyclopedia(), 10);
+                isRendering = true;
+            }
+        }
+        
+        const savedY = viewScrollPositions[viewId] || 0;
+        if (savedY > 0) {
+            setTimeout(() => window.scrollTo({ top: savedY, behavior: 'instant' }), isRendering ? 60 : 10);
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, 300);
 }
 
 function unloadView(viewId) {
@@ -152,6 +171,11 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
+}
+
+// Hàm chuẩn hóa tiếng Việt (bỏ dấu) để tìm kiếm linh hoạt hơn
+function removeAccents(str) {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
 }
 
 
@@ -293,9 +317,35 @@ function changePage(page) {
    MODULE 5: BÁCH KHOA (3 NHÓM: TRIẾT THUYẾT - KỲ TÀI - TINH HOA)
    ===================================================================== */
 
-// Hàm dùng chung: Sắp xếp A-Z (Bỏ qua tiền tố "Quyển I", "Chân Dung Tác Giả:")
-function sortEncyData(data) {
+// Hàm chuyển đổi số La Mã (I, II, XVII) sang số Ả Rập (1, 2, 17)
+function romanToInt(roman) {
+    if (roman === '0') return 0;
+    const map = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
+    let num = 0;
+    const s = roman.toLowerCase();
+    for (let i = 0; i < s.length; i++) {
+        const current = map[s[i]];
+        const next = map[s[i + 1]];
+        if (next && current < next) { 
+            num += next - current; 
+            i++; // Bỏ qua ký tự tiếp theo vì đã cộng trừ
+        } else { 
+            num += current; 
+        }
+    }
+    return num;
+}
+
+// Hàm sắp xếp thông minh: Triết Thuyết theo số Quyển, Kỳ Tài & Tinh Hoa theo A-Z
+function sortEncyData(data, group) {
     return data.sort((a, b) => {
+        if (group === 'triet-thuyet') {
+            const getQuyenNum = (id) => {
+                const match = id.match(/quyen-([ivxlcdm0-9]+)/i);
+                return match ? romanToInt(match[1]) : 999;
+            };
+            return getQuyenNum(a.id) - getQuyenNum(b.id);
+        }
         const cleanTitle = (t) => t.replace(/^(Quyển [IVXLCDM]+\.|Chân Dung Tác Giả:)\s*/i, '').toLowerCase();
         return cleanTitle(a.title).localeCompare(cleanTitle(b.title));
     });
@@ -331,8 +381,8 @@ function renderEncyclopedia() {
         return;
     }
 
-    // 2. SẮP XẾP A-Z
-    sortEncyData(data);
+    // 2. SẮP XẾP
+    sortEncyData(data, currentEncyGroup);
     
     // 3. RENDER HTML
     container.innerHTML = data.map((item, index) => `
@@ -360,7 +410,21 @@ function renderEncyclopedia() {
                         contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải nội dung...</p>`;
                         try {
                             const full = await loadWorkDetail(dataItem.id);
-                            contentDiv.innerHTML = full.content || '<p>Đang cập nhật nội dung...</p>';
+                            if (full.content && full.content.trim() !== '') {
+                                contentDiv.innerHTML = full.content;
+                            } else {
+                                // Hiển thị thông báo đẹp mắt khi chưa có nội dung
+                                contentDiv.innerHTML = `
+                                    <div style="text-align: center; padding: 30px 10px; opacity: 0.8;">
+                                        <div style="font-size: 1.5rem; margin-bottom: 10px;">${ICONS.clock}</div>
+                                        <p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">
+                                            Văn bản này đang được Văn Đạo hiệu đính và biên soạn nội dung chi tiết.
+                                        </p>
+                                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 10px;">
+                                            Vui lòng quay lại sau hoặc sử dụng tính năng "Thi Pháp" để phân tích tác phẩm.
+                                        </p>
+                                    </div>`;
+                            }
                         } catch (err) {
                             contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung. Vui lòng kiểm tra mạng.</p>`;
                         }
@@ -379,7 +443,9 @@ function renderEncyclopedia() {
 }
 
 function searchEncyclopedia() {
-    const keyword = document.getElementById('encyclopedia-search').value.toLowerCase().trim();
+    const rawKeyword = document.getElementById('encyclopedia-search').value.trim();
+    const keyword = removeAccents(rawKeyword.toLowerCase());
+    
     const items = document.querySelectorAll('.accordion-item');
     
     let data = [];
@@ -387,22 +453,26 @@ function searchEncyclopedia() {
     else if (currentEncyGroup === 'ky-tai') data = [...AUTHOR_DATA];
     else if (currentEncyGroup === 'tinh-hoa') data = [...WORKS_DATA];
     
-    sortEncyData(data); // Phải sort để index khớp với lúc render
+    sortEncyData(data, currentEncyGroup); // Phải sort để index khớp với lúc render
     
     items.forEach(item => {
         const details = item.querySelector('details');
-        const title = item.querySelector('.summary-title').textContent.toLowerCase();
+        const title = item.querySelector('.summary-title').textContent;
         const index = parseInt(details.getAttribute('data-index'));
         const datum = data[index];
         
-        let searchable = (datum.content || '').toLowerCase();
-        if (!searchable && datum.id) {
-            const cached = worksDetailCache.get(datum.id);
-            searchable = (cached?.content || datum.desc || '').toLowerCase();
-        }
-        const cleanContent = searchable.replace(/<[^>]*>/g, '');
+        // Xây dựng chuỗi tìm kiếm từ NHIỀU TRƯỜNG (Title, Author, Desc, The Loai, Content)
+        let searchable = [
+            title,
+            datum.author || '',
+            datum.desc || '',
+            Array.isArray(datum.the_loai) ? datum.the_loai.join(' ') : '',
+            datum.content ? datum.content.replace(/<[^>]*>/g, '') : ''
+        ].join(' ');
         
-        if (title.includes(keyword) || cleanContent.includes(keyword)) {
+        const cleanSearchable = removeAccents(searchable.toLowerCase());
+        
+        if (cleanSearchable.includes(keyword)) {
             item.classList.remove('hidden-by-search');
             if (keyword !== '') details.open = true;
         } else {
@@ -453,11 +523,11 @@ function gotoEncyclopediaById(id) {
         if (currentViewId === 'encyclopedia') renderEncyclopedia();
         else switchView('encyclopedia');
 
-        // Tìm đúng vị trí (Index) sau khi đã sắp xếp A-Z
-        sortEncyData(targetData); 
+        // Tìm đúng vị trí (Index) sau khi đã sắp xếp
+        sortEncyData(targetData, targetGroup); 
         searchIdInSorted = targetData.findIndex(item => item.id === searchId);
         
-        // Đợi render xong, mở sách và cuộn mượt mà
+        // Đợi render xong, cuộn mượt mà
         setTimeout(() => {
             const finalTarget = document.getElementById(`vol-${searchIdInSorted}`);
             if (finalTarget) {
@@ -466,13 +536,15 @@ function gotoEncyclopediaById(id) {
                 finalTarget.style.transform = 'translateY(0)';
                 
                 const detailsEl = finalTarget.querySelector('details');
-                if(detailsEl) detailsEl.open = true;
+                if(detailsEl) {
+                    detailsEl.open = false; // KHÔNG MỞ NỘI DUNG
+                }
                 
-                // Đợi 350ms cho Accordion mở ra hết cỡ
+                // Đợi 350ms cho Accordion đóng/mở ổn định
                 setTimeout(() => {
                     const summaryEl = finalTarget.querySelector('summary');
                     if (summaryEl) {
-                        // Dùng Native scrollIntoView, CSS đã có scroll-margin-top để né Header
+                        // Chỉ cuộn tới summary (tên quyển), CSS đã có scroll-margin-top để né Header
                         summaryEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                     // Bật hiệu ứng Highlight (CSS sẽ lo phần animation)
@@ -902,10 +974,57 @@ function handleHashScroll() {
 
 
 /* =====================================================================
-   MODULE 9: KHỞI CHẠY & ĐIỀU PHỐI SPLASH SCREEN
+   MODULE 9: KHỞI CHẠY & ĐIỀU PHỐI BOOT EXPERIENCE (5 PHASES)
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', async () => { 
-    // 1. Khôi phục bài thơ đang viết dở
+    const splash = document.getElementById('jade-splash');
+    const statusText = document.getElementById('bootStatusText');
+    const quoteContainer = document.querySelector('.boot-quote');
+    const quoteText = document.getElementById('splash-quote-text');
+    const container = document.querySelector('.container');
+
+    // PHASE 1: AWAKENING (Đánh thức - Hiệu ứng lụa bắt đầu, chờ 800ms)
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // PHASE 2: INITIALIZATION (Khởi tạo dữ liệu thực tế)
+    if (statusText) statusText.textContent = "Đang kết nối tri thức...";
+    const startTime = Date.now();
+    try {
+        await loadAllData(); 
+    } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error);
+        if (statusText) statusText.textContent = "Kết nối yếu. Đang dùng bộ nhớ tạm...";
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // PHASE 3: MATERIALIZATION (Hiện thực hóa - Hiện danh ngôn)
+    if (QUOTES_DATA.length > 0 && quoteContainer && quoteText) {
+        const randomQuote = QUOTES_DATA[Math.floor(Math.random() * QUOTES_DATA.length)];
+        quoteText.innerHTML = `&ldquo;${randomQuote.text}&rdquo; <br><span style="font-size: 0.8rem; opacity: 0.7; margin-top: 8px; display: inline-block;">— ${randomQuote.author} —</span>`;
+        quoteContainer.classList.add('show');
+    }
+
+    const minSplashTime = 2500; // Giữ hiệu ứng Lụa ít nhất 2.5 giây để người dùng kịp nhìn
+    const elapsedTime = Date.now() - startTime;
+    const remainingTime = Math.max(0, minSplashTime - elapsedTime);
+    
+    if (statusText) statusText.textContent = "Sẵn sàng trải nghiệm...";
+    await new Promise(resolve => setTimeout(resolve, remainingTime));
+
+    // PHASE 4: TRANSITION (Chuyển cảnh)
+    if (splash) {
+        splash.classList.add('leaving'); 
+        setTimeout(() => {
+            if (container) container.classList.add('app-ready');
+        }, 800); 
+        
+        // PHASE 5: READY (Hoàn tất)
+        setTimeout(() => splash.remove(), 1500);
+    } else {
+        if (container) container.classList.add('app-ready');
+    }
+
+    // Khôi phục bài thơ đang viết dở (nếu có)
     const savedPoem = localStorage.getItem('vandao_draft_poem');
     if (savedPoem) {
         const poemInput = document.getElementById('poemInput');
@@ -913,38 +1032,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // 2. ĐÁNH DẤU THỜI GIAN BẮT ĐẦU (Để tính toán thời gian hiển thị Lụa)
-    const startTime = Date.now();
-    const splash = document.getElementById('jade-splash');
-    const container = document.querySelector('.container');
-
-    // 3. TIẾN HÀNH TẢI DỮ LIỆU (Chạy ngầm)
-    await loadAllData(); 
-
-    // 4. TÍNH TOÁN THỜI GIAN CHỜ (Giữ hiệu ứng Lụa ít nhất 2.5 giây để người dùng kịp nhìn)
-    const minSplashTime = 2500; // 2.5 giây
-    const elapsedTime = Date.now() - startTime;
-    const remainingTime = Math.max(0, minSplashTime - elapsedTime);
-
-    // 5. ĐỢI CHO ĐỦ THỜI GIAN RỒI MỚI TAN LỤA VÀ HIỆN TRANG CHỦ
-    setTimeout(() => {
-        if (splash) {
-            // Bước 5.1: Kích hoạt hiệu ứng Lụa tan đi (trượt ra 4 phía)
-            splash.classList.add('leaving'); 
-            
-            // Bước 5.2: Đợi Lụa trượt đi một nửa (khoảng 800ms) thì bắt đầu cho trang chủ sáng lên
-            setTimeout(() => {
-                if (container) container.classList.add('app-ready');
-            }, 800); 
-
-            // Bước 5.3: Dọn dẹp thẻ Splash khỏi DOM sau khi trượt xong (1.5s) để giải phóng bộ nhớ
-            setTimeout(() => splash.remove(), 1500);
-        } else {
-            if (container) container.classList.add('app-ready');
-        }
-    }, remainingTime);
-
-    // 6. Gắn các sự kiện tìm kiếm
+    // Gắn sự kiện tìm kiếm
     const searchInputHeritage = document.getElementById('search-input');
     if (searchInputHeritage) {
         searchInputHeritage.addEventListener('input', debounce(() => { currentPage = 1; renderHeritage(); }, 300)); 
