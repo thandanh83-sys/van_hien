@@ -5,8 +5,8 @@
    - Tối ưu hóa Data & Hiệu năng (Lazy Load cho cả Tác phẩm và Tác giả).
    - Bộ máy tìm kiếm VDSearchEngine (Inverted Index, TF-IDF, Phrase Matching).
    - Highlight tiếng Việt không dấu, chống XSS.
-   - Cuộn thông minh kết hợp hiệu ứng Tỏa sáng (Glow).
-   - Trải nghiệm Khởi tạo 5 giai đoạn (Boot Experience).
+   - Cuộn thông minh (Polling) kết hợp hiệu ứng Tỏa sáng (Glow).
+   - Trải nghiệm Khởi tạo 5 giai đoạn (Boot Experience) - Đã tối ưu LCP.
    - TÍCH HỢP 2 "BÁC SĨ DỮ LIỆU" (Audit Works & Audit Authors).
    ===================================================================== */
 
@@ -405,7 +405,6 @@ const VDSearchEngine = (() => {
         totalDocs = allData.length;
 
         allData.forEach(item => {
-            // Với kiến trúc Lazy Load, item.content có thể bị rỗng (chỉ có ở file Index)
             const fullText = [item.title, item.author, item.desc, item.content].join(' ');
             const words = tokenize(fullText);
             docLengths[item.id] = words.length;
@@ -676,6 +675,7 @@ function gotoEncyclopediaById(id) {
     if (targetGroup !== '') {
         currentEncyGroup = targetGroup;
         
+        // Cập nhật UI Nút bấm
         document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(btn => {
             btn.classList.remove('active');
             btn.setAttribute('aria-pressed', 'false');
@@ -685,14 +685,31 @@ function gotoEncyclopediaById(id) {
         if (targetGroup === 'ky-tai' && btns[1]) { btns[1].classList.add('active'); btns[1].setAttribute('aria-pressed', 'true'); }
         if (targetGroup === 'tinh-hoa' && btns[2]) { btns[2].classList.add('active'); btns[2].setAttribute('aria-pressed', 'true'); }
         
+        // Xóa thanh tìm kiếm (nếu có) để đảm bảo nó render đúng danh sách
+        const searchInput = document.getElementById('encyclopedia-search');
+        if (searchInput) searchInput.value = '';
+        const clearBtn = document.getElementById('clear-search-btn');
+        if (clearBtn) clearBtn.classList.remove('show');
+
         const currentActive = document.querySelector('.view.active');
         const currentViewId = currentActive ? currentActive.id.replace('view-', '') : null;
-        if (currentViewId === 'encyclopedia') renderEncyclopedia();
-        else switchView('encyclopedia');
+        
+        // Nếu đang ở tab Bách Khoa thì render lại, nếu không thì chuyển tab
+        if (currentViewId === 'encyclopedia') {
+            renderEncyclopedia();
+        } else {
+            switchView('encyclopedia');
+        }
 
-        setTimeout(() => {
-            const finalTarget = document.getElementById(searchId); 
-            if (finalTarget) {
+        // THUẬT TOÁN CHỜ DOM ỔN ĐỊNH (Polling)
+        let checkCount = 0;
+        const checkInterval = setInterval(() => {
+            const finalTarget = document.getElementById(searchId);
+            checkCount++;
+
+            if (finalTarget && finalTarget.offsetHeight > 0) {
+                clearInterval(checkInterval); // Dừng kiểm tra
+                
                 finalTarget.classList.add('is-visible'); 
                 finalTarget.style.opacity = '1';
                 finalTarget.style.transform = 'translateY(0)';
@@ -701,12 +718,23 @@ function gotoEncyclopediaById(id) {
                 if(detailsEl) detailsEl.open = false;
                 
                 setTimeout(() => {
-                    finalTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const rect = finalTarget.getBoundingClientRect();
+                    const absoluteTop = rect.top + window.pageYOffset;
+                    const windowHeight = window.innerHeight;
+                    const offset = (windowHeight / 2) - (rect.height / 2);
+                    
+                    window.scrollTo({ top: Math.max(0, absoluteTop - offset), behavior: 'smooth' });
+
                     finalTarget.classList.add('highlight-target');
                     setTimeout(() => finalTarget.classList.remove('highlight-target'), 2500);
-                }, 350); 
+                }, 100);
+
+            } else if (checkCount > 20) {
+                clearInterval(checkInterval);
+                console.warn('Không tìm thấy thẻ sau 2 giây:', searchId);
             }
-        }, 300);
+        }, 100);
+
     } else { 
         console.warn('Không tìm thấy mục này trong Bách Khoa.'); 
     }
@@ -1162,14 +1190,13 @@ function handleHashScroll() {
 
 
 /* =====================================================================
-   MODULE 9: KHỞI CHẠY & ĐIỀU PHỐI BOOT EXPERIENCE (5 PHASES)
+   MODULE 9: KHỞI CHẠY & ĐIỀU PHỐI BOOT EXPERIENCE (5 PHASES - ĐÃ FIX LCP)
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', async () => { 
     const splash = document.getElementById('jade-splash');
     const statusText = document.getElementById('bootStatusText');
     const quoteContainer = document.querySelector('.boot-quote');
     const quoteText = document.getElementById('splash-quote-text');
-    const container = document.querySelector('.container');
 
     // PHASE 1: AWAKENING (Đánh thức - Hiệu ứng lụa bắt đầu, chờ 800ms)
     await new Promise(resolve => setTimeout(resolve, 800));
@@ -1200,17 +1227,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (statusText) statusText.textContent = "Sẵn sàng trải nghiệm...";
     await new Promise(resolve => setTimeout(resolve, remainingTime));
 
-    // PHASE 4: TRANSITION
+    // PHASE 4: TRANSITION (ĐÃ XÓA LOGIC THÊM CLASS APP-READY ĐỂ TỐI ƯU LCP)
     if (splash) {
         splash.classList.add('leaving'); 
-        setTimeout(() => {
-            if (container) container.classList.add('app-ready');
-        }, 1000); 
         
         // PHASE 5: READY (Dọn dẹp DOM)
         setTimeout(() => splash.remove(), 2000);
-    } else {
-        if (container) container.classList.add('app-ready');
     }
 
     // Khôi phục bài thơ đang viết dở (nếu có)
