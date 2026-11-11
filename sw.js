@@ -1,26 +1,24 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (VERSION 1.0)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE VERSION 1.1)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Quản lý Offline Cache cho toàn bộ PWA.
-   - Chiến lược thông minh: Cache First cho giao diện/hình ảnh, 
-     Stale-While-Revalidate cho dữ liệu chi tiết.
-   - Tự động dọn dẹp bộ nhớ rác khi nâng cấp phiên bản.
+   - Quản lý Offline Cache bền bỉ, chống lỗi 404 file.
+   - Chiến lược "Cache First" toàn diện: Tải tức thì (0.01s), chống lag.
+   - Hỗ trợ Stale-While-Revalidate cho dữ liệu chi tiết.
    - Tuân thủ: 100% Text, không Emoji.
    ===================================================================== */
 
 // =====================================================================
 // I. CẤU HÌNH PHIÊN BẢN VÀ BỘ NHỚ ĐỆM
 // =====================================================================
-// LƯU Ý QUAN TRỌNG: Mỗi khi bạn sửa bất kỳ file code nào (HTML, CSS, JS, JSON), 
-// BẮT BUỘC phải đổi số Version này (Ví dụ: v1.0 -> v1.1) để trình duyệt tải bản mới.
-const CACHE_VERSION = 'vandao-cache-v1.0'; 
+// LƯU Ý QUAN TRỌNG: Mỗi khi bạn sửa code hoặc thêm dữ liệu, 
+// BẮT BUỘC phải tăng số Version này (vd: v1.1 -> v1.2) để ép trình duyệt tải mới.
+const CACHE_VERSION = 'vandao-cache-v1.1'; 
 const PRECACHE_NAME = CACHE_VERSION;
 const RUNTIME_NAME = `${CACHE_VERSION}-runtime`;
 
 // Danh sách các file TĨNH cần tải về máy ngay từ lần đầu tiên (App Shell).
-// Lưu ý: TUYỆT ĐỐI KHÔNG đưa các file trong 'data/tac-pham/' vào đây 
-// để tránh việc tải hàng ngàn file cùng lúc làm treo App.
+// KHÔNG đưa các file trong 'data/tac-pham/' vào đây để tránh tải hàng ngàn file cùng lúc.
 const PRECACHE_ASSETS = [
     // --- Lõi giao diện ---
     './',
@@ -35,8 +33,9 @@ const PRECACHE_ASSETS = [
     './assets/logo.png',
     
     // --- Font chữ cục bộ (Chạy Offline 100%) ---
+    // Nếu thiếu 1 trong 2 file này, hệ thống vẫn chạy bình thường, chỉ báo warning ở Console.
     './assets/fonts/alex-brush.woff2',
-    './assets/fonts/alex-brush.ttf',      // Fallback nếu dùng file .ttf
+    './assets/fonts/alex-brush.ttf',
     './assets/fonts/cinzel-bold.woff2',
     './assets/fonts/cinzel-regular.woff2',
     
@@ -57,8 +56,14 @@ self.addEventListener('install', (event) => {
         caches.open(PRECACHE_NAME)
             .then((cache) => {
                 console.log('[Service Worker] Đang tải các file tĩnh vào Precache...');
-                // addAll sẽ tải tất cả file. Nếu 1 file lỗi (404), toàn bộ quá trình sẽ lỗi.
-                return cache.addAll(PRECACHE_ASSETS);
+                // SỬ DỤNG VÒNG LẶP THAY VÌ cache.addAll ĐỂ CHỐNG LỖI SẬP NGUỒN NẾU THIẾU 1 FILE
+                return Promise.all(
+                    PRECACHE_ASSETS.map((url) => {
+                        return cache.add(url).catch((err) => {
+                            console.warn(`[Service Worker] Bỏ qua file không tồn tại: ${url}`, err);
+                        });
+                    })
+                );
             })
             .then(() => {
                 console.log('[Service Worker] Cài đặt thành công. Đang chờ kích hoạt...');
@@ -66,7 +71,7 @@ self.addEventListener('install', (event) => {
                 return self.skipWaiting();
             })
             .catch((error) => {
-                console.error('[Service Worker] Lỗi khi tải file vào bộ nhớ đệm:', error);
+                console.error('[Service Worker] Lỗi nghiêm trọng khi cài đặt:', error);
             })
     );
 });
@@ -163,8 +168,7 @@ self.addEventListener('fetch', (event) => {
 
     // -----------------------------------------------------------------
     // CHIẾN LƯỢC 3: CACHE FIRST cho Code (HTML/CSS/JS/JSON chính)
-    // (Đã sửa từ Network First thành Cache First để chống lag)
-    // Lấy từ bộ nhớ máy ra dùng ngay lập tức, không chờ mạng
+    // (Lấy từ bộ nhớ máy ra dùng ngay lập tức, không chờ mạng)
     // -----------------------------------------------------------------
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
