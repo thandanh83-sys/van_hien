@@ -1,0 +1,127 @@
+# =====================================================================
+# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TÁCH DỮ LIỆU TÁC PHẨM
+# Tác giả: Văn Đạo
+# 
+# TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+# - Khiêm nhường: Chỉ thức giậy khi thực sự có "hạt giống" mới được gieo 
+#   (file data-tac-pham-master.json thay đổi).
+# - Kỷ luật: Không chạy hỗn loạn. Phải xếp hàng (concurrency) để không 
+#   dẫm đạp lên các bot khác (tác giả, deploy).
+# - Trung thực: Kiểm tra kỹ cú pháp và sự thay đổi trước khi commit, 
+#   không bao giờ tạo ra "commit rác".
+# - Thanh tịnh: Xử lý xong thì tự động dọn dẹp (xóa file master) để 
+#   kho lưu trữ luôn gọn gàng.
+# =====================================================================
+
+name: Auto Split Works Data
+
+# =====================================================================
+# 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
+# =====================================================================
+on:
+  push:
+    paths:
+      # Chỉ thức giậy khi file Master Tác Phẩm này bị thay đổi.
+      # Việc giới hạn `paths` giúp tiết kiệm tài nguyên của GitHub Actions,
+      # tránh việc bot chạy vô ích khi bạn chỉ sửa file CSS hay JS.
+      - 'data/data-tac-pham-master.json'
+      
+  # Thêm nút bấm chạy thủ công trên giao diện GitHub (Tab Actions) 
+  # để bạn có thể test bất cứ lúc nào mà không cần tạo file Master.
+  workflow_dispatch:
+
+# =====================================================================
+# 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# =====================================================================
+# Đảm bảo bot Tác Phẩm này không chạy cùng lúc với bot Tác Giả (auto-split-authors)
+# hay bot Deploy. Mọi thứ phải xếp hàng chạy tuần tự để tránh lỗi Git Push.
+concurrency:
+  group: git-push-group
+  # Nếu bot đang chạy thì phải đợi nó chạy xong, không được hủy ngang.
+  # Việc hủy ngang giữa chừng có thể khiến dữ liệu bị tách dở dang (rác).
+  cancel-in-progress: false 
+
+# =====================================================================
+# 3. CÁC BƯỚC THỰC THI (JOBS)
+# =====================================================================
+jobs:
+  split:
+    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
+    runs-on: ubuntu-latest
+    
+    # KỶ LUẬT THỜI GIAN: Tự động hủy nếu chạy quá 10 phút.
+    # Script Python của VĂN ĐẠO chỉ mất vài giây để chạy. Nếu quá 10 phút,
+    # chắc chắn có lỗi (ví dụ: vòng lặp vô hạn hoặc file JSON quá khổng lồ).
+    # Việc này giúp bạn không phải chờ đợi bot treo hàng giờ đồng hồ.
+    timeout-minutes: 10
+    
+    # Cấp quyền cho bot được phép ghi (Commit) dữ liệu vào kho code
+    permissions:
+      contents: write
+      
+    steps:
+      # -----------------------------------------------------------------
+      # BƯỚC 1: LẤY CODE MỚI NHẤT TỪ KHO VỀ MÁY ẢO
+      # -----------------------------------------------------------------
+      - name: 1. Checkout code (Lấy code về)
+        uses: actions/checkout@v4
+        with:
+          # Lấy toàn bộ lịch sử commit (tránh lỗi shallow clone khi bot commit).
+          # Nếu không có fetch-depth: 0, bot có thể gặp lỗi "fatal: shallow update not allowed".
+          fetch-depth: 0 
+
+      # -----------------------------------------------------------------
+      # BƯỚC 2: CÀI ĐẶT MÔI TRƯỜNG PYTHON
+      # -----------------------------------------------------------------
+      - name: 2. Set up Python (Cài đặt Python)
+        uses: actions/setup-python@v5
+        with:
+          # Sử dụng Python 3.10 (ổn định và tương thích tốt nhất)
+          python-version: '3.10'
+
+      # -----------------------------------------------------------------
+      # BƯỚC 3: KIỂM TRA CÚ PHÁP PYTHON (LÁ CHẮN AN TOÀN)
+      # -----------------------------------------------------------------
+      # TẠI SAO CẦN BƯỚC NÀY?
+      # Nếu bạn sửa code Python và vô tình thiếu dấu ngoặc, bot sẽ chạy được 
+      # nửa chừng rồi crash. Việc kiểm tra cú pháp (py_compile) trước khi chạy 
+      # giúp phát hiện lỗi ngay lập tức, báo đỏ cho bạn biết mà sửa.
+      - name: 3. Check Python syntax (Kiểm tra cú pháp)
+        run: python -m py_compile tools/split_works.py
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: CHẠY FILE PYTHON ĐỂ TÁCH DỮ LIỆU
+      # -----------------------------------------------------------------
+      - name: 4. Run split script (Chạy script tách dữ liệu)
+        # Gọi file script nằm trong thư mục tools/ để tách file và xóa file Master
+        run: python tools/split_works.py
+
+      # -----------------------------------------------------------------
+      # BƯỚC 5: KIỂM TRA XEM CÓ SỰ THAY ĐỔI NÀO KHÔNG
+      # -----------------------------------------------------------------
+      - name: 5. Check for changes (Kiểm tra thay đổi)
+        id: git-check
+        # Lệnh git diff --exit-code sẽ trả về mã lỗi nếu có thay đổi.
+        # Nếu có thay đổi, ta ghi "changes=true" vào biến môi trường của bước này.
+        # Điều này tránh việc bot báo lỗi đỏ khi chạy lần 2 mà không có gì mới để commit.
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+      # -----------------------------------------------------------------
+      # BƯỚC 6: TỰ ĐỘNG COMMIT VÀ PUSH (CÓ CƠ CHẾ THỬ LẠI)
+      # -----------------------------------------------------------------
+      # Chỉ chạy bước này nếu Bước 5 báo có sự thay đổi (changes == 'true').
+      - name: 6. Commit and Push with Retry (Commit & Push)
+        if: steps.git-check.outputs.changes == 'true'
+        uses: EndBug/add-and-commit@v11
+        with:
+          # Tin nhắn commit. ĐÃ XÓA [skip ci] để bot deploy.yml có thể chạy ngay lập tức
+          # giúp đẩy các tác phẩm mới lên web cho người dùng đọc.
+          message: "chore: auto-split data and update index"
+          
+          # Tự động thử lại 5 lần nếu việc Push bị lỗi do xung đột mạng hoặc Git lag.
+          # GitHub Pages đôi khi bị chậm, việc retry giúp tăng tỷ lệ thành công lên 99.9%.
+          push_attempts: 5 
+          
+          # Tác giả của commit tự động (hiển thị là GitHub Actions)
+          default_author: github_actions
