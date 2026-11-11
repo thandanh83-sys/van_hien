@@ -63,7 +63,7 @@
     "id": "binh-ngo-dai-cao",
     "title": "Bình Ngô Đại Cáo",
     "author": "Nguyễn Trãi",
-    "desc": "Tuyên ngôn độc lập thứ hai, áng văn chính luận mẫu mực.",
+    "desc": "Bản tuyên ngôn độc lập, áng văn chính luận mẫu mực.",
     "loai_hinh": "mo-rong",
     "the_loai": [
       "Cáo",
@@ -391,7 +391,7 @@
     "id": "hich-tuong-si",
     "title": "Hịch Tướng Sĩ",
     "author": "Trần Quốc Tuấn",
-    "desc": "Áng văn chính luận xuất sắc, khơi dậy lòng yêu nước và căm thù giặc.",
+    "desc": "Lời kêu gọi chống giặc, khơi dậy lòng yêu nước.",
     "loai_hinh": "mo-rong",
     "the_loai": [
       "Hịch"
@@ -596,11 +596,10 @@
     "id": "nhat-ky-trong-tu",
     "title": "Nhật Ký Trong Tù",
     "author": "Hồ Chí Minh",
-    "desc": "Tập thơ chữ Hán thể hiện tinh thần cách mạng và tình yêu thiên nhiên.",
-    "loai_hinh": "thi-ca",
+    "desc": "Tập thơ nhật ký thể hiện tinh thần thép và tình yêu thiên nhiên.",
+    "loai_hinh": "ky-khao-cuu",
     "the_loai": [
-      "Thơ chữ Hán",
-      "Đường luật"
+      "Nhật ký"
     ],
     "era": "1942-1943",
     "script": "Chữ Hán"
@@ -909,9 +908,9 @@
   },
   {
     "id": "thach-sanh",
-    "title": "Thạch Sanh (Bản chi tiết)",
+    "title": "Thạch Sanh",
     "author": "Dân gian",
-    "desc": "Hành trình diệt yêu tinh, cứu công chúa, lên ngôi vua của Thạch Sanh.",
+    "desc": "Người hùng diệt chằn tinh, đại bàng, ca ngợi cái thiện thắng cái ác.",
     "loai_hinh": "van-hoc-dan-gian",
     "the_loai": [
       "Cổ tích"
