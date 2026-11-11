@@ -1,5 +1,6 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TÁCH DỮ LIỆU TÁC PHẨM
+# Tên file: auto-split-works.yml (Đồng bộ với auto-split-authors.yml)
 # Tác giả: Văn Đạo
 # 
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -45,7 +46,7 @@ concurrency:
 # 3. CÁC BƯỚC THỰC THI (JOBS)
 # =====================================================================
 jobs:
-  split:
+  split-works:
     # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
     
@@ -92,7 +93,7 @@ jobs:
       # -----------------------------------------------------------------
       # BƯỚC 4: CHẠY FILE PYTHON ĐỂ TÁCH DỮ LIỆU
       # -----------------------------------------------------------------
-      - name: 4. Run split script (Chạy script tách dữ liệu)
+      - name: 4. Run split works script (Chạy script tách tác phẩm)
         # Gọi file script nằm trong thư mục tools/ để tách file và xóa file Master
         run: python tools/split_works.py
 
@@ -117,7 +118,7 @@ jobs:
         with:
           # Tin nhắn commit. ĐÃ XÓA [skip ci] để bot deploy.yml có thể chạy ngay lập tức
           # giúp đẩy các tác phẩm mới lên web cho người dùng đọc.
-          message: "chore: auto-split data and update index"
+          message: "chore: auto-split works data and update index"
           
           # Tự động thử lại 5 lần nếu việc Push bị lỗi do xung đột mạng hoặc Git lag.
           # GitHub Pages đôi khi bị chậm, việc retry giúp tăng tỷ lệ thành công lên 99.9%.
