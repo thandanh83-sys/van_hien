@@ -15,22 +15,17 @@
     <!-- ================================================================= -->
     <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang - LCP)       -->
     <!-- ================================================================= -->
-    <!-- Preload Font chữ Thư pháp (Đã tải về máy) để chữ hiện ra ngay lập tức -->
+    <!-- Preload Font chữ Thư pháp (Đã tải về máy) để chữ hiện ra ngay lập tức, không bị nháy (FOUT) -->
     <link rel="preload" href="assets/fonts/AlexBrush-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Preload ảnh khung vòm Trang chủ để không bị giật khi vừa mở App -->
     <link rel="preload" href="assets/khung.jpg" as="image">
 
     <!-- ================================================================= -->
-    <!-- 3. FAVICON & PWA MANIFEST (ĐÃ CẬP NHẬT LOGO HOA SEN MỚI)         -->
+    <!-- 3. FAVICON & PWA MANIFEST                                        -->
     <!-- ================================================================= -->
-    <!-- Favicon cho trình duyệt hiện đại (Nét căng, nền trong suốt) -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <!-- Favicon cho trình duyệt cũ / Windows -->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-    <!-- Icon cho iOS (iPhone/iPad) khi lưu ra màn hình chính -->
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    
-    <!-- Khai báo file cấu hình PWA -->
     <link rel="manifest" href="manifest.json">
 
     <!-- ================================================================= -->
@@ -43,7 +38,7 @@
     <meta name="theme-color" content="#fdfbf7">
 
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (Đã xóa ?v= vì SW tự động cập nhật)         -->
+    <!-- 5. LIÊN KẾT FILE CSS                                             -->
     <!-- ================================================================= -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -62,15 +57,15 @@
 
     <!-- ================================================================= -->
     <!-- 8. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC (SILK TRANSITION)     -->
-    <!-- Lớp này sẽ phủ lên màn hình mỗi khi chuyển Tab                     -->
+    <!-- Lớp này sẽ phủ lên màn hình mỗi khi chuyển Tab hoặc kết thúc Splash-->
     <!-- ================================================================= -->
-    <div class="silk-transition-overlay" id="silkTransition">
+    <div class="silk-transition-overlay" id="silkTransition" aria-hidden="true">
         <div class="silk-sweep"></div>
         <div class="silk-glow"></div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- 9. MÀN HÌNH CHỜ: THANH NGỌC BOOT EXPERIENCE (5 GIAI ĐOẠN)         -->
+    <!-- 9. MÀN HÌNH CHỜ: THANH NGỌC BOOT EXPERIENCE                       -->
     <!-- ================================================================= -->
     <div id="jade-splash" aria-hidden="true">
         <!-- 3 Dải lụa uốn lượn (Background) -->
@@ -171,6 +166,16 @@
 
                 <!-- KHỐI DANH NGÔN NGẪU NHIÊN (JS đổ dữ liệu vào) -->
                 <div id="daily-quote-container" aria-live="polite"></div>
+                
+                <!-- NÚT BÓI THƠ (Tính năng 1.5) -->
+                <div style="text-align: center;">
+                    <button id="random-poem-btn" class="random-poem-btn" aria-label="Một bài thơ cho hôm nay">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/>
+                        </svg>
+                        Một bài thơ cho hôm nay
+                    </button>
+                </div>
             </section>
 
             <!-- ========================================================= -->
@@ -191,8 +196,12 @@
                     <p id="heritage-count" class="sr-only" role="status" aria-live="polite"></p>
                 </div>
 
-                <!-- Bộ lọc 2 tầng (JS sẽ đổ nút vào) -->
-                <div class="filter-bar" id="main-filter-bar"></div>
+                <!-- Thanh công cụ: Bộ lọc & Dòng thời gian -->
+                <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <div class="filter-bar" id="main-filter-bar" style="margin-bottom: 0;"></div>
+                    <!-- Nút Dòng thời gian (Tính năng 2.3) -->
+                    <button id="timeline-toggle" class="filter-btn" style="background: transparent; border-color: var(--accent-gold); color: var(--accent-gold);">Dòng thời gian</button>
+                </div>
                 <div class="filter-bar" id="sub-filter-bar" style="display: none;"></div>
                 
                 <!-- Lưới tác phẩm & Phân trang -->
@@ -224,7 +233,7 @@
                     <p id="encyclopedia-count" class="sr-only" role="status" aria-live="polite"></p>
                 </div>
 
-                <!-- Thanh công cụ (ĐÃ CHIA LÀM 3 NHÓM: TRIẾT THUYẾT - KỲ TÀI - TINH HOA) -->
+                <!-- Thanh công cụ chia làm 3 nhóm: TRIẾT THUYẾT - KỲ TÀI - TINH HOA -->
                 <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
                     <div class="filter-bar" id="encyclopedia-filter-bar" style="margin-bottom: 0;">
                         <button class="filter-btn active" aria-pressed="true" onclick="filterEncyclopediaGroup('triet-thuyet', this)">Triết Thuyết</button>
@@ -255,43 +264,119 @@
             </section>
 
         </main>
-
     </div>
 
     <!-- ================================================================= -->
-    <!-- 12. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
+    <!-- 12. BANNER THÔNG BÁO CẬP NHẬT (Ẩn mặc định, JS sẽ bật lên)         -->
+    <!-- ================================================================= -->
+    <div id="update-banner" aria-live="polite" role="alert" style="
+        position: fixed; bottom: 20px; left: 50%;
+        transform: translateX(-50%) translateY(120px);
+        background: linear-gradient(135deg, #1a3a2a, #0f2a1f);
+        color: #d4c4a8; padding: 14px 20px; border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        border: 1px solid rgba(139,184,168,0.3);
+        font-family: var(--font-body);
+        font-size: 14px; z-index: 999999;
+        display: flex; align-items: center; gap: 12px;
+        transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.35s;
+        opacity: 0; pointer-events: none; max-width: 92vw;
+    ">
+        <span>Phiên bản mới đã sẵn sàng.</span>
+        <button id="update-btn" style="
+            background: #8bb8a8; color: #0a1a12; border: none;
+            padding: 8px 14px; border-radius: 6px; cursor: pointer;
+            font-weight: 700; font-size: 13px;
+            font-family: var(--font-body);
+        ">Cập nhật</button>
+        <button id="dismiss-btn" aria-label="Đóng" style="
+            background: transparent; color: #8bb8a8; border: none;
+            padding: 8px; cursor: pointer; font-size: 18px; line-height: 1;
+        ">×</button>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 13. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
         // Khai báo phiên bản ngầm (Chỉ để trong file code, không hiển thị ra UI)
-        window.VD_APP_VERSION = '1.0.0';
-        window.VD_BUILD_DATE  = '2026-11-11';
+        window.VD_APP_VERSION = '4.2.0';
+        window.VD_BUILD_DATE  = '2026-11-15';
     </script>
     
-    <!-- File script chính xử lý logic (Đã xóa ?v= vì SW tự động cập nhật) -->
+    <!-- File script chính xử lý logic -->
     <script src="script.js"></script>
 
     <!-- ================================================================= -->
-    <!-- 13. ĐĂNG KÝ SERVICE WORKER (TỰ ĐỘNG CẬP NHẬT NGẦM)                 -->
+    <!-- 14. ĐĂNG KÝ SERVICE WORKER (CẬP NHẬT NGẦM VÀ BANNER THÔNG BÁO)    -->
     <!-- ================================================================= -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Dùng timestamp để ép trình duyệt tải sw.js mới nhất, 
-                // tránh bị GitHub Pages cache lại file SW cũ.
-                const swUrl = `sw.js?v=${new Date().getTime()}`;
+    (function () {
+        if (!('serviceWorker' in navigator)) return;
 
-                navigator.serviceWorker.register(swUrl).then((reg) => {
-                    console.log('[PWA] Service Worker đã đăng ký thành công!');
-                    
-                    // Tự động kiểm tra bản mới khi người dùng mở lại App từ background
-                    document.addEventListener('visibilitychange', () => {
-                        if (document.visibilityState === 'visible') {
-                            reg.update(); 
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+        });
+
+        function showUpdateBanner(worker) {
+            const banner = document.getElementById('update-banner');
+            if (!banner) return;
+
+            banner.style.transform = 'translateX(-50%) translateY(0)';
+            banner.style.opacity = '1';
+            banner.style.pointerEvents = 'auto';
+
+            document.getElementById('update-btn').onclick = () => {
+                worker.postMessage({ type: 'SKIP_WAITING' });
+                banner.style.transform = 'translateX(-50%) translateY(120px)';
+                banner.style.opacity = '0';
+            };
+
+            document.getElementById('dismiss-btn').onclick = () => {
+                banner.style.transform = 'translateX(-50%) translateY(120px)';
+                banner.style.opacity = '0';
+                banner.style.pointerEvents = 'none';
+            };
+        }
+
+        window.addEventListener('load', () => {
+            // Thêm timestamp để ép trình duyệt tải sw.js mới nhất, 
+            // tránh bị GitHub Pages cache lại file SW cũ.
+            const swUrl = `./sw.js?v=${new Date().getTime()}`;
+
+            navigator.serviceWorker.register(swUrl).then(reg => {
+                // Kiểm tra cập nhật ngay sau khi đăng ký
+                reg.update().catch(() => {});
+
+                // Poll mỗi 5 phút khi tab hiển thị
+                setInterval(() => {
+                    if (document.visibilityState === 'visible') {
+                        reg.update().catch(() => {});
+                    }
+                }, 5 * 60 * 1000);
+
+                // Nếu đã có bản waiting sẵn (lần tải trước)
+                if (reg.waiting) showUpdateBanner(reg.waiting);
+
+                // Phát hiện bản mới đang cài
+                reg.addEventListener('updatefound', () => {
+                    const installing = reg.installing;
+                    if (!installing) return;
+                    installing.addEventListener('statechange', () => {
+                        if (
+                            installing.state === 'installed' &&
+                            navigator.serviceWorker.controller
+                        ) {
+                            showUpdateBanner(installing);
                         }
                     });
-                }).catch((err) => console.log('[PWA] Lỗi đăng ký SW:', err));
-            });
-        }
+                });
+            }).catch(err => console.warn('[SW] Registration failed:', err));
+        });
+    })();
     </script>
 </body>
 </html>
