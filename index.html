@@ -15,7 +15,7 @@
     <!-- ================================================================= -->
     <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang)             -->
     <!-- ================================================================= -->
-    <!-- Preload Font chữ Thư pháp (Đã tải về máy, không cần mạng) -->
+    <!-- Preload Font chữ Thư pháp (Đã tải về máy) -->
     <link rel="preload" href="assets/fonts/alex-brush.woff2" as="font" type="font/woff2" crossorigin>
     <!-- Preload ảnh nền Trang chủ -->
     <link rel="preload" href="assets/khung.jpg" as="image">
@@ -35,9 +35,9 @@
     <meta name="theme-color" content="#fdfbf7">
 
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS                                              -->
+    <!-- 5. LIÊN KẾT FILE CSS (Version v1)                                 -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=1.0">
+    <link rel="stylesheet" href="style.css?v=1">
 </head>
 <body>
 
@@ -184,17 +184,11 @@
                     <p id="encyclopedia-count" class="sr-only" role="status" aria-live="polite"></p>
                 </div>
 
-                <!-- Thanh công cụ (Bộ lọc & Đổi cỡ chữ) -->
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                <!-- Thanh công cụ (Chỉ còn Bộ lọc, đã xóa nút A- A+) -->
+                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
                     <div class="filter-bar" id="encyclopedia-filter-bar" style="margin-bottom: 0;">
                         <button class="filter-btn active" aria-pressed="true" onclick="filterEncyclopediaGroup('ly-thuyet', this)">Lý Thuyết</button>
                         <button class="filter-btn" aria-pressed="false" onclick="filterEncyclopediaGroup('tinh-hoa', this)">Tinh Hoa</button>
-                    </div>
-                    
-                    <!-- Nút đổi cỡ chữ (A11y) -->
-                    <div class="font-settings">
-                        <button class="font-btn" onclick="changeFontSize(-1)" aria-label="Giảm cỡ chữ">A-</button>
-                        <button class="font-btn" onclick="changeFontSize(1)" aria-label="Tăng cỡ chữ">A+</button>
                     </div>
                 </div>
 
@@ -236,8 +230,8 @@
         window.VD_BUILD_DATE  = '2026-11-11';
     </script>
     
-    <!-- File script chính xử lý logic -->
-    <script src="script.js?v=1.0"></script>
+    <!-- File script chính xử lý logic (Version v1) -->
+    <script src="script.js?v=1"></script>
 
     <!-- ================================================================= -->
     <!-- 12. ĐĂNG KÝ SERVICE WORKER (TỰ ĐỘNG CẬP NHẬT NGẦM)                 -->
