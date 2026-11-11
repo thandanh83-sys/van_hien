@@ -3,7 +3,7 @@
    Tác giả: Văn Đạo
    Mô tả: 
    - Tích hợp hiệu ứng Dải lụa (Silk Transition) tối ưu GPU.
-   - Trải nghiệm Khởi tạo 5 giai đoạn (Boot Experience).
+   - Trải nghiệm Khởi tạo 5 giai đoạn (Boot Experience) chậm rãi, tĩnh tại.
    - Tự động sắp xếp Lý thuyết theo Số La Mã, Tác giả/Tác phẩm theo A-Z.
    - Tìm kiếm thông minh (bỏ dấu tiếng Việt, tìm cả tác giả/tác phẩm).
    - Cuộn thông minh không bị Header che, không tự mở nội dung.
@@ -1004,22 +1004,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         quoteContainer.classList.add('show');
     }
 
-    const minSplashTime = 2500; // Giữ hiệu ứng Lụa ít nhất 2.5 giây để người dùng kịp nhìn
+    // TĂNG THỜI GIAN CHỜ LÊN 5 GIÂY (5000ms) ĐỂ NGƯỜI DÙNG ĐỌC DANH NGÔN
+    const minSplashTime = 5000; 
     const elapsedTime = Date.now() - startTime;
     const remainingTime = Math.max(0, minSplashTime - elapsedTime);
     
     if (statusText) statusText.textContent = "Sẵn sàng trải nghiệm...";
     await new Promise(resolve => setTimeout(resolve, remainingTime));
 
-    // PHASE 4: TRANSITION (Chuyển cảnh)
+    // PHASE 4: TRANSITION
     if (splash) {
         splash.classList.add('leaving'); 
         setTimeout(() => {
             if (container) container.classList.add('app-ready');
-        }, 800); 
+        }, 1000); 
         
-        // PHASE 5: READY (Hoàn tất)
-        setTimeout(() => splash.remove(), 1500);
+        // PHASE 5: READY (Dọn dẹp DOM)
+        setTimeout(() => splash.remove(), 2000);
     } else {
         if (container) container.classList.add('app-ready');
     }
