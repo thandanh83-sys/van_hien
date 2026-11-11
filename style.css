@@ -2,10 +2,10 @@
    VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 1.0 - FINAL)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Giao diện Bạch Ngọc duy nhất (Chống lag, không dùng kính mờ).
+   - Giao diện Bạch Ngọc duy nhất (Chống lag, tối ưu GPU).
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
-   - Màn hình chờ: Dải lụa uốn lượn tinh tế.
-   - Tối ưu hóa hiệu năng, sửa lỗi tràn viền, che header, giãn chữ.
+   - Màn hình chờ: Dải lụa uốn lượn tinh tế (Không dùng blob tròn).
+   - Sửa lỗi giãn chữ, mất màu nút Active, chống Header che khi cuộn.
    ===================================================================== */
 
 /* =====================================================================
@@ -141,6 +141,7 @@ body {
     filter: blur(20px); /* Tạo độ mềm mại của vải */
 }
 
+/* Dải lụa 1: Trắng ngà - Xanh ngọc */
 .silk-layer-1 { 
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 20%, #8bb8a8 50%, rgba(255,255,255,0.9) 80%, rgba(255,255,255,0) 100%);
     transform: rotate(-30deg) translateX(-20vw);
@@ -148,6 +149,7 @@ body {
     opacity: 0.9;
 }
 
+/* Dải lụa 2: Xanh ngọc trầm - Trắng (Đan chéo) */
 .silk-layer-2 { 
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(220,235,230,0.8) 30%, #739e8f 50%, rgba(220,235,230,0.8) 70%, rgba(255,255,255,0) 100%);
     transform: rotate(45deg) translateX(20vw);
@@ -155,6 +157,7 @@ body {
     opacity: 0.7;
 }
 
+/* Dải lụa 3: Ánh Vàng Kim nhạt */
 .silk-layer-3 { 
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(212,196,168,0.6) 40%, rgba(255,255,255,0.9) 50%, rgba(212,196,168,0.6) 60%, rgba(255,255,255,0) 100%);
     transform: rotate(10deg) scale(1.2);
@@ -163,6 +166,7 @@ body {
     filter: blur(30px);
 }
 
+/* Các keyframes uốn lượn mềm mại */
 @keyframes silkRibbon1 { 
     0% { transform: rotate(-30deg) translateX(-20vw) translateY(-10vh) scaleY(1); } 
     100% { transform: rotate(-25deg) translateX(-10vw) translateY(10vh) scaleY(1.1); } 
