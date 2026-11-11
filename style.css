@@ -6,6 +6,7 @@
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
    - Trải nghiệm khởi tạo (Boot Experience) chậm rãi, tĩnh tại.
    - Sửa lỗi giãn chữ, mất màu nút Active, chống Header che khi cuộn.
+   - Tối ưu hiệu ứng lụa (Silk) và responsive trên Mobile.
    ===================================================================== */
 
 /* =====================================================================
@@ -179,30 +180,34 @@ body {
     100% { transform: rotate(15deg) scale(1.4) translateY(5vh); opacity: 0.8; } 
 }
 
-/* Nội dung Boot (Text và Danh ngôn) - Hiện chậm rãi */
+/* Nội dung Boot (Text và Danh ngôn) - Hiện chậm rãi nhưng mượt mà */
 .boot-content {
     position: relative; z-index: 10; text-align: center;
-    opacity: 0; transform: translateY(20px);
-    /* Tăng thời gian hiện lên 2.5s, delay 1.2s để lụa hiện ra trước */
-    animation: bootFadeIn 2.5s ease-out forwards; 
-    animation-delay: 1.2s; 
+    opacity: 0; transform: translateY(15px);
+    /* Hiện lên trong 1.5s với hiệu ứng mượt */
+    animation: bootFadeIn 1.5s var(--ease-silk) forwards; 
+    animation-delay: 1s; 
 }
 .boot-brand { font-family: var(--font-body); font-size: 2rem; letter-spacing: 8px; color: var(--text-main); font-weight: 700; margin-bottom: 5px; }
 .boot-subtitle { font-family: var(--font-body); font-size: 0.8rem; letter-spacing: 4px; color: var(--accent-text); text-transform: uppercase; margin-bottom: 40px; }
 .boot-status { font-family: var(--font-body); font-size: 1rem; color: var(--text-muted); font-style: italic; margin-bottom: 20px; height: 24px; }
 .boot-quote { 
     max-width: 400px; padding: 0 20px; font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.6; 
-    opacity: 0; transition: opacity 2.5s ease; /* Chữ hiện ra từ từ trong 2.5s */
+    opacity: 0; transition: opacity 1.5s ease; 
 }
 .boot-quote.show { opacity: 1; }
 
 @keyframes bootFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-/* Kích hoạt tan lụa và ẩn text (Kéo dài thời gian rút lụa) */
-#jade-splash.leaving .silk-layer-1 { animation: ribbonOut1 1.8s var(--ease-silk-sharp) forwards; }
-#jade-splash.leaving .silk-layer-2 { animation: ribbonOut2 1.8s var(--ease-silk-sharp) forwards; animation-delay: 0.1s; }
-#jade-splash.leaving .silk-layer-3 { animation: ribbonOut3 1.8s var(--ease-silk-sharp) forwards; animation-delay: 0.2s; }
-#jade-splash.leaving .boot-content { animation: bootFadeOut 1.2s ease-in forwards; }
+/* Kích hoạt tan lụa và ẩn text */
+#jade-splash.leaving .silk-layer-1 { animation: ribbonOut1 1.5s var(--ease-silk-sharp) forwards; }
+#jade-splash.leaving .silk-layer-2 { animation: ribbonOut2 1.5s var(--ease-silk-sharp) forwards; animation-delay: 0.1s; }
+#jade-splash.leaving .silk-layer-3 { animation: ribbonOut3 1.5s var(--ease-silk-sharp) forwards; animation-delay: 0.2s; }
+
+/* Chữ tan đi nhanh và mượt, không bị khựng */
+#jade-splash.leaving .boot-content { 
+    animation: bootFadeOut 0.8s var(--ease-silk) forwards; 
+}
 
 @keyframes ribbonOut1 { 
     0% { transform: rotate(-30deg) translateX(-20vw) scaleY(1); opacity: 1; } 
@@ -216,7 +221,10 @@ body {
     0% { transform: rotate(10deg) scale(1.2); opacity: 0.8; } 
     100% { transform: rotate(20deg) scale(2) translateY(-50vh); opacity: 0; } 
 }
-@keyframes bootFadeOut { to { opacity: 0; transform: translateY(-20px); filter: blur(5px); } }
+@keyframes bootFadeOut { 
+    0% { opacity: 1; transform: translateY(0); filter: blur(0); }
+    100% { opacity: 0; transform: translateY(-10px); filter: blur(4px); } 
+}
 
 /* =====================================================================
    7. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC (TỐI ƯU GPU CHỐNG GIẬT)
@@ -279,7 +287,7 @@ body {
     position: relative; z-index: 10; max-width: 1100px; 
     margin: 0 auto; padding: calc(90px + env(safe-area-inset-top)) 20px 40px 20px; 
     opacity: 0; 
-    transition: opacity 1.5s ease-in-out; /* Làm chậm hiệu ứng sáng lên của trang chủ */
+    transition: opacity 1.5s ease-in-out; 
 }
 .container.app-ready { opacity: 1; }
 
@@ -502,15 +510,23 @@ body {
 .skeleton-line.desc { height: 12px; width: 100%; }
 
 /* =====================================================================
-   18. RESPONSIVE (MOBILE)
+   18. RESPONSIVE (MOBILE - ĐÃ FIX LỖI TRÀN CHỮ)
    ===================================================================== */
 @media (max-width: 850px) {
     .dewdrop-container { display: none !important; }
     
     .container { padding: calc(80px + env(safe-area-inset-top)) 16px 30px 16px; }
     .hero { flex-direction: column; text-align: center; gap: 20px; }
-    .hero-content h1 { font-size: 3.2rem; line-height: 1.1; }
-    .hero-content .no-wrap { white-space: normal; }
+    
+    /* FIX LỖI TRÀN CHỮ TRÊN MOBILE */
+    .hero-content h1 { 
+        font-size: 2.5rem; 
+        line-height: 1.2; 
+        padding: 0 10px; 
+        text-align: center; 
+    }
+    .hero-content .no-wrap { white-space: normal; } /* Cho phép xuống dòng */
+    
     .hero-content p { text-align: center; font-size: 1rem; margin-bottom: 20px; }
     .hero-visual { justify-content: center; }
     .arch-frame { width: 260px; height: 340px; border-radius: 130px 130px 16px 16px; }
