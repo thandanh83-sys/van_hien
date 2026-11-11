@@ -2,12 +2,12 @@
    VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 1.0 - FINAL)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tối ưu hóa Data & Hiệu năng (Không tải ngầm, không lưu LocalStorage thừa).
+   - Tối ưu hóa Data & Hiệu năng (Lazy Load cho cả Tác phẩm và Tác giả).
    - Bộ máy tìm kiếm VDSearchEngine (Inverted Index, TF-IDF, Phrase Matching).
    - Highlight tiếng Việt không dấu, chống XSS.
    - Cuộn thông minh kết hợp hiệu ứng Tỏa sáng (Glow).
    - Trải nghiệm Khởi tạo 5 giai đoạn (Boot Experience).
-   - TÍCH HỢP "BÁC SĨ DỮ LIỆU" (auditWorksData) KIỂM TRA CẢ NỘI DUNG RỖNG.
+   - TÍCH HỢP 2 "BÁC SĨ DỮ LIỆU" (Audit Works & Audit Authors).
    ===================================================================== */
 
 /* =====================================================================
@@ -39,6 +39,7 @@ let currentEncyGroup = 'triet-thuyet';
 let currentQuoteIndex = -1;
 let quoteIntervalId = null;
 
+// Bộ nhớ đệm dùng chung cho cả Tác phẩm và Tác giả
 const worksDetailCache = new Map();
 const viewScrollPositions = { 'home': 0, 'heritage': 0, 'encyclopedia': 0, 'analyze': 0 };
 
@@ -148,7 +149,6 @@ function unloadView(viewId) {
             container.innerHTML = ''; 
         }
     }
-    // ĐÃ XÓA PHẦN XÓA DOM CỦA 'analyze' ĐỂ GIỮ NGUYÊN KẾT QUẢ
 }
 
 function toggleMobileMenu() {
@@ -405,6 +405,7 @@ const VDSearchEngine = (() => {
         totalDocs = allData.length;
 
         allData.forEach(item => {
+            // Với kiến trúc Lazy Load, item.content có thể bị rỗng (chỉ có ở file Index)
             const fullText = [item.title, item.author, item.desc, item.content].join(' ');
             const words = tokenize(fullText);
             docLengths[item.id] = words.length;
@@ -518,20 +519,29 @@ function renderEncyclopedia() {
                 allDetails.forEach(other => { if (other !== this && other.open) other.open = false; });
                 
                 if (contentDiv.innerHTML.trim() === '') {
-                    if (currentEncyGroup === 'tinh-hoa') {
+                    const isWorks = currentEncyGroup === 'tinh-hoa';
+                    const isAuthor = currentEncyGroup === 'ky-tai';
+                    
+                    if (isWorks) {
                         contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải nội dung...</p>`;
                         try {
                             const full = await loadWorkDetail(dataItem.id);
                             if (full.content && full.content.trim() !== '') {
                                 contentDiv.innerHTML = full.content;
                             } else {
-                                contentDiv.innerHTML = `
-                                    <div style="text-align: center; padding: 30px 10px; opacity: 0.8;">
-                                        <div style="font-size: 1.5rem; margin-bottom: 10px;">${ICONS.clock}</div>
-                                        <p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">
-                                            Văn bản này đang được Văn Đạo hiệu đính và biên soạn nội dung chi tiết.
-                                        </p>
-                                    </div>`;
+                                contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Văn bản này đang được Văn Đạo hiệu đính.</p></div>`;
+                            }
+                        } catch (err) {
+                            contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung. Vui lòng kiểm tra mạng.</p>`;
+                        }
+                    } else if (isAuthor) {
+                        contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải tiểu sử...</p>`;
+                        try {
+                            const full = await loadAuthorDetail(dataItem.id);
+                            if (full.content && full.content.trim() !== '') {
+                                contentDiv.innerHTML = full.content;
+                            } else {
+                                contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Tiểu sử này đang được Văn Đạo hiệu đính.</p></div>`;
                             }
                         } catch (err) {
                             contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung. Vui lòng kiểm tra mạng.</p>`;
@@ -614,20 +624,31 @@ function searchEncyclopedia() {
             detail.addEventListener('toggle', async function() {
                 const itemId = this.getAttribute('data-id');
                 const contentDiv = this.querySelector('.accordion-content');
-                const resData = rankedResults.find(d => d.id === itemId);
                 const dataItem = allData.find(d => d.id === itemId);
                 
                 if (this.open) {
                     allDetails.forEach(other => { if (other !== this && other.open) other.open = false; });
                     if (contentDiv.innerHTML.trim() === '') {
-                        if (dataItem._group === 'tinh-hoa') {
+                        const isWorks = dataItem._group === 'tinh-hoa';
+                        const isAuthor = dataItem._group === 'ky-tai';
+                        
+                        if (isWorks) {
                             contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải nội dung...</p>`;
                             try {
                                 const full = await loadWorkDetail(dataItem.id);
                                 if (full.content && full.content.trim() !== '') contentDiv.innerHTML = full.content;
-                                else contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Văn bản này đang được Văn Đạo hiệu đính và biên soạn.</p></div>`;
-                            } catch (err) { contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung. Vui lòng kiểm tra mạng.</p>`; }
-                        } else { contentDiv.innerHTML = dataItem.content; }
+                                else contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Văn bản này đang được hiệu đính.</p></div>`;
+                            } catch (err) { contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung.</p>`; }
+                        } else if (isAuthor) {
+                            contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic; padding: 10px;">${ICONS.clock} Đang tải tiểu sử...</p>`;
+                            try {
+                                const full = await loadAuthorDetail(dataItem.id);
+                                if (full.content && full.content.trim() !== '') contentDiv.innerHTML = full.content;
+                                else contentDiv.innerHTML = `<div style="text-align: center; padding: 30px 10px; opacity: 0.8;"><p style="font-family: var(--font-body); font-style: italic; color: var(--accent-text);">Tiểu sử này đang được hiệu đính.</p></div>`;
+                            } catch (err) { contentDiv.innerHTML = `<p style="color:var(--text-muted); padding: 10px;">Không tải được nội dung.</p>`; }
+                        } else {
+                            contentDiv.innerHTML = dataItem.content;
+                        }
                     }
                 } else { contentDiv.innerHTML = ''; }
             });
@@ -970,7 +991,7 @@ function initDewdrops() {
 
 
 /* =====================================================================
-   MODULE 8: TẢI DỮ LIỆU & BÁC SĨ DỮ LIỆU (AUDIT NỘI DUNG)
+   MODULE 8: TẢI DỮ LIỆU & BÁC SĨ DỮ LIỆU KÉP (AUDIT WORKS & AUTHORS)
    ===================================================================== */
 async function loadWorkDetail(id) {
     if (worksDetailCache.has(id)) return worksDetailCache.get(id);
@@ -978,6 +999,15 @@ async function loadWorkDetail(id) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     worksDetailCache.set(id, data);
+    return data;
+}
+
+async function loadAuthorDetail(id) {
+    if (worksDetailCache.has('author_' + id)) return worksDetailCache.get('author_' + id);
+    const res = await fetch(`./data/tac-gia/${encodeURIComponent(id)}.json`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    worksDetailCache.set('author_' + id, data);
     return data;
 }
 
@@ -1011,13 +1041,11 @@ async function loadAllData() {
     }
 }
 
-// HÀM BÁC SĨ DỮ LIỆU NÂNG CẤP: KIỂM TRA CẢ NỘI DUNG BÊN TRONG
+// HÀM BÁC SĨ DỮ LIỆU 1: KHÁM TÁC PHẨM
 async function auditWorksData() {
     console.log("%c🔍 BẮT ĐẦU KIỂM TRA DỮ LIỆU VÀ NỘI DUNG TÁC PHẨM...", "color: #8bb8a8; font-weight: bold; font-size: 14px;");
     const results = [];
-    let successCount = 0;
-    let emptyCount = 0;
-    let errorCount = 0;
+    let successCount = 0, emptyCount = 0, errorCount = 0;
 
     for (const work of WORKS_DATA) {
         try {
@@ -1025,13 +1053,9 @@ async function auditWorksData() {
             if (!res.ok) throw new Error(`File không tồn tại (Mã lỗi: ${res.status})`);
             
             const data = await res.json();
-            
-            // KIỂM TRA XEM CÓ NỘI DUNG THẬT KHÔNG
             const content = data.content || '';
-            const cleanContent = content.replace(/<[^>]*>/g, '').trim(); // Bỏ thẻ HTML để đếm chữ
+            const cleanContent = content.replace(/<[^>]*>/g, '').trim();
             
-            // Nếu độ dài chữ > 100 ký tự thì coi là có nội dung thật
-            // (Loại trừ các file chỉ có câu "Đang cập nhật" hoặc rỗng)
             if (cleanContent.length > 100 && !cleanContent.includes('đang được Văn Đạo hiệu đính')) {
                 results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": "✅ Có nội dung" });
                 successCount++;
@@ -1039,31 +1063,55 @@ async function auditWorksData() {
                 results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": "⚠️ File rỗng (Chưa có bài)" });
                 emptyCount++;
             }
-            
         } catch (err) {
             results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": `❌ LỖI: ${err.message}` });
             errorCount++;
         }
     }
     
-    console.log(`%c✅ Tổng kết: ${successCount} file CÓ NỘI DUNG | ⚠️ ${emptyCount} file RỖNG | ❌ ${errorCount} file LỖI.`, "color: #10b981; font-weight: bold; font-size: 13px;");
-    
-    if (emptyCount > 0) {
-        console.log("%c📝 DANH SÁCH CÁC FILE CHƯA CÓ BÀI VIẾT (Cần bổ sung):", "color: #f39c12; font-weight: bold; font-size: 13px;");
-        console.table(results.filter(r => r["Trạng Thái"].includes('⚠️')));
+    console.log(`%c✅ Tổng kết: ${successCount} CÓ NỘI DUNG | ⚠️ ${emptyCount} RỖNG | ❌ ${errorCount} LỖI.`, "color: #10b981; font-weight: bold; font-size: 13px;");
+    if (emptyCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('⚠️')));
+    if (errorCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('❌')));
+    console.table(results);
+}
+
+// HÀM BÁC SĨ DỮ LIỆU 2: KHÁM TÁC GIẢ
+async function auditAuthorsData() {
+    console.log("%c🔍 BẮT ĐẦU KIỂM TRA DỮ LIỆU TÁC GIẢ...", "color: #8bb8a8; font-weight: bold; font-size: 14px;");
+    const results = [];
+    let successCount = 0, emptyCount = 0, errorCount = 0;
+
+    for (const author of AUTHOR_DATA) {
+        try {
+            const res = await fetch(`./data/tac-gia/${encodeURIComponent(author.id)}.json`);
+            if (!res.ok) throw new Error(`File không tồn tại (Mã lỗi: ${res.status})`);
+            
+            const data = await res.json();
+            const content = data.content || '';
+            const cleanContent = content.replace(/<[^>]*>/g, '').trim();
+            
+            if (cleanContent.length > 100 && !cleanContent.includes('đang được Văn Đạo hiệu đính')) {
+                results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": "✅ Có nội dung" });
+                successCount++;
+            } else {
+                results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": "⚠️ File rỗng (Chưa có bài)" });
+                emptyCount++;
+            }
+        } catch (err) {
+            results.push({ ID: author.id, "Tên Tác Giả": author.title, "Trạng Thái": `❌ LỖI: ${err.message}` });
+            errorCount++;
+        }
     }
     
-    if (errorCount > 0) {
-        console.log("%c❌ DANH SÁCH CÁC FILE BỊ LỖI (Cần sửa ngay):", "color: #e74c3c; font-weight: bold; font-size: 13px;");
-        console.table(results.filter(r => r["Trạng Thái"].includes('❌')));
-    }
-    
-    console.log("Bảng chi tiết toàn bộ tác phẩm:");
+    console.log(`%c✅ Tổng kết: ${successCount} CÓ NỘI DUNG | ⚠️ ${emptyCount} RỖNG | ❌ ${errorCount} LỖI.`, "color: #10b981; font-weight: bold; font-size: 13px;");
+    if (emptyCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('⚠️')));
+    if (errorCount > 0) console.table(results.filter(r => r["Trạng Thái"].includes('❌')));
     console.table(results);
 }
 
 // Gắn hàm vào window để có thể gọi từ Console
 window.auditWorksData = auditWorksData;
+window.auditAuthorsData = auditAuthorsData;
 
 function renderRandomQuote() { 
     const container = document.getElementById('daily-quote-container'); 
