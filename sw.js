@@ -1,21 +1,19 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE VERSION 1.1)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE VERSION - STALE-WHILE-REVALIDATE)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Quản lý Offline Cache bền bỉ, chống lỗi 404 file.
-   - Chiến lược "Cache First" toàn diện: Tải tức thì (0.01s), chống lag.
-   - Hỗ trợ Stale-While-Revalidate cho dữ liệu chi tiết.
-   - Tuân thủ: 100% Text, không Emoji.
+   - Tự động cập nhật từ Git mà không cần đổi CACHE_VERSION.
+   - Hiển thị ngay từ Cache (0.01s) để chạy Offline 100%.
+   - Ngầm cập nhật bản mới từ mạng (Network) để lần sau mở App sẽ thấy code mới.
+   - Chống lỗi 404 khi cài đặt (Install) nếu thiếu 1 file.
    ===================================================================== */
 
 // =====================================================================
 // I. CẤU HÌNH PHIÊN BẢN VÀ BỘ NHỚ ĐỆM
 // =====================================================================
-// LƯU Ý QUAN TRỌNG: Mỗi khi bạn sửa code hoặc thêm dữ liệu, 
-// BẮT BUỘC phải tăng số Version này (vd: v1.1 -> v1.2) để ép trình duyệt tải mới.
-const CACHE_VERSION = 'vandao-cache-v1.1'; 
-const PRECACHE_NAME = CACHE_VERSION;
-const RUNTIME_NAME = `${CACHE_VERSION}-runtime`;
+// Tên bộ nhớ đệm. Bạn không cần đổi tên này mỗi khi sửa code nữa.
+const CACHE_NAME = 'vandao-auto-cache-v1'; 
+const RUNTIME_NAME = 'vandao-auto-runtime-v1';
 
 // Danh sách các file TĨNH cần tải về máy ngay từ lần đầu tiên (App Shell).
 // KHÔNG đưa các file trong 'data/tac-pham/' vào đây để tránh tải hàng ngàn file cùng lúc.
@@ -33,11 +31,8 @@ const PRECACHE_ASSETS = [
     './assets/logo.png',
     
     // --- Font chữ cục bộ (Chạy Offline 100%) ---
-    // Nếu thiếu 1 trong 2 file này, hệ thống vẫn chạy bình thường, chỉ báo warning ở Console.
     './assets/fonts/alex-brush.woff2',
-    './assets/fonts/alex-brush.ttf',
-    './assets/fonts/cinzel-bold.woff2',
-    './assets/fonts/cinzel-regular.woff2',
+    './assets/fonts/AlexBrush-Regular.ttf',
     
     // --- Dữ liệu danh mục và lý thuyết (Tải sẵn để dùng Offline) ---
     './data/data-ly-thuyet.json',
@@ -53,7 +48,7 @@ self.addEventListener('install', (event) => {
     console.log('[Service Worker] Đang tiến hành cài đặt phiên bản mới...');
     
     event.waitUntil(
-        caches.open(PRECACHE_NAME)
+        caches.open(CACHE_NAME)
             .then((cache) => {
                 console.log('[Service Worker] Đang tải các file tĩnh vào Precache...');
                 // SỬ DỤNG VÒNG LẶP THAY VÌ cache.addAll ĐỂ CHỐNG LỖI SẬP NGUỒN NẾU THIẾU 1 FILE
@@ -87,7 +82,7 @@ self.addEventListener('activate', (event) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
                     // Nếu tên bộ nhớ đệm bắt đầu bằng 'vandao-' nhưng KHÔNG PHẢI là phiên bản hiện tại -> Xóa
-                    if (cacheName.startsWith('vandao-') && cacheName !== PRECACHE_NAME && cacheName !== RUNTIME_NAME) {
+                    if (cacheName.startsWith('vandao-') && cacheName !== CACHE_NAME && cacheName !== RUNTIME_NAME) {
                         console.log('[Service Worker] Phát hiện bộ nhớ đệm cũ, tiến hành xóa:', cacheName);
                         return caches.delete(cacheName);
                     }
@@ -102,86 +97,33 @@ self.addEventListener('activate', (event) => {
 });
 
 // =====================================================================
-// IV. SỰ KIỆN FETCH (LẤY DỮ LIỆU) - CHIẾN LƯỢC TỐI ƯU
+// IV. SỰ KIỆN FETCH (LẤY DỮ LIỆU) - CHIẾN LƯỢC STALE-WHILE-REVALIDATE
 // =====================================================================
 self.addEventListener('fetch', (event) => {
     // Bỏ qua các request không phải GET (như POST) hoặc request từ extension trình duyệt
     if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
-    const url = new URL(event.request.url);
-
-    // -----------------------------------------------------------------
-    // CHIẾN LƯỢC 1: STALE-WHILE-REVALIDATE cho Tác phẩm chi tiết
-    // (Dùng cho data/tac-pham/ - Tải từ Cache ngay lập tức, 
-    // đồng thời ngầm tải bản mới để cập nhật cho lần sau)
-    // -----------------------------------------------------------------
-    if (url.pathname.includes('/data/tac-pham/')) {
-        event.respondWith(
-            caches.open(RUNTIME_NAME).then(async (cache) => {
-                const cachedResponse = await cache.match(event.request);
-                
-                const fetchPromise = fetch(event.request).then((networkResponse) => {
-                    // Nếu tải từ mạng thành công, cập nhật lại vào Cache
-                    if (networkResponse.ok) {
-                        cache.put(event.request, networkResponse.clone());
-                    }
-                    return networkResponse;
-                }).catch(() => {
-                    // Nếu mất mạng, trả về cache cũ (nếu có)
-                    return cachedResponse;
-                });
-                
-                // Trả về cache ngay nếu có (tốc độ 0.01s), nếu không thì chờ fetch
-                return cachedResponse || fetchPromise;
-            })
-        );
-        return;
-    }
-
-    // -----------------------------------------------------------------
-    // CHIẾN LƯỢC 2: CACHE FIRST cho Hình ảnh & Font
-    // (Tải từ Cache trước, giúp tiết kiệm Data 3G/4G và tăng tốc độ)
-    // -----------------------------------------------------------------
-    const isAsset = /\.(jpg|jpeg|png|gif|svg|webp|woff2|woff|ttf)$/i.test(url.pathname);
-
-    if (isAsset) {
-        event.respondWith(
-            caches.match(event.request).then((cachedResponse) => {
-                if (cachedResponse) {
-                    return cachedResponse; // Trả về ngay nếu có trong cache
-                }
-                // Nếu chưa có trong Cache, tải từ mạng và lưu lại
-                return fetch(event.request).then((networkResponse) => {
-                    // Chỉ cache các response hợp lệ (tránh cache lỗi 404, 500)
-                    if (!networkResponse || networkResponse.status !== 200) {
-                        return networkResponse;
-                    }
-                    return caches.open(RUNTIME_NAME).then((cache) => {
-                        cache.put(event.request, networkResponse.clone());
-                        return networkResponse;
-                    });
-                });
-            })
-        );
-        return;
-    }
-
-    // -----------------------------------------------------------------
-    // CHIẾN LƯỢC 3: CACHE FIRST cho Code (HTML/CSS/JS/JSON chính)
-    // (Lấy từ bộ nhớ máy ra dùng ngay lập tức, không chờ mạng)
-    // -----------------------------------------------------------------
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-                return cachedResponse; // Trả về ngay (0.01s)
-            }
-            // Nếu chưa có trong cache (lần đầu mở), mới tải từ mạng
-            return fetch(event.request).then((networkResponse) => {
-                return caches.open(PRECACHE_NAME).then((cache) => {
-                    cache.put(event.request, networkResponse.clone());
-                    return networkResponse;
-                });
+            // 1. TẠO TIẾN TRÌNH NGẦM (FETCH TỪ GITHUB)
+            // Dù có cache hay không, nó vẫn lén ra mạng để tải bản mới nhất
+            const fetchPromise = fetch(event.request).then((networkResponse) => {
+                // Nếu tải từ mạng thành công, cập nhật lại vào Cache để lần sau dùng
+                if (networkResponse && networkResponse.status === 200) {
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, networkResponse.clone());
+                    });
+                }
+                return networkResponse;
+            }).catch(() => {
+                // Nếu mất mạng, không làm gì cả, trả về bản trong máy
+                return cachedResponse;
             });
+
+            // 2. HIỂN THỊ NGAY LẬP TỨC
+            // Nếu đã có trong bộ nhớ máy (cachedResponse) -> Trả ra NGAY (Tốc độ 0.01s, dùng Offline)
+            // Nếu chưa có (lần đầu mở) -> Mới chờ tải từ mạng (fetchPromise)
+            return cachedResponse || fetchPromise;
         })
     );
 });
