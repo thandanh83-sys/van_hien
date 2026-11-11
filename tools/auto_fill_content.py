@@ -2,16 +2,19 @@
 # -*- coding: utf-8 -*-
 """
 =====================================================================
-VĂN ĐẠO ENGINE - TOOL: AUTO FILL CONTENT (TỰ ĐỘNG ĐIỀN NỘI DUNG MẪU)
+VĂN ĐẠO ENGINE - TOOL: AUTO FILL CONTENT (NGƯỜI ĐIỀN KHUYẾT)
 =====================================================================
 Tác giả: Văn Đạo
-Mô tả chi tiết:
-- Quét toàn bộ file JSON trong 'data/tac-pham/' và 'data/tac-gia/'.
-- Nếu phát hiện file bị thiếu nội dung (hoặc chỉ có thẻ HTML rỗng), 
-  tự động chèn một khung thông báo đẹp mắt vào trường 'content'.
-- Tuyệt đối KHÔNG GHI ĐÈ nếu file đã có nội dung thực sự (dài > 100 ký tự).
-- Giúp App không bao giờ hiển thị khoảng trắng vô hồn, thay vào đó là 
-  lời nhắn nhủ thanh lịch của Văn Đạo.
+
+TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+1. Tôn trọng sự thật: Tuyệt đối KHÔNG GHI ĐÈ nếu file đã có nội dung 
+   thực sự (dài hơn 100 ký tự). Chỉ can thiệp khi khoảng trống là thật.
+2. Thanh tao trong khuyết thiếu: Thay vì để khoảng trắng vô hồn, tự động 
+   chèn một khung thông báo đẹp mắt, mang đậm phong cách Bạch Ngọc.
+3. Không xâm phạm Metadata: Bỏ qua các file JSON không có trường 'content' 
+   (ví dụ: file danh mục, file cấu hình). Chỉ điền vào nơi thực sự cần.
+4. Nhẹ nhàng và an toàn: Sử dụng thư viện chuẩn, bắt lỗi JSON hỏng, 
+   và thống kê rõ ràng những gì đã làm để con người kiểm soát.
 =====================================================================
 """
 
@@ -23,11 +26,11 @@ from pathlib import Path
 # =====================================================================
 # I. CẤU HÌNH MÀU SẮC TERMINAL (Để log trên GitHub Actions dễ đọc)
 # =====================================================================
-C_TEAL = "\033[96m"   # Màu xanh ngọc
-C_GOLD = "\033[93m"   # Màu vàng
-C_GRAY = "\033[90m"   # Màu xám
-C_GREEN = "\033[92m"  # Màu xanh lá
-C_RED = "\033[91m"    # Màu đỏ
+C_TEAL = "\033[96m"   # Màu xanh ngọc (Tiêu đề)
+C_GOLD = "\033[93m"   # Màu vàng (Các bước)
+C_GRAY = "\033[90m"   # Màu xám (Ghi chú)
+C_GREEN = "\033[92m"  # Màu xanh lá (Thành công)
+C_RED = "\033[91m"    # Màu đỏ (Lỗi/Cảnh báo)
 C_RESET = "\033[0m"   # Reset màu
 
 # =====================================================================
@@ -79,6 +82,14 @@ def process_directory(directory, dir_name):
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
             
+            # LÁ CHẮN AN TOÀN MỚI (BƯỚC NÂNG CẤP):
+            # Nếu file không có trường 'content' (ví dụ: file metadata thuần),
+            # ta bỏ qua hoàn toàn, không tự ý thêm vào.
+            if 'content' not in data:
+                print(f"  {C_GRAY}[BỎ QUA]{C_RESET} File không có trường 'content': {file_path.name}")
+                skipped_count += 1
+                continue
+
             content = data.get('content', '')
             # Loại bỏ các thẻ HTML để đếm số ký tự thực tế
             clean_text = str(content).replace('<[^>]*>', '').strip() if content else ''
@@ -100,7 +111,7 @@ def process_directory(directory, dir_name):
             print(f"  {C_RED}[LỖI]{C_RESET} Không thể xử lý {file_path.name}: {e}")
 
     print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Đã điền mẫu cho {filled_count} file.")
-    print(f"  {C_GRAY}[GIỮ NGUYÊN]{C_RESET} Bỏ qua {skipped_count} file đã có nội dung thật.\n")
+    print(f"  {C_GRAY}[GIỮ NGUYÊN]{C_RESET} Bỏ qua {skipped_count} file (đã có nội dung thật hoặc không có trường 'content').\n")
     
     return filled_count, skipped_count
 
@@ -124,7 +135,7 @@ def main():
     print(f"{C_TEAL}====================================================================={C_RESET}")
     print(f"{C_GOLD}  TỔNG KẾT:{C_RESET}")
     print(f"  - Tổng số file được chèn nội dung mẫu: {C_GREEN}{total_filled}{C_RESET}")
-    print(f"  - Tổng số file đã có nội dung thật (giữ nguyên): {C_GRAY}{total_skipped}{C_RESET}")
+    print(f"  - Tổng số file được giữ nguyên: {C_GRAY}{total_skipped}{C_RESET}")
     print(f"{C_TEAL}====================================================================={C_RESET}\n")
     
     if total_filled > 0:
