@@ -713,9 +713,12 @@ function searchEncyclopedia() {
     document.getElementById('encyclopedia-count').textContent = `Tìm thấy ${results.length} mục`;
 }
 
+// HÀM ĐIỀU HƯỚNG (SCROLL TỚI VÀ PHÁT SÁNG - KHÔNG TỰ MỞ ACCORDION)
 async function gotoEncyclopediaById(id) {
     if (!id) return;
     let searchId = String(id).toLowerCase().trim();
+    
+    // Xử lý nếu là số La Mã (VD: V -> quyen-v)
     if (/^[ivxlcdm]+$/i.test(searchId)) {
         const vol = `quyen-${searchId}`;
         if (THEORY_DATA.some(i => i.id === vol)) searchId = vol;
@@ -725,19 +728,23 @@ async function gotoEncyclopediaById(id) {
     if (!targetInfo) { console.warn('[ROUTER] Không tìm thấy ID:', searchId); return; }
     const targetGroup = targetInfo.type;
 
+    // 1. Reset thanh tìm kiếm
     const si = document.getElementById('encyclopedia-search');
     if (si) si.value = '';
     document.getElementById('clear-search-btn')?.classList.remove('show');
     const filterBar = document.getElementById('encyclopedia-filter-bar');
     if (filterBar) filterBar.style.display = 'flex';
 
+    // 2. Chuyển sang tab Bách Khoa (Chờ switchView hoàn tất)
     const switched = await switchView('encyclopedia');
     if (!switched) return;
 
+    // 3. Chuyển sang đúng nhóm (Tác giả, Tác phẩm, Lý thuyết) và Render
     currentEncyGroup = targetGroup;
     const container = document.getElementById('encyclopedia-container');
     if (container.dataset.renderedGroup !== targetGroup) renderEncyclopedia();
 
+    // Cập nhật trạng thái nút bấm Filter
     document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => {
         b.classList.remove('active'); b.setAttribute('aria-pressed', 'false');
     });
@@ -746,27 +753,24 @@ async function gotoEncyclopediaById(id) {
     if (targetGroup === 'ky-tai' && btns[1]) { btns[1].classList.add('active'); btns[1].setAttribute('aria-pressed', 'true'); }
     if (targetGroup === 'tinh-hoa' && btns[2]) { btns[2].classList.add('active'); btns[2].setAttribute('aria-pressed', 'true'); }
 
+    // 4. Tìm phần tử ĐÍCH (Vỏ Accordion)
     const targetEl = document.getElementById(searchId);
     if (!targetEl) return;
 
-    const details = targetEl.querySelector('details');
-    if (details) {
-        let parent = details.parentElement;
-        while (parent) {
-            if (parent instanceof HTMLDetailsElement) parent.open = true;
-            parent = parent.parentElement;
-        }
-        details.open = true;
-        await ensureAccordionContent(details);
-    }
-    if (!targetEl.isConnected) return;
-
+    // 5. Cuộn tới phần tử (Lúc này Accordion vẫn ĐANG ĐÓNG - Chiều cao nhỏ, căn giữa cực chuẩn)
+    // Chờ 1 nhịp requestAnimationFrame để DOM kịp vẽ xong vị trí mới
     await new Promise(requestAnimationFrame);
-    await new Promise(requestAnimationFrame);
-    targetEl.classList.add('is-visible');
+    
+    targetEl.classList.add('is-visible'); // Đảm bảo không bị mờ (opacity)
     targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // 6. Phát sáng phần tử
     targetEl.classList.add('highlight-target');
-    setTimeout(() => targetEl.classList.remove('highlight-target'), 2500);
+    
+    // 7. Tự động tắt phát sáng sau 2.5 giây
+    setTimeout(() => {
+        targetEl.classList.remove('highlight-target');
+    }, 2500);
 }
 
 /* =====================================================================
@@ -1232,13 +1236,125 @@ function appendRelatedSection(container, item, group) {
     container.appendChild(section);
 }
 
-/* ---------- 1.5: RANDOM POEM ---------- */
-function randomPoem() {
-    if (!WORKS_DATA.length) return;
-    const pool = WORKS_DATA.filter(w => ['thi-ca', 'van-hoc-dan-gian', 'van-xuoi'].includes(w.loai_hinh));
-    const source = pool.length ? pool : WORKS_DATA;
-    const pick = source[Math.floor(Math.random() * source.length)];
-    gotoEncyclopediaById(pick.id);
+/* ---------- 1.5: RANDOM POEM (LITERARY DIVINATION) ---------- */
+// Bộ máy sinh Lời Bình Tự Động (Generative Commentary)
+const generateFateCommentary = (work) => {
+    const loai = work.loai_hinh || '';
+    const theLoai = (work.the_loai && work.the_loai.length > 0) ? work.the_loai[0] : 'Văn học';
+    const author = work.author || 'Tác giả';
+    
+    // Các mẫu câu dựa trên Thể loại
+    const introTemplates = {
+        'thi-ca': [
+            `Nhịp điệu của "${theLoai}" trong tác phẩm này như một làn gió nhẹ, thổi qua tâm trí bạn ngày hôm nay.`,
+            `Vần thơ của ${author} không chỉ để đọc, mà để cảm nhận. Hôm nay, hãy để cảm xúc dẫn lối.`
+        ],
+        'van-xuoi': [
+            `Mỗi trang viết của ${author} là một tấm gương phản chiếu những góc khuất của con người.`,
+            `Như một ${theLoai} đầy chiêm nghiệm, tác phẩm này nhắc bạn rằng mọi câu chuyện đều có nguyên do của nó.`
+        ],
+        'default': [
+            `Một tác phẩm thuộc dòng ${theLoai} đã tìm đến bạn. Đây là một sự kết nối tình cờ nhưng đầy ẩn ý.`,
+            `Từ kho tàng của ${author}, một tiếng nói đang muốn được bạn lắng nghe.`
+        ]
+    };
+
+    // Các mẫu câu dựa trên Thời đại
+    const eraTemplates = {
+        'co-dien': `Mang hơi thở của thời đại xưa cũ, tác phẩm nhắn nhủ bạn hãy tìm về những giá trị cội nguồn và sự tĩnh tại.`,
+        'hien-dai': `Được sinh ra trong dòng chảy hiện đại, tác phẩm khơi gợi những suy tư về nhịp sống hối hả và sự cô đơn giữa đám đông.`,
+        'khang-chien': `Viết giữa những năm tháng lửa đạn, tác phẩm là minh chứng cho ý chí kiên cường và vẻ đẹp của tình người.`
+    };
+
+    // Các lời khuyên chung (Chọn ngẫu nhiên)
+    const advices = [
+        "Hôm nay, hãy học cách lắng nghe nhiều hơn và phán xét ít đi.",
+        "Đừng ngại đối diện với những cảm xúc phức tạp. Chúng làm nên con người bạn.",
+        "Một chút tĩnh lặng sẽ giúp bạn nhìn rõ hơn những gì đang diễn ra xung quanh.",
+        "Hãy trân trọng những điều nhỏ bé, vì vẻ đẹp thường ẩn giấu ở những nơi bình dị nhất.",
+        "Nếu cảm thấy mệt mỏi, hãy nghỉ ngơi. Văn chương cần thời gian để thấm, và tâm hồn cũng vậy.",
+        "Đôi khi, việc buông bỏ một điều gì đó lại là cách tốt nhất để mở ra một chân trời mới."
+    ];
+
+    const introArr = introTemplates[loai] || introTemplates['default'];
+    let intro = introArr[Math.floor(Math.random() * introArr.length)];
+    
+    let era = work.era ? work.era.toLowerCase() : '';
+    let eraText = "";
+    if (era.includes('19') || era.includes('18') || era.includes('tk')) eraText = eraTemplates['co-dien'];
+    else if (era.includes('197') || era.includes('198')) eraText = eraTemplates['hien-dai'];
+    else if (era.includes('194') || era.includes('195')) eraText = eraTemplates['khang-chien'];
+    else eraText = eraTemplates['hien-dai'];
+
+    const advice = advices[Math.floor(Math.random() * advices.length)];
+
+    return `${intro} ${eraText} <br><br> <strong>Lời khuyên:</strong> ${advice}`;
+};
+
+async function randomPoem() {
+    // 1. Lọc ra danh sách các tác phẩm "có duyên" (có mô tả hoặc có nội dung)
+    const validWorks = WORKS_DATA.filter(w => w.desc && w.desc.trim() !== '');
+    
+    if (!validWorks || validWorks.length === 0) {
+        alert("Kho tàng văn học đang được tải, vui lòng thử lại sau giây lát.");
+        return;
+    }
+
+    const btn = document.getElementById('draw-literary-fate-btn');
+    const card = document.getElementById('literary-fate-card');
+    if (!btn || !card) return;
+    
+    // Hiệu ứng "gieo" (nhấp nháy nút)
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "Đang tìm một bài thơ...";
+    btn.style.pointerEvents = 'none';
+
+    setTimeout(async () => {
+        // 2. Random ID từ danh sách đã lọc (validWorks)
+        const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
+        
+        // 3. Lấy đoạn trích (Mặc định lấy desc)
+        let excerpt = randomWork.desc;
+        
+        // Thử tải ngầm content để lấy một đoạn trích dẫn thật (nếu có)
+        try {
+            const res = await fetch(`./data/tac-pham/${encodeURIComponent(randomWork.id)}.json`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.content) {
+                    const plainText = data.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+                    // Chỉ lấy nếu nội dung thật sự dài (tránh lấy thông báo "Đang hiệu đính")
+                    if (plainText.length > 50 && !plainText.includes('đang được Văn Đạo hiệu đính')) {
+                        excerpt = `"${plainText.substring(0, 150)}..."`;
+                    }
+                }
+            }
+        } catch (e) {
+            console.log("Không thể tải trích đoạn, dùng mô tả.");
+        }
+
+        // 4. Render dữ liệu lên thẻ
+        document.getElementById('fate-badge').textContent = (randomWork.the_loai && randomWork.the_loai[0]) || "Tác phẩm";
+        document.getElementById('fate-title').textContent = randomWork.title;
+        document.getElementById('fate-author').textContent = `— ${randomWork.author} —`;
+        document.getElementById('fate-excerpt').innerHTML = excerpt;
+        document.getElementById('fate-commentary').innerHTML = generateFateCommentary(randomWork);
+
+        // 5. Gắn sự kiện cho nút "Đọc toàn bộ"
+        document.getElementById('fate-goto-btn').onclick = () => {
+            gotoEncyclopediaById(randomWork.id);
+            setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 500);
+        };
+
+        // 6. Hiệu ứng hiển thị
+        btn.style.display = 'none';
+        card.style.display = 'block';
+        
+        // Reset lại nút cho lần sau
+        btn.innerHTML = originalText;
+        btn.style.pointerEvents = 'auto';
+
+    }, 800); // Đợi 0.8s tạo cảm giác "thiền định"
 }
 
 /* ---------- 2.3: TIMELINE ---------- */
@@ -1297,7 +1413,7 @@ function buildTimeline() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('random-poem-btn')?.addEventListener('click', randomPoem);
+    document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
 
     document.getElementById('timeline-toggle')?.addEventListener('click', () => {
         const grid = document.getElementById('heritage-grid');
