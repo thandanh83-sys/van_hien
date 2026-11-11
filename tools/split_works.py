@@ -2,17 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 =====================================================================
-VĂN ĐẠO ENGINE - TOOL: SPLIT WORKS (TÁCH, NỐI & TỰ ĐỘNG DỌN DẸP)
+VĂN ĐẠO ENGINE - TOOL: SPLIT WORKS (NHÀ LUYỆN ĐAN TÁC PHẨM)
 =====================================================================
 Tác giả: Văn Đạo
-Mô tả chi tiết:
-1. Đọc file gốc 'data/data-tac-pham-master.json'.
-2. Kiểm tra tính hợp lệ của dữ liệu (phải là mảng JSON).
-3. Tách từng tác phẩm thành các file JSON nhỏ lẻ trong thư mục 'data/tac-pham/'.
-4. Tự động trích xuất thông tin (bỏ phần content) để nối vào file danh mục 'data/data-tac-pham.json'.
-5. TỰ ĐỘNG SẮP XẾP danh mục theo thứ tự Bảng chữ cái (A-Z).
-6. TỰ ĐỘNG XÓA file Master sau khi xử lý thành công để dọn dẹp dự án.
-7. Tự động bỏ qua êm đẹp nếu không có file Master (tránh báo lỗi đỏ trên GitHub).
+
+TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+1. Tách hạt giống thành rừng cây: File Master chứa toàn bộ nội dung nặng. 
+   Script này tách nó thành hàng ngàn file JSON nhỏ trong 'data/tac-pham/'. 
+   Nhờ vậy, App chỉ tải đúng bài cần đọc, không tải cả kho dữ liệu.
+2. Ghi chép sổ bộ (Index): Tự động trích xuất thông tin (bỏ phần content) 
+   để nối vào 'data-tac-pham.json' (danh mục). Danh mục luôn nhẹ và sắp xếp A-Z.
+3. Dọn dẹp chiến trường: Tự động xóa file Master sau khi xử lý xong, 
+   để lại một kho lưu trữ gọn gàng, thanh tịnh.
+4. Kỷ luật thép: Kiểm tra cú pháp JSON, kiểm tra trùng lặp ID, và bỏ qua 
+   êm đẹp nếu không có file Master (tránh báo lỗi đỏ trên GitHub Actions).
 =====================================================================
 """
 
@@ -36,6 +39,7 @@ C_RESET = "\033[0m"   # Reset màu
 # =====================================================================
 # Lấy thư mục chứa file script hiện tại, sau đó lùi ra 1 cấp (thư mục gốc dự án)
 ROOT_DIR = Path(__file__).parent.parent
+
 # Di chuyển con trỏ làm việc về thư mục gốc để các đường dẫn tương đối hoạt động chuẩn
 os.chdir(ROOT_DIR)
 
@@ -82,6 +86,23 @@ def process_works():
         sys.exit(1)
         
     print(f"  {C_GREEN}[THÀNH CÔNG]{C_RESET} Đã đọc {len(new_works)} tác phẩm từ file Master.\n")
+
+    # -----------------------------------------------------------------
+    # BƯỚC 1.5: KIỂM TRA TRÙNG LẶP ID TRONG MASTER (LÁ CHẮN AN TOÀN)
+    # -----------------------------------------------------------------
+    seen_ids = set()
+    duplicates = []
+    for item in new_works:
+        wid = item.get('id')
+        if wid:
+            if wid in seen_ids:
+                duplicates.append(wid)
+            seen_ids.add(wid)
+    
+    if duplicates:
+        print(f"  {C_RED}[CẢNH BÁO]{C_RESET} Phát hiện ID trùng trong file Master: {duplicates}")
+        print(f"  {C_GRAY}[GHI CHÚ]{C_RESET} Item sau sẽ ghi đè item trước. Hãy kiểm tra lại file Master.\n")
+    # -----------------------------------------------------------------
 
     # -----------------------------------------------------------------
     # BƯỚC 2: TÁCH FILE VÀ NỐI DANH MỤC
