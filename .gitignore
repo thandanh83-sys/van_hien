@@ -1,47 +1,78 @@
 # =====================================================================
-# VĂN ĐẠO - TỆP CẤU HÌNH GITIGNORE (BẢO VỆ SỰ THANH TỊNH CỦA REPO)
+# VĂN ĐẠO ENGINE - TỆP CẤU HÌNH GITIGNORE (CHUẨN MỰC & SIÊU CHI TIẾT)
 # Mục đích: Ngăn chặn các tệp rác, tệp tạm, và thông tin nhạy cảm
-# bị đẩy lên GitHub, giữ cho kho lưu trữ luôn nhẹ và sạch sẽ.
+# bị đẩy lên GitHub. Giữ cho kho lưu trữ luôn nhẹ, sạch và thanh tịnh.
 # =====================================================================
 
 # ---------------------------------------------------------------------
 # 1. HỆ ĐIỀU HÀNH (OS FILES)
 # Bỏ qua các file hệ thống tự sinh ra khi duyệt thư mục
 # ---------------------------------------------------------------------
+# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
+.Spotlight-V100
+.Trashes
+Icon?
+._*
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
+ehthumbs_vista.db
 Desktop.ini
 $RECYCLE.BIN/
-*.cab
-*.msi
-*.msm
-*.msp
+*.lnk
+*.stackdump
+
+# Linux
+.directory
+.Trash-*
+.nfs*
 
 # ---------------------------------------------------------------------
-# 2. TRÌNH SOẠN THẢO & IDE (EDITOR / IDE FILES)
-# Bỏ qua cấu hình cá nhân của các Editor, tránh xung đột khi làm việc nhóm
+# 2. TRÌNH SOẠN THẢO & IDE (EDITORS / IDEs)
+# Bỏ qua cấu hình cá nhân của Editor, tránh xung đột khi làm việc nhóm
 # ---------------------------------------------------------------------
+# Visual Studio Code
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# JetBrains (WebStorm, PyCharm, IntelliJ)
 .idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
 *.sublime-project
 *.sublime-workspace
-*.iml
+
+# Vim / Neovim
 *.swp
 *.swo
+*~
+.netrwhist
 
 # ---------------------------------------------------------------------
 # 3. MÔI TRƯỜNG PYTHON (PYTHON ARTIFACTS)
-# Cực kỳ quan trọng vì bạn dùng Python tools (split, auto-fill) để xử lý dữ liệu
+# Cực kỳ quan trọng vì bạn dùng Python tools để xử lý dữ liệu
 # ---------------------------------------------------------------------
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -68,10 +99,49 @@ ENV/
 env/
 .env
 .env.local
+.env.*
+!.env.example
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+.pytest_cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
 
 # ---------------------------------------------------------------------
 # 4. MÔI TRƯỜNG NODE.JS (NODE ARTIFACTS)
-# Dự phòng cho việc chạy local server (npx http-server) hoặc build tools sau này
+# Dự phòng cho việc chạy local server (npx http-server) hoặc build tools
 # ---------------------------------------------------------------------
 node_modules/
 npm-debug.log*
@@ -79,18 +149,34 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .pnpm-debug.log*
+.npm/
+.eslintcache
+.stylelintcache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+dist/
+out/
+build/
 
 # ---------------------------------------------------------------------
 # 5. NHẬT KÝ & TỆP TẠM (LOGS & TEMP FILES)
 # Bỏ qua các file log sinh ra trong quá trình chạy thử hoặc debug
 # ---------------------------------------------------------------------
 *.log
+*.log.*
 logs/
 *.tmp
 *.temp
 .cache/
 .temp/
 .tmp/
+*.bak
+*.orig
+*.pid
+*.seed
+*.pid.lock
 
 # ---------------------------------------------------------------------
 # 6. BẢO MẬT & CẤU HÌNH NHẠY CẢM (SECURITY & SECRETS)
@@ -98,13 +184,15 @@ logs/
 # ---------------------------------------------------------------------
 *.pem
 *.key
-.env
-.env.*
+*.crt
+*.p12
+*.pfx
 secrets.json
 config.secret.json
+config.prod.json
 
 # ---------------------------------------------------------------------
-# 7. DỰ ÁN VĂN ĐẠO - LƯU Ý ĐẶC BIỆT
+# 7. DỰ ÁN VĂN ĐẠO - LƯU Ý ĐẶC BIỆT (PROJECT SPECIFIC)
 # ---------------------------------------------------------------------
 # KHÔNG IGNORE các file sau (để hệ thống hoạt động):
 # - data/data-tac-pham-master.json (Cần push lên để kích hoạt bot auto-split)
@@ -112,6 +200,7 @@ config.secret.json
 # - .nojekyll (Bắt buộc cho GitHub Pages)
 # - sw.js, manifest.json, index.html, script.js, style.css (Lõi ứng dụng)
 # - data/tac-pham/*.json, data/tac-gia/*.json (Dữ liệu tri thức)
+# - tools/*.py (Script xử lý)
 
 # Bỏ qua các file test/dữ liệu nháp do bạn tự tạo trong lúc phát triển
 test_*.json
@@ -119,10 +208,13 @@ scratch.js
 playground.html
 data/test/
 data/backup_*/
-*.bak
+data/tac-pham-master.bak
+data/tac-gia-master.bak
 
 # Bỏ qua file nén / artifact nếu có ai đó vô tình tạo ra
 *.zip
 *.tar.gz
 *.rar
 *.7z
+*.iso
+*.dmg
