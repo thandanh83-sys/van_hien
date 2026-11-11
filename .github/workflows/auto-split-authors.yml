@@ -1,0 +1,97 @@
+# =====================================================================
+# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TÁCH DỮ LIỆU TÁC GIẢ
+# Tác giả: Văn Đạo
+# Mô tả: 
+# - Kích hoạt khi có thay đổi ở file 'data/data-tac-gia-master.json'.
+# - Tự động chạy script Python để tách file, nối Index và xóa file Master.
+# - Tự động kiểm tra có thay đổi không trước khi Commit (chống lỗi đỏ).
+# - Sử dụng chung nhóm 'git-push-group' để không xung đột với bot Tác Phẩm.
+# =====================================================================
+
+name: Auto Split Authors Data
+
+# =====================================================================
+# 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
+# =====================================================================
+on:
+  push:
+    paths:
+      # Chỉ chạy khi file Master Tác Giả này bị thay đổi (Tạo mới hoặc Cập nhật)
+      - 'data/data-tac-gia-master.json'
+  # Thêm nút bấm chạy thủ công trên giao diện GitHub (Tab Actions) nếu bạn cần test
+  workflow_dispatch:
+
+# =====================================================================
+# 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# =====================================================================
+# Đảm bảo bot Tác Giả này không chạy cùng lúc với bot Tác Phẩm (auto-split.yml) 
+# hay bot deploy. Mọi thứ phải xếp hàng chạy tuần tự để tránh lỗi Git.
+concurrency:
+  group: git-push-group
+  cancel-in-progress: false # Nếu bot đang chạy thì phải đợi nó chạy xong, không được hủy ngang
+
+# =====================================================================
+# 3. CÁC BƯỚC THỰC THI (JOBS)
+# =====================================================================
+jobs:
+  split-authors:
+    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
+    runs-on: ubuntu-latest
+    
+    # Cấp quyền cho bot được phép ghi (Commit) dữ liệu vào kho code
+    permissions:
+      contents: write
+      
+    steps:
+      # -----------------------------------------------------------------
+      # BƯỚC 1: LẤY CODE MỚI NHẤT TỪ KHO VỀ MÁY ẢO
+      # -----------------------------------------------------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Lấy toàn bộ lịch sử commit (tránh lỗi shallow clone khi bot commit)
+          fetch-depth: 0 
+
+      # -----------------------------------------------------------------
+      # BƯỚC 2: CÀI ĐẶT MÔI TRƯỜNG PYTHON
+      # -----------------------------------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # Sử dụng Python 3.10 (ổn định và tương thích tốt nhất)
+          python-version: '3.10'
+
+      # -----------------------------------------------------------------
+      # BƯỚC 3: CHẠY FILE PYTHON ĐỂ TÁCH DỮ LIỆU TÁC GIẢ
+      # -----------------------------------------------------------------
+      - name: Run split authors script
+        # Gọi file script nằm trong thư mục tools/ để tách file và xóa file Master
+        run: python tools/split_authors.py
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: KIỂM TRA XEM CÓ SỰ THAY ĐỔI NÀO KHÔNG
+      # -----------------------------------------------------------------
+      - name: Check for changes
+        id: git-check
+        # Lệnh git diff --exit-code sẽ trả về mã lỗi nếu có thay đổi.
+        # Nếu có thay đổi, ta ghi "changes=true" vào biến môi trường của bước này.
+        run: |
+          git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
+
+      # -----------------------------------------------------------------
+      # BƯỚC 5: TỰ ĐỘNG COMMIT VÀ PUSH (CÓ CƠ CHẾ TỰ ĐỘNG THỬ LẠI)
+      # -----------------------------------------------------------------
+      # Chỉ chạy bước này nếu Bước 4 báo có sự thay đổi (changes == 'true').
+      # Điều này tránh việc bot báo lỗi đỏ khi chạy lần 2 mà không có gì để commit.
+      - name: Commit and Push with Retry
+        if: steps.git-check.outputs.changes == 'true'
+        uses: EndBug/add-and-commit@v11
+        with:
+          # Tin nhắn commit.
+          message: "chore: auto-split authors data and update index"
+          
+          # Tự động thử lại 5 lần nếu việc Push bị lỗi do xung đột mạng hoặc Git lag
+          push_attempts: 5 
+          
+          # Tác giả của commit tự động (hiển thị là GitHub Actions)
+          default_author: github_actions
