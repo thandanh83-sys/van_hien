@@ -1,0 +1,13 @@
+{
+  "id": "quoc-am-thi-tap",
+  "title": "Quốc Âm Thi Tập",
+  "author": "Nguyễn Trãi",
+  "desc": "Tập thơ Nôm đầu tiên của văn học Việt Nam, phản ánh tâm hồn thanh cao.",
+  "loai_hinh": "thi-ca",
+  "the_loai": [
+    "Thơ Nôm",
+    "Đường luật"
+  ],
+  "era": "Nhà Lê sơ",
+  "script": "Chữ Nôm"
+}

@@ -1,0 +1,846 @@
+[
+  {
+    "id": "ba-nguoi-linh-ngu",
+    "title": "Ba Người Lính Ngự Lâm",
+    "author": "Alexandre Dumas",
+    "desc": "Cuộc phiêu lưu của chàng D'Artagnan và ba người bạn.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Tiểu thuyết"
+    ],
+    "era": "TK 19",
+    "script": "Tiếng Pháp"
+  },
+  {
+    "id": "tieu-doi-xe-khong-kinh",
+    "title": "Bài Thơ Về Tiểu Đội Xe Không Kính",
+    "author": "Phạm Tiến Duật",
+    "desc": "Tinh thần lạc quan, ngang tàng của người lính lái xe Trường Sơn.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ tự do"
+    ],
+    "era": "1969",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "binh-minh-tren-canh-dong",
+    "title": "Bình Minh Trên Cánh Đồng",
+    "author": "Lưu Quang Vũ",
+    "desc": "Tác phẩm ca ngợi vẻ đẹp của lao động và con người thời kỳ đổi mới.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1980",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "buoc-duong-cung",
+    "title": "Bước Đường Cùng",
+    "author": "Nguyên Hồng",
+    "desc": "Hành trình đấu tranh của người nông dân chống áp bức.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Tiểu thuyết"
+    ],
+    "era": "1938",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "ban-den-choi-nha",
+    "title": "Bạn Đến Chơi Nhà",
+    "author": "Nguyễn Khuyến",
+    "desc": "Tình bạn thân thiết và sự hóm hỉnh của nhà thơ.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Đường luật"
+    ],
+    "era": "TK 19",
+    "script": "Chữ Nôm"
+  },
+  {
+    "id": "ben-que",
+    "title": "Bến Quê",
+    "author": "Nguyễn Minh Châu",
+    "desc": "Chiêm nghiệm về cuộc đời và những giá trị bình dị.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1985",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "bi-vo",
+    "title": "Bỉ Vỏ",
+    "author": "Nguyên Hồng",
+    "desc": "Bức tranh xã hội đen tối của những người cùng khổ.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Tiểu thuyết"
+    ],
+    "era": "1938",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "ca-dao-than-than",
+    "title": "Ca Dao Than Thân",
+    "author": "Dân gian",
+    "desc": "Tiếng lòng đau xót của người phụ nữ trong xã hội phong kiến.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Ca dao"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "ca-dao-tinh-yeu",
+    "title": "Ca Dao Tình Yêu",
+    "author": "Dân gian",
+    "desc": "Những câu ca dao ngọt ngào, tinh tế về tình yêu đôi lứa.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Ca dao"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "chiec-luoc-nga",
+    "title": "Chiếc Lược Ngà",
+    "author": "Nguyễn Quang Sáng",
+    "desc": "Tình cha con sâu nặng trong hoàn cảnh chiến tranh khắc nghiệt.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1966",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "chiec-thuyen-ngoai-xa",
+    "title": "Chiếc Thuyền Ngoài Xa",
+    "author": "Nguyễn Minh Châu",
+    "desc": "Bài học về sự thật cuộc sống và tình thương con người.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1983",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "chien-tranh-va-hoa-binh",
+    "title": "Chiến Tranh Và Hòa Bình",
+    "author": "Leo Tolstoy",
+    "desc": "Bức tranh toàn cảnh xã hội Nga trong cuộc chiến tranh Napoleon.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Tiểu thuyết"
+    ],
+    "era": "1869",
+    "script": "Tiếng Nga"
+  },
+  {
+    "id": "cung-oan-ngam-khuc",
+    "title": "Cung Oán Ngâm Khúc",
+    "author": "Nguyễn Gia Thiều",
+    "desc": "Tiếng lòng ai oán của người cung nữ bị vua lãng quên.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Ngâm khúc",
+      "Song thất lục bát"
+    ],
+    "era": "TK 18",
+    "script": "Chữ Nôm"
+  },
+  {
+    "id": "cay-lua-con-dao",
+    "title": "Cây Lúa Còn Dao",
+    "author": "Nguyễn Bính",
+    "desc": "Sự gắn bó giữa con người và đồng quê Việt Nam.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Mới"
+    ],
+    "era": "1940",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "cay-tre-tram-dot",
+    "title": "Cây Tre Trăm Đốt",
+    "author": "Dân gian",
+    "desc": "Ca ngợi trí tuệ và lòng nhân hậu của người lao động nghèo.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Cổ tích"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "con-co-be-ban-diem",
+    "title": "Cô Bé Bán Diêm",
+    "author": "Hans Christian Andersen",
+    "desc": "Bi kịch đau lòng về cô bé nghèo trong đêm giao thừa.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện cổ tích"
+    ],
+    "era": "TK 19",
+    "script": "Tiếng Đan Mạch"
+  },
+  {
+    "id": "dong-song-xanh",
+    "title": "Dòng Sông Xanh",
+    "author": "Nguyễn Bính",
+    "desc": "Khúc hát quê hương và tình yêu đôi lứa dân dã.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Mới"
+    ],
+    "era": "1940",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "gio-lanh-dau-mua",
+    "title": "Gió Lạnh Đầu Mùa",
+    "author": "Thạch Lam",
+    "desc": "Tình người ấm áp giữa cái đói nghèo của mùa đông Hà Nội.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1930",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "giot-sau",
+    "title": "Giọt Sầu",
+    "author": "Tản Đà",
+    "desc": "Nỗi buồn của một hồn thơ lãng mạn trước thời cuộc.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Mới"
+    ],
+    "era": "1920",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "hoa-tren-dat",
+    "title": "Hoa Trên Đất",
+    "author": "Tô Hoài",
+    "desc": "Câu chuyện về sự đổi thay của miền núi sau cách mạng.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1950",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "hoan-chau",
+    "title": "Hoàn Châu",
+    "author": "Nguyễn Trãi",
+    "desc": "Khúc ngâm hoài niệm về quê hương và triều đại xưa.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ chữ Hán"
+    ],
+    "era": "Nhà Lê sơ",
+    "script": "Chữ Hán"
+  },
+  {
+    "id": "hoang-tu-be",
+    "title": "Hoàng Tử Bé",
+    "author": "Antoine de Saint-Exupéry",
+    "desc": "Triết lý sâu sắc về tình yêu, sự cô đơn và ý nghĩa cuộc sống.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn",
+      "Triết lý"
+    ],
+    "era": "1943",
+    "script": "Tiếng Pháp"
+  },
+  {
+    "id": "huyen-thoai-thoi-hung-vuong",
+    "title": "Huyền Thoại Thời Hùng Vương",
+    "author": "Dân gian",
+    "desc": "Tổng hợp các truyền thuyết về buổi đầu dựng nước.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Truyền thuyết"
+    ],
+    "era": "Thời Hùng Vương",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "hoi-cho",
+    "title": "Hội Chợ",
+    "author": "Thạch Lam",
+    "desc": "Không gian nhộn nhịp của phiên chợ quê và tâm hồn người.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1930",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "kiep-lieu",
+    "title": "Kiếp Liễu",
+    "author": "Dân gian",
+    "desc": "Thân phận trôi nổi của người phụ nữ trong xã hội phong kiến.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Ca dao"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "lang",
+    "title": "Làng",
+    "author": "Kim Lân",
+    "desc": "Tình yêu làng, yêu nước của người nông dân trong kháng chiến.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1948",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "lang-du",
+    "title": "Lãng Du",
+    "author": "Nguyễn Bính",
+    "desc": "Tâm hồn phóng khoáng của người nghệ sĩ lang bạt.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Mới"
+    ],
+    "era": "1940",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "long-thuong-tuong",
+    "title": "Lòng Thương Tưởng",
+    "author": "Nguyễn Tuân",
+    "desc": "Những câu chuyện về sự tàn nhẫn của con người trong xã hội cũ.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1940",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "luu-huong-ky",
+    "title": "Lưu Hương Ký",
+    "author": "Hồ Xuân Hương",
+    "desc": "Tập thơ chữ Hán thể hiện tình cảm và tâm sự thầm kín của nữ sĩ.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ chữ Hán"
+    ],
+    "era": "TK 18-19",
+    "script": "Chữ Hán"
+  },
+  {
+    "id": "loi-ru-cua-me",
+    "title": "Lời Ru Của Mẹ",
+    "author": "Nguyễn Duy",
+    "desc": "Tình mẫu tử thiêng liêng và nỗi nhớ quê hương.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ trữ tình"
+    ],
+    "era": "1990",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "muoi-cua-nghe",
+    "title": "Muối Của Nghề",
+    "author": "Tô Hoài",
+    "desc": "Bài học về sự tận tụy và trách nhiệm với công việc.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1960",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "mua-xuan-nho-nho",
+    "title": "Mùa Xuân Nho Nhỏ",
+    "author": "Thanh Hải",
+    "desc": "Khát vọng cống hiến một mùa xuân nhỏ cho đất nước.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ tự do"
+    ],
+    "era": "1980",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "nam-quoc-son-ha",
+    "title": "Nam Quốc Sơn Hà",
+    "author": "Lý Thường Kiệt",
+    "desc": "Bản tuyên ngôn độc lập đầu tiên, khẳng định chủ quyền dân tộc.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ chữ Hán",
+      "Thất ngôn tứ tuyệt"
+    ],
+    "era": "Nhà Lý",
+    "script": "Chữ Hán"
+  },
+  {
+    "id": "nguoi-tu-tu",
+    "title": "Người Tử Tù",
+    "author": "Nguyễn Tuân",
+    "desc": "Sự chiến thắng của cái đẹp và lòng nhân ái.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1940",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "nho-dong",
+    "title": "Nhớ Đồng",
+    "author": "Tố Hữu",
+    "desc": "Tình cảm thủy chung, son sắt với quê hương và đồng đội.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ trữ tình"
+    ],
+    "era": "1950",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "nhung-ngay-tho-au",
+    "title": "Những Ngày Thơ Ấu",
+    "author": "Nguyên Hồng",
+    "desc": "Hồi ký đầy xúc động về tuổi thơ bất hạnh và tình mẫu tử.",
+    "loai_hinh": "ky-khao-cuu",
+    "the_loai": [
+      "Hồi ký"
+    ],
+    "era": "1938",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "nhung-ngoi-sao-xa-xoi",
+    "title": "Những Ngôi Sao Xa Xôi",
+    "author": "Lê Minh Khuê",
+    "desc": "Cuộc sống và chiến đấu của ba cô gái thanh niên xung phong.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1971",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "nhung-nguoi-khon-kho",
+    "title": "Những Người Khốn Khổ",
+    "author": "Victor Hugo",
+    "desc": "Bức tranh xã hội Pháp thế kỷ 19 và sức mạnh của tình thương.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Tiểu thuyết"
+    ],
+    "era": "1862",
+    "script": "Tiếng Pháp"
+  },
+  {
+    "id": "nang-bach-tuyet",
+    "title": "Nàng Bạch Tuyết",
+    "author": "Anh em Grimm",
+    "desc": "Câu chuyện cổ tích kinh điển về lòng ghen tị và tình yêu chân chính.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Truyện cổ tích"
+    ],
+    "era": "TK 19",
+    "script": "Tiếng Đức"
+  },
+  {
+    "id": "noi-voi-con",
+    "title": "Nói Với Con",
+    "author": "Y Phương",
+    "desc": "Tình yêu thương con và niềm tự hào về quê hương.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ tự do"
+    ],
+    "era": "1980",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "quoc-am-thi-tap",
+    "title": "Quốc Âm Thi Tập",
+    "author": "Nguyễn Trãi",
+    "desc": "Tập thơ Nôm đầu tiên của văn học Việt Nam, phản ánh tâm hồn thanh cao.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Nôm",
+      "Đường luật"
+    ],
+    "era": "Nhà Lê sơ",
+    "script": "Chữ Nôm"
+  },
+  {
+    "id": "sang-thu",
+    "title": "Sang Thu",
+    "author": "Hữu Thỉnh",
+    "desc": "Những cảm nhận tinh tế về thiên nhiên và cuộc sống khi thu sang.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ tự do"
+    ],
+    "era": "1977",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "sieu-nhan-va-nhung-nguoi-kho",
+    "title": "Siêu Nhân Và Những Người Khó",
+    "author": "Nguyễn Tuân",
+    "desc": "Tác phẩm trào phúng sâu sắc của Nguyễn Tuân.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1930",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "su-tich-banh-chung-banh-giay",
+    "title": "Sự Tích Bánh Chưng Bánh Giầy",
+    "author": "Dân gian",
+    "desc": "Đề cao lòng hiếu thảo và sự sáng tạo trong văn hóa ẩm thực.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Truyền thuyết"
+    ],
+    "era": "Thời Hùng Vương",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "su-tich-chuon-chuon",
+    "title": "Sự Tích Chuồn Chuồn",
+    "author": "Dân gian",
+    "desc": "Bài học về sự chăm chỉ và lòng biết ơn.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Truyền thuyết"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "su-tich-ca-voi",
+    "title": "Sự Tích Cá Voi",
+    "author": "Dân gian",
+    "desc": "Niềm tin và tín ngưỡng của ngư dân miền biển.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Truyền thuyết"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "su-tich-dua-hau",
+    "title": "Sự Tích Dưa Hấu",
+    "author": "Dân gian",
+    "desc": "Ca ngợi lòng hiếu thảo và sự sáng tạo của Mai An Tiêm.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Truyền thuyết"
+    ],
+    "era": "Thời Hùng Vương",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "su-tich-trau-cau",
+    "title": "Sự Tích Trầu Cau",
+    "author": "Dân gian",
+    "desc": "Giải thích phong tục ăn trầu và tình nghĩa anh em, vợ chồng.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Cổ tích"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "tho-che-lan-vien",
+    "title": "Thơ Chế Lan Viên",
+    "author": "Chế Lan Viên",
+    "desc": "Tuyển tập những vần thơ suy tưởng và triết lý sâu sắc.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ hiện đại"
+    ],
+    "era": "1960-1990",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "tho-moi-tuyen-tap",
+    "title": "Thơ Mới Tuyển Tập",
+    "author": "Nhiều tác giả",
+    "desc": "Tuyển tập những bài thơ hay nhất của phong trào Thơ Mới.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Mới"
+    ],
+    "era": "1932-1945",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "tho-nguyen-binh-ve-que-huong",
+    "title": "Thơ Nguyễn Bính Về Quê Hương",
+    "author": "Nguyễn Bính",
+    "desc": "Tuyển tập những bài thơ đậm chất đồng quê, dân dã.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Mới"
+    ],
+    "era": "1940-1950",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "thoi-xa",
+    "title": "Thỏi Xà",
+    "author": "Dân gian",
+    "desc": "Sự tích về loài rắn và bài học về lòng tham.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Cổ tích"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "truyen-thuyet-den-hung",
+    "title": "Truyền Thuyết Đền Hùng",
+    "author": "Dân gian",
+    "desc": "Sự tích về các vị vua Hùng và lòng tự hào dân tộc.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Truyền thuyết"
+    ],
+    "era": "Thời Hùng Vương",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "truyen-cay-khe",
+    "title": "Truyện Cây Khế",
+    "author": "Dân gian",
+    "desc": "Bài học về lòng tham và sự trừng phạt công minh.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Cổ tích"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "truyen-mua",
+    "title": "Truyện Mùa",
+    "author": "Tô Hoài",
+    "desc": "Bức tranh sinh hoạt phong phú của làng quê Bắc Bộ.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1950",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "truyen-ngan-nam-cao",
+    "title": "Truyện Ngắn Nam Cao",
+    "author": "Nam Cao",
+    "desc": "Tuyển tập những truyện ngắn xuất sắc nhất của Nam Cao.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1940-1950",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "truyen-ngu-ngon-viet-nam",
+    "title": "Truyện Ngụ Ngôn Việt Nam",
+    "author": "Dân gian",
+    "desc": "Tuyển tập những câu chuyện ngụ ngôn mang bài học đạo đức.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Ngụ ngôn"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "trai-tim-dung-cam",
+    "title": "Trái Tim Dũng Cảm",
+    "author": "Ernest Hemingway",
+    "desc": "Câu chuyện về lòng dũng cảm của người lính trong chiến tranh.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1925",
+    "script": "Tiếng Anh"
+  },
+  {
+    "id": "tuoi-tho-tho",
+    "title": "Tuổi Thơ Thơ",
+    "author": "Tố Hữu",
+    "desc": "Tập thơ dành cho thiếu nhi của nhà thơ cách mạng.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ thiếu nhi"
+    ],
+    "era": "1960",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "tinh-nghia-thay-tro",
+    "title": "Tình Nghĩa Thầy Trò",
+    "author": "Tô Hoài",
+    "desc": "Câu chuyện cảm động về tình cảm thầy trò nơi thôn dã.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1950",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "toi-di-hoc",
+    "title": "Tôi Đi Học",
+    "author": "Thanh Tịnh",
+    "desc": "Kỷ niệm trong trẻo của ngày đầu tiên đến trường.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1941",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "tat-den",
+    "title": "Tắt Đèn",
+    "author": "Ngô Tất Tố",
+    "desc": "Bản cáo trạng đanh thép về chế độ sưu thuế và nỗi khổ người nông dân.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Tiểu thuyết"
+    ],
+    "era": "1939",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "to-lam",
+    "title": "Tố Lam",
+    "author": "Tô Hoài",
+    "desc": "Cuộc sống lao động của người dân miền núi Tây Bắc.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Tiểu thuyết"
+    ],
+    "era": "1960",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "toi-ac-va-hinh-phat",
+    "title": "Tội Ác Và Hình Phạt",
+    "author": "Fyodor Dostoevsky",
+    "desc": "Cuộc đấu tranh nội tâm của kẻ giết người và sự chuộc tội.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Tiểu thuyết tâm lý"
+    ],
+    "era": "1866",
+    "script": "Tiếng Nga"
+  },
+  {
+    "id": "tuc-ngu-ve-thien-nhien",
+    "title": "Tục Ngữ Về Thiên Nhiên",
+    "author": "Dân gian",
+    "desc": "Kho tàng tri thức về thời tiết, mùa màng, kinh nghiệm sống.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": [
+      "Tục ngữ"
+    ],
+    "era": "Không rõ",
+    "script": "Truyền miệng"
+  },
+  {
+    "id": "tu-tinh",
+    "title": "Tự Tình",
+    "author": "Hồ Xuân Hương",
+    "desc": "Nỗi lòng của người phụ nữ trước duyên phận hẩm hiu.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ Đường luật"
+    ],
+    "era": "TK 18-19",
+    "script": "Chữ Nôm"
+  },
+  {
+    "id": "vieng-lang-bac",
+    "title": "Viếng Lăng Bác",
+    "author": "Viễn Phương",
+    "desc": "Lòng thành kính và biết ơn vô hạn đối với Bác Hồ.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ trữ tình"
+    ],
+    "era": "1976",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "van-te-nghia-si-can-giuoc",
+    "title": "Văn Tế Nghĩa Sĩ Cần Giuộc",
+    "author": "Nguyễn Đình Chiểu",
+    "desc": "Áng văn tế bất hủ ca ngợi những người nông dân anh hùng.",
+    "loai_hinh": "mo-rong",
+    "the_loai": [
+      "Văn tế"
+    ],
+    "era": "TK 19",
+    "script": "Chữ Nôm"
+  },
+  {
+    "id": "an-may",
+    "title": "Ăn Mày",
+    "author": "Nam Cao",
+    "desc": "Số phận của những con người cùng khổ trong xã hội cũ.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": [
+      "Truyện ngắn"
+    ],
+    "era": "1943",
+    "script": "Quốc ngữ"
+  },
+  {
+    "id": "dong-chi",
+    "title": "Đồng Chí",
+    "author": "Chính Hữu",
+    "desc": "Bài thơ hay nhất về tình đồng đội trong kháng chiến chống Pháp.",
+    "loai_hinh": "thi-ca",
+    "the_loai": [
+      "Thơ tự do"
+    ],
+    "era": "1948",
+    "script": "Quốc ngữ"
+  }
+]

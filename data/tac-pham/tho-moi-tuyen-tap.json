@@ -1,0 +1,12 @@
+{
+  "id": "tho-moi-tuyen-tap",
+  "title": "Thơ Mới Tuyển Tập",
+  "author": "Nhiều tác giả",
+  "desc": "Tuyển tập những bài thơ hay nhất của phong trào Thơ Mới.",
+  "loai_hinh": "thi-ca",
+  "the_loai": [
+    "Thơ Mới"
+  ],
+  "era": "1932-1945",
+  "script": "Quốc ngữ"
+}
