@@ -1,11 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 2.3 - HOÀN HẢO)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 1.0 - HOÀN HẢO)
    Tác giả: Văn Đạo
    Mô tả: 
-   - Tối ưu hóa hiệu năng, chống lag trên mọi thiết bị.
-   - Hiệu ứng Sóng nước Canvas (Tinh tế, tự ngủ đông khi không có sóng).
-   - Thuật toán phân tích Thi pháp chuẩn xác (NFD Unicode).
-   - Xử lý lỗi mạng thông minh, không dùng alert().
+   - Tối ưu hóa hiệu năng (Chỉ vẽ khi lướt tới, Canvas ngủ đông).
+   - Xử lý PWA Shortcuts và Lazy load Bách Khoa không bị nháy.
+   - Giữ nguyên trạng thái tab Thi pháp khi chuyển đổi.
+   - Tuyệt đối không dùng alert(), 100% JS thuần.
    ===================================================================== */
 
 /* =====================================================================
@@ -24,7 +24,6 @@ const ICONS = {
 };
 
 const CACHE_KEY = 'vandao_cache_v1';        
-const FONT_SIZE_KEY = 'vandao_font_size';   
 const ITEMS_PER_PAGE = 20;                  
 
 let THEORY_DATA = [];    
@@ -44,7 +43,7 @@ const viewScrollPositions = { 'home': 0, 'heritage': 0, 'encyclopedia': 0, 'anal
 
 
 /* =====================================================================
-   MODULE 1: ĐỘNG CƠ HIỆU NĂNG (PERFORMANCE ENGINE)
+   MODULE 1: ĐỘNG CƠ HIỆU NĂNG (TẢI TRƯỚC 400PX CHỐNG LAG)
    ===================================================================== */
 const PerformanceEngine = (() => {
     const observer = new IntersectionObserver((entries) => {
@@ -54,7 +53,7 @@ const PerformanceEngine = (() => {
                 observer.unobserve(entry.target); 
             }
         });
-    }, { rootMargin: "0px 0px 200px 0px", threshold: 0.01 });
+    }, { rootMargin: "0px 0px 400px 0px", threshold: 0.01 }); 
 
     function observeNewElements(selector) {
         document.querySelectorAll(selector).forEach(el => observer.observe(el));
@@ -130,10 +129,8 @@ function unloadView(viewId) {
             container.querySelectorAll('details').forEach(d => d.open = false);
             container.innerHTML = ''; 
         }
-    } else if (viewId === 'analyze') {
-        const panel = document.getElementById('results-panel');
-        if (panel) panel.innerHTML = ''; 
     }
+    // ĐÃ XÓA PHẦN XÓA DOM CỦA 'analyze' ĐỂ GIỮ NGUYÊN KẾT QUẢ
 }
 
 function toggleMobileMenu() {
@@ -163,13 +160,6 @@ function scrollToCenter(element) {
     const absoluteTop = rect.top + window.pageYOffset;
     const middle = absoluteTop - (window.innerHeight / 2) + (rect.height / 2);
     window.scrollTo({ top: Math.max(0, middle), behavior: 'smooth' });
-}
-
-function changeFontSize(step) {
-    const currentSize = parseFloat(localStorage.getItem(FONT_SIZE_KEY) || '1.15');
-    const newSize = Math.min(Math.max(currentSize + (step * 0.1), 1.0), 2.0); 
-    localStorage.setItem(FONT_SIZE_KEY, newSize);
-    document.documentElement.style.setProperty('--read-font-size', `${newSize}rem`);
 }
 
 
@@ -369,7 +359,6 @@ function renderEncyclopedia() {
                         contentDiv.innerHTML = dataItem.content;
                     }
                 }
-                scrollToCenter(this);
             } else { 
                 contentDiv.innerHTML = ''; 
             }
@@ -427,7 +416,6 @@ function gotoEncyclopediaById(id) {
     }
     
     if (volIndex !== -1) {
-        switchView('encyclopedia');
         currentEncyGroup = targetGroup;
         
         document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -435,14 +423,26 @@ function gotoEncyclopediaById(id) {
         if (targetGroup === 'ly-thuyet' && btns[0]) btns[0].classList.add('active');
         if (targetGroup === 'tinh-hoa' && btns[1]) btns[1].classList.add('active');
         
-        renderEncyclopedia();
+        const currentActive = document.querySelector('.view.active');
+        const currentViewId = currentActive ? currentActive.id.replace('view-', '') : null;
+        
+        if (currentViewId === 'encyclopedia') {
+            renderEncyclopedia(); // Chỉ render lại nếu đang ở sẵn tab Bách Khoa
+        } else {
+            switchView('encyclopedia'); // Nếu ở tab khác, để switchView lo việc render
+        }
         
         setTimeout(() => {
             const target = document.getElementById(`vol-${volIndex}`);
             if (target) {
                 target.classList.add('is-visible'); 
+                target.style.opacity = '1';
+                target.style.transform = 'translateY(0)';
                 target.querySelector('details').open = true;
-                scrollToCenter(target);
+                
+                setTimeout(() => {
+                    scrollToCenter(target);
+                }, 100);
             }
         }, 300);
     } else { 
@@ -844,15 +844,26 @@ function renderRandomQuote() {
         do { newIndex = Math.floor(Math.random() * QUOTES_DATA.length); } while (QUOTES_DATA.length > 1 && newIndex === currentQuoteIndex);
         currentQuoteIndex = newIndex;
         const quote = QUOTES_DATA[currentQuoteIndex];
-        container.innerHTML = `<div class="quote-mark">"</div><p class="quote-text">${quote.text}</p><p class="quote-author">— ${quote.author} —</p>`;
+        
+        // ĐÃ XÓA THẺ QUOTE-MARK GÂY LỖI DẤU NGOẶC KÉP
+        container.innerHTML = `<p class="quote-text">${quote.text}</p><p class="quote-author">— ${quote.author} —</p>`;
         container.style.opacity = 1;
     }, 500);
 }
 
 function handleHashScroll() {
     if (window.location.hash) {
-        const id = window.location.hash.substring(1);
-        const dataIndex = WORKS_DATA.findIndex(item => item.id === id);
+        const hash = window.location.hash.substring(1);
+        
+        // 1. Kiểm tra xem có phải là chuyển Tab (PWA Shortcuts) không
+        if (hash.startsWith('view-')) {
+            const viewId = hash.replace('view-', '');
+            switchView(viewId);
+            return;
+        }
+
+        // 2. Nếu không, kiểm tra xem có phải là ID tác phẩm không
+        const dataIndex = WORKS_DATA.findIndex(item => item.id === hash);
         if (dataIndex !== -1) {
             currentPage = Math.floor(dataIndex / ITEMS_PER_PAGE) + 1;
             currentMainCat = 'all'; currentGenre = 'all'; 
@@ -862,7 +873,7 @@ function handleHashScroll() {
             document.getElementById('sub-filter-bar').style.display = 'none';
             switchView('heritage');
             setTimeout(() => {
-                const element = document.getElementById(id);
+                const element = document.getElementById(hash);
                 if (element) {
                     element.classList.add('is-visible'); 
                     scrollToCenter(element);
@@ -879,9 +890,6 @@ function handleHashScroll() {
    MODULE 9: KHỞI CHẠY & GẮN SỰ KIỆN
    ===================================================================== */
 document.addEventListener('DOMContentLoaded', () => { 
-    const savedFontSize = localStorage.getItem(FONT_SIZE_KEY);
-    if (savedFontSize) document.documentElement.style.setProperty('--read-font-size', `${savedFontSize}rem`);
-
     const savedPoem = localStorage.getItem('vandao_draft_poem');
     if (savedPoem) {
         const poemInput = document.getElementById('poemInput');
