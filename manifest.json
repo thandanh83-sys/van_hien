@@ -24,6 +24,10 @@
     "reference"
   ],
   "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred",
   "icons": [
     {
       "src": "assets/logo.png",
