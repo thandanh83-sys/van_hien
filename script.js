@@ -7,6 +7,7 @@
    - Highlight tiếng Việt không dấu, chống XSS.
    - Cuộn thông minh kết hợp hiệu ứng Tỏa sáng (Glow).
    - Trải nghiệm Khởi tạo 5 giai đoạn (Boot Experience).
+   - TÍCH HỢP "BÁC SĨ DỮ LIỆU" (auditWorksData) ĐỂ KIỂM TRA LỖI FILE JSON.
    ===================================================================== */
 
 /* =====================================================================
@@ -34,7 +35,7 @@ let QUOTES_DATA = [];
 let currentMainCat = 'all';       
 let currentGenre = 'all';         
 let currentPage = 1;              
-let currentEncyGroup = 'triet-thuyet'; // Mặc định là Triết Thuyết
+let currentEncyGroup = 'triet-thuyet'; 
 let currentQuoteIndex = -1;
 let quoteIntervalId = null;
 
@@ -71,11 +72,10 @@ function switchView(viewId) {
     
     if (currentViewId === viewId) return;
 
-    // 1. KÍCH HOẠT HIỆU ỨNG DẢI LỤA (Tối ưu GPU)
     const silkOverlay = document.getElementById('silkTransition');
     if (silkOverlay) {
         silkOverlay.classList.remove('entering', 'leaving', 'active');
-        void silkOverlay.offsetWidth; // Force reflow
+        void silkOverlay.offsetWidth; 
         silkOverlay.style.transform = 'translateZ(0)';
         silkOverlay.style.willChange = 'transform, opacity';
         
@@ -85,7 +85,6 @@ function switchView(viewId) {
         }, 1000);
     }
 
-    // 2. ĐỢI 300MS RỒI TRÁO ĐỔI NỘI DUNG
     setTimeout(() => {
         if (currentViewId) {
             viewScrollPositions[currentViewId] = window.scrollY;
@@ -147,7 +146,6 @@ function unloadView(viewId) {
             container.innerHTML = ''; 
         }
     }
-    // ĐÃ XÓA PHẦN XÓA DOM CỦA 'analyze' ĐỂ GIỮ NGUYÊN KẾT QUẢ
 }
 
 function toggleMobileMenu() {
@@ -187,23 +185,15 @@ function escapeHTML(str) {
 
 function highlightText(text, tokens) {
     if (!text || !tokens || tokens.length === 0) return escapeHTML(text);
-    
-    // Tách văn bản gốc thành các từ và dấu câu để giữ nguyên định dạng
     const words = text.split(/(\s+)/); 
-    
     const highlightedWords = words.map(word => {
-        // Bỏ dấu từ trong văn bản để so sánh với token
         const cleanWord = removeAccents(word.toLowerCase());
-        // Kiểm tra xem từ này có khớp với bất kỳ token nào không
         const isMatch = tokens.some(token => cleanWord.includes(token));
-        
         if (isMatch && word.trim() !== '') {
-            // Escape HTML trước khi bọc thẻ mark để chống XSS
             return `<mark>${escapeHTML(word)}</mark>`;
         }
         return escapeHTML(word);
     });
-
     return highlightedWords.join('');
 }
 
@@ -220,7 +210,6 @@ function clearSearch() {
     const input = document.getElementById('encyclopedia-search');
     const clearBtn = document.getElementById('clear-search-btn');
     if (!input) return;
-
     input.value = ''; 
     if (clearBtn) clearBtn.classList.remove('show'); 
     input.focus(); 
@@ -392,7 +381,6 @@ function sortEncyData(data, group) {
     });
 }
 
-// BỘ MÁY TÌM KIẾM (VDSearchEngine)
 const VDSearchEngine = (() => {
     let invertedIndex = {}; 
     let docLengths = {};    
@@ -435,7 +423,6 @@ const VDSearchEngine = (() => {
 
         const scores = {}; 
 
-        // Phrase Matching (Ưu tiên khớp nguyên cụm)
         allData.forEach(item => {
             const tTitle = removeAccents((item.title || '').toLowerCase());
             const tContent = removeAccents((item.content || '').toLowerCase());
@@ -445,7 +432,6 @@ const VDSearchEngine = (() => {
             }
         });
 
-        // TF-IDF & Field Weighting
         tokens.forEach(word => {
             if (invertedIndex[word]) {
                 const docsWithWord = invertedIndex[word];
@@ -981,7 +967,7 @@ function initDewdrops() {
 
 
 /* =====================================================================
-   MODULE 8: TẢI DỮ LIỆU (ĐÃ XÓA TẢI NGẦM & LOCALSTORAGE THỪA)
+   MODULE 8: TẢI DỮ LIỆU & BÁC SĨ DỮ LIỆU (AUDIT)
    ===================================================================== */
 async function loadWorkDetail(id) {
     if (worksDetailCache.has(id)) return worksDetailCache.get(id);
@@ -1021,6 +1007,41 @@ async function loadAllData() {
         initDewdrops();
     }
 }
+
+// HÀM BÁC SĨ DỮ LIỆU: QUÉT TOÀN BỘ VÀ IN RA CONSOLE
+async function auditWorksData() {
+    console.log("%c🔍 BẮT ĐẦU KIỂM TRA DỮ LIỆU TÁC PHẨM...", "color: #8bb8a8; font-weight: bold; font-size: 14px;");
+    const results = [];
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const work of WORKS_DATA) {
+        try {
+            const res = await fetch(`./data/tac-pham/${encodeURIComponent(work.id)}.json`);
+            if (!res.ok) throw new Error(`File không tồn tại (Mã lỗi: ${res.status})`);
+            await res.json(); // Thử parse JSON để check cú pháp
+            results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": "✅ Thành công" });
+            successCount++;
+        } catch (err) {
+            results.push({ ID: work.id, "Tên Tác Phẩm": work.title, "Trạng Thái": `❌ LỖI: ${err.message}` });
+            errorCount++;
+        }
+    }
+    
+    console.log(`%c✅ Tổng kết: ${successCount} file thành công | ${errorCount} file lỗi.`, "color: #10b981; font-weight: bold; font-size: 13px;");
+    
+    if (errorCount > 0) {
+        console.log("%c⚠️ DANH SÁCH CÁC FILE BỊ LỖI CẦN SỬA:", "color: #e74c3c; font-weight: bold; font-size: 13px;");
+        console.table(results.filter(r => r["Trạng Thái"].includes('❌')));
+    } else {
+        console.log("%c🎉 TẤT CẢ CÁC FILE ĐỀU HOÀN HẢO!", "color: #10b981; font-weight: bold; font-size: 13px;");
+    }
+    console.log("Xem chi tiết toàn bộ danh sách dưới đây:");
+    console.table(results);
+}
+
+// Gắn hàm vào window để có thể gọi từ Console
+window.auditWorksData = auditWorksData;
 
 function renderRandomQuote() { 
     const container = document.getElementById('daily-quote-container'); 
