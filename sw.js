@@ -1,19 +1,20 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE VERSION - STALE-WHILE-REVALIDATE)
+   VĂN ĐẠO ENGINE - SERVICE WORKER (ULTIMATE VERSION - VÁ LỖI HOÀN HẢO)
    Tác giả: Văn Đạo
    Mô tả: 
    - Tự động cập nhật từ Git mà không cần đổi CACHE_VERSION.
    - Hiển thị ngay từ Cache (0.01s) để chạy Offline 100%.
-   - Ngầm cập nhật bản mới từ mạng (Network) để lần sau mở App sẽ thấy code mới.
-   - Chống lỗi 404 khi cài đặt (Install) nếu thiếu 1 file.
+   - Ngầm cập nhật bản mới từ mạng (Network).
+   - VÁ LỖI 404: Không tải file logo.png cũ đã bị xóa.
+   - VÁ LỖI CLONE: Kiểm tra an toàn trước khi nhân bản dữ liệu để lưu Cache.
    ===================================================================== */
 
 // =====================================================================
 // I. CẤU HÌNH PHIÊN BẢN VÀ BỘ NHỚ ĐỆM
 // =====================================================================
 // Tên bộ nhớ đệm. Bạn không cần đổi tên này mỗi khi sửa code nữa.
-const CACHE_NAME = 'vandao-auto-cache-v1'; 
-const RUNTIME_NAME = 'vandao-auto-runtime-v1';
+const CACHE_NAME = 'vandao-auto-cache-v3'; // Đã tăng lên v3 để ép trình duyệt xóa cache lỗi cũ
+const RUNTIME_NAME = 'vandao-auto-runtime-v3';
 
 // Danh sách các file TĨNH cần tải về máy ngay từ lần đầu tiên (App Shell).
 // KHÔNG đưa các file trong 'data/tac-pham/' vào đây để tránh tải hàng ngàn file cùng lúc.
@@ -25,10 +26,16 @@ const PRECACHE_ASSETS = [
     './script.js',
     './manifest.json',
     
-    // --- Hình ảnh Bạch Ngọc (Đã nén) ---
+    // --- Hình ảnh Bạch Ngọc ---
     './assets/nen.jpg',
     './assets/khung.jpg',
-    './assets/logo.png',
+    
+    // --- Bộ Icon Hoa Sen mới (Đã thêm vào để tải trước) ---
+    './assets/favicon.ico',
+    './assets/favicon.svg',
+    './assets/apple-touch-icon.png',
+    './assets/web-app-manifest-192x192.png',
+    './assets/web-app-manifest-512x512.png',
     
     // --- Font chữ cục bộ (Chạy Offline 100%) ---
     './assets/fonts/AlexBrush-Regular.woff2',
@@ -38,6 +45,8 @@ const PRECACHE_ASSETS = [
     './data/data-tac-gia.json',
     './data/data-danh-ngon.json',
     './data/data-tac-pham.json' // File danh mục tác phẩm (Index)
+    
+    // ĐÃ XÓA HOÀN TOÀN: './assets/logo.png' (Gây lỗi 404)
 ];
 
 // =====================================================================
@@ -107,10 +116,12 @@ self.addEventListener('fetch', (event) => {
             // 1. TẠO TIẾN TRÌNH NGẦM (FETCH TỪ GITHUB)
             // Dù có cache hay không, nó vẫn lén ra mạng để tải bản mới nhất
             const fetchPromise = fetch(event.request).then((networkResponse) => {
-                // Nếu tải từ mạng thành công, cập nhật lại vào Cache để lần sau dùng
-                if (networkResponse && networkResponse.status === 200) {
+                // VÁ LỖI CLONE: Chỉ xử lý nếu phản hồi hợp lệ (Status 200) và không bị lỗi CORS
+                if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+                    // Nhân bản AN TOÀN trước khi đưa vào Cache để tránh lỗi "Response body is already used"
+                    const responseToCache = networkResponse.clone();
                     caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, networkResponse.clone());
+                        cache.put(event.request, responseToCache);
                     });
                 }
                 return networkResponse;
