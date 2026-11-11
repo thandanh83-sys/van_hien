@@ -1,13 +1,13 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 1.0 - FINAL)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.2 - ELEGANT MINIMALIST)
    Tác giả: Văn Đạo
-   Mô tả: 
-   - Giao diện Bạch Ngọc duy nhất (Chống lag, tối ưu GPU).
+   
+   TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+   - Giao diện Bạch Ngọc (White Jade): Tĩnh tại, thanh tao, không phô trương.
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
-   - Trải nghiệm khởi tạo (Boot Experience) chậm rãi, tĩnh tại.
-   - Đã tối ưu LCP (Xóa opacity:0 ở container).
-   - Đã tích hợp nút X tìm kiếm (SVG) và Highlight màu Thanh Ngọc.
-   - Căn lề chuẩn xác Navbar, Search và Filter.
+   - Hiệu năng: Tối ưu GPU (will-change, translateZ), chống lag (content-visibility).
+   - Liền mạch: Sự chuyển cảnh mượt mà từ Splash -> Trang chủ -> Các View.
+   - Bảo vệ trải nghiệm: scroll-margin-top (chống che khuất), tooltip CSS.
    ===================================================================== */
 
 /* =====================================================================
@@ -22,7 +22,7 @@
 }
 
 /* =====================================================================
-   2. HỆ THỐNG BIẾN TOÀN CỤC (BẠCH NGỌC)
+   2. HỆ THỐNG BIẾN TOÀN CỤC (BẠCH NGỌC PALETTE)
    ===================================================================== */
 :root {
     /* Bảng màu Bạch Ngọc */
@@ -30,7 +30,7 @@
     --text-main: #2c3e38;         
     --text-muted: #6a7c76;        
     
-    /* Điểm nhấn */
+    /* Điểm nhấn (Ngọc Bích, Kim Cổ) */
     --accent: #8bb8a8;            
     --accent-hover: #739e8f;
     --accent-gold: #d4c4a8;       
@@ -50,7 +50,7 @@
     --radius-pill: 50px;          
     --radius-card: 24px; 
 
-    /* Easing chuẩn (Học từ Chromium) */
+    /* Easing chuẩn (Học từ Chromium - Dải lụa) */
     --ease-silk: cubic-bezier(0.25, 0.8, 0.25, 1);
     --ease-silk-sharp: cubic-bezier(0.76, 0, 0.24, 1);
 }
@@ -129,7 +129,7 @@ body {
 }
 
 /* =====================================================================
-   6. MÀN HÌNH CHỜ: THANH NGỌC BOOT EXPERIENCE (DẢI LỤA + TEXT)
+   6. MÀN HÌNH CHỜ: BOOT EXPERIENCE (DẢI LỤA + TEXT)
    ===================================================================== */
 #jade-splash { 
     position: fixed; inset: 0; z-index: 999999; 
@@ -147,7 +147,7 @@ body {
     filter: blur(20px);
 }
 
-/* Thời gian chạy được tăng lên 16s, 20s, 24s để lụa trôi siêu chậm, thanh thoát */
+/* Thời gian chạy 16s, 20s, 24s để lụa trôi siêu chậm, thanh thoát */
 .silk-layer-1 { 
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 20%, #8bb8a8 50%, rgba(255,255,255,0.9) 80%, rgba(255,255,255,0) 100%);
     transform: rotate(-30deg) translateX(-20vw);
@@ -181,11 +181,10 @@ body {
     100% { transform: rotate(15deg) scale(1.4) translateY(5vh); opacity: 0.8; } 
 }
 
-/* Nội dung Boot (Text và Danh ngôn) - Hiện chậm rãi nhưng mượt mà */
+/* Nội dung Boot (Text và Danh ngôn) */
 .boot-content {
     position: relative; z-index: 10; text-align: center;
     opacity: 0; transform: translateY(15px);
-    /* Hiện lên trong 1.5s với hiệu ứng mượt */
     animation: bootFadeIn 1.5s var(--ease-silk) forwards; 
     animation-delay: 1s; 
 }
@@ -200,39 +199,34 @@ body {
 
 @keyframes bootFadeIn { to { opacity: 1; transform: translateY(0); } }
 
-/* Kích hoạt tan lụa và ẩn text */
+/* Kích hoạt tan lụa và ẩn text (Rút ngắn thời gian để nhường chỗ cho Silk Transition) */
 #jade-splash.leaving .silk-layer-1 { animation: ribbonOut1 1.5s var(--ease-silk-sharp) forwards; }
 #jade-splash.leaving .silk-layer-2 { animation: ribbonOut2 1.5s var(--ease-silk-sharp) forwards; animation-delay: 0.1s; }
 #jade-splash.leaving .silk-layer-3 { animation: ribbonOut3 1.5s var(--ease-silk-sharp) forwards; animation-delay: 0.2s; }
 
-/* Chữ tan đi nhanh và mượt, không bị khựng */
 #jade-splash.leaving .boot-content { 
-    animation: bootFadeOut 0.8s var(--ease-silk) forwards; 
+    animation: bootFadeOut 0.4s var(--ease-silk) forwards; 
 }
 
-@keyframes ribbonOut1 { 
-    0% { transform: rotate(-30deg) translateX(-20vw) scaleY(1); opacity: 1; } 
-    100% { transform: rotate(-45deg) translateX(-150vw) scaleY(1.5); opacity: 0; } 
+@keyframes ribbonOut1 { 0% { transform: rotate(-30deg) translateX(-20vw) scaleY(1); opacity: 1; } 100% { transform: rotate(-45deg) translateX(-150vw) scaleY(1.5); opacity: 0; } }
+@keyframes ribbonOut2 { 0% { transform: rotate(45deg) translateX(20vw) scaleY(1); opacity: 1; } 100% { transform: rotate(60deg) translateX(150vw) scaleY(1.5); opacity: 0; } }
+@keyframes ribbonOut3 { 0% { transform: rotate(10deg) scale(1.2); opacity: 0.8; } 100% { transform: rotate(20deg) scale(2) translateY(-50vh); opacity: 0; } }
+@keyframes bootFadeOut { 0% { opacity: 1; transform: translateY(0); filter: blur(0); } 100% { opacity: 0; transform: translateY(-10px); filter: blur(4px); } }
+
+/* Hiệu ứng Thức tỉnh cho Trang chủ (Chống giật/đột ngột) */
+@keyframes elegantFadeIn {
+    from { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
-@keyframes ribbonOut2 { 
-    0% { transform: rotate(45deg) translateX(20vw) scaleY(1); opacity: 1; } 
-    100% { transform: rotate(60deg) translateX(150vw) scaleY(1.5); opacity: 0; } 
-}
-@keyframes ribbonOut3 { 
-    0% { transform: rotate(10deg) scale(1.2); opacity: 0.8; } 
-    100% { transform: rotate(20deg) scale(2) translateY(-50vh); opacity: 0; } 
-}
-@keyframes bootFadeOut { 
-    0% { opacity: 1; transform: translateY(0); filter: blur(0); }
-    100% { opacity: 0; transform: translateY(-10px); filter: blur(4px); } 
+.elegant-fade-in {
+    animation: elegantFadeIn 1.2s var(--ease-silk) forwards;
 }
 
 /* =====================================================================
-   7. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC (TỐI ƯU GPU CHỐNG GIẬT)
+   7. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC
    ===================================================================== */
 .silk-transition-overlay {
     position: fixed; inset: 0; z-index: 999998; pointer-events: none; overflow: hidden;
-    /* TỐI ƯU GPU: Ép trình duyệt tạo layer ngay từ đầu */
     will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden;
     opacity: 0; visibility: hidden;
 }
@@ -246,30 +240,20 @@ body {
     position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 60%);
     mix-blend-mode: overlay; will-change: opacity; transform: translateZ(0);
 }
-
 .silk-transition-overlay.entering { animation: silkOverlayFadeInOut 1s ease-in-out forwards; }
 .silk-transition-overlay.entering .silk-sweep { animation: silkSweepIn 1s var(--ease-silk-sharp) forwards; }
 
-@keyframes silkSweepIn { 
-    0% { transform: translateX(0) skewX(-15deg) translateZ(0); } 
-    100% { transform: translateX(200%) skewX(-15deg) translateZ(0); } 
-}
-@keyframes silkOverlayFadeInOut { 
-    0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } 
-}
+@keyframes silkSweepIn { 0% { transform: translateX(0) skewX(-15deg) translateZ(0); } 100% { transform: translateX(200%) skewX(-15deg) translateZ(0); } }
+@keyframes silkOverlayFadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
 
 /* =====================================================================
-   8. HIỆU ỨNG HẠT SƯƠNG (ĐÃ TINH CHỈNH - CHỈ 6 HẠT, KHÔNG LAG)
+   8. HIỆU ỨNG HẠT SƯƠNG
    ===================================================================== */
-.dewdrop-container { 
-    position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; 
-}
+.dewdrop-container { position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
 .dewdrop {
     position: absolute; border-radius: 50%;
-    /* JS sẽ đổ màu Gradient Ngọc Bích lấp lánh vào đây */
-    will-change: transform, opacity; 
-    transform: translate3d(0, 0, 0); 
-    animation: floatUp 20s linear infinite; /* Tăng thời gian bay để trôi chậm rãi */
+    will-change: transform, opacity; transform: translate3d(0, 0, 0); 
+    animation: floatUp 20s linear infinite; 
     opacity: 0;
 }
 @keyframes floatUp {
@@ -280,43 +264,25 @@ body {
 }
 
 /* =====================================================================
-   9. NAVBAR & LAYOUT CHÍNH (ĐÃ FIX LCP - KHÔNG DÙNG OPACITY:0)
+   9. NAVBAR & LAYOUT CHÍNH
    ===================================================================== */
 .container { 
     position: relative; z-index: 10; max-width: 1100px; 
     margin: 0 auto; padding: calc(90px + env(safe-area-inset-top)) 20px 40px 20px; 
-    /* Đã xóa opacity: 0 để trình duyệt vẽ ngay lập tức, giúp LCP cực thấp */
 }
 
 .navbar {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    padding: 12px 24px; 
-    background: var(--card-bg); 
-    border: 1px solid var(--border-color); 
-    border-radius: var(--radius-pill); 
-    box-shadow: var(--shadow);
-    position: fixed; 
-    top: calc(15px + env(safe-area-inset-top)); 
-    left: 50%; 
-    transform: translateX(-50%);
-    width: calc(100% - 32px); 
-    max-width: 1050px; 
-    z-index: 999; 
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 24px; background: var(--card-bg); border: 1px solid var(--border-color); 
+    border-radius: var(--radius-pill); box-shadow: var(--shadow);
+    position: fixed; top: calc(15px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+    width: calc(100% - 32px); max-width: 1050px; z-index: 999; 
 }
 
-/* LOGO VĂN ĐẠO - TIMES NEW ROMAN */
 .nav-brand { 
-    font-family: var(--font-body) !important; 
-    font-size: 1.6rem; 
-    font-weight: 700; 
-    letter-spacing: 5px; 
-    text-transform: uppercase; 
-    line-height: 1; 
-    cursor: pointer; 
-    color: var(--text-main); 
-    margin-right: auto; /* Ép Logo luôn nằm bên trái */
+    font-family: var(--font-body) !important; font-size: 1.6rem; font-weight: 700; 
+    letter-spacing: 5px; text-transform: uppercase; line-height: 1; 
+    cursor: pointer; color: var(--text-main); margin-right: auto; 
 }
 
 .nav-links { display: flex; align-items: center; gap: 24px; }
@@ -324,15 +290,12 @@ body {
 .mobile-menu-btn svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
-   10. TYPOGRAPHY PHÂN CẤP & NÚT BẤM (ĐÃ FIX LỖI GIÃN CHỮ & MẤT MÀU)
+   10. TYPOGRAPHY & BUTTONS
    ===================================================================== */
 .nav-btn, .btn, .filter-btn, .pagination-container button {
-    font-family: var(--font-body) !important;
-    font-size: 0.85rem !important;
-    font-weight: 700 !important;
-    text-transform: uppercase;
+    font-family: var(--font-body) !important; font-size: 0.85rem !important; 
+    font-weight: 700 !important; text-transform: uppercase;
     transition: all 0.3s var(--ease-silk);
-    /* ĐÃ XÓA letter-spacing: 1px Ở ĐÂY ĐỂ CHỐNG LỖI GIÃN CHỮ */
 }
 
 .nav-btn { 
@@ -348,13 +311,11 @@ body {
 .nav-btn:hover::after, .nav-btn.active::after { transform: translateX(-50%) scale(1); }
 .nav-icon { width: 16px; height: 16px; stroke-width: 2; display: none; } 
 
-/* Nút lọc: Giảm khoảng cách chữ, chống dính, không rớt dòng */
 .filter-btn { 
     background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); 
     padding: 8px 20px; border-radius: var(--radius-pill); cursor: pointer; 
-    letter-spacing: 0.5px !important; word-spacing: normal !important; white-space: nowrap; 
+    letter-spacing: 0.5px !important; white-space: nowrap; 
 }
-/* SỬA LỖI MẤT MÀU: Nền xanh đậm, chữ trắng, thêm bóng mờ tỏa sáng */
 .filter-btn:hover, .filter-btn.active { 
     background: var(--accent-text) !important; color: #ffffff !important; 
     border-color: var(--accent-text) !important; 
@@ -372,7 +333,6 @@ body {
    ===================================================================== */
 .hero { display: flex; align-items: center; justify-content: space-between; min-height: 60vh; gap: 40px; margin-bottom: 40px; }
 .hero-content { flex: 1; max-width: 580px; }
-
 .hero-content h1 { 
     font-family: var(--font-calligraphy); font-size: clamp(3.5rem, 6vw, 5rem); 
     font-weight: 400; line-height: 1.1; margin-bottom: 20px; color: var(--text-main); text-wrap: balance; 
@@ -401,95 +361,71 @@ body {
 .quote-text { font-family: var(--font-body); font-size: 1.6rem; color: var(--text-main); font-style: italic; line-height: 1.5; max-width: 700px; margin: 0 auto 15px; text-wrap: balance; }
 .quote-author { font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; color: var(--accent-text); letter-spacing: 2px; text-transform: uppercase; }
 
+/* Random Poem Button (1.5) */
+.random-poem-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 24px; padding: 10px 20px;
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 999px;
+    font-family: var(--font-body); font-size: 0.9rem; cursor: pointer;
+    transition: all 0.25s ease;
+}
+.random-poem-btn:hover { background: var(--accent); color: #0a1a12; letter-spacing: 0.5px; }
+.random-poem-btn svg { transition: transform 0.6s ease; }
+.random-poem-btn:hover svg { transform: rotate(180deg); }
+
 /* =====================================================================
-   13. TIÊU ĐỀ TRANG & TÌM KIẾM (ĐÃ FIX CĂN LỀ)
+   13. TIÊU ĐỀ TRANG & TÌM KIẾM
    ===================================================================== */
 .page-title { font-family: var(--font-calligraphy); font-size: 3.5rem; text-align: center; margin-bottom: 5px; font-weight: 400; line-height: 1.2; }
 .page-desc { text-align: center; color: var(--text-muted); margin-bottom: 30px; font-style: italic; font-size: 1.1rem; font-family: var(--font-body); }
 
-.search-container { 
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin-bottom: 25px; 
-}
-
-.search-wrap { 
-    position: relative; 
-    width: 100%; 
-    max-width: 480px; 
-    margin: 0 auto; /* Căn giữa hoàn hảo */
-}
-
+.search-container { display: flex; justify-content: center; width: 100%; margin-bottom: 25px; }
+.search-wrap { position: relative; width: 100%; max-width: 480px; margin: 0 auto; }
 .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-#search-input, #encyclopedia-search { width: 100%; padding: 14px 20px 14px 48px; border-radius: var(--radius-pill); border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: var(--font-body); outline: none; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+#search-input, #encyclopedia-search { 
+    width: 100%; padding: 14px 20px 14px 48px; border-radius: var(--radius-pill); 
+    border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); 
+    font-family: var(--font-body); outline: none; font-size: 1rem; transition: all 0.3s ease; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02); 
+}
 #search-input:focus, #encyclopedia-search:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(139, 184, 168, 0.2); }
 
-.filter-bar { 
-    display: flex; 
-    justify-content: center; 
-    gap: 10px; 
-    margin-bottom: 20px; 
-    flex-wrap: wrap; 
-    width: 100%; /* Ép khối rộng 100% */
-}
-
-/* Đảm bảo thanh 3 nút luôn nằm chính giữa */
-#encyclopedia-filter-bar {
-    margin: 0 auto;
-    justify-content: center;
-}
-
+.filter-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; width: 100%; }
+#encyclopedia-filter-bar { margin: 0 auto; justify-content: center; }
 #sub-filter-bar { margin-top: -10px; margin-bottom: 30px; gap: 8px; }
 #sub-filter-bar .filter-btn { padding: 6px 14px; font-size: 0.7rem; background: transparent; border-radius: var(--radius-pill); }
 
-/* TỐI ƯU THANH TÌM KIẾM (Thêm nút X SVG) */
+/* Tìm kiếm: Nút X SVG */
 .search-box-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
 #encyclopedia-search { padding-right: 45px !important; }
-
 .clear-btn {
-    position: absolute; 
-    right: 15px; 
-    background: transparent; 
-    border: none;
-    color: var(--text-muted); 
-    cursor: pointer;
-    padding: 0; 
-    display: none; 
-    align-items: center; 
-    justify-content: center;
-    width: 28px; 
-    height: 28px; 
-    border-radius: 50%; 
-    transition: 0.2s;
+    position: absolute; right: 15px; background: transparent; border: none;
+    color: var(--text-muted); cursor: pointer; padding: 0; display: none; 
+    align-items: center; justify-content: center; width: 28px; height: 28px; 
+    border-radius: 50%; transition: 0.2s;
 }
 .clear-btn:hover { background-color: rgba(139, 184, 168, 0.2); color: var(--text-main); }
 .clear-btn.show { display: flex; }
 .clear-btn svg { width: 20px; height: 20px; stroke: currentColor; }
 
-/* Highlight từ khóa: Màu Thanh Ngọc (Jade) */
+/* Highlight từ khóa tìm kiếm: Màu Thanh Ngọc */
 mark {
-    background-color: #d4ece6; /* Màu xanh ngọc rất nhạt, trong veo */
-    color: var(--text-main); /* Giữ màu chữ xanh trầm */
-    padding: 0 4px;
-    border-radius: 4px;
-    font-weight: 700;
-    box-shadow: 0 0 4px rgba(139, 184, 168, 0.3); /* Ánh sáng ngọc nhẹ bao quanh */
+    background-color: #d4ece6; color: var(--text-main); padding: 0 4px;
+    border-radius: 4px; font-weight: 700; box-shadow: 0 0 4px rgba(139, 184, 168, 0.3);
 }
 
 /* =====================================================================
-   14. VĂN HIẾN (CARDS) & BÁCH KHOA (ACCORDION CHỐNG CHE HEADER)
+   14. VĂN HIẾN (CARDS, TIMELINE & PAGINATION)
    ===================================================================== */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
+/* TẤM KHIÊN BẢO VỆ: scroll-margin-top chống Header che khuất */
 .heritage-card, .accordion-item { 
     content-visibility: auto; contain-intrinsic-size: auto 300px;
     background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 24px;
     box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; 
-    
-    /* TẤM KHIÊN BẢO VỆ: Chống Header che khi cuộn */
     scroll-margin-top: 120px; 
-    
     opacity: 0; transform: translateY(20px);
     transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.4s ease, outline 0.4s ease, background-color 0.4s ease;
     outline: 2px solid transparent; outline-offset: 4px;
@@ -498,7 +434,7 @@ mark {
 .heritage-card.is-visible, .accordion-item.is-visible { opacity: 1; transform: translateY(0); }
 .heritage-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(139, 184, 168, 0.15); border-color: var(--accent); }
 
-/* HIỆU ỨNG HIGHLIGHT TỎA SÁNG RỰC RỠ */
+/* HIỆU ỨNG HIGHLIGHT TỎA SÁNG */
 .accordion-item.highlight-target, .heritage-card.highlight-target {
     border-color: var(--accent) !important;
     background-color: rgba(139, 184, 168, 0.15) !important; 
@@ -527,8 +463,32 @@ mark {
 .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
+/* Timeline (2.3) */
+.timeline-container { position: relative; padding: 20px 0; }
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 100px; top: 0; bottom: 0; width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+}
+.timeline-era { display: flex; gap: 24px; margin-bottom: 32px; }
+.timeline-era-label {
+    min-width: 100px; text-align: right;
+    font-family: var(--font-body); color: var(--accent-gold);
+    font-size: 1rem; padding-top: 4px;
+    border-right: 2px solid var(--accent); padding-right: 16px;
+}
+.timeline-era-content { flex: 1; }
+.timeline-author {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 8px; cursor: pointer; transition: color 0.2s;
+}
+.timeline-author:hover { color: var(--accent); }
+.timeline-author-name { font-weight: 700; color: var(--text-main); font-family: var(--font-body); }
+.timeline-author-works { color: var(--text-muted); font-size: 0.9rem; font-family: var(--font-body); }
+
 /* =====================================================================
-   15. ĐẠI BÁCH KHOA (ACCORDION CHI TIẾT)
+   15. ĐẠI BÁCH KHOA (ACCORDION & RELATED CONTENT)
    ===================================================================== */
 .accordion-item { padding: 0; overflow: hidden; margin-bottom: 12px; border-radius: var(--radius-card); }
 .accordion-item summary { padding: 18px 20px; font-family: var(--font-body); font-size: 1.3rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; list-style: none; transition: background 0.3s ease; color: var(--text-main); border-radius: var(--radius-card) var(--radius-card) 0 0; }
@@ -544,12 +504,29 @@ mark {
 .accordion-content ul, .accordion-content ol { padding-left: 20px; margin-bottom: 15px; }
 .accordion-content li { margin-bottom: 6px; }
 .accordion-content blockquote { font-family: var(--font-body); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 15px; font-style: italic; margin: 20px 0; background: rgba(139, 184, 168, 0.05); text-align: center; font-size: 1.2rem; border-radius: 8px; }
-
-@keyframes fadeInContent { 0% { opacity: 0; transform: translateY(-5px); } 100% { opacity: 1; transform: translateY(0); } }
 .accordion-content { animation: fadeInContent 0.4s ease forwards; }
+@keyframes fadeInContent { 0% { opacity: 0; transform: translateY(-5px); } 100% { opacity: 1; transform: translateY(0); } }
+
+/* Tác phẩm liên quan (1.4) */
+.related-section { margin-top: 32px; padding-top: 24px; border-top: 1px dashed rgba(139,184,168,0.3); }
+.related-title { font-family: var(--font-body); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; }
+.related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.related-card {
+    position: relative; padding: 10px 28px 10px 14px; background: rgba(139,184,168,0.06);
+    border-left: 2px solid var(--accent); border-radius: 6px;
+    cursor: pointer; transition: background 0.2s; font-size: 0.9rem;
+}
+.related-card::after {
+    content: '→'; position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%) translateX(-4px); opacity: 0;
+    transition: opacity 0.2s, transform 0.2s; color: var(--accent);
+}
+.related-card:hover { background: rgba(139,184,168,0.15); }
+.related-card:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+.related-card small { display: block; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; }
 
 /* =====================================================================
-   16. THI PHÁP HỌC (PHÂN TÍCH)
+   16. THI PHÁP HỌC & SYMBOL HIGHLIGHTER
    ===================================================================== */
 .analyze-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 20px; margin-top: 30px; margin-bottom: 30px; box-shadow: var(--shadow); }
 .analyze-box textarea { width: 100%; height: 140px; background: transparent; border: none; outline: none; resize: vertical; font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.7; }
@@ -576,6 +553,32 @@ mark {
 .volume-link { color: var(--accent-text); cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; text-decoration: underline; }
 .question-item { padding: 6px 0; line-height: 1.5; color: var(--text-main); font-size: 1rem; display: flex; align-items: flex-start; font-family: var(--font-body); }
 
+/* Symbol Highlighter (2.5) - Thanh tao với Tooltip CSS */
+.symbol-mark {
+    background: linear-gradient(transparent 60%, rgba(212,196,168,0.35) 60%);
+    cursor: help; 
+    padding: 0 1px;
+    position: relative;
+}
+.symbol-mark::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%; left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: var(--text-main, #2c3e38);
+    color: var(--bg-base, #fdfbf7);
+    padding: 6px 12px; border-radius: 6px;
+    font-size: 0.8rem; font-family: var(--font-body);
+    white-space: nowrap; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-style: normal;
+}
+.symbol-mark:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+}
+
 /* =====================================================================
    17. SKELETON LOADING
    ===================================================================== */
@@ -587,23 +590,15 @@ mark {
 .skeleton-line.desc { height: 12px; width: 100%; }
 
 /* =====================================================================
-   18. RESPONSIVE (MOBILE - ĐÃ FIX LỖI TRÀN CHỮ)
+   18. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
     .dewdrop-container { display: none !important; }
-    
     .container { padding: calc(80px + env(safe-area-inset-top)) 16px 30px 16px; }
     .hero { flex-direction: column; text-align: center; gap: 20px; }
     
-    /* FIX LỖI TRÀN CHỮ TRÊN MOBILE */
-    .hero-content h1 { 
-        font-size: 2.5rem; 
-        line-height: 1.2; 
-        padding: 0 10px; 
-        text-align: center; 
-    }
-    .hero-content .no-wrap { white-space: normal; } /* Cho phép xuống dòng */
-    
+    .hero-content h1 { font-size: 2.5rem; line-height: 1.2; padding: 0 10px; text-align: center; }
+    .hero-content .no-wrap { white-space: normal; }
     .hero-content p { text-align: center; font-size: 1rem; margin-bottom: 20px; }
     .hero-visual { justify-content: center; }
     .arch-frame { width: 260px; height: 340px; border-radius: 130px 130px 16px 16px; }
@@ -634,6 +629,10 @@ mark {
     .line-row { font-size: 1rem; flex-wrap: wrap; justify-content: flex-start; }
     .pattern-text { margin-left: 5px; }
     .quote-text { font-size: 1.4rem; }
+    
+    .timeline-container::before { left: 70px; }
+    .timeline-era { gap: 12px; }
+    .timeline-era-label { min-width: 70px; padding-right: 12px; font-size: 0.9rem; }
 }
 
 /* =====================================================================
@@ -647,5 +646,5 @@ button:active, .btn:active, .filter-btn:active, .page-btn:active, .nav-btn:activ
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
     .heritage-card, .accordion-item { opacity: 1 !important; transform: none !important; }
-    #jade-splash, .silk-transition-overlay { display: none !important; } /* Tắt màn hình chờ nếu người dùng muốn giảm chuyển động */
+    #jade-splash, .silk-transition-overlay { display: none !important; }
 }
