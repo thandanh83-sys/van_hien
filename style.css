@@ -9,12 +9,13 @@
    ===================================================================== */
 
 /* =====================================================================
-   1. KHAI BÁO FONT CHỮ CỤC BỘ
+   1. KHAI BÁO FONT CHỮ CỤC BỘ (ĐÃ SỬA ĐÚNG TÊN FILE)
    ===================================================================== */
 @font-face {
     font-family: 'Alex Brush';
-    src: url('assets/fonts/alex-brush.woff2') format('woff2'),
-         url('assets/fonts/alex-brush.ttf') format('truetype');
+    /* Sửa lại đúng tên file viết hoa giống trên GitHub */
+    src: url('assets/fonts/AlexBrush-Regular.woff2') format('woff2'),
+         url('assets/fonts/AlexBrush-Regular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
