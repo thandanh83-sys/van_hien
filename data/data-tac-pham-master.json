@@ -1,0 +1,123 @@
+[
+  {
+    "id": "truyen-kieu",
+    "title": "Truyện Kiều",
+    "author": "Nguyễn Du",
+    "desc": "Kiệt tác thơ Nôm lục bát, phản ánh số phận bi kịch của người phụ nữ tài hoa bạc mệnh.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Truyện thơ Nôm", "Lục bát"],
+    "era": "TK 19",
+    "script": "Chữ Nôm",
+    "content": "<h4>I. Nguồn gốc và Hoàn cảnh sáng tác</h4><p>Truyện Kiều (Đoạn trường tân thanh) được Nguyễn Du sáng tác vào đầu thế kỷ 19, dựa trên cốt truyện tiểu thuyết chương hồi Trung Quốc 'Kim Vân Kiều truyện' của Thanh Tâm Tài Nhân. Tuy nhiên, bằng tài năng và tấm lòng nhân đạo sâu sắc, Nguyễn Du đã 'Việt hóa' và nâng tầm tác phẩm thành một kiệt tác vĩ đại của văn học dân tộc.</p><h4>II. Giá trị nội dung</h4><p><b>1. Giá trị hiện thực:</b> Tác phẩm là bức tranh hiện thực sâu rộng về xã hội phong kiến bất công, thối nát, chà đạp lên quyền sống và nhân phẩm con người, đặc biệt là người phụ nữ. Đồng tiền đã trở thành thế lực ma quái tàn phá cuộc đời Thúy Kiều.</p><p><b>2. Giá trị nhân đạo:</b> Nguyễn Du thể hiện niềm thương cảm sâu sắc trước những đau khổ, bất hạnh của con người. Ông ngợi ca vẻ đẹp, tài năng, khát vọng tình yêu tự do và khát vọng công lý của con người. Tác phẩm cất lên tiếng nói đòi quyền sống, quyền hạnh phúc cho con người.</p><h4>III. Giá trị nghệ thuật</h4><p>Ngôn ngữ trong Truyện Kiều đạt đến độ tinh xảo, điêu luyện bậc thầy. Nghệ thuật tả cảnh ngụ tình được đánh giá là 'tuyệt kỹ' (qua các bức tranh thiên nhiên ứng với tâm trạng Thúy Kiều). Nghệ thuật miêu tả tâm lý nhân vật tinh tế, sâu sắc. Thể thơ lục bát truyền thống được sử dụng nhuần nhuyễn, tạo nên âm hưởng nhạc điệu đặc biệt.</p>"
+  },
+  {
+    "id": "chi-pheo",
+    "title": "Chí Phèo",
+    "author": "Nam Cao",
+    "desc": "Bi kịch bị cự tuyệt quyền làm người của người nông dân bị tha hóa.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": ["Truyện ngắn"],
+    "era": "1941",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Được sáng tác năm 1941 (tên ban đầu là 'Cái lò gạch cũ'), in trong tập 'Luống cày'. Tác phẩm phản ánh hiện thực xã hội Việt Nam trước Cách mạng tháng Tám, khi người nông dân bị bần cùng hóa và tha hóa bởi chế độ thực dân phong kiến.</p><h4>II. Giá trị nội dung</h4><p><b>1. Bi kịch tha hóa:</b> Chí Phèo vốn là một người nông dân hiền lành, khỏe mạnh nhưng bị nhà tù thực dân và xã hội làng Vũ Đại biến thành một con quỷ dữ, một kẻ say rượu triền miên, chuyên đâm thuê chém mướn.</p><p><b>2. Khát vọng làm người:</b> Cuộc gặp gỡ với Thị Nở đã đánh thức phần 'người' trong Chí Phèo. Hắn khao khát được yêu thương, được sống lương thiện, nhưng bị định kiến xã hội từ chối. Bi kịch của Chí Phèo là bi kịch của một con người bị cự tuyệt quyền làm người.</p><h4>III. Giá trị nghệ thuật</h4><p>Ngòi bút phân tích tâm lý nhân vật cực kỳ tinh tế, sắc sảo. Kết cấu truyện độc đáo (mở đầu bằng tiếng chửi của Chí Phèo). Ngôn ngữ trần thuật vừa lạnh lùng, tỉnh táo, vừa đầy trăn trở, thương cảm. Tác phẩm thể hiện tư tưởng nhân đạo sâu sắc của Nam Cao.</p>"
+  },
+  {
+    "id": "tay-tien",
+    "title": "Tây Tiến",
+    "author": "Quang Dũng",
+    "desc": "Hình tượng người lính hào hoa, bi tráng giữa núi rừng Tây Bắc.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ tự do", "Thơ kháng chiến"],
+    "era": "1948",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Bài thơ được viết vào cuối năm 1948, tại làng Phù Lưu Chanh (Hà Nam), khi nhà thơ Quang Dũng đã rời xa đơn vị Tây Tiến. Nỗi nhớ da diết về đồng đội và núi rừng Tây Bắc đã thôi thúc ông viết nên tác phẩm này.</p><h4>II. Giá trị nội dung</h4><p><b>1. Vẻ đẹp thiên nhiên Tây Bắc:</b> Hùng vĩ, dữ dội nhưng cũng vô cùng thơ mộng, trữ tình. Đó là nơi có dốc đá gập ghềnh, có sương rừng, thác nước và những đêm liên hoan lửa đuốc.</p><p><b>2. Hình tượng người lính Tây Tiến:</b> Họ là những chàng trai Hà Nội hào hoa, lãng mạn nhưng cũng vô cùng dũng cảm, bi tráng. Họ sống và chiến đấu với lý tưởng cao đẹp, chấp nhận hy sinh nơi biên cương. Hình ảnh người lính hiện lên vừa kiêu hùng, vừa mang nét bi thương.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ thất ngôn trường thiên mang âm hưởng cổ điển. Bút pháp lãng mạn tài hoa, kết hợp hài hòa giữa chất nhạc và chất họa. Ngôn ngữ thơ giàu hình ảnh, giàu tính tạo hình và biểu cảm.</p>"
+  },
+  {
+    "id": "voi-vang",
+    "title": "Vội Vàng",
+    "author": "Xuân Diệu",
+    "desc": "Khát vọng sống cuồng nhiệt, trân trọng từng phút giây tuổi trẻ.",
+    "loai_hinh": "thi-ca",
+    "the_loai": ["Thơ tự do", "Thơ Mới"],
+    "era": "1938",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Bài thơ được in trong tập 'Thơ thơ' (1938). Tác phẩm thể hiện quan niệm sống mới mẻ, hiện đại của Xuân Diệu - người được mệnh danh là 'Ông hoàng thơ tình' Việt Nam.</p><h4>II. Giá trị nội dung</h4><p><b>1. Tình yêu cuộc sống tha thiết:</b> Xuân Diệu cảm nhận thời gian trôi qua rất nhanh, mỗi phút giây trôi qua là mất đi vĩnh viễn. Từ đó, nhà thơ bộc lộ một tình yêu cuộc sống da diết, một khát vọng muốn ôm trọn, muốn tận hưởng mọi vẻ đẹp của cuộc đời.</p><p><b>2. Quan niệm sống mới mẻ:</b> Bài thơ là lời giục giã con người hãy sống vội vàng, sống gấp gáp để không uổng phí tuổi xuân. Đó là một quan niệm sống hiện đại, đề cao cái Tôi cá nhân và khát vọng hạnh phúc.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ tự do, nhịp điệu dồn dập, sôi nổi. Ngôn ngữ thơ giàu hình ảnh, giàu cảm xúc, sử dụng nhiều biện pháp tu từ độc đáo (điệp ngữ, nhân hóa, so sánh...). Tác phẩm mang đậm phong cách thơ Xuân Diệu: nồng nàn, mãnh liệt, yêu đời.</p>"
+  },
+  {
+    "id": "so-do",
+    "title": "Số Đỏ",
+    "author": "Vũ Trọng Phụng",
+    "desc": "Bức tranh lố lăng, giả dối của xã hội thượng lưu thực dân Âu hóa.",
+    "loai_hinh": "van-xuoi",
+    "the_loai": ["Tiểu thuyết", "Trào phúng"],
+    "era": "1936",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Tiểu thuyết được xuất bản năm 1936. Tác phẩm ra đời trong bối cảnh xã hội Việt Nam đang diễn ra phong trào 'Âu hóa', với sự du nhập ồ ạt của văn hóa phương Tây, tạo nên những biến đổi lố lăng, giả dối trong một bộ phận giới thượng lưu thành thị.</p><h4>II. Giá trị nội dung</h4><p><b>1. Bức tranh trào phúng:</b> Tác phẩm phơi bày bộ mặt thật của xã hội tư sản thành thị đang chạy theo lối sống Âu hóa một cách lố bịch, kệch cỡm. Đó là sự giả dối, rởm đời từ cái ăn, cái mặc đến lối sống, cách suy nghĩ.</p><p><b>2. Phê phán sâu sắc:</b> Vũ Trọng Phụng đã dùng ngòi bút trào phúng sắc lạnh để đả kích thói háo danh, sự dốt nát, lòng tham và sự bất chấp đạo đức của con người khi bị đồng tiền chi phối.</p><h4>III. Giá trị nghệ thuật</h4><p>Nghệ thuật trào phúng bậc thầy, xây dựng nhân vật Xuân Tóc Đỏ - một điển hình cho kẻ cơ hội, may mắn nhờ sự lố bịch của xã hội. Ngôn ngữ văn xuôi giàu chất khẩu ngữ, hài hước, châm biếm. Kết cấu truyện chặt chẽ, hấp dẫn.</p>"
+  },
+  {
+    "id": "ai-da-dat-ten-cho-dong-song",
+    "title": "Ai Đã Đặt Tên Cho Dòng Sông?",
+    "author": "Hoàng Phủ Ngọc Tường",
+    "desc": "Thể kí giàu chất trữ tình, tôn vinh vẻ đẹp sông Hương và xứ Huế.",
+    "loai_hinh": "ky-khao-cuu",
+    "the_loai": ["Bút ký"],
+    "era": "1981",
+    "script": "Quốc ngữ",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Tác phẩm được viết năm 1981, in trong tập bút ký cùng tên. Đây là một áng văn xuôi giàu chất trữ tình, thể hiện tình yêu quê hương xứ Huế sâu đậm của nhà văn Hoàng Phủ Ngọc Tường.</p><h4>II. Giá trị nội dung</h4><p><b>1. Vẻ đẹp sông Hương:</b> Tác giả khám phá sông Hương từ nhiều góc độ: địa lý, lịch sử, văn hóa, thi ca. Sông Hương hiện lên như một sinh thể sống động, có tâm hồn, vừa hùng vĩ vừa thơ mộng, vừa mang nét đẹp cổ kính vừa hiện đại.</p><p><b>2. Tình yêu quê hương:</b> Qua việc ca ngợi vẻ đẹp của sông Hương, tác giả thể hiện tình yêu tha thiết với quê hương, với văn hóa và con người xứ Huế. Đồng thời, tác phẩm cũng là một lời tri ân sâu sắc đối với những người đã có công khai phá, xây dựng và bảo vệ vùng đất này.</p><h4>III. Giá trị nghệ thuật</h4><p>Bút ký giàu chất trữ tình, ngôn ngữ tài hoa, uyên bác. Tác giả sử dụng nhuần nhuyễn kiến thức lịch sử, văn hóa, địa lý. Hình ảnh so sánh, liên tưởng phong phú, độc đáo. Giọng điệu vừa trang trọng, vừa tha thiết, ngọt ngào.</p>"
+  },
+  {
+    "id": "hamlet",
+    "title": "Hamlet",
+    "author": "William Shakespeare",
+    "desc": "Kiệt tác bi kịch về sự trả thù và những triết lý nhân sinh sâu sắc.",
+    "loai_hinh": "kich-san-khau",
+    "the_loai": ["Bi kịch"],
+    "era": "TK 16-17",
+    "script": "Tiếng Anh",
+    "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Hamlet được Shakespeare sáng tác vào khoảng năm 1601, thời kỳ đỉnh cao của văn học Phục Hưng Anh. Tác phẩm được coi là một trong những vở bi kịch vĩ đại nhất của nhân loại.</p><h4>II. Giá trị nội dung</h4><p><b>1. Bi kịch trả thù:</b> Hoàng tử Hamlet nhận được lời hồn ma của cha (vị vua bị ám sát) báo rằng kẻ thủ ác chính là Claudius - người chú ruột hiện đang làm vua. Hamlet quyết tâm trả thù, nhưng sự do dự, đấu tranh nội tâm và những suy tư triết học đã khiến chàng chần chừ, dẫn đến bi kịch cho bản thân và nhiều người khác.</p><p><b>2. Triết lý nhân sinh:</b> Tác phẩm đặt ra những câu hỏi lớn về sự sống, cái chết, công lý, tội ác và bản chất con người. Câu nói 'Sống hay không sống, đó là vấn đề' trở thành biểu tượng của sự trăn trở nhân sinh.</p><h4>III. Giá trị nghệ thuật</h4><p>Nghệ thuật xây dựng nhân vật tâm lý bậc thầy, đặc biệt là nhân vật Hamlet với những mâu thuẫn nội tâm phức tạp. Ngôn ngữ kịch giàu hình ảnh, giàu chất thơ và triết lý. Kết cấu vở kịch chặt chẽ, kịch tính cao.</p>"
+  },
+  {
+    "id": "con-rong-chau-tien",
+    "title": "Con Rồng Cháu Tiên",
+    "author": "Dân gian",
+    "desc": "Giải thích nguồn gốc dân tộc Việt Nam, thể hiện ý thức cộng đồng.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Truyền thuyết"],
+    "era": "Thời Hồng Bàng",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Nội dung</h4><p>Truyền thuyết kể về Lạc Long Quân (giống Rồng) kết duyên cùng Âu Cơ (giống Tiên). Âu Cơ sinh ra một bọc trăm trứng, nở thành một trăm người con. Vì phong tục khác biệt, hai người chia tay, mang theo 50 người con xuống biển và 50 người con lên núi. Người con trưởng theo Âu Cơ lên núi, được tôn làm vua Hùng, lập nên nước Văn Lang.</p><h4>II. Giá trị nội dung</h4><p>Truyền thuyết giải thích nguồn gốc cao quý của dân tộc Việt Nam (dòng dõi Tiên - Rồng). Qua đó, thể hiện ý thức tự hào dân tộc, tinh thần đoàn kết, gắn bó giữa các cộng đồng người Việt trong công cuộc dựng nước và giữ nước. Tác phẩm khẳng định mọi người Việt Nam đều là 'đồng bào' (cùng chung một bọc).</p><h4>III. Đặc sắc nghệ thuật</h4><p>Sử dụng nhiều yếu tố kỳ ảo, hoang đường (Rồng, Tiên, bọc trăm trứng). Cốt truyện hấp dẫn, mang đậm tính sử thi. Ngôn ngữ kể chuyện trang trọng, giàu hình ảnh.</p>"
+  },
+  {
+    "id": "son-tinh-thuy-tinh",
+    "title": "Sơn Tinh Thủy Tinh",
+    "author": "Dân gian",
+    "desc": "Ca ngợi công cuộc trị thủy và bảo vệ đất nước chống thiên tai.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Truyền thuyết"],
+    "era": "Thời Hùng Vương",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Nội dung</h4><p>Truyền thuyết kể về việc vua Hùng kén rể cho con gái Mị Nương. Hai vị thần tài giỏi đến cầu hôn: Sơn Tinh (Thần Núi) và Thủy Tinh (Thần Nước). Vua Hùng ra điều kiện sính lễ và Sơn Tinh đến trước, rước được Mị Nương. Thủy Tinh tức giận, dâng nước đánh Sơn Tinh. Hai bên giao chiến ác liệt, cuối cùng Thủy Tinh thua cuộc, rút nước về.</p><h4>II. Giá trị nội dung</h4><p>Truyền thuyết lý giải hiện tượng lũ lụt hàng năm ở đồng bằng Bắc Bộ. Qua đó, tác phẩm ca ngợi tinh thần, ý chí và sức mạnh của con người trong công cuộc trị thủy, chống thiên tai để bảo vệ cuộc sống và xây dựng đất nước. Đồng thời, tác phẩm thể hiện ước mơ về một cuộc sống bình yên, chinh phục tự nhiên của người Việt cổ.</p><h4>III. Đặc sắc nghệ thuật</h4><p>Sử dụng yếu tố kỳ ảo (thần thánh, phép thuật) để lý giải hiện tượng tự nhiên. Cốt truyện hấp dẫn, kịch tính, mang đậm tính sử thi. Hình tượng nhân vật được xây dựng đối lập (Sơn Tinh - Thủy Tinh) tạo nên sự hấp dẫn cho câu chuyện.</p>"
+  },
+  {
+    "id": "thanh-giong",
+    "title": "Thánh Gióng",
+    "author": "Dân gian",
+    "desc": "Ca ngợi tinh thần yêu nước, chống giặc ngoại xâm.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Truyền thuyết"],
+    "era": "Thời Hùng Vương",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Nội dung</h4><p>Truyền thuyết kể về cậu bé làng Gióng, lên ba tuổi vẫn không biết nói, cười, đi. Khi nghe sứ giả vua Hùng tìm người tài đánh giặc Ân, cậu bé bỗng cất tiếng nói, xin đi đánh giặc. Từ đó, Gióng lớn nhanh như thổi, ăn bao nhiêu cũng không đủ. Khi giặc đến, Gióng vươn vai thành tráng sĩ, cưỡi ngựa sắt, cầm roi sắt, mặc giáp sắt ra trận. Roi sắt gãy, chàng nhổ tre đánh giặc. Đánh tan giặc, Gióng cởi giáp sắt, cưỡi ngựa bay về trời.</p><h4>II. Giá trị nội dung</h4><p>Truyền thuyết ca ngợi tinh thần yêu nước, ý chí quyết tâm chống giặc ngoại xâm của nhân dân ta. Hình tượng Thánh Gióng là biểu tượng cho sức mạnh của dân tộc, cho tinh thần đoàn kết và sự hy sinh cao cả vì đất nước. Tác phẩm cũng thể hiện ước mơ về một người anh hùng cứu nước.</p><h4>III. Đặc sắc nghệ thuật</h4><p>Sử dụng nhiều yếu tố kỳ ảo, hoang đường (sinh ra kỳ lạ, lớn nhanh, bay về trời). Cốt truyện hấp dẫn, mang đậm tính sử thi. Ngôn ngữ kể chuyện trang trọng, giàu hình ảnh và cảm xúc.</p>"
+  },
+  {
+    "id": "tam-cam",
+    "title": "Tấm Cám",
+    "author": "Dân gian",
+    "desc": "Hành trình đấu tranh giành hạnh phúc, thể hiện khát vọng công lý.",
+    "loai_hinh": "van-hoc-dan-gian",
+    "the_loai": ["Cổ tích"],
+    "era": "Không rõ",
+    "script": "Truyền miệng",
+    "content": "<h4>I. Nội dung</h4><p>Truyện kể về Tấm - một cô gái hiền lành, xinh đẹp nhưng mồ côi mẹ, phải sống cùng mẹ kế và em gái Cám độc ác. Tấm bị mẹ con Cám bóc lột, chèn ép đủ đường. Nhờ sự giúp đỡ của Bụt, Tấm vượt qua các thử thách, trở thành hoàng hậu. Mẹ con Cám ghen tị, tìm cách hãm hại Tấm. Trải qua nhiều lần hóa thân (chim vàng anh, cây xoan đào, khung cửi, quả thị) và cuối cùng trở về với cuộc sống hạnh phúc, Tấm đã trừng trị mẹ con Cám.</p><h4>II. Giá trị nội dung</h4><p>Truyện thể hiện ước mơ về công lý của nhân dân lao động: cái thiện (Tấm) luôn phải chịu nhiều gian truân nhưng cuối cùng sẽ chiến thắng cái ác (mẹ con Cám). Tác phẩm đề cao phẩm chất tốt đẹp của người phụ nữ (hiền lành, chăm chỉ, kiên cường) và phê phán sự độc ác, tham lam.</p><h4>III. Đặc sắc nghệ thuật</h4><p>Sử dụng yếu tố kỳ ảo (Bụt hiện lên giúp đỡ, sự hóa thân). Cốt truyện ly kỳ, hấp dẫn với nhiều mô-típ quen thuộc (mẹ ghẻ con chồng, vật thần kỳ...). Kết thúc có hậu cho người tốt và sự trừng phạt thích đáng cho kẻ xấu.</p>"
+  }
+]
