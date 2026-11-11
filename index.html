@@ -5,7 +5,7 @@
     <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                       -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
-    <!-- Cấu hình Viewport: Chạy Full màn hình, né tai thỏ (viewport-fit=cover) -->
+    <!-- Cấu hình Viewport: Chạy Full màn hình, né tai thỏ (viewport-fit=cover), chống zoom lộn xộn -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
@@ -13,11 +13,11 @@
     <title>VĂN ĐẠO — Đại Bách Khoa Toàn Thư</title>
     
     <!-- ================================================================= -->
-    <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang)             -->
+    <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang - LCP)       -->
     <!-- ================================================================= -->
-    <!-- Preload Font chữ Thư pháp (Đã tải về máy) -->
+    <!-- Preload Font chữ Thư pháp (Đã tải về máy) để chữ hiện ra ngay lập tức -->
     <link rel="preload" href="assets/fonts/alex-brush.woff2" as="font" type="font/woff2" crossorigin>
-    <!-- Preload ảnh nền Trang chủ -->
+    <!-- Preload ảnh khung vòm Trang chủ để không bị giật khi vừa mở App -->
     <link rel="preload" href="assets/khung.jpg" as="image">
 
     <!-- ================================================================= -->
@@ -31,18 +31,20 @@
     <!-- ================================================================= -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Ép thanh trạng thái iOS trong suốt để chìm vào nền Bạch Ngọc -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#fdfbf7">
 
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (Version v1)                                 -->
+    <!-- 5. LIÊN KẾT FILE CSS (Đã xóa ?v=1 vì SW tự động cập nhật)         -->
     <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css?v=1">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <!-- ================================================================= -->
     <!-- 6. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG (SKIP LINK)                        -->
+    <!-- Dành cho người khiếm thị dùng phím Tab để nhảy thẳng vào nội dung -->
     <!-- ================================================================= -->
     <a href="#main-content" class="skip-link">Bỏ qua điều hướng, đến nội dung chính</a>
 
@@ -52,21 +54,22 @@
     <canvas id="water-canvas" aria-hidden="true"></canvas>
 
     <!-- ================================================================= -->
-    <!-- 8. MÀN HÌNH CHỜ: LỤA NGỌC KHAI HOA (SPLASH SCREEN)                 -->
+    <!-- 8. MÀN HÌNH CHỜ: DẢI LỤA BẠCH NGỌC (SPLASH SCREEN)                -->
+    <!-- Gồm 3 dải lụa chuyển động uốn lượn cực kỳ tinh tế                 -->
     <!-- ================================================================= -->
-    <div id="jade-splash" class="jade-splash" aria-hidden="true">
+    <div id="jade-splash" aria-hidden="true">
         <div class="silk-layer silk-layer-1"></div>
         <div class="silk-layer silk-layer-2"></div>
         <div class="silk-layer silk-layer-3"></div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- 9. LỚP HIỆU ỨNG HẠT SƯƠNG (JS SẼ TỰ BƠM HẠT VÀO)                  -->
+    <!-- 9. LỚP HIỆU ỨNG HẠT SƯƠNG (JS SẼ TỰ ĐỘNG BƠM HẠT VÀO)             -->
     <!-- ================================================================= -->
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
 
     <!-- ================================================================= -->
-    <!-- 10. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                         -->
+    <!-- 10. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG (SẼ MỜ DẦN HIỆN RA)     -->
     <!-- ================================================================= -->
     <div class="container">
         
@@ -75,7 +78,7 @@
         <!-- ============================================================= -->
         <header>
             <nav class="navbar" aria-label="Điều hướng chính">
-                <!-- Logo VĂN ĐẠO (Dùng Times New Roman theo yêu cầu) -->
+                <!-- Logo VĂN ĐẠO (Bấm vào để về Trang Chủ) -->
                 <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
                 
                 <div class="nav-links" id="navMenu" role="menubar">
@@ -184,10 +187,11 @@
                     <p id="encyclopedia-count" class="sr-only" role="status" aria-live="polite"></p>
                 </div>
 
-                <!-- Thanh công cụ (Chỉ còn Bộ lọc, đã xóa nút A- A+) -->
+                <!-- Thanh công cụ (ĐÃ CHIA LÀM 3 LOẠI) -->
                 <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
                     <div class="filter-bar" id="encyclopedia-filter-bar" style="margin-bottom: 0;">
-                        <button class="filter-btn active" aria-pressed="true" onclick="filterEncyclopediaGroup('ly-thuyet', this)">Lý Thuyết</button>
+                        <button class="filter-btn active" aria-pressed="true" onclick="filterEncyclopediaGroup('triet-thuyet', this)">Triết Thuyết</button>
+                        <button class="filter-btn" aria-pressed="false" onclick="filterEncyclopediaGroup('ky-tai', this)">Kỳ Tài</button>
                         <button class="filter-btn" aria-pressed="false" onclick="filterEncyclopediaGroup('tinh-hoa', this)">Tinh Hoa</button>
                     </div>
                 </div>
@@ -230,8 +234,8 @@
         window.VD_BUILD_DATE  = '2026-11-11';
     </script>
     
-    <!-- File script chính xử lý logic (Version v1) -->
-    <script src="script.js?v=1"></script>
+    <!-- File script chính xử lý logic (Đã xóa ?v=1) -->
+    <script src="script.js"></script>
 
     <!-- ================================================================= -->
     <!-- 12. ĐĂNG KÝ SERVICE WORKER (TỰ ĐỘNG CẬP NHẬT NGẦM)                 -->
@@ -239,13 +243,14 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                // Dùng timestamp để ép trình duyệt tải sw.js mới nhất
+                // Dùng timestamp để ép trình duyệt tải sw.js mới nhất, 
+                // tránh bị GitHub Pages cache lại file SW cũ.
                 const swUrl = `sw.js?v=${new Date().getTime()}`;
 
                 navigator.serviceWorker.register(swUrl).then((reg) => {
                     console.log('[PWA] Service Worker đã đăng ký thành công!');
                     
-                    // Tự động kiểm tra bản mới khi mở app
+                    // Tự động kiểm tra bản mới khi người dùng mở lại App từ background
                     document.addEventListener('visibilitychange', () => {
                         if (document.visibilityState === 'visible') {
                             reg.update(); 
