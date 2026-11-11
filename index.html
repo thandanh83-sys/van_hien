@@ -207,12 +207,14 @@
                 <h1 class="page-title">Đại Bách Khoa</h1>
                 <p class="page-desc">Hệ thống tri thức</p>
                 
-                <!-- Thanh tìm kiếm Bách Khoa -->
+                <!-- Thanh tìm kiếm Bách Khoa (Đã thêm nút X xóa nhanh) -->
                 <div class="search-container" role="search">
                     <label for="encyclopedia-search" class="sr-only">Tìm trong Bách Khoa</label>
-                    <div class="search-wrap">
+                    <div class="search-wrap search-box-wrapper">
                         <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="search" id="encyclopedia-search" placeholder="Tìm tên Quyển hoặc nội dung..." aria-describedby="encyclopedia-count">
+                        <input type="search" id="encyclopedia-search" placeholder="Tìm tên Quyển, tác giả hoặc nội dung..." aria-describedby="encyclopedia-count" oninput="handleSearchInput()">
+                        <!-- Nút X xóa nhanh (Mặc định ẩn, hiện khi có chữ) -->
+                        <button type="button" id="clear-search-btn" class="clear-btn" onclick="clearSearch()" title="Xóa tìm kiếm">&times;</button>
                     </div>
                     <p id="encyclopedia-count" class="sr-only" role="status" aria-live="polite"></p>
                 </div>
