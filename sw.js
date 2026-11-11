@@ -13,7 +13,7 @@
 // I. CẤU HÌNH PHIÊN BẢN VÀ BỘ NHỚ ĐỆM
 // =====================================================================
 // Tên bộ nhớ đệm. Bạn không cần đổi tên này mỗi khi sửa code nữa.
-const CACHE_NAME = 'vandao-auto-cache-v3'; // Đã tăng lên v3 để ép trình duyệt xóa cache lỗi cũ
+const CACHE_NAME = 'vandao-auto-cache-v4'; // Đã tăng lên v3 để ép trình duyệt xóa cache lỗi cũ
 const RUNTIME_NAME = 'vandao-auto-runtime-v3';
 
 // Danh sách các file TĨNH cần tải về máy ngay từ lần đầu tiên (App Shell).
