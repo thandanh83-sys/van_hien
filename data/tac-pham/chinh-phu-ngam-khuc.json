@@ -1,6 +1,14 @@
 {
-    "id": "chinh-phu-ngam-khuc",
-    "title": "Chinh Phụ Ngâm Khúc",
-    "author": "Đặng Trần Côn - Đoàn Thị Điểm",
-    "content": "<h4>I. Thông tin chung</h4><ul><li><b>Thể loại:</b> Ngâm khúc (Song thất lục bát).</li><li><b>Chủ đề:</b> Nỗi sầu muộn, cô đơn của người vợ có chồng đi chinh chiến.</li></ul><h4>II. Tóm tắt</h4><p>Tác phẩm diễn tả tâm trạng nhớ nhung, oán trách của người chinh phụ khi chồng phải ra trận. Nỗi buồn trải dài theo năm tháng, không gian.</p><h4>III. Giá trị</h4><p><b>Nội dung:</b> Phản ánh số phận bi kịch của người phụ nữ trong chiến tranh. Tố cáo chiến tranh phi nghĩa.</p><p><b>Nghệ thuật:</b> Nghệ thuật tả cảnh ngụ tình đặc sắc, ngôn từ giàu cảm xúc.</p>"
+  "id": "chinh-phu-ngam-khuc",
+  "title": "Chinh Phụ Ngâm",
+  "author": "Đặng Trần Côn",
+  "desc": "Khúc ngâm bi tráng về nỗi sầu của người vợ có chồng đi chinh chiến.",
+  "loai_hinh": "thi-ca",
+  "the_loai": [
+    "Ngâm khúc",
+    "Song thất lục bát"
+  ],
+  "era": "TK 18",
+  "script": "Chữ Hán / Chữ Nôm",
+  "content": "<h4>I. Hoàn cảnh sáng tác</h4><p>Nguyên tác bằng chữ Hán của Đặng Trần Côn, ra đời vào khoảng nửa đầu thế kỷ 18, khi chiến tranh phong kiến Trịnh - Nguyễn diễn ra liên miên. Bản diễn Nôm nổi tiếng do Đoàn Thị Điểm dịch ra chữ Nôm bằng thể thơ song thất lục bát.</p><h4>II. Giá trị nội dung</h4><p><b>1. Tiếng nói oán trách chiến tranh:</b> Tác phẩm phản ánh nỗi sầu muộn, cô đơn và khát khao hạnh phúc lứa đôi của người chinh phụ khi chồng phải ra trận. Qua đó, tác phẩm gián tiếp tố cáo chiến tranh phi nghĩa đã chia lìa hạnh phúc gia đình.</p><p><b>2. Khát vọng hòa bình:</b> Thể hiện niềm khao khát được sống trong cảnh thái bình, vợ chồng sum họp. Tác phẩm đề cao tình cảm gia đình và giá trị của hạnh phúc cá nhân.</p><h4>III. Giá trị nghệ thuật</h4><p>Thể thơ song thất lục bát được vận dụng cực kỳ điêu luyện. Ngôn ngữ thơ giàu hình ảnh, giàu nhạc điệu và đậm chất trữ tình. Nghệ thuật tả cảnh ngụ tình tinh tế, diễn tả tâm trạng cô đơn, buồn bã của người chinh phụ vô cùng sâu sắc.</p>"
 }
