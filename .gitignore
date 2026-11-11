@@ -1,0 +1,128 @@
+# =====================================================================
+# VĂN ĐẠO - TỆP CẤU HÌNH GITIGNORE (BẢO VỆ SỰ THANH TỊNH CỦA REPO)
+# Mục đích: Ngăn chặn các tệp rác, tệp tạm, và thông tin nhạy cảm
+# bị đẩy lên GitHub, giữ cho kho lưu trữ luôn nhẹ và sạch sẽ.
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# 1. HỆ ĐIỀU HÀNH (OS FILES)
+# Bỏ qua các file hệ thống tự sinh ra khi duyệt thư mục
+# ---------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+# ---------------------------------------------------------------------
+# 2. TRÌNH SOẠN THẢO & IDE (EDITOR / IDE FILES)
+# Bỏ qua cấu hình cá nhân của các Editor, tránh xung đột khi làm việc nhóm
+# ---------------------------------------------------------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
+*.swp
+*.swo
+
+# ---------------------------------------------------------------------
+# 3. MÔI TRƯỜNG PYTHON (PYTHON ARTIFACTS)
+# Cực kỳ quan trọng vì bạn dùng Python tools (split, auto-fill) để xử lý dữ liệu
+# ---------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Môi trường ảo (Virtual Environments)
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.local
+
+# ---------------------------------------------------------------------
+# 4. MÔI TRƯỜNG NODE.JS (NODE ARTIFACTS)
+# Dự phòng cho việc chạy local server (npx http-server) hoặc build tools sau này
+# ---------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# ---------------------------------------------------------------------
+# 5. NHẬT KÝ & TỆP TẠM (LOGS & TEMP FILES)
+# Bỏ qua các file log sinh ra trong quá trình chạy thử hoặc debug
+# ---------------------------------------------------------------------
+*.log
+logs/
+*.tmp
+*.temp
+.cache/
+.temp/
+.tmp/
+
+# ---------------------------------------------------------------------
+# 6. BẢO MẬT & CẤU HÌNH NHẠY CẢM (SECURITY & SECRETS)
+# Tuyệt đối không đẩy API Key, Token hay mật khẩu lên Git
+# ---------------------------------------------------------------------
+*.pem
+*.key
+.env
+.env.*
+secrets.json
+config.secret.json
+
+# ---------------------------------------------------------------------
+# 7. DỰ ÁN VĂN ĐẠO - LƯU Ý ĐẶC BIỆT
+# ---------------------------------------------------------------------
+# KHÔNG IGNORE các file sau (để hệ thống hoạt động):
+# - data/data-tac-pham-master.json (Cần push lên để kích hoạt bot auto-split)
+# - data/data-tac-gia-master.json (Cần push lên để kích hoạt bot auto-split)
+# - .nojekyll (Bắt buộc cho GitHub Pages)
+# - sw.js, manifest.json, index.html, script.js, style.css (Lõi ứng dụng)
+# - data/tac-pham/*.json, data/tac-gia/*.json (Dữ liệu tri thức)
+
+# Bỏ qua các file test/dữ liệu nháp do bạn tự tạo trong lúc phát triển
+test_*.json
+scratch.js
+playground.html
+data/test/
+data/backup_*/
+*.bak
+
+# Bỏ qua file nén / artifact nếu có ai đó vô tình tạo ra
+*.zip
+*.tar.gz
+*.rar
+*.7z
