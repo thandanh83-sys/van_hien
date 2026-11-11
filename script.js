@@ -1,17 +1,16 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.2 - ELEGANT MINIMALIST)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.4 - ELEGANT MODAL)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
-   - Cân bằng động (Dynamic Balance): Giữ DOM (để bay tức thì) nhưng xóa 
-     Content (để nhẹ RAM). LRU Cache giới hạn 5MB. AbortController hủy fetch 
-     khi đóng accordion.
-   - Bất đồng bộ (Asynchronous): ViewManager dùng Promise để chống Race Condition.
-     Cuộn trang chỉ xảy ra sau khi View và Content thực sự sẵn sàng.
-   - Sự thanh tao (Elegance): Loại bỏ Deep Link URL, loại bỏ tính năng thừa.
-     Chỉ giữ lại những gì tinh túy nhất. Tooltip CSS thay vì mặc định.
-   - Mạng lưới tri thức (Knowledge Network): Event Delegation đọc data-group
-     trực tiếp từ DOM, kết nối Tác giả - Tác phẩm - Lý thuyết chặt chẽ.
+   - Tương tác Tĩnh tại (Zen-like Interaction): Sử dụng Fate Modal cho 
+     tính năng "Một bài thơ cho hôm nay", mang lại cảm giác như mở một 
+     cuốn sách trước mắt.
+   - Tiết kiệm Data (Data Economy): Phân trang dạng mũi tên cho Bách Khoa 
+     và Văn Hiến, giảm tải DOM và băng thông.
+   - Điều hướng Chính xác (Precision Routing): gotoEncyclopediaById chỉ 
+     cuộn tới và phát sáng, không tự động mở để tránh lỗi Layout Shift.
+   - Sự thanh tao: Loại bỏ URL Hash, giữ mọi thứ tinh gọn và nhã nhặn.
    ===================================================================== */
 
 /* =====================================================================
@@ -31,20 +30,23 @@ const ICONS = {
 };
 
 const ITEMS_PER_PAGE = 20;
+const ENCY_ITEMS_PER_PAGE = 20;
 
 /* --- State toàn cục --- */
 let THEORY_DATA = [];
 let AUTHOR_DATA = [];
 let WORKS_DATA  = [];
 let QUOTES_DATA = [];
+let COMMENTARY_DATA = {};
 
-// GLOBAL_INDEX: Tra cứu O(1) cho ID -> { type: '...', data: {...} }
 const GLOBAL_INDEX = new Map();
 
 let currentMainCat = 'all';
 let currentGenre = 'all';
 let currentPage = 1;
 let currentEncyGroup = 'triet-thuyet';
+let currentEncyPage = 1;
+let currentEncyDataForRender = [];
 let currentQuoteIndex = -1;
 let quoteIntervalId = null;
 
@@ -225,6 +227,17 @@ function highlightText(text, tokens) {
     }).join('');
 }
 
+// Định dạng nội dung: Chia mục I, II, III... và bỏ in đậm tên bài thơ
+function formatContent(html) {
+    if (!html) return '';
+    // Tách các mục La Mã (I., II., III., IV.) thành đoạn mới
+    let formatted = html.replace(/([IVX]+\.)\s/g, '<br><br><strong>$1</strong> ');
+    // Xóa in đậm ở tên bài thơ (thường nằm ở đầu)
+    formatted = formatted.replace(/^<strong>(.*?)<\/strong>/, '$1');
+    formatted = formatted.replace(/^<b>(.*?)<\/b>/, '$1');
+    return formatted;
+}
+
 function handleSearchInput() {
     const input = document.getElementById('encyclopedia-search');
     const clearBtn = document.getElementById('clear-search-btn');
@@ -345,32 +358,10 @@ function renderHeritage() {
         </div>`;
     }).join('');
 
-    renderPagination(totalPages);
+    renderPagination(totalPages, 'pagination-container', 'heritage');
     const countEl = document.getElementById('heritage-count');
     if (countEl) countEl.textContent = `Tìm thấy ${data.length} tác phẩm`;
     PerformanceEngine.observe('.heritage-card');
-}
-
-function renderPagination(totalPages) {
-    const pagContainer = document.getElementById('pagination-container');
-    if (!pagContainer) return;
-    if (totalPages <= 1) { pagContainer.innerHTML = ''; return; }
-    let html = `<button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Trước</button>`;
-    for (let i = 1; i <= totalPages; i++) {
-        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-            html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
-        } else if (i === currentPage - 2 || i === currentPage + 2) {
-            html += `<span class="page-ellipsis">...</span>`;
-        }
-    }
-    html += `<button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Sau</button>`;
-    pagContainer.innerHTML = html;
-}
-
-function changePage(page) {
-    currentPage = page;
-    renderHeritage();
-    document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 /* =====================================================================
@@ -473,7 +464,8 @@ async function ensureAccordionContent(details) {
         if (!details.isConnected || !details.open || details.dataset.id !== itemId) return;
 
         if (data.content && data.content.trim()) {
-            contentDiv.innerHTML = data.content;
+            // Sử dụng formatContent để chia mục I, II, III...
+            contentDiv.innerHTML = formatContent(data.content);
             highlightSymbolsInContent(contentDiv);           // [2.5]
             appendRelatedSection(contentDiv, item, group);    // [1.4]
         } else {
@@ -628,6 +620,7 @@ function sortEncyData(data, group) {
 
 function filterEncyclopediaGroup(group, btnElement) {
     currentEncyGroup = group;
+    currentEncyPage = 1; // Reset trang khi đổi nhóm
     document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => {
         b.classList.remove('active'); b.setAttribute('aria-pressed', 'false');
     });
@@ -642,14 +635,24 @@ function renderEncyclopediaList(dataToRender, isSearchMode = false, tokens = [])
     const container = document.getElementById('encyclopedia-container');
     if (!container) return;
 
+    currentEncyDataForRender = dataToRender;
+
     if (!dataToRender?.length) {
         container.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);">Không có dữ liệu.</p>`;
+        document.getElementById('encyclopedia-pagination').innerHTML = '';
         container.dataset.renderedGroup = currentEncyGroup;
         bindEncyclopediaEvents();
         return;
     }
 
-    container.innerHTML = dataToRender.map(item => {
+    // Phân trang cho Bách Khoa
+    const totalPages = Math.ceil(dataToRender.length / ENCY_ITEMS_PER_PAGE);
+    if (currentEncyPage > totalPages) currentEncyPage = totalPages;
+    if (currentEncyPage < 1) currentEncyPage = 1;
+
+    const pagedData = dataToRender.slice((currentEncyPage - 1) * ENCY_ITEMS_PER_PAGE, currentEncyPage * ENCY_ITEMS_PER_PAGE);
+
+    container.innerHTML = pagedData.map(item => {
         const group = item._group || currentEncyGroup;
         let title = item.title;
         let badge = '';
@@ -668,6 +671,7 @@ function renderEncyclopediaList(dataToRender, isSearchMode = false, tokens = [])
         </div>`;
     }).join('');
 
+    renderPagination(totalPages, 'encyclopedia-pagination', 'encyclopedia');
     container.dataset.renderedGroup = currentEncyGroup;
     container.dataset.rendered = 'true';
     bindEncyclopediaEvents();
@@ -691,6 +695,7 @@ function searchEncyclopedia() {
 
     if (!kw) {
         if (filterBar) filterBar.style.display = 'flex';
+        currentEncyPage = 1;
         renderEncyclopedia();
         return;
     }
@@ -702,6 +707,7 @@ function searchEncyclopedia() {
     if (!results.length) {
         document.getElementById('encyclopedia-container').innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy kết quả nào cho "${escapeHTML(kw)}".</p>`;
         document.getElementById('encyclopedia-count').textContent = `Tìm thấy 0 mục`;
+        document.getElementById('encyclopedia-pagination').innerHTML = '';
         return;
     }
     const tokens = removeAccents(kw.toLowerCase()).split(/\s+/).filter(t => t.length);
@@ -709,16 +715,16 @@ function searchEncyclopedia() {
         const idx = GLOBAL_INDEX.get(r.id);
         return { ...idx.data, _group: idx.type };
     });
+    currentEncyPage = 1;
     renderEncyclopediaList(data, true, tokens);
     document.getElementById('encyclopedia-count').textContent = `Tìm thấy ${results.length} mục`;
 }
 
-// HÀM ĐIỀU HƯỚNG (SCROLL TỚI VÀ PHÁT SÁNG - KHÔNG TỰ MỞ ACCORDION)
+// HÀM ĐIỀU HƯỚNG (CHỈ CUỘN TỚI VÀ PHÁT SÁNG - KHÔNG TỰ MỞ)
 async function gotoEncyclopediaById(id) {
     if (!id) return;
     let searchId = String(id).toLowerCase().trim();
     
-    // Xử lý nếu là số La Mã (VD: V -> quyen-v)
     if (/^[ivxlcdm]+$/i.test(searchId)) {
         const vol = `quyen-${searchId}`;
         if (THEORY_DATA.some(i => i.id === vol)) searchId = vol;
@@ -735,14 +741,27 @@ async function gotoEncyclopediaById(id) {
     const filterBar = document.getElementById('encyclopedia-filter-bar');
     if (filterBar) filterBar.style.display = 'flex';
 
-    // 2. Chuyển sang tab Bách Khoa (Chờ switchView hoàn tất)
+    // 2. Chuyển sang tab Bách Khoa
     const switched = await switchView('encyclopedia');
     if (!switched) return;
 
-    // 3. Chuyển sang đúng nhóm (Tác giả, Tác phẩm, Lý thuyết) và Render
+    // 3. Chuyển sang đúng nhóm và Render
     currentEncyGroup = targetGroup;
-    const container = document.getElementById('encyclopedia-container');
-    if (container.dataset.renderedGroup !== targetGroup) renderEncyclopedia();
+    currentEncyPage = 1; // Reset về trang 1 khi nhảy tới
+    
+    // Tìm vị trí của item trong danh sách để tính toán trang
+    let data = [];
+    if (currentEncyGroup === 'triet-thuyet') data = THEORY_DATA;
+    else if (currentEncyGroup === 'ky-tai') data = AUTHOR_DATA;
+    else if (currentEncyGroup === 'tinh-hoa') data = WORKS_DATA;
+    
+    sortEncyData(data, currentEncyGroup);
+    const itemIndex = data.findIndex(i => i.id === searchId);
+    if (itemIndex !== -1) {
+        currentEncyPage = Math.floor(itemIndex / ENCY_ITEMS_PER_PAGE) + 1;
+    }
+
+    renderEncyclopedia();
 
     // Cập nhật trạng thái nút bấm Filter
     document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => {
@@ -758,10 +777,9 @@ async function gotoEncyclopediaById(id) {
     if (!targetEl) return;
 
     // 5. Cuộn tới phần tử (Lúc này Accordion vẫn ĐANG ĐÓNG - Chiều cao nhỏ, căn giữa cực chuẩn)
-    // Chờ 1 nhịp requestAnimationFrame để DOM kịp vẽ xong vị trí mới
     await new Promise(requestAnimationFrame);
     
-    targetEl.classList.add('is-visible'); // Đảm bảo không bị mờ (opacity)
+    targetEl.classList.add('is-visible'); 
     targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     
     // 6. Phát sáng phần tử
@@ -982,16 +1000,18 @@ function initDewdrops() {
 
 async function loadAllData() {
     try {
-        const [rT, rA, rW, rQ] = await Promise.all([
+        const [rT, rA, rW, rQ, rC] = await Promise.all([
             fetch('./data/data-ly-thuyet.json'),
             fetch('./data/data-tac-gia.json'),
             fetch('./data/data-tac-pham.json'),
-            fetch('./data/data-danh-ngon.json')
+            fetch('./data/data-danh-ngon.json'),
+            fetch('./data/data-loi-binh.json') // File lời bình Tam giáo
         ]);
         THEORY_DATA = await rT.json();
         AUTHOR_DATA = await rA.json();
         WORKS_DATA  = await rW.json();
         QUOTES_DATA = await rQ.json();
+        COMMENTARY_DATA = await rC.json();
 
         const addToIndex = (arr, type) => arr.forEach(item => {
             if (GLOBAL_INDEX.has(item.id)) {
@@ -1095,25 +1115,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- NGHI THỨC CHUYỂN GIAO: SPLASH -> SILK -> TRANG CHỦ ---
     if (splash) {
         const silkOverlay = document.getElementById('silkTransition');
-        
-        // 1. Kích hoạt dải lụa chuyển cảnh quét vào
         if (silkOverlay) {
             silkOverlay.classList.remove('entering', 'leaving', 'active');
             void silkOverlay.offsetWidth;
             silkOverlay.classList.add('active', 'entering');
         }
-
-        // 2. Bắt đầu cho Splash tan
         splash.classList.add('leaving'); 
-
-        // 3. Đợi lụa che kín (500ms), xóa Splash và cho Trang chủ hiện lên mờ ảo
         setTimeout(() => {
             splash.remove();
             const homeView = document.getElementById('view-home');
             if (homeView) homeView.classList.add('elegant-fade-in');
         }, 500); 
-        
-        // 4. Lụa rút đi (sau 1000ms)
         setTimeout(() => {
             if (silkOverlay) silkOverlay.classList.remove('active', 'entering');
         }, 1000);
@@ -1129,6 +1141,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('search-input')?.addEventListener('input', debounce(() => { currentPage = 1; renderHeritage(); }, 300));
     document.getElementById('encyclopedia-search')?.addEventListener('input', debounce(searchEncyclopedia, 300));
 
+    // Xử lý PWA Shortcuts (Query Param)
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab');
+    if (initialTab && ['heritage', 'encyclopedia', 'analyze'].includes(initialTab)) {
+        setTimeout(() => switchView(initialTab), 500); 
+        history.replaceState(null, '', window.location.pathname);
+    }
+
     bindEncyclopediaEvents();
 });
 
@@ -1142,7 +1162,7 @@ document.addEventListener('click', e => {
 });
 
 /* =====================================================================
-   MODULE 10: TÍNH NĂNG MỞ RỘNG (1.4, 1.5, 2.3, 2.5)
+   MODULE 10: TÍNH NĂNG MỞ RỘNG (1.4, 1.5, 2.5)
    ===================================================================== */
 
 /* ---------- 2.5: SYMBOL HIGHLIGHTER ---------- */
@@ -1159,7 +1179,6 @@ function highlightSymbolsInContent(container) {
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
         acceptNode(node) {
             const tag = node.parentElement?.tagName;
-            // Bỏ qua các thẻ nhấn mạnh để không phá vỡ cấu trúc câu
             if (['A', 'CODE', 'SCRIPT', 'STYLE', 'MARK', 'EM', 'STRONG', 'I', 'B'].includes(tag)) return NodeFilter.FILTER_REJECT;
             return NodeFilter.FILTER_ACCEPT;
         }
@@ -1181,7 +1200,6 @@ function highlightSymbolsInContent(container) {
             const span = document.createElement('span');
             span.className = 'symbol-mark';
             span.dataset.symbol = kw;
-            // Dùng data-tooltip thay vì title để CSS hiển thị mượt mà hơn
             span.dataset.tooltip = info?.mean || '';
             span.textContent = kw;
             frag.appendChild(span);
@@ -1217,7 +1235,7 @@ function findRelatedWorks(current, limit = 5) {
 
 function appendRelatedSection(container, item, group) {
     if (group !== 'tinh-hoa') return;
-    if (container.querySelector('.related-section')) return; // Chống chèn trùng
+    if (container.querySelector('.related-section')) return; 
     const related = findRelatedWorks(item, 5);
     if (!related.length) return;
 
@@ -1236,197 +1254,168 @@ function appendRelatedSection(container, item, group) {
     container.appendChild(section);
 }
 
-/* ---------- 1.5: RANDOM POEM (LITERARY DIVINATION) ---------- */
-// Bộ máy sinh Lời Bình Tự Động (Generative Commentary)
-const generateFateCommentary = (work) => {
-    const loai = work.loai_hinh || '';
-    const theLoai = (work.the_loai && work.the_loai.length > 0) ? work.the_loai[0] : 'Văn học';
-    const author = work.author || 'Tác giả';
-    
-    // Các mẫu câu dựa trên Thể loại
-    const introTemplates = {
-        'thi-ca': [
-            `Nhịp điệu của "${theLoai}" trong tác phẩm này như một làn gió nhẹ, thổi qua tâm trí bạn ngày hôm nay.`,
-            `Vần thơ của ${author} không chỉ để đọc, mà để cảm nhận. Hôm nay, hãy để cảm xúc dẫn lối.`
-        ],
-        'van-xuoi': [
-            `Mỗi trang viết của ${author} là một tấm gương phản chiếu những góc khuất của con người.`,
-            `Như một ${theLoai} đầy chiêm nghiệm, tác phẩm này nhắc bạn rằng mọi câu chuyện đều có nguyên do của nó.`
-        ],
-        'default': [
-            `Một tác phẩm thuộc dòng ${theLoai} đã tìm đến bạn. Đây là một sự kết nối tình cờ nhưng đầy ẩn ý.`,
-            `Từ kho tàng của ${author}, một tiếng nói đang muốn được bạn lắng nghe.`
-        ]
-    };
-
-    // Các mẫu câu dựa trên Thời đại
-    const eraTemplates = {
-        'co-dien': `Mang hơi thở của thời đại xưa cũ, tác phẩm nhắn nhủ bạn hãy tìm về những giá trị cội nguồn và sự tĩnh tại.`,
-        'hien-dai': `Được sinh ra trong dòng chảy hiện đại, tác phẩm khơi gợi những suy tư về nhịp sống hối hả và sự cô đơn giữa đám đông.`,
-        'khang-chien': `Viết giữa những năm tháng lửa đạn, tác phẩm là minh chứng cho ý chí kiên cường và vẻ đẹp của tình người.`
-    };
-
-    // Các lời khuyên chung (Chọn ngẫu nhiên)
-    const advices = [
-        "Hôm nay, hãy học cách lắng nghe nhiều hơn và phán xét ít đi.",
-        "Đừng ngại đối diện với những cảm xúc phức tạp. Chúng làm nên con người bạn.",
-        "Một chút tĩnh lặng sẽ giúp bạn nhìn rõ hơn những gì đang diễn ra xung quanh.",
-        "Hãy trân trọng những điều nhỏ bé, vì vẻ đẹp thường ẩn giấu ở những nơi bình dị nhất.",
-        "Nếu cảm thấy mệt mỏi, hãy nghỉ ngơi. Văn chương cần thời gian để thấm, và tâm hồn cũng vậy.",
-        "Đôi khi, việc buông bỏ một điều gì đó lại là cách tốt nhất để mở ra một chân trời mới."
-    ];
-
-    const introArr = introTemplates[loai] || introTemplates['default'];
-    let intro = introArr[Math.floor(Math.random() * introArr.length)];
-    
-    let era = work.era ? work.era.toLowerCase() : '';
-    let eraText = "";
-    if (era.includes('19') || era.includes('18') || era.includes('tk')) eraText = eraTemplates['co-dien'];
-    else if (era.includes('197') || era.includes('198')) eraText = eraTemplates['hien-dai'];
-    else if (era.includes('194') || era.includes('195')) eraText = eraTemplates['khang-chien'];
-    else eraText = eraTemplates['hien-dai'];
-
-    const advice = advices[Math.floor(Math.random() * advices.length)];
-
-    return `${intro} ${eraText} <br><br> <strong>Lời khuyên:</strong> ${advice}`;
+/* ---------- 1.5: RANDOM POEM (LITERARY DIVINATION MODAL) ---------- */
+const FORTUNE_CONFIG = {
+    'dai-cat':   { name: 'Đại Cát',   color: '#d4c4a8' }, 
+    'trung-cat': { name: 'Trung Cát', color: '#8bb8a8' }, 
+    'tieu-cat':  { name: 'Tiểu Cát',  color: '#739e8f' }, 
+    'binh-hoa':  { name: 'Bình Hòa',  color: '#6a7c76' }, 
+    'tieu-hung': { name: 'Tiểu Hung', color: '#a36b6b' }, 
+    'dai-hung':  { name: 'Đại Hung',  color: '#804a4a' }  
 };
 
-async function randomPoem() {
-    // 1. Lọc ra danh sách các tác phẩm "có duyên" (có mô tả hoặc có nội dung)
-    const validWorks = WORKS_DATA.filter(w => w.desc && w.desc.trim() !== '');
+const FORTUNE_ADVICE = {
+    'dai-cat':   "Nên: Hành động táo bạo, nắm bắt cơ hội. Tránh: Sự chủ quan.",
+    'trung-cat': "Nên: Tiếp tục nỗ lực, mở rộng kết nối. Tránh: Nóng vội.",
+    'tieu-cat':  "Nên: Tận hưởng điều nhỏ bé, hoàn thiện việc cũ. Tránh: Kỳ vọng quá cao.",
+    'binh-hoa':  "Nên: Nghỉ ngơi, đọc sách, chiêm nghiệm. Tránh: Đưa ra quyết định lớn.",
+    'tieu-hung': "Nên: Cẩn trọng lời ăn tiếng nói, giữ bình tĩnh. Tránh: Tranh cãi.",
+    'dai-hung':  "Nên: Ẩn mình, bảo toàn sức khỏe, thiền định. Tránh: Đối đầu trực diện."
+};
+
+function determineFortuneByContext(work) {
+    const author = (work.author || '').toLowerCase();
+    const era = (work.era || '').toLowerCase();
+    const genres = (work.the_loai || []).join(' ').toLowerCase();
+
+    if (author.includes('hồ xuân hương') || author.includes('nguyễn du') || author.includes('nam cao') || author.includes('vũ trọng phụng')) {
+        return Math.random() > 0.4 ? 'tieu-hung' : 'binh-hoa';
+    }
+    if (author.includes('hồ chí minh') || author.includes('tố hữu') || author.includes('phạm tiến duật') || author.includes('chính hữu')) {
+        return Math.random() > 0.5 ? 'dai-cat' : 'trung-cat';
+    }
+    if (author.includes('nguyễn trãi') || author.includes('lý thường kiệt') || author.includes('trần quốc tuấn')) {
+        return 'dai-cat';
+    }
+    if (era.includes('kháng chiến') || era.includes('194') || era.includes('195') || era.includes('196') || era.includes('197')) {
+        return Math.random() > 0.4 ? 'tieu-hung' : 'trung-cat';
+    }
+    if (era.includes('tk 19') || era.includes('tk 18') || era.includes('trung đại') || era.includes('nhà')) {
+        return Math.random() > 0.5 ? 'binh-hoa' : 'trung-cat';
+    }
+    if (genres.includes('truyện ngắn') || genres.includes('tiểu thuyết')) {
+        return Math.random() > 0.5 ? 'tieu-cat' : 'tieu-hung';
+    }
+    if (genres.includes('thơ đường luật') || genres.includes('thơ mới') || genres.includes('lục bát')) {
+        return Math.random() > 0.5 ? 'binh-hoa' : 'trung-cat';
+    }
+
+    const random = Math.random();
+    if (random < 0.1) return 'dai-cat';
+    if (random < 0.3) return 'trung-cat';
+    if (random < 0.6) return 'tieu-cat';
+    if (random < 0.8) return 'binh-hoa';
+    if (random < 0.95) return 'tieu-hung';
+    return 'dai-hung';
+}
+
+function generateBridgeText(work, fortuneKey) {
+    const title = work.title;
+    const author = work.author;
+    const genre = (work.the_loai && work.the_loai[0]) || 'Văn học';
     
+    const bridges = {
+        'dai-cat': `Vận khí hanh thông, và dường như duyên lành đưa bạn đến với "${title}" của ${author} để tiếp thêm sức mạnh cho những dự định lớn lao.`,
+        'trung-cat': `Mọi sự đang trên đà thuận lợi. Tác phẩm ${genre} "${title}" của ${author} như một lời cổ vũ nhẹ nhàng cho những nỗ lực của bạn.`,
+        'tieu-cat': `Một chút may mắn ghé thăm. Hãy để "${title}" của ${author} mang đến cho bạn những phút giây thư thái và niềm vui từ những điều giản dị.`,
+        'binh-hoa': `Ngày hôm nay như mặt hồ phẳng lặng. Thật hợp để bạn tĩnh tâm cùng "${title}" của ${author} và chiêm nghiệm về những giá trị bình dị.`,
+        'tieu-hung': `Dẫu có chút gợn sóng trên mặt hồ tâm trí, nhưng "${title}" của ${author} sẽ là một người bạn đồng hành, nhắc bạn giữ sự điềm tĩnh và nhìn sâu vào bên trong.`,
+        'dai-hung': `Trang đời hôm nay có chút bão giông. Hãy để "${title}" của ${author} làm chỗ dựa tinh thần, nhắc bạn rằng nghịch cảnh chính là chất liệu làm nên bản lĩnh.`
+    };
+    return bridges[fortuneKey] || "";
+}
+
+async function randomPoem() {
+    const validWorks = WORKS_DATA.filter(w => w.desc && w.desc.trim() !== '');
     if (!validWorks || validWorks.length === 0) {
         alert("Kho tàng văn học đang được tải, vui lòng thử lại sau giây lát.");
         return;
     }
 
-    const btn = document.getElementById('draw-literary-fate-btn');
-    const card = document.getElementById('literary-fate-card');
-    if (!btn || !card) return;
+    const overlay = document.getElementById('fate-modal-overlay');
+    const loadingEl = document.getElementById('fate-loading');
+    const resultEl = document.getElementById('fate-result');
     
-    // Hiệu ứng "gieo" (nhấp nháy nút)
-    const originalText = btn.innerHTML;
-    btn.innerHTML = "Đang tìm một bài thơ...";
-    btn.style.pointerEvents = 'none';
+    overlay.style.display = 'flex';
+    void overlay.offsetWidth; 
+    overlay.classList.add('show');
+    
+    loadingEl.style.display = 'block';
+    resultEl.style.display = 'none';
 
     setTimeout(async () => {
-        // 2. Random ID từ danh sách đã lọc (validWorks)
         const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
+        const fortuneKey = determineFortuneByContext(randomWork);
+        const fortuneInfo = FORTUNE_CONFIG[fortuneKey];
         
-        // 3. Lấy đoạn trích (Mặc định lấy desc)
         let excerpt = randomWork.desc;
-        
-        // Thử tải ngầm content để lấy một đoạn trích dẫn thật (nếu có)
         try {
             const res = await fetch(`./data/tac-pham/${encodeURIComponent(randomWork.id)}.json`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.content) {
                     const plainText = data.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-                    // Chỉ lấy nếu nội dung thật sự dài (tránh lấy thông báo "Đang hiệu đính")
                     if (plainText.length > 50 && !plainText.includes('đang được Văn Đạo hiệu đính')) {
                         excerpt = `"${plainText.substring(0, 150)}..."`;
                     }
                 }
             }
-        } catch (e) {
-            console.log("Không thể tải trích đoạn, dùng mô tả.");
-        }
+        } catch (e) { console.log("Lỗi tải excerpt"); }
 
-        // 4. Render dữ liệu lên thẻ
-        document.getElementById('fate-badge').textContent = (randomWork.the_loai && randomWork.the_loai[0]) || "Tác phẩm";
+        let pool = COMMENTARY_DATA[fortuneKey] || ["Một ngày bình yên để đọc và ngẫm."];
+        const commentaryText = pool[Math.floor(Math.random() * pool.length)];
+        const adviceText = FORTUNE_ADVICE[fortuneKey] || "";
+
+        const badge = document.getElementById('fate-badge');
+        badge.textContent = `Vận Khí: ${fortuneInfo.name}`;
+        badge.style.color = fortuneInfo.color;
+        badge.style.borderColor = fortuneInfo.color;
+        
         document.getElementById('fate-title').textContent = randomWork.title;
         document.getElementById('fate-author').textContent = `— ${randomWork.author} —`;
         document.getElementById('fate-excerpt').innerHTML = excerpt;
-        document.getElementById('fate-commentary').innerHTML = generateFateCommentary(randomWork);
+        
+        const bridgeText = generateBridgeText(randomWork, fortuneKey);
+        
+        document.getElementById('fate-commentary').innerHTML = `
+            <p style="margin-bottom: 15px; color: var(--accent-text); font-style: italic;">${bridgeText}</p>
+            <p style="margin-bottom: 15px;">${commentaryText}</p>
+            <div style="background: rgba(0,0,0,0.03); padding: 10px 15px; border-radius: 8px; border-left: 2px solid ${fortuneInfo.color}; font-size: 0.95rem;">
+                <strong>Lời khuyên:</strong> ${adviceText}
+            </div>
+        `;
 
-        // 5. Gắn sự kiện cho nút "Đọc toàn bộ"
         document.getElementById('fate-goto-btn').onclick = () => {
+            overlay.classList.remove('show');
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
             gotoEncyclopediaById(randomWork.id);
             setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 500);
         };
 
-        // 6. Hiệu ứng hiển thị
-        btn.style.display = 'none';
-        card.style.display = 'block';
-        
-        // Reset lại nút cho lần sau
-        btn.innerHTML = originalText;
-        btn.style.pointerEvents = 'auto';
+        loadingEl.style.display = 'none';
+        resultEl.style.display = 'block';
 
-    }, 800); // Đợi 0.8s tạo cảm giác "thiền định"
+    }, 1200);
 }
 
-/* ---------- 2.3: TIMELINE ---------- */
-const TIMELINE_ERA_ORDER = [
-    'Thế kỷ X','Thế kỷ XI','Thế kỷ XII','Thế kỷ XIII','Thế kỷ XIV','Thế kỷ XV',
-    'Thế kỷ XVI','Thế kỷ XVII','Thế kỷ XVIII','Thế kỷ XIX','Thế kỷ XX','Thế kỷ XXI',
-    'Mọi thời đại','Khác'
-];
-
-function normalizeEra(raw) {
-    if (!raw) return 'Khác';
-    const s = String(raw).trim();
-    // Fix lỗi nhận diện "TK 19" và "Thế kỷ XIX"
-    const roman = s.match(/(?:thế kỷ|TK)\s*([IVXLCDM]+)/i);
-    if (roman) return `Thế kỷ ${roman[1].toUpperCase()}`;
-    const digit = s.match(/(?:thế kỷ|TK)\s*(\d+)/i);
-    if (digit) return `Thế kỷ ${digit[1]}`;
-    if (/mọi thời/i.test(s)) return 'Mọi thời đại';
-    return 'Khác';
-}
-
-function buildTimeline() {
-    const byEra = new Map();
-    WORKS_DATA.forEach(w => {
-        const era = normalizeEra(w.era);
-        if (!byEra.has(era)) byEra.set(era, new Map());
-        const a = w.author || 'Khuyết danh';
-        const m = byEra.get(era);
-        if (!m.has(a)) m.set(a, []);
-        m.get(a).push(w);
-    });
-
-    const sortedEras = Array.from(byEra.keys()).sort((a, b) => {
-        const ia = TIMELINE_ERA_ORDER.indexOf(a), ib = TIMELINE_ERA_ORDER.indexOf(b);
-        if (ia !== -1 && ib !== -1) return ia - ib;
-        if (ia !== -1) return -1;
-        if (ib !== -1) return 1;
-        return a.localeCompare(b);
-    });
-
-    const container = document.createElement('div');
-    container.className = 'timeline-container';
-    container.innerHTML = sortedEras.map(era => {
-        const authors = byEra.get(era);
-        const rows = Array.from(authors.entries()).sort((a, b) => b[1].length - a[1].length)
-            .map(([author, works]) => `<div class="timeline-author" data-author-first="${escapeHTML(works[0].id)}"><span class="timeline-author-name">${escapeHTML(author)}</span><span class="timeline-author-works">${works.length} tác phẩm</span></div>`)
-            .join('');
-        return `<div class="timeline-era"><div class="timeline-era-label">${escapeHTML(era)}</div><div class="timeline-era-content">${rows}</div></div>`;
-    }).join('');
-
-    container.addEventListener('click', e => {
-        const row = e.target.closest('[data-author-first]');
-        if (row) gotoEncyclopediaById(row.dataset.authorFirst);
-    });
-    return container;
-}
-
+// Sự kiện đóng Modal (Gắn 1 lần duy nhất)
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
 
-    document.getElementById('timeline-toggle')?.addEventListener('click', () => {
-        const grid = document.getElementById('heritage-grid');
-        const wrap = document.getElementById('timeline-wrap');
-        if (wrap && !wrap.hidden) { wrap.hidden = true; grid.hidden = false; return; }
-        if (!wrap) {
-            const div = document.createElement('div');
-            div.id = 'timeline-wrap';
-            div.appendChild(buildTimeline());
-            grid.parentNode.insertBefore(div, grid);
-            grid.hidden = true;
-        } else { wrap.hidden = false; grid.hidden = true; }
-    });
+    const overlay = document.getElementById('fate-modal-overlay');
+    const closeBtn = document.getElementById('fate-close-btn');
+    
+    if (closeBtn && overlay) {
+        const closeModal = () => {
+            overlay.classList.remove('show');
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+        };
+        
+        closeBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeModal();
+        });
+    }
 });
 
 /* ---------- EXPORT ---------- */
@@ -1440,3 +1429,35 @@ window.executePipeline = executePipeline;
 window.randomPoem = randomPoem;
 window.handleSearchInput = handleSearchInput;
 window.clearSearch = clearSearch;
+
+/* ---------- HÀM PHÂN TRANG DÙNG CHUNG (Đã hỗ trợ mũi tên) ---------- */
+function renderPagination(totalPages, containerId = 'pagination-container', pageType = 'heritage') {
+    const pagContainer = document.getElementById(containerId);
+    if (!pagContainer) return;
+    if (totalPages <= 1) { pagContainer.innerHTML = ''; return; }
+
+    const page = pageType === 'encyclopedia' ? currentEncyPage : currentPage;
+
+    let html = `<button class="page-btn arrow-btn" onclick="changePage(${page - 1}, '${containerId}', '${pageType}')" ${page === 1 ? 'disabled' : ''}>←</button>`;
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
+            html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="changePage(${i}, '${containerId}', '${pageType}')">${i}</button>`;
+        } else if (i === page - 2 || i === page + 2) {
+            html += `<span class="page-ellipsis">...</span>`;
+        }
+    }
+    html += `<button class="page-btn arrow-btn" onclick="changePage(${page + 1}, '${containerId}', '${pageType}')" ${page === totalPages ? 'disabled' : ''}>→</button>`;
+    pagContainer.innerHTML = html;
+}
+
+function changePage(page, containerId = 'pagination-container', pageType = 'heritage') {
+    if (pageType === 'encyclopedia') {
+        currentEncyPage = page;
+        renderEncyclopediaList(currentEncyDataForRender, false);
+        document.getElementById('encyclopedia-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        currentPage = page;
+        renderHeritage();
+        document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
