@@ -5,12 +5,14 @@
 VĂN ĐẠO ENGINE - TOOL: SPLIT WORKS (TÁCH, NỐI & TỰ ĐỘNG DỌN DẸP)
 =====================================================================
 Tác giả: Văn Đạo
-Mô tả: 
-- Đọc file gốc 'data/data-tac-pham-master.json'.
-- Tách từng tác phẩm thành các file JSON nhỏ lẻ trong thư mục 'data/tac-pham/'.
-- Tự động trích xuất thông tin để nối vào file danh mục 'data-tac-pham-index.json'.
-- TỰ ĐỘNG SẮP XẾP danh mục theo thứ tự Bảng chữ cái (A-Z).
-- TỰ ĐỘNG XÓA file Master sau khi xử lý thành công để dọn dẹp dự án.
+Mô tả chi tiết:
+1. Đọc file gốc 'data/data-tac-pham-master.json'.
+2. Kiểm tra tính hợp lệ của dữ liệu (phải là mảng JSON).
+3. Tách từng tác phẩm thành các file JSON nhỏ lẻ trong thư mục 'data/tac-pham/'.
+4. Tự động trích xuất thông tin (bỏ phần content) để nối vào file danh mục 'data/data-tac-pham.json'.
+5. TỰ ĐỘNG SẮP XẾP danh mục theo thứ tự Bảng chữ cái (A-Z).
+6. TỰ ĐỘNG XÓA file Master sau khi xử lý thành công để dọn dẹp dự án.
+7. Tự động bỏ qua êm đẹp nếu không có file Master (tránh báo lỗi đỏ trên GitHub).
 =====================================================================
 """
 
@@ -22,9 +24,9 @@ from pathlib import Path
 # =====================================================================
 # I. CẤU HÌNH MÀU SẮC TERMINAL (Để log trên GitHub Actions dễ đọc)
 # =====================================================================
-C_TEAL = "\033[96m"   # Màu xanh ngọc
-C_GOLD = "\033[93m"   # Màu vàng
-C_GRAY = "\033[90m"   # Màu xám
+C_TEAL = "\033[96m"   # Màu xanh ngọc (Tiêu đề)
+C_GOLD = "\033[93m"   # Màu vàng (Các bước)
+C_GRAY = "\033[90m"   # Màu xám (Ghi chú)
 C_GREEN = "\033[92m"  # Màu xanh lá (Thành công)
 C_RED = "\033[91m"    # Màu đỏ (Lỗi/Cảnh báo)
 C_RESET = "\033[0m"   # Reset màu
@@ -34,13 +36,14 @@ C_RESET = "\033[0m"   # Reset màu
 # =====================================================================
 # Lấy thư mục chứa file script hiện tại, sau đó lùi ra 1 cấp (thư mục gốc dự án)
 ROOT_DIR = Path(__file__).parent.parent
+# Di chuyển con trỏ làm việc về thư mục gốc để các đường dẫn tương đối hoạt động chuẩn
 os.chdir(ROOT_DIR)
 
 # Định nghĩa các đường dẫn file và thư mục
 MASTER_FILE = ROOT_DIR / "data" / "data-tac-pham-master.json"
 DATA_DIR = ROOT_DIR / "data"
 WORKS_DIR = DATA_DIR / "tac-pham"
-INDEX_FILE = DATA_DIR / "data-tac-pham-index.json"
+INDEX_FILE = DATA_DIR / "data-tac-pham.json" # File danh mục chính
 
 def print_header():
     """In tiêu đề khởi chạy ra màn hình Terminal"""
@@ -73,6 +76,7 @@ def process_works():
         print(f"{C_RED}[LỖI]{C_RESET} File JSON Master bị lỗi cú pháp: {e}")
         sys.exit(1) # Dừng bot nếu file JSON hỏng
         
+    # Kiểm tra xem dữ liệu có phải là một mảng (list) không
     if not isinstance(new_works, list):
         print(f"{C_RED}[LỖI]{C_RESET} Cấu trúc file Master không hợp lệ (Phải là một mảng []).")
         sys.exit(1)
@@ -99,6 +103,7 @@ def process_works():
         index_data = []
 
     # Chuyển Index cũ thành Dictionary (dạng {id: data}) để dễ tìm và cập nhật
+    # Việc này giúp chống trùng lặp: Nếu ID đã có, nó sẽ ghi đè thay vì thêm mới
     index_dict = {item['id']: item for item in index_data if 'id' in item}
     
     new_count = 0
@@ -119,6 +124,7 @@ def process_works():
             # 2.1. Tạo/Ghi đè file chi tiết (VD: data/tac-pham/truyen-kieu.json)
             detail_file_path = WORKS_DIR / f"{work_id}.json"
             with open(detail_file_path, 'w', encoding='utf-8') as f:
+                # ensure_ascii=False để giữ nguyên tiếng Việt, indent=2 để dễ đọc
                 json.dump(item, f, ensure_ascii=False, indent=2)
                 
             # 2.2. Tạo dữ liệu cho Index: Loại bỏ trường 'content' để nhẹ file
@@ -135,7 +141,8 @@ def process_works():
     # -----------------------------------------------------------------
     # BƯỚC 3: SẮP XẾP VÀ GHI LẠI FILE INDEX
     # -----------------------------------------------------------------
-    # Tự động sắp xếp danh sách theo Tiêu đề (title) từ A-Z
+    # CẢI TIẾN TỐI ƯU: Sắp xếp danh sách theo Tiêu đề (title) từ A-Z
+    # Dùng .get('title', '') để tránh lỗi nếu một tác phẩm bị thiếu trường title
     final_index = sorted(
         list(index_dict.values()), 
         key=lambda x: x.get('title', '').lower()
