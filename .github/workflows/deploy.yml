@@ -1,10 +1,18 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TRIỂN KHAI LÊN GITHUB PAGES
+# Tên file: deploy.yml
 # Tác giả: Văn Đạo
-# Mô tả: 
-# - Kích hoạt mỗi khi có code mới được push lên nhánh 'main'.
-# - Tự động đóng gói toàn bộ dự án và xuất bản lên GitHub Pages.
-# - Đảm bảo an toàn, không bị hủy ngang nếu có nhiều lần push liên tiếp.
+# 
+# TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+# - Khai thiên lập địa: Nhận lấy toàn bộ tinh hoa (code, data, assets) 
+#   và hiển thị nó ra thế giới qua GitHub Pages.
+# - Bất khả xâm phạm: Quá trình deploy không bao giờ được phép hủy ngang 
+#   (cancel-in-progress: false). Nếu đang deploy mà có code mới, bot sẽ 
+#   đợi lần cũ xong mới chạy lần mới. Tránh tình trạng web bị "nửa nọ nửa kia".
+# - Bảo mật tuyệt đối: Chỉ cấp các quyền tối thiểu cần thiết để đọc code 
+#   và ghi lên Pages.
+# - Toàn vẹn: Đóng gói toàn bộ thư mục gốc (dấu chấm `.`) để không bỏ sót 
+#   bất kỳ file JSON hay asset nào.
 # =====================================================================
 
 name: Deploy to GitHub Pages
@@ -14,15 +22,19 @@ name: Deploy to GitHub Pages
 # =====================================================================
 on:
   push:
-    branches: [ "main" ] # Chỉ chạy khi push lên nhánh main
-  workflow_dispatch:     # Thêm nút bấm chạy thủ công trên tab Actions của GitHub
+    branches: [ "main" ] # Chỉ chạy khi push lên nhánh main (nhánh chính)
+  
+  # Nút bấm thủ công trên tab Actions để bạn có thể deploy lại bất cứ lúc nào
+  # mà không cần tạo commit mới.
+  workflow_dispatch:
 
 # =====================================================================
 # 2. QUYỀN HẠN CỦA BOT (PERMISSIONS)
 # =====================================================================
-# Bot cần các quyền này để có thể tương tác với GitHub Pages một cách bảo mật
+# Bot cần các quyền này để có thể tương tác với GitHub Pages một cách bảo mật.
+# Tuân thủ nguyên tắc "Đặc quyền tối thiểu" (Principle of Least Privilege).
 permissions:
-  contents: read  # Được phép đọc code trong kho
+  contents: read  # Chỉ được phép đọc code trong kho, không được sửa
   pages: write    # Được phép ghi (deploy) lên GitHub Pages
   id-token: write # Cấp quyền tạo token xác thực (OpenID Connect) để GitHub Pages tin tưởng
 
@@ -31,9 +43,13 @@ permissions:
 # =====================================================================
 concurrency:
   group: "pages" # Gom tất cả các lần deploy vào chung một nhóm tên là "pages"
-  cancel-in-progress: false # TUYỆT ĐỐI KHÔNG hủy ngang. Nếu đang deploy mà bạn push thêm code, 
-                            # bot sẽ đợi lần deploy cũ chạy xong mới chạy lần mới. 
-                            # Việc này tránh việc web bị lỗi "nửa nọ nửa kia" hoặc trắng trang.
+  
+  # TUYỆT ĐỐI KHÔNG HỦY NGANG (cancel-in-progress: false).
+  # Nếu đang deploy mà bạn push thêm code, bot sẽ đợi lần deploy cũ chạy xong 
+  # mới chạy lần mới. 
+  # Việc hủy ngang giữa chừng có thể khiến web bị lỗi "nửa nọ nửa kia" 
+  # hoặc trắng trang (White Screen of Death) do thiếu file.
+  cancel-in-progress: false 
 
 # =====================================================================
 # 4. CÁC BƯỚC THỰC THI (JOBS)
@@ -48,19 +64,25 @@ jobs:
     # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
     
+    # KỶ LUẬT THỜI GIAN: Tự động hủy nếu chạy quá 10 phút.
+    # Deploy thường chỉ mất 1-2 phút. Nếu quá 10 phút, chắc chắn GitHub Pages 
+    # đang gặp sự cố, không cần phải chờ đợi vô ích.
+    timeout-minutes: 10
+    
     steps:
       # -----------------------------------------------------------------
       # BƯỚC 1: LẤY CODE TỪ KHO VỀ MÁY ẢO
       # -----------------------------------------------------------------
-      - name: Checkout
+      - name: 1. Checkout (Lấy code về)
         uses: actions/checkout@v4
-        # Hành động này sẽ clone toàn bộ code trên nhánh main vào máy ảo để chuẩn bị đóng gói.
-        # Chúng ta không cần fetch-depth: 0 ở đây vì chỉ cần code mới nhất để deploy.
+        # Chỉ cần lấy code mới nhất (fetch-depth: 1 mặc định) để deploy.
+        # Không cần lấy toàn bộ lịch sử commit như các bot tách dữ liệu,
+        # giúp quá trình checkout diễn ra nhanh hơn.
 
       # -----------------------------------------------------------------
       # BƯỚC 2: CẤU HÌNH GITHUB PAGES
       # -----------------------------------------------------------------
-      - name: Setup Pages
+      - name: 2. Setup Pages (Cấu hình Pages)
         uses: actions/configure-pages@v5
         # Tự động lấy các thông số cấu hình (như tên miền, base path) của GitHub Pages 
         # để chuẩn bị cho quá trình build. Đảm bảo các file CSS/JS trỏ đúng đường dẫn.
@@ -68,19 +90,21 @@ jobs:
       # -----------------------------------------------------------------
       # BƯỚC 3: ĐÓNG GÓI DỰ ÁN (UPLOAD ARTIFACT)
       # -----------------------------------------------------------------
-      - name: Upload artifact
+      - name: 3. Upload artifact (Đóng gói dự án)
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.' 
-          # Dấu chấm ('.') có nghĩa là lấy TOÀN BỘ file ở thư mục gốc (index.html, style.css, thư mục data/, assets/...)
+          # Dấu chấm ('.') có nghĩa là lấy TOÀN BỘ file ở thư mục gốc 
+          # (index.html, style.css, script.js, sw.js, thư mục data/, assets/...)
           # và nén chúng lại thành một gói (artifact) để chuyển sang bước deploy.
           # Kể cả thư mục data/tac-pham/ có hàng ngàn file JSON cũng sẽ được nén gọn gàng.
 
       # -----------------------------------------------------------------
       # BƯỚC 4: XUẤT BẢN LÊN WEB (DEPLOY)
       # -----------------------------------------------------------------
-      - name: Deploy to GitHub Pages
+      - name: 4. Deploy to GitHub Pages (Xuất bản lên web)
         id: deployment # Đặt ID để lấy được cái URL ở phần 'environment' phía trên
         uses: actions/deploy-pages@v4
         # Bung gói artifact vừa nén ở Bước 3 ra và đưa lên máy chủ GitHub Pages.
         # Sau bước này, người dùng có thể truy cập web với tốc độ cao nhất.
+        # Service Worker (sw.js) sẽ tự động cập nhật dữ liệu mới cho người dùng.
