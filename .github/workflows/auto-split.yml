@@ -5,28 +5,36 @@
 # - Kích hoạt khi có thay đổi ở file 'data/data-tac-pham-master.json'.
 # - Tự động chạy script Python để tách file và nối vào Index.
 # - Tự động Commit và Push kết quả với cơ chế thử lại (Retry) nếu mạng lag.
+# - Sử dụng [skip ci] để chống vòng lặp vô tận (Infinite Loop).
 # =====================================================================
 
 name: Auto Split Works Data
 
+# =====================================================================
 # 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
+# =====================================================================
 on:
   push:
     paths:
-      # Chỉ chạy khi file Master này bị thay đổi
+      # Chỉ chạy khi file Master này bị thay đổi (được push lên)
       - 'data/data-tac-pham-master.json'
-  # Thêm nút bấm chạy thủ công trên giao diện GitHub nếu bạn cần test
+  # Thêm nút bấm chạy thủ công trên giao diện GitHub (Tab Actions) nếu bạn cần test
   workflow_dispatch:
 
+# =====================================================================
 # 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# =====================================================================
 # Đảm bảo bot này không chạy cùng lúc với bot deploy hay các bot khác
 concurrency:
   group: git-push-group
-  cancel-in-progress: false
+  cancel-in-progress: false # Nếu bot đang chạy thì phải đợi nó chạy xong, không được hủy ngang
 
+# =====================================================================
 # 3. CÁC BƯỚC THỰC THI (JOBS)
+# =====================================================================
 jobs:
   split:
+    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
     
     # Cấp quyền cho bot được phép ghi (Commit) dữ liệu vào kho code
@@ -34,29 +42,42 @@ jobs:
       contents: write
       
     steps:
-      # BƯỚC 1: Lấy code mới nhất từ kho về máy ảo
+      # -----------------------------------------------------------------
+      # BƯỚC 1: LẤY CODE MỚI NHẤT TỪ KHO VỀ MÁY ẢO
+      # -----------------------------------------------------------------
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Lấy toàn bộ lịch sử để tránh lỗi commit
+          # Lấy toàn bộ lịch sử commit (tránh lỗi shallow clone khi bot commit)
+          fetch-depth: 0 
 
-      # BƯỚC 2: Cài đặt môi trường Python
+      # -----------------------------------------------------------------
+      # BƯỚC 2: CÀI ĐẶT MÔI TRƯỜNG PYTHON
+      # -----------------------------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
+          # Sử dụng Python 3.10 (ổn định và tương thích tốt nhất)
           python-version: '3.10'
 
-      # BƯỚC 3: Chạy file Python để tách dữ liệu
+      # -----------------------------------------------------------------
+      # BƯỚC 3: CHẠY FILE PYTHON ĐỂ TÁCH DỮ LIỆU
+      # -----------------------------------------------------------------
       - name: Run split script
+        # Gọi file script nằm trong thư mục tools/
         run: python tools/split_works.py
 
-      # BƯỚC 4: Tự động Commit và Push (Có cơ chế tự động thử lại)
+      # -----------------------------------------------------------------
+      # BƯỚC 4: TỰ ĐỘNG COMMIT VÀ PUSH (CÓ CƠ CHẾ TỰ ĐỘNG THỬ LẠI)
+      # -----------------------------------------------------------------
       - name: Commit and Push with Retry
         uses: EndBug/add-and-commit@v11
         with:
           # Tin nhắn commit. [skip ci] giúp tránh việc bot tự kích hoạt lại chính nó (vòng lặp vô tận)
           message: "chore: auto-split data [skip ci]"
-          # Tự động thử lại 5 lần nếu việc Push bị lỗi do xung đột mạng
+          
+          # Tự động thử lại 5 lần nếu việc Push bị lỗi do xung đột mạng hoặc Git lag
           push_attempts: 5 
-          # Tác giả của commit tự động
+          
+          # Tác giả của commit tự động (hiển thị là GitHub Actions)
           default_author: github_actions
