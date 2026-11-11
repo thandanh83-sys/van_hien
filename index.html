@@ -315,6 +315,7 @@
         if (!('serviceWorker' in navigator)) return;
 
         let refreshing = false;
+        // Khi SW mới chiếm quyền, reload trang 1 lần duy nhất để nhận code mới
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (refreshing) return;
             refreshing = true;
@@ -330,6 +331,7 @@
             banner.style.pointerEvents = 'auto';
 
             document.getElementById('update-btn').onclick = () => {
+                // Gửi tín hiệu cho SW bỏ qua trạng thái chờ
                 worker.postMessage({ type: 'SKIP_WAITING' });
                 banner.style.transform = 'translateX(-50%) translateY(120px)';
                 banner.style.opacity = '0';
@@ -343,12 +345,13 @@
         }
 
         window.addEventListener('load', () => {
-            // Thêm timestamp để ép trình duyệt tải sw.js mới nhất, 
-            // tránh bị GitHub Pages cache lại file SW cũ.
-            const swUrl = `./sw.js?v=${new Date().getTime()}`;
+            // SỬA LỖI: Bỏ hoàn toàn timestamp (?v=...) để ngăn vòng lặp reload vô tận.
+            // Trình duyệt sẽ tự động kiểm tra bản mới của sw.js mỗi 24h, 
+            // hoặc khi gọi hàm reg.update() bên dưới.
+            const swUrl = './sw.js';
 
             navigator.serviceWorker.register(swUrl).then(reg => {
-                // Kiểm tra cập nhật ngay sau khi đăng ký
+                // Kiểm tra cập nhật ngay sau khi đăng ký thành công
                 reg.update().catch(() => {});
 
                 // Poll mỗi 5 phút khi tab hiển thị
@@ -361,7 +364,7 @@
                 // Nếu đã có bản waiting sẵn (lần tải trước)
                 if (reg.waiting) showUpdateBanner(reg.waiting);
 
-                // Phát hiện bản mới đang cài
+                // Phát hiện bản mới đang được cài đặt
                 reg.addEventListener('updatefound', () => {
                     const installing = reg.installing;
                     if (!installing) return;
