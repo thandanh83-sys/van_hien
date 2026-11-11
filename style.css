@@ -5,8 +5,8 @@
    - Giao diện Bạch Ngọc duy nhất (Chống lag, tối ưu GPU).
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
    - Trải nghiệm khởi tạo (Boot Experience) chậm rãi, tĩnh tại.
-   - Sửa lỗi giãn chữ, mất màu nút Active, chống Header che khi cuộn.
-   - Tinh chỉnh Hạt sương (6 hạt) và Hiệu ứng Highlight (Glow).
+   - Đã tối ưu LCP (Xóa opacity:0 ở container).
+   - Đã tích hợp nút X tìm kiếm và Highlight màu Thanh Ngọc.
    ===================================================================== */
 
 /* =====================================================================
@@ -279,15 +279,13 @@ body {
 }
 
 /* =====================================================================
-   9. NAVBAR & LAYOUT CHÍNH (HIỆU ỨNG MỜ DẦN KHI MỞ APP)
+   9. NAVBAR & LAYOUT CHÍNH (ĐÃ FIX LCP - KHÔNG DÙNG OPACITY:0)
    ===================================================================== */
 .container { 
     position: relative; z-index: 10; max-width: 1100px; 
     margin: 0 auto; padding: calc(90px + env(safe-area-inset-top)) 20px 40px 20px; 
-    opacity: 0; 
-    transition: opacity 1.5s ease-in-out; 
+    /* Đã xóa opacity: 0 để trình duyệt vẽ ngay lập tức, giúp LCP cực thấp */
 }
-.container.app-ready { opacity: 1; }
 
 .navbar {
     display: flex; justify-content: space-between; align-items: center;
@@ -416,13 +414,14 @@ body {
 .clear-btn:hover { background-color: rgba(139, 184, 168, 0.2); color: var(--text-main); }
 .clear-btn.show { display: flex; }
 
-/* Highlight từ khóa: Màu Vàng Kem Hoài Cổ */
+/* Highlight từ khóa: Màu Thanh Ngọc (Jade) */
 mark {
-    background-color: #f3e5ab; 
-    color: #2c221e;
-    padding: 0 3px;
-    border-radius: 3px;
-    font-weight: 600;
+    background-color: #d4ece6; /* Màu xanh ngọc rất nhạt, trong veo */
+    color: var(--text-main); /* Giữ màu chữ xanh trầm */
+    padding: 0 4px;
+    border-radius: 4px;
+    font-weight: 700;
+    box-shadow: 0 0 4px rgba(139, 184, 168, 0.3); /* Ánh sáng ngọc nhẹ bao quanh */
 }
 
 /* =====================================================================
