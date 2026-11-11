@@ -1,40 +1,83 @@
+# =====================================================================
+# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TRIỂN KHAI LÊN GITHUB PAGES
+# Tác giả: Văn Đạo
+# Mô tả: 
+# - Kích hoạt mỗi khi có code mới được push lên nhánh 'main'.
+# - Tự động đóng gói toàn bộ dự án và xuất bản lên GitHub Pages.
+# - Đảm bảo an toàn, không bị hủy ngang nếu có nhiều lần push liên tiếp.
+# =====================================================================
+
 name: Deploy to GitHub Pages
 
+# =====================================================================
+# 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
+# =====================================================================
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ "main" ] # Chỉ chạy khi push lên nhánh main
+  workflow_dispatch:     # Thêm nút bấm chạy thủ công trên tab Actions của GitHub
 
+# =====================================================================
+# 2. QUYỀN HẠN CỦA BOT (PERMISSIONS)
+# =====================================================================
+# Bot cần các quyền này để có thể tương tác với GitHub Pages một cách bảo mật
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read  # Được phép đọc code trong kho
+  pages: write    # Được phép ghi (deploy) lên GitHub Pages
+  id-token: write # Cấp quyền tạo token xác thực (OpenID Connect) để GitHub Pages tin tưởng
 
-# CẤU HÌNH CHỐNG HỦY: 
-# group: "pages" đảm bảo chỉ 1 tiến trình deploy chạy tại 1 thời điểm.
-# cancel-in-progress: false yêu cầu GitHub phải ĐỢI deploy cũ chạy xong mới chạy cái mới (không hủy).
+# =====================================================================
+# 3. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# =====================================================================
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "pages" # Gom tất cả các lần deploy vào chung một nhóm tên là "pages"
+  cancel-in-progress: false # TUYỆT ĐỐI KHÔNG hủy ngang. Nếu đang deploy mà bạn push thêm code, 
+                            # bot sẽ đợi lần deploy cũ chạy xong mới chạy lần mới. 
+                            # Việc này tránh việc web bị lỗi "nửa nọ nửa kia".
 
+# =====================================================================
+# 4. CÁC BƯỚC THỰC THI (JOBS)
+# =====================================================================
 jobs:
   deploy:
+    # Khai báo môi trường là github-pages và lấy đường link URL sau khi deploy thành công
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+      
+    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
+    
     steps:
+      # -----------------------------------------------------------------
+      # BƯỚC 1: LẤY CODE TỪ KHO VỀ MÁY ẢO
+      # -----------------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
-      
+        # Hành động này sẽ clone toàn bộ code trên nhánh main vào máy ảo để chuẩn bị đóng gói
+
+      # -----------------------------------------------------------------
+      # BƯỚC 2: CẤU HÌNH GITHUB PAGES
+      # -----------------------------------------------------------------
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      
+        # Tự động lấy các thông số cấu hình (như tên miền, base path) của GitHub Pages 
+        # để chuẩn bị cho quá trình build
+
+      # -----------------------------------------------------------------
+      # BƯỚC 3: ĐÓNG GÓI DỰ ÁN (UPLOAD ARTIFACT)
+      # -----------------------------------------------------------------
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
-      
+          path: '.' 
+          # Dấu chấm ('.') có nghĩa là lấy TOÀN BỘ file ở thư mục gốc (index.html, style.css, thư mục data/, assets/...)
+          # và nén chúng lại thành một gói (artifact) để chuyển sang bước deploy
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: XUẤT BẢN LÊN WEB (DEPLOY)
+      # -----------------------------------------------------------------
       - name: Deploy to GitHub Pages
-        id: deployment
+        id: deployment # Đặt ID để lấy được cái URL ở phần 'environment' phía trên
         uses: actions/deploy-pages@v4
+        # Bung gói artifact vừa nén ở Bước 3 ra và đưa lên máy chủ GitHub Pages
