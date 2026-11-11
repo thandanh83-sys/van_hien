@@ -167,14 +167,54 @@
                 <!-- KHỐI DANH NGÔN NGẪU NHIÊN (JS đổ dữ liệu vào) -->
                 <div id="daily-quote-container" aria-live="polite"></div>
                 
-                <!-- NÚT BÓI THƠ (Tính năng 1.5) -->
-                <div style="text-align: center;">
-                    <button id="random-poem-btn" class="random-poem-btn" aria-label="Một bài thơ cho hôm nay">
+                <!-- KHỐI MỘT BÀI THƠ CHO HÔM NAY (LITERARY DIVINATION) -->
+                <div id="literary-divination-section" style="text-align: center; margin-top: 40px; position: relative; z-index: 10;">
+                    
+                    <!-- Nút gieo duyên -->
+                    <button id="draw-literary-fate-btn" class="random-poem-btn" aria-label="Một bài thơ cho hôm nay">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/>
                         </svg>
                         Một bài thơ cho hôm nay
                     </button>
+
+                    <!-- Khung hiển thị kết quả (Ẩn mặc định) -->
+                    <div id="literary-fate-card" style="
+                        display: none; 
+                        max-width: 600px; 
+                        margin: 30px auto; 
+                        background: var(--card-bg); 
+                        border: 1px solid var(--border-color); 
+                        border-radius: var(--radius-card); 
+                        padding: 30px; 
+                        box-shadow: var(--shadow);
+                        text-align: left;
+                        animation: elegantFadeIn 0.8s var(--ease-silk) forwards;
+                    ">
+                        <!-- Tiêu đề tác phẩm -->
+                        <div style="text-align: center; margin-bottom: 20px;">
+                            <span id="fate-badge" style="font-size: 0.75rem; padding: 3px 10px; border: 1px solid var(--accent); color: var(--accent-text); border-radius: 20px; text-transform: uppercase; font-weight: 700;"></span>
+                            <h2 id="fate-title" style="font-family: var(--font-calligraphy); font-size: 2.5rem; color: var(--text-main); margin: 15px 0 5px;"></h2>
+                            <p id="fate-author" style="font-family: var(--font-body); font-size: 1rem; color: var(--text-muted); font-style: italic; text-transform: uppercase; letter-spacing: 1px;"></p>
+                        </div>
+                        
+                        <!-- Đoạn trích -->
+                        <div style="background: rgba(139, 184, 168, 0.05); padding: 20px; border-left: 3px solid var(--accent-gold); border-radius: 4px; margin-bottom: 20px;">
+                            <p id="fate-excerpt" style="font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.8; font-style: italic;"></p>
+                        </div>
+
+                        <!-- Lời bình -->
+                        <div>
+                            <p style="font-family: var(--font-body); font-size: 0.85rem; color: var(--accent-text); font-weight: 700; text-transform: uppercase; margin-bottom: 8px;">Lời Bình</p>
+                            <p id="fate-commentary" style="font-family: var(--font-body); font-size: 1.05rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px;"></p>
+                        </div>
+                        
+                        <!-- Nút điều hướng -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                            <button id="fate-goto-btn" style="background: transparent; border: none; color: var(--accent); font-family: var(--font-body); font-weight: 700; cursor: pointer; padding: 0;">Đọc toàn bộ tác phẩm &rarr;</button>
+                            <button id="fate-close-btn" style="background: transparent; border: none; color: var(--text-muted); font-family: var(--font-body); font-size: 0.9rem; cursor: pointer; padding: 0;">Đóng</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -346,8 +386,6 @@
 
         window.addEventListener('load', () => {
             // SỬA LỖI: Bỏ hoàn toàn timestamp (?v=...) để ngăn vòng lặp reload vô tận.
-            // Trình duyệt sẽ tự động kiểm tra bản mới của sw.js mỗi 24h, 
-            // hoặc khi gọi hàm reg.update() bên dưới.
             const swUrl = './sw.js';
 
             navigator.serviceWorker.register(swUrl).then(reg => {
