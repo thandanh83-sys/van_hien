@@ -1,42 +1,117 @@
+# =====================================================================
+# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG ĐIỀN NỘI DUNG THIẾU
+# Tên file: auto-fill.yml
+# Tác giả: Văn Đạo
+# 
+# TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+# - Thức tỉnh có chủ đích: Bot này KHÔNG tự động chạy khi có code mới. 
+#   Nó chỉ chạy khi con người chủ động bấm nút (workflow_dispatch). 
+#   Lý do: Tránh việc bot tự ý ghi đè lên những nội dung thật đang viết dở.
+# - Kỷ luật: Xếp hàng chung với các bot khác (concurrency) để không 
+#   dẫm đạp lên dữ liệu.
+# - Trung thực: Kiểm tra cú pháp và sự thay đổi trước khi commit, 
+#   không bao giờ tạo ra "commit rác".
+# - Thanh tịnh: Chỉ điền vào những nơi trống rỗng, tôn trọng nội dung thật.
+# =====================================================================
+
 name: Auto Fill Missing Content
 
+# =====================================================================
+# 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
+# =====================================================================
 on:
-  # CHỈ KÍCH HOẠT BẰNG TAY (Bấm nút trên GitHub), không tự chạy khi push code
+  # CHỈ KÍCH HOẠT BẰNG TAY (Bấm nút trên giao diện GitHub - Tab Actions).
+  # Tuyệt đối không dùng `push` ở đây. Nếu tự động chạy, bot có thể 
+  # ghi đè nội dung thật của bạn bằng khung "Đang hiệu đính".
   workflow_dispatch:
 
+# =====================================================================
+# 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# =====================================================================
+# Đảm bảo bot này không chạy cùng lúc với bot Tác Phẩm, Tác Giả hay Deploy.
+# Mọi thứ phải xếp hàng chạy tuần tự để tránh lỗi Git Push.
 concurrency:
   group: git-push-group
-  cancel-in-progress: false
+  # Nếu bot đang chạy thì phải đợi nó chạy xong, không được hủy ngang.
+  cancel-in-progress: false 
 
+# =====================================================================
+# 3. CÁC BƯỚC THỰC THI (JOBS)
+# =====================================================================
 jobs:
   fill-content:
+    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
+    
+    # KỶ LUẬT THỜI GIAN: Tự động hủy nếu chạy quá 15 phút.
+    # Bot này có thể phải quét qua hàng ngàn file JSON (tác phẩm + tác giả),
+    # nên thời gian chạy có thể lâu hơn 2 bot kia một chút. 
+    # Nếu quá 15 phút, chắc chắn có lỗi (ví dụ: file JSON hỏng, vòng lặp vô hạn).
+    timeout-minutes: 15
+    
+    # Cấp quyền cho bot được phép ghi (Commit) dữ liệu vào kho code
     permissions:
       contents: write
       
     steps:
-      - name: Checkout code
+      # -----------------------------------------------------------------
+      # BƯỚC 1: LẤY CODE MỚI NHẤT TỪ KHO VỀ MÁY ẢO
+      # -----------------------------------------------------------------
+      - name: 1. Checkout code (Lấy code về)
         uses: actions/checkout@v4
         with:
+          # Lấy toàn bộ lịch sử commit (tránh lỗi shallow clone khi bot commit).
           fetch-depth: 0 
 
-      - name: Set up Python
+      # -----------------------------------------------------------------
+      # BƯỚC 2: CÀI ĐẶT MÔI TRƯỜNG PYTHON
+      # -----------------------------------------------------------------
+      - name: 2. Set up Python (Cài đặt Python)
         uses: actions/setup-python@v5
         with:
+          # Sử dụng Python 3.10 (ổn định và tương thích tốt nhất)
           python-version: '3.10'
 
-      - name: Run auto fill script
+      # -----------------------------------------------------------------
+      # BƯỚC 3: KIỂM TRA CÚ PHÁP PYTHON (LÁ CHẮN AN TOÀN)
+      # -----------------------------------------------------------------
+      # Nếu script Python bị lỗi cú pháp (thiếu ngoặc, sai indent), bot sẽ 
+      # chạy được nửa chừng rồi crash. py_compile giúp phát hiện lỗi ngay.
+      - name: 3. Check Python syntax (Kiểm tra cú pháp)
+        run: python -m py_compile tools/auto_fill_content.py
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: CHẠY FILE PYTHON ĐỂ ĐIỀN NỘI DUNG
+      # -----------------------------------------------------------------
+      - name: 4. Run auto fill script (Chạy script điền nội dung)
+        # Gọi file script để quét và điền khung thông báo vào các file trống.
         run: python tools/auto_fill_content.py
 
-      - name: Check for changes
+      # -----------------------------------------------------------------
+      # BƯỚC 5: KIỂM TRA XEM CÓ SỰ THAY ĐỔI NÀO KHÔNG
+      # -----------------------------------------------------------------
+      - name: 5. Check for changes (Kiểm tra thay đổi)
         id: git-check
+        # Lệnh git diff --exit-code sẽ trả về mã lỗi nếu có thay đổi.
+        # Nếu có thay đổi (có file được điền), ta ghi "changes=true".
+        # Điều này tránh việc bot tạo ra commit rỗng nếu không có gì để điền.
         run: |
           git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
 
-      - name: Commit and Push
+      # -----------------------------------------------------------------
+      # BƯỚC 6: TỰ ĐỘNG COMMIT VÀ PUSH (CÓ CƠ CHẾ THỬ LẠI)
+      # -----------------------------------------------------------------
+      # Chỉ chạy bước này nếu Bước 5 báo có sự thay đổi (changes == 'true').
+      - name: 6. Commit and Push with Retry (Commit & Push)
         if: steps.git-check.outputs.changes == 'true'
         uses: EndBug/add-and-commit@v11
         with:
-          message: "chore: auto fill missing content for works"
+          # Tin nhắn commit. ĐÃ XÓA [skip ci] để bot deploy.yml có thể chạy 
+          # và đẩy các khung thông báo mới lên web.
+          message: "chore: auto fill missing content for works and authors"
+          
+          # Tự động thử lại 5 lần nếu việc Push bị lỗi do xung đột mạng hoặc Git lag.
           push_attempts: 5 
+          
+          # Tác giả của commit tự động (hiển thị là GitHub Actions)
           default_author: github_actions
