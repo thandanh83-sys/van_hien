@@ -1,12 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.5 - ELEGANT & TINH TẾ)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.6 - ELEGANT & TINH TẾ)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
    - Giao diện Bạch Ngọc: Tĩnh tại, thanh tao, không phô trương.
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
    - Hiệu năng: Tối ưu GPU, content-visibility (chống lag khi có ngàn thẻ).
-   - Tương tác: Fate Modal (Chống Layout Shift), Nút Hero (PC 1 hàng, Mobi song song).
+   - Tương tác: HTML5 Dialog (Tủ sách Offline), Fate Modal (Chống CLS).
    - Liền mạch: Sự chuyển cảnh mượt mà từ Splash -> Trang chủ -> Các View.
    ===================================================================== */
 
@@ -22,7 +22,7 @@
 }
 
 /* =====================================================================
-   2. HỆ THỐNG BIẾN TOÀN CỤC (BẠCH NGỌC PALETTE)
+   2. HỆ THỐNG BIẾN TOÀN CỤC (BẠCH NGỌC & NGỌC THẠCH Á ĐÔNG)
    ===================================================================== */
 :root {
     /* Bảng màu Bạch Ngọc */
@@ -40,6 +40,7 @@
     --card-bg: rgba(253, 251, 247, 0.95);
     --border-color: rgba(139, 184, 168, 0.2);
     --shadow: 0 10px 30px rgba(139, 184, 168, 0.12);
+    --shadow-heavy: 0 20px 50px rgba(0, 0, 0, 0.15);
     
     /* Font chữ */
     --font-calligraphy: 'Alex Brush', cursive;          
@@ -248,6 +249,23 @@ body {
 }
 
 .nav-links { display: flex; align-items: center; gap: 24px; }
+
+/* Khối bên phải Navbar: Cài đặt + Hamburger */
+.nav-actions {
+    display: flex; align-items: center; gap: 8px; margin-left: 15px;
+}
+
+.nav-icon-btn {
+    background: transparent; border: none; color: var(--text-muted);
+    cursor: pointer; padding: 6px; border-radius: 50%;
+    transition: all 0.3s; display: flex; align-items: center; justify-content: center;
+}
+.nav-icon-btn:hover { color: var(--accent); background: rgba(139, 184, 168, 0.1); }
+
+/* Trạng thái Icon Cài đặt khi tải Offline */
+.nav-icon-btn.state-downloading svg { animation: spin 2s linear infinite; color: var(--accent); }
+.nav-icon-btn.state-ready svg { color: #10b981; }
+
 .mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 4px; }
 .mobile-menu-btn svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
@@ -286,10 +304,8 @@ body {
 
 /* Nút mũi tên phân trang */
 .page-btn.arrow-btn {
-    font-size: 1.1rem;
-    font-weight: 400;
-    padding: 0 12px;
-    font-family: Arial, sans-serif !important; /* Font không chân cho mũi tên sắc nét */
+    font-size: 1.1rem; font-weight: 400; padding: 0 12px;
+    font-family: Arial, sans-serif !important; 
 }
 
 /* =====================================================================
@@ -572,9 +588,9 @@ mark {
 
 #fate-modal {
     background: var(--card-bg); border: 1px solid var(--border-color);
-    border-radius: var(--radius-card); box-shadow: 0 20px 50px rgba(139, 184, 168, 0.2);
+    border-radius: var(--radius-card); box-shadow: var(--shadow-heavy);
     width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;
-    padding: 30px; position: relative; min-height: 350px; /* QUAN TRỌNG: Giữ khung không bị giật */
+    padding: 30px; position: relative; min-height: 350px;
     transform: translateY(20px) scale(0.98); transition: transform 0.4s var(--ease-silk);
 }
 
@@ -612,14 +628,58 @@ mark {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* =====================================================================
-   18. UPDATE BANNER (Cập nhật Service Worker)
+   18. SETTINGS DIALOG (TỦ SÁCH OFFLINE)
+   ===================================================================== */
+dialog {
+    border: none;
+    padding: 0;
+    background: transparent;
+    outline: none;
+    max-width: 100vw;
+    max-height: 100vh;
+}
+
+dialog::backdrop {
+    background-color: rgba(253, 251, 247, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+dialog[open] {
+    animation: dialogFadeIn 0.3s ease forwards;
+}
+
+@keyframes dialogFadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Các nút tùy chọn tải Offline */
+.offline-option-btn {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    background: transparent; border: 1px solid var(--border-color); border-radius: 12px;
+    padding: 12px 16px; cursor: pointer; transition: all 0.2s;
+    text-align: left;
+}
+.offline-option-btn:hover { border-color: var(--accent); background: rgba(139, 184, 168, 0.05); }
+
+.offline-text-btn {
+    background: transparent; border: none; cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-body); font-size: 0.85rem; color: var(--accent-text);
+    padding: 5px 0; transition: opacity 0.2s; text-align: left;
+}
+.offline-text-btn:hover { opacity: 0.7; }
+
+/* =====================================================================
+   19. UPDATE BANNER (Cập nhật Service Worker)
    ===================================================================== */
 #update-banner { font-family: var(--font-body); }
 #update-btn:hover { background: #a3d0c0 !important; }
 #dismiss-btn:hover { background: rgba(139, 184, 168, 0.15); border-radius: 50%; }
 
 /* =====================================================================
-   19. RESPONSIVE (MOBILE)
+   20. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
     .dewdrop-container { display: none !important; }
@@ -638,7 +698,7 @@ mark {
         gap: 10px; 
     }
     .btn-hero-primary, .btn-hero-secondary {
-        flex: 1; /* Chia đều 50/50 */
+        flex: 1; 
         padding: 12px 5px; 
         font-size: 0.7rem; 
         letter-spacing: 0.5px;
@@ -681,7 +741,7 @@ mark {
 }
 
 /* =====================================================================
-   20. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
+   21. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
    ===================================================================== */
 button:active, .btn:active, .filter-btn:active, .page-btn:active, .nav-btn:active {
     transform: scale(0.95) !important;
