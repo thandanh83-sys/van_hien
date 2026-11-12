@@ -3,19 +3,20 @@
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
-   - Bộ nhớ đệm lai (Hybrid Cache): Không dùng 1 chiến lược cho tất cả.
-     + HTML: Network First (Ưu tiên bản mới để nhận cập nhật cấu trúc).
-     + JSON: Stale-While-Revalidate (Tốc độ là ưu tiên, cập nhật ngầm).
-     + CSS/JS/Ảnh/Font: Stale-While-Revalidate (Đảm bảo cập nhật code mới
-       dù không dùng ?v=, đồng thời vẫn siêu tốc độ).
-   - Sự tĩnh tại (No Auto-Skip): TUYỆT ĐỐI KHÔNG gọi skipWaiting() trong 
-     install. SW mới phải chờ người dùng xác nhận (qua banner), tránh 
-     việc tự động reload làm gián đoạn trải nghiệm đọc.
-   - An toàn dữ liệu: Chỉ cache các response hợp lệ (Status 200, Type basic).
+   1. Bộ nhớ đệm lai (Hybrid Cache):
+      - HTML: Network First (Luôn ưu tiên bản mới để nhận cập nhật cấu trúc).
+      - JSON: Stale-While-Revalidate (Tốc độ là ưu tiên, cập nhật ngầm).
+      - CSS/JS/Ảnh/Font: Stale-While-Revalidate (Đảm bảo cập nhật code mới
+        dù không dùng ?v=, đồng thời vẫn siêu tốc độ).
+   2. Sự tĩnh tại (No Auto-Skip): TUYỆT ĐỐI KHÔNG gọi skipWaiting() trong 
+      install. SW mới phải chờ người dùng xác nhận (qua banner), tránh 
+      việc tự động reload làm gián đoạn trải nghiệm đọc.
+   3. An toàn dữ liệu: Chỉ cache các response hợp lệ (Status 200, Type basic).
+      Nhân bản (clone) response an toàn để tránh lỗi "body already used".
    ===================================================================== */
 
 // =====================================================================
-// I. CẤU HÌNH PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
+// I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
 // Tăng số này lên mỗi khi bạn muốn ép buộc toàn bộ người dùng xóa cache cũ.
 const CACHE_VERSION = 'v4.5.0';
@@ -34,6 +35,8 @@ const PRECACHE_ASSETS = [
     './',
     './index.html',
     './manifest.json',
+    
+    // --- Hình ảnh Bạch Ngọc & Icons ---
     './assets/nen.jpg',
     './assets/khung.jpg',
     './assets/favicon.ico',
@@ -41,8 +44,11 @@ const PRECACHE_ASSETS = [
     './assets/apple-touch-icon.png',
     './assets/web-app-manifest-192x192.png',
     './assets/web-app-manifest-512x512.png',
+    
+    // --- Font chữ cục bộ ---
     './assets/fonts/AlexBrush-Regular.woff2',
-    // Cache sẵn các file Data tĩnh để App mở lên là có dữ liệu ngay
+    
+    // --- Toàn bộ 8 file Data JSON (Để App chạy Offline 100%) ---
     './data/data-ly-thuyet.json',
     './data/data-tac-gia.json',
     './data/data-tac-pham.json',
@@ -118,6 +124,7 @@ async function networkFirstWithTimeout(request, cacheName, timeoutMs) {
         const response = await fetch(request, { signal: controller.signal });
         clearTimeout(timer);
         if (response && response.ok) {
+            // Nhân bản an toàn trước khi đưa vào cache
             cache.put(request, response.clone());
         }
         return response;
@@ -126,7 +133,8 @@ async function networkFirstWithTimeout(request, cacheName, timeoutMs) {
         console.log('[SW] Mạng yếu hoặc Offline, dùng HTML từ cache.');
         const cached = await cache.match(request);
         if (cached) return cached;
-        return caches.match('./'); // Fallback về trang chủ
+        // Fallback cuối cùng: Trả về trang chủ đã lưu trong cache
+        return caches.match('./');
     }
 }
 
@@ -155,38 +163,47 @@ async function staleWhileRevalidate(request, cacheName) {
 self.addEventListener('fetch', (event) => {
     const request = event.request;
     
-    // Bỏ qua các request không phải GET
+    // Bỏ qua các request không phải GET hoặc từ extension trình duyệt
     if (request.method !== 'GET' || !request.url.startsWith('http')) return;
 
     const url = new URL(request.url);
+    // Bỏ qua các request từ tên miền khác
     if (url.origin !== location.origin) return;
 
     // --- ĐIỀU PHỐI (ROUTING) ---
 
     // 1. HTML (Document) -> Network First
     if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
-        event.respondWith(networkFirstWithTimeout(request, HTML_CACHE, NETWORK_TIMEOUT));
+        event.respondWith(
+            networkFirstWithTimeout(request, HTML_CACHE, NETWORK_TIMEOUT)
+        );
         return;
     }
 
     // 2. Dữ liệu JSON -> Stale-While-Revalidate
     if (url.pathname.includes('/data/') && url.pathname.endsWith('.json')) {
-        event.respondWith(staleWhileRevalidate(request, DATA_CACHE));
+        event.respondWith(
+            staleWhileRevalidate(request, DATA_CACHE)
+        );
         return;
     }
 
     // 3. Tài nguyên tĩnh: CSS, JS, Font, Ảnh -> Stale-While-Revalidate
     if (/\.(css|js|woff2?|ttf|otf|png|jpe?g|gif|svg|webp|ico)$/i.test(url.pathname)) {
-        event.respondWith(staleWhileRevalidate(request, STATIC_CACHE));
+        event.respondWith(
+            staleWhileRevalidate(request, STATIC_CACHE)
+        );
         return;
     }
 
     // 4. Các request khác -> Stale-While-Revalidate
-    event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
+    event.respondWith(
+        staleWhileRevalidate(request, RUNTIME_CACHE)
+    );
 });
 
 // =====================================================================
-// VI. SỰ KIỆN NHẬN TIN NHẮN (MESSAGE)
+// VI. SỰ KIỆN NHẬN TIN NHẮN (MESSAGE) - CHỈ KÍCH HOẠT KHI USER ĐỒNG Ý
 // =====================================================================
 self.addEventListener('message', (event) => {
     // Lắng nghe tín hiệu từ script.js (Banner Cập nhật)
