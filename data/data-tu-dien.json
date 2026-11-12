@@ -2,15 +2,20 @@
   "symbols": {
     "trăng": { "vol": "V", "sec": "5.2", "mean": "đoàn viên, nhớ quê, cô đơn" },
     "nguyệt": { "vol": "V", "sec": "5.2", "mean": "Hán Việt của 'trăng'" },
-    "liễu": { "vol": "V", "sec": "5.2", "mean": "chia biệt" },
+    "liễu": { "vol": "V", "sec": "5.2", "mean": "chia biệt, lưu luyến" },
     "đào": { "vol": "V", "sec": "5.2", "mean": "tuổi trẻ, mùa xuân" },
-    "sen": { "vol": "V", "sec": "5.2", "mean": "thanh khiết" },
+    "sen": { "vol": "V", "sec": "5.2", "mean": "thanh khiết, cao quý" },
     "hạc": { "vol": "V", "sec": "5.2", "mean": "thanh cao, trường thọ" },
-    "nhạn": { "vol": "V", "sec": "5.2", "mean": "tin tức" },
-    "mây": { "vol": "V", "sec": "5.2", "mean": "phiêu du" },
-    "nước": { "vol": "V", "sec": "5.2", "mean": "thời gian, mềm mại" },
-    "thuyền": { "vol": "V", "sec": "5.2", "mean": "hành trình" },
-    "bến đò": { "vol": "V", "sec": "5.2", "mean": "gặp gỡ, chia tay" }
+    "nhạn": { "vol": "V", "sec": "5.2", "mean": "tin tức, thư từ" },
+    "mây": { "vol": "V", "sec": "5.2", "mean": "phiêu du, tự do" },
+    "thuyền": { "vol": "V", "sec": "5.2", "mean": "hành trình, thân phận" },
+    "bến đò": { "vol": "V", "sec": "5.2", "mean": "gặp gỡ, chia tay" },
+    "tùng": { "vol": "V", "sec": "5.2", "mean": "bền bỉ, khí tiết" },
+    "trúc": { "vol": "V", "sec": "5.2", "mean": "ngay thẳng, thanh cao" },
+    "mai": { "vol": "V", "sec": "5.2", "mean": "sức sống, mùa xuân" },
+    "cúc": { "vol": "V", "sec": "5.2", "mean": "thanh tao, ẩn dật" },
+    "tuyết": { "vol": "V", "sec": "5.2", "mean": "lạnh lẽo, trong trắng" },
+    "sương": { "vol": "V", "sec": "5.2", "mean": "phù du, ngắn ngủi" }
   },
   "dienTich": {
     "sân lai": { "vol": "V", "sec": "5.2", "mean": "lòng hiếu thảo" },
@@ -18,7 +23,9 @@
     "chức nữ": { "vol": "V", "sec": "5.2", "mean": "tình yêu bị ngăn cách" },
     "gót sen": { "vol": "V", "sec": "5.2", "mean": "đôi chân phụ nữ phong kiến" },
     "bèo dạt": { "vol": "V", "sec": "5.2", "mean": "thân phận trôi nổi" },
-    "chim lồng": { "vol": "V", "sec": "5.2", "mean": "bị giam hãm" }
+    "chim lồng": { "vol": "V", "sec": "5.2", "mean": "bị giam hãm, mất tự do" },
+    "vu sơn": { "vol": "V", "sec": "5.2", "mean": "tình yêu, giấc mộng" },
+    "tái ông": { "vol": "V", "sec": "5.2", "mean": "họa phúc khôn lường" }
   },
   "hanViet": {
     "vọng": { "vol": "VIII", "sec": "8.5", "mean": "望 — trông về, ngóng đợi." },
@@ -63,6 +70,8 @@
     "ẩn dụ": { "vol": "VIII", "sec": "8.5", "mean": "隱喻 — phép tu từ gọi tên sự vật này bằng tên sự vật khác dựa trên nét tương đồng." },
     "ý cảnh": { "vol": "VIII", "sec": "8.5", "mean": "意境 — cảnh giới nghệ thuật được tạo nên từ sự hòa quyện giữa cảnh vật, tình cảm và tư tưởng." },
     "văn chương": { "vol": "VIII", "sec": "8.5", "mean": "文章 — tác phẩm viết, lời văn và hoạt động sáng tác bằng ngôn từ." },
-    "thi pháp": { "vol": "VIII", "sec": "8.5", "mean": "詩法 — hệ thống nguyên tắc, phương thức và nghệ thuật cấu tạo tác phẩm thơ." }
+    "thi pháp": { "vol": "VIII", "sec": "8.5", "mean": "詩法 — hệ thống nguyên tắc, phương thức và nghệ thuật cấu tạo tác phẩm thơ." },
+    "tịch dương": { "vol": "VIII", "sec": "8.5", "mean": "夕陽 — nắng chiều, thường gợi sự tàn tạ, hoài niệm." },
+    "cố nhân": { "vol": "VIII", "sec": "8.5", "mean": "故人 — người bạn cũ, người xưa." }
   }
 }
