@@ -1,80 +1,78 @@
 {
   "dai-cat": {
-    "advice": "Nên: Hành động quyết đoán, nắm bắt cơ duyên và lan tỏa lợi ích. Tránh: Sự kiêu ngạo. Bởi lẽ 'thịnh mãn tất suy', hãy giữ tâm khiêm hạ và tiếp tục tu thân.",
+    "keywords": ["chiến thắng", "mùa xuân", "ánh sáng", "khát vọng", "hào hùng", "độc lập", "tự do", "bình minh", "nắng", "rực rỡ", "thái bình"],
+    "nen": "Hành động quyết đoán, nắm bắt cơ duyên và lan tỏa lợi ích. Hãy lấy chữ Nhân và sự bao dung để dẫn dắt thành công.",
+    "tranh": "Sự kiêu ngạo. Bởi lẽ 'thịnh mãn tất suy', hãy giữ tâm khiêm hạ và tiếp tục tu thân.",
     "commentaries": [
-      "Vạn sự hanh thông, tựa như hoa sen nở rộ dưới ánh dương. Nhưng hãy nhớ lẽ thường ở đời: 'Thịnh mãn tất suy'. Thành công hôm nay là kết tinh của nhân duyên, hãy giữ tâm khiêm hạ và tiếp tục tu thân.",
-      "Đạo trời vận hành thuận lợi, vạn vật sinh sôi. Đây là lúc để bạn thi triển tài năng, nhưng hãy hành xử với chữ 'Nghĩa', để thành quả không chỉ là của riêng bạn mà còn lan tỏa lợi ích cho tha nhân.",
+      "Vạn sự hanh thông, tựa như hoa sen nở rộ dưới ánh dương. Nhưng hãy nhớ lẽ thường ở đời: 'Thịnh mãn tất suy'. Thành công hôm nay là kết tinh của nhân duyên, hãy giữ tâm khiêm hạ.",
+      "Đạo trời vận hành thuận lợi, vạn vật sinh sôi. Đây là lúc để bạn thi triển tài năng, nhưng hãy hành xử với chữ 'Nghĩa', để thành quả không chỉ là của riêng bạn mà còn lan tỏa cho tha nhân.",
       "Tâm thanh như nước tĩnh, vận mở như mây tan. Cơ duyên tốt đẹp đang hiện hữu. Hãy nắm bắt nhưng đừng chấp niệm, hãy hành động nhưng không cưỡng cầu, đó chính là sự ung dung mà thành tựu.",
-      "Trời đất giao hòa, vạn sự cát tường. Đây là quả ngọt của những tháng ngày gieo hạt âm thầm. Hãy dùng sự sáng suốt của mình để dẫn dắt người khác, như ngọn đèn soi rọi bóng đêm.",
+      "Trời đất giao hòa, cát khí ngập tràn. Đây là quả ngọt của những tháng ngày gieo hạt âm thầm. Hãy dùng sự sáng suốt của mình để dẫn dắt người khác, như ngọn đèn soi rọi bóng đêm.",
       "Mệnh vận hanh thông như áng văn tuyệt tác gặp tri âm. Hãy vui hưởng nhưng đừng đắm chìm. Giữ được sự 'Trung dung' trong lúc đắc thời mới là bậc trí giả.",
-      "Cát khí ngập tràn, mọi nút thắt đều được tháo gỡ nhẹ nhàng. Hãy tự tin viết tiếp những chương rực rỡ nhất của cuộc đời mình, nhưng lòng luôn hướng về sự bao dung và vị tha.",
-      "Đức dày tải vật, vận mệnh hanh thông. Đây là thời điểm để bạn kết nối và sẻ chia. Hãy nhớ rằng, một cánh én không làm nên mùa xuân, sự thành công của bạn sẽ càng rực rỡ khi có sự đồng hành của cộng đồng.",
-      "Vạn sự như ý, tâm cảnh an nhiên. Duyên lành đã chín muồi. Hãy sống trọn vẹn từng phút giây trong hiện tại, biết ơn những gì đang có và tiếp tục gieo những hạt giống thiện lành cho tương lai."
+      "Đức dày tải vật, vận mệnh hanh thông. Đây là thời điểm để bạn kết nối và sẻ chia. Hãy nhớ rằng, một cánh én không làm nên mùa xuân, sự thành công của bạn sẽ càng rực rỡ khi có sự đồng hành của cộng đồng."
     ]
   },
   "trung-cat": {
-    "advice": "Nên: Tiếp tục nỗ lực, vun bồi đức hạnh và mở rộng thiện duyên. Tránh: Sự nóng vội muốn thấy kết quả ngay. Thành quả ngọt ngào nhất luôn cần thời gian ủ chín.",
+    "keywords": ["lao động", "quê hương", "tình cảm", "gia đình", "hy vọng", "vươn lên", "bến đò", "làng quê", "tình bạn", "tương phùng", "sum họp"],
+    "nen": "Tiếp tục nỗ lực, vun bồi đức hạnh và mở rộng thiện duyên. Hãy kiên nhẫn với tiến trình hiện tại.",
+    "tranh": "Sự nóng vội muốn thấy kết quả ngay. Thành quả ngọt ngào nhất luôn cần thời gian ủ chín.",
     "commentaries": [
-      "Mọi sự êm đềm như dòng suối nhỏ chảy về xuôi. Không quá rực rỡ, nhưng đủ đầy an yên. Hãy tiếp tục vun bồi đức hạnh, bởi 'Đức bất cô, tất hữu lân' (Có đức ắt có bạn).",
-      "Có những cuộc tương phùng khiến thời gian như ngắn lại, cũng có những ngày xa cách khiến lòng người mong ngóng. Câu thơ 'Nhất nhật bất kiến, như tam thu hề' gợi nỗi nhớ dài tựa ba mùa thu. Hãy trân trọng những mối duyên chân thành và kiên nhẫn vun đắp tình nghĩa.",
+      "Mọi sự êm đềm như dòng suối nhỏ chảy về xuôi. Không quá rực rỡ, nhưng đủ đầy an yên. Hãy tiếp tục vun bồi đức hạnh, bởi 'Đức bất cô, tất hữu lân'.",
+      "Có những cuộc tương phùng khiến thời gian như ngắn lại. Hãy trân trọng những mối duyên chân thành và kiên nhẫn vun đắp tình nghĩa, như người vun gốc cho cây trổ cành.",
       "Gió thuận buồm xuôi, tâm hồn thư thái. Hãy tận dụng ngày hôm nay để tu dưỡng thêm kiến thức, như con tằm nhả tơ, tích tiểu thành đại, rồi sẽ có ngày kết thành kén vàng.",
       "Một ngày nhiều niềm vui nhỏ. Hạnh phúc không ở đâu xa, mà ở ngay trong từng khoảnh khắc hiện tại. Hãy sống chậm lại, cảm nhận hơi thở, và biết ơn những gì mình đang có.",
       "Như dòng sông hiền hòa xuôi ra biển lớn. Mọi nỗ lực âm thầm của bạn đang dần kết trái. Hãy giữ vững tâm thế 'ôn hòa', không kiêu căng, không tự ti, tự khắc vạn sự hanh thông.",
-      "Mọi việc đang diễn ra đúng quỹ đạo. Đây là lúc để bạn thực hành sự 'Tĩnh tại'. Hãy nhìn ngắm vạn vật chuyển động mà lòng không xao động, thuận theo tự nhiên mà không mất đi chính kiến.",
-      "Có những tiến triển nhẹ nhàng trong công việc và các mối quan hệ. Hãy tiếp tục gieo duyên tốt, sống chân thành, vì mọi sự trên đời đều có nhân quả, gieo nhân lành ắt gặt quả ngọt.",
-      "Tâm bình thế giới bình. Bạn đang ở trong một trạng thái cân bằng tốt. Hãy giữ nhịp độ này, đừng vội vàng hấp tấp. Bình yên không phải là không có sóng gió, mà là giữ được sự tĩnh lặng giữa sóng gió."
+      "Mọi việc đang diễn ra đúng quỹ đạo. Đây là lúc để bạn thực hành sự 'Tĩnh tại'. Hãy nhìn ngắm vạn vật chuyển động mà lòng không xao động, thuận theo tự nhiên mà không mất đi chính kiến."
     ]
   },
   "tieu-cat": {
-    "advice": "Nên: Trân trọng những điều giản dị, hoàn thiện việc còn dang dở và biết đủ. Tránh: Những kỳ vọng quá cao. Bình yên trong tâm trí chính là món quà quý giá nhất.",
+    "keywords": ["bình dị", "sương", "hoa", "mây", "gió", "nhẹ nhàng", "an yên", "buổi chiều", "trà", "mưa phùn", "nắng nhạt"],
+    "nen": "Trân trọng những điều giản dị, hoàn thiện việc còn dang dở và biết đủ. Hãy tận hưởng những niềm vui nhỏ bé.",
+    "tranh": "Những kỳ vọng quá cao và xa vời. Bình yên trong tâm trí chính là món quà quý giá nhất lúc này.",
     "commentaries": [
       "Một chút may mắn ghé thăm như hạt sương đọng trên lá. Tuy nhỏ bé nhưng tinh khôi. Cổ nhân từng dạy: 'Tri túc giả phú' (Biết đủ là giàu). Hãy trân trọng những điều giản dị này.",
       "Niềm vui đến từ những điều bình dị nhất. Một cuộc trò chuyện ngắn hay một trang sách hay. Hãy lấy sự 'tĩnh tại' để cân bằng lại nhịp sống đang hối hả, bạn sẽ thấy lòng nhẹ tênh.",
       "Vận khí nhẹ nhàng, thích hợp để hoàn thiện những việc còn dang dở. Đừng cố cưỡng cầu những điều lớn lao, cứ thuận theo tự nhiên, nước chảy đá mòn, bạn sẽ đạt được kết quả như ý.",
       "Mọi việc diễn ra bình ổn. Hãy dành ngày hôm nay để 'tự xét mình'. Nhìn lại những lỗi lầm nhỏ để sửa đổi, tích lũy đức độ, đó mới là tài sản vững bền nhất.",
       "Như làn gió mát thoảng qua. Vận khí hôm nay đủ để bạn mỉm cười. Đừng bám chấp vào những phiền muộn nhỏ nhặt, hãy dùng lòng bao dung để độ lượng cho cả bản thân và người khác.",
-      "Một chút khởi sắc nhẹ vào cuối ngày. Dù không lớn lao, nhưng đủ để bạn có thêm niềm tin. Hãy tiếp tục vun đắp những mối quan hệ tốt đẹp, vì tình người là món quà quý giá nhất.",
-      "Vạn sự khởi đầu nan, nhưng hôm nay mọi thứ đã dễ thở hơn một chút. Hãy nhớ rằng, kiên nhẫn là một đức hạnh. Cứ bền bỉ tích lũy, thành quả sẽ đến vào đúng thời điểm.",
       "Một ngày an nhiên, mọi sự vừa phải. Hãy tận dụng để làm những việc mình yêu thích. Đừng đặt nặng vấn đề, hãy để mọi thứ diễn ra như nó vốn có, tâm an ắt vạn sự an."
     ]
   },
   "binh-hoa": {
-    "advice": "Nên: Nghỉ ngơi, đọc sách, chiêm nghiệm và lắng nghe nội tâm. Tránh: Đưa ra quyết định lớn khi tâm chưa tĩnh. Hãy thuận theo tự nhiên, 'vô vi' mà hữu thành.",
+    "keywords": ["trăng", "tĩnh lặng", "cô đơn", "chiêm nghiệm", "tâm", "thiền", "mùa thu", "nước", "mặt hồ", "đêm", "sao", "suy tư"],
+    "nen": "Nghỉ ngơi, đọc sách, chiêm nghiệm và lắng nghe nội tâm. Hãy an trú trong hiện tại.",
+    "tranh": "Đưa ra quyết định lớn khi tâm chưa tĩnh. Hãy thuận theo tự nhiên, 'vô vi' mà hữu thành.",
     "commentaries": [
       "Ngày hôm nay như trang giấy trắng. Không sóng gió, cũng chưa có đột phá. Đây là một khoảng 'Hư tĩnh' cần thiết để tâm trí bạn được nghỉ ngơi và tái tạo năng lượng.",
-      "Tĩnh lặng như mặt hồ mùa thu. Trình Hạo từng viết: 'Vạn vật tĩnh quan giai tự đắc' — khi lặng lòng quan sát, con người có thể tìm thấy niềm tự tại trong vạn vật. Hãy chậm lại để nhìn sự vật từ nhiều phía, bởi đôi khi sự sáng suốt bắt đầu từ một tâm thế bình tĩnh.",
+      "Tĩnh lặng như mặt hồ mùa thu. Trình Hạo từng viết: 'Vạn vật tĩnh quan giai tự đắc' — khi lặng lòng quan sát, con người có thể tìm thấy niềm tự tại. Hãy chậm lại để nhìn sự vật từ nhiều phía.",
       "Vạn sự tùy duyên, lòng người tự tại. Đừng mong cầu, đừng toan tính. Hãy buông bỏ những vọng niệm, an trú trong giây phút hiện tại. Bình yên vốn dĩ đã có sẵn trong bạn.",
       "Không biến cố, chẳng ưu phiền. Hãy xem đây là một cơ hội để 'thiền hành'. Dù làm việc gì, hãy làm với sự chú tâm trọn vẹn. Sự bình thường hôm nay là nền tảng cho ngày mai huy hoàng.",
       "Mặt hồ phẳng lặng, dưới đáy nước lại là một thế giới sống động. Hãy quan sát nội tâm mình. Có thể có những hạt giống của sự sáng tạo, của lòng vị tha đang chờ ngày nảy mầm.",
-      "Mọi thứ đang ở trạng thái cân bằng. Hãy giữ cho lòng mình không dao động trước những lời khen chê. 'Bát phong xuy bất động' (Tám ngọn gió đời không lay động được tâm) - đó là cốt lõi của sự an nhiên.",
-      "Không có gì đặc biệt xảy ra. Nhưng 'bình thường' chính là một phước báu lớn. Hãy biết ơn vì không có tin xấu, không có biến cố. Hãy dùng sự tĩnh lặng này để vun đắp cho những ước mơ thầm kín.",
-      "Tâm như nước lặng, phản chiếu vạn vật. Hôm nay là ngày tốt để lắng nghe trực giác mách bảo. Đừng vội hành động, hãy quan sát, lắng nghe và chờ đợi thời cơ chín muồi."
+      "Mọi thứ đang ở trạng thái cân bằng. Hãy giữ cho lòng mình không dao động trước những lời khen chê. 'Bát phong xuy bất động' (Tám ngọn gió đời không lay động được tâm) - đó là cốt lõi của sự an nhiên."
     ]
   },
   "tieu-hung": {
-    "advice": "Nên: Cẩn trọng trong lời ăn tiếng nói, thực hành nhẫn nhịn và giữ bình tĩnh. Tránh: Tranh cãi, đối đầu. Lùi một bước để thấy biển rộng trời cao, mọi sự rồi sẽ tự lắng xuống.",
+    "keywords": ["buồn", "lệ", "chia ly", "biệt ly", "tiễn biệt", "trắc trở", "mưa", "tàn phai", "lỡ duyên", "nhớ nhung", "sầu", "hoàng hôn"],
+    "nen": "Cẩn trọng trong lời ăn tiếng nói, thực hành nhẫn nhịn và giữ bình tĩnh. Hãy chậm lại và quan sát.",
+    "tranh": "Tranh cãi, đối đầu và phản ứng nóng vội. Lùi một bước để thấy biển rộng trời cao, mọi sự rồi sẽ tự lắng xuống.",
     "commentaries": [
-      "Có chút gợn sóng nhỏ trên mặt hồ tâm trí. 'Nhân vô viễn lự, tất hữu cận ưu' (Người không lo xa ắt có nỗi lo gần). Hãy cẩn trọng lời ăn tiếng nói, giữ sự nhẫn nại để tránh những hiểu lầm không đáng có.",
+      "Có chút gợn sóng nhỏ trên mặt hồ tâm trí. 'Nhân vô viễn lự, tất hữu cận ưu' (Người không lo xa ắt có nỗi lo gần). Hãy cẩn trọng lời ăn tiếng nói, giữ sự nhẫn nại để tránh những hiểu lầm.",
       "Như một đoạn văn trầm buồn giữa tác phẩm. Vài trục trặc nhỏ có thể ghé qua. Đây là lúc thực hành sự 'Nhẫn nhục'. Giữ bình tĩnh, cơn bão nào rồi cũng sẽ đi qua.",
       "Đừng vội vàng đưa ra quyết định lớn khi tâm chưa tĩnh. Nước đục sẽ trong khi lắng lại. Hãy lùi một bước để 'tĩnh tâm', rồi mọi việc sẽ tự hiển lộ con đường sáng.",
       "Mây mù thoáng qua chỉ làm bầu trời thêm sâu thẳm. Nếu gặp chút chuyện trái ý, hãy xem đó là 'nghịch cảnh hành trì' để thử thách sự kiên nhẫn của bạn. Không oán trời, không trách người.",
-      "Cẩn tắc vô áy náy. Hôm nay, hãy thu mình lại một chút. Đừng phô trương, đừng tranh biện. Hãy dành thời gian chăm sóc sức khỏe thể chất và tinh thần, đó là cách tốt nhất để chuyển hóa vận rủi.",
-      "Sẽ có đôi chút bất như ý trong công việc hoặc giao tiếp. Hãy nhớ 'Lời nói không mất tiền mua, lựa lời mà nói cho vừa lòng nhau'. Sự mềm mỏng, khéo léo sẽ hóa giải được những xung đột tiềm ẩn.",
-      "Đừng để cảm xúc tiêu cực dẫn dắt hành động. Nếu cảm thấy bực bội, hãy hít thở sâu và đếm đến mười. Đạo gia có câu: 'Nhu thắng cương, nhược thắng cường'. Sự mềm mại đôi khi sẽ hóa giải được sự cứng rắn.",
-      "Có thể có những hiểu lầm nho nhỏ. Hãy chủ động lắng nghe và giải thích bằng thái độ chân thành. Đừng để cái tôi cá nhân che mờ lý trí. Nhường một bước, trời cao biển rộng."
+      "Cẩn tắc vô áy náy. Hôm nay, hãy thu mình lại một chút. Đừng phô trương, đừng tranh biện. Hãy dành thời gian chăm sóc sức khỏe thể chất và tinh thần, đó là cách tốt nhất để chuyển hóa vận rủi."
     ]
   },
   "dai-hung": {
-    "advice": "Nên: Ẩn mình, bảo toàn sức khỏe, thiền định và quán chiếu nội tâm. Tránh: Đối đầu trực diện hay mạo hiểm. Hãy xem nghịch cảnh là chất liệu tôi luyện bản lĩnh, bình tâm đi qua ngày giông gió.",
+    "keywords": ["chiến tranh", "chết chóc", "đau thương", "bão tố", "tù đày", "bế tắc", "tuyệt vọng", "mất mát", "nghịch cảnh", "khóc", "máu", "tang thương"],
+    "nen": "Ẩn mình, bảo toàn sức khỏe, thiền định và quán chiếu nội tâm. Hãy tìm về với thiên nhiên và những điều giản dị.",
+    "tranh": "Đối đầu trực diện hay mạo hiểm. Hãy xem nghịch cảnh là chất liệu tôi luyện bản lĩnh, bình tâm đi qua ngày giông gió.",
     "commentaries": [
-      "Trang đời hôm nay có chút bão giông. Nhưng cổ nhân từng nói: 'Họa hề phúc sở ỷ' (Họa là nơi phúc nương tựa). Hãy giữ tâm bất biến giữa vạn biến, xem nghịch cảnh là chất liệu tôi luyện bản lĩnh con người.",
+      "Trang đời hôm nay có chút bão giông. Nhưng cổ nhân từng nói: 'Họa hề phúc sở ỷ' (Họa là nơi phúc nương tựa). Hãy giữ tâm bất biến giữa vạn biến, xem nghịch cảnh là chất liệu tôi luyện bản lĩnh.",
       "Khi mây đen kéo đến, hãy khép cửa lại, pha một ấm trà và lặng lẽ chờ đợi. 'Thoái nhất bộ, hải khoát thiên không' (Lùi một bước, biển rộng trời cao). Đừng đối đầu trực diện hôm nay, hãy chọn sự ẩn nhẫn.",
       "Mọi sự bế tắc chỉ là tạm thời như đêm tối trước bình minh. Đây chính là lúc thực hành sự 'Buông xả'. Hãy buông bỏ những chấp niệm, bảo toàn năng lượng và sinh mệnh, rồi mọi thứ sẽ an bài.",
       "Có những thử thách xuất hiện để buộc ta phải dừng lại và nhìn thấu lòng mình. Hôm nay, hãy lấy 'Từ bi' làm giáp, lấy 'Trí tuệ' làm gươm. Im lặng là cách phòng vệ tốt nhất trước sóng gió nhân sinh.",
-      "Dẫu trang viết hôm nay nhuốm màu trắc trở, bạn vẫn là người cầm bút. Hãy nhớ lẽ 'Vô thường' - vạn vật đều biến dịch. Cứ bình tâm đi qua ngày giông gió, ngày mai trời sẽ lại sáng.",
-      "Trong bài kệ nổi tiếng gắn với Lục Tổ Huệ Năng có câu: 'Bồ đề bổn vô thụ, minh kính diệc phi đài'. Lời kệ gợi một cách nhìn sâu sắc về sự chấp trước và bản tính tâm. Khi gặp điều không như ý, hãy bình tâm suy xét, phân biệt điều có thể thay đổi với điều cần học cách chấp nhận.",
-      "Đây là lúc để bạn thực hành sự 'Nhẫn nhịn' tối đa. Đừng phản ứng, đừng tranh cãi, đừng cố gắng sửa chữa mọi thứ ngay lập tức. Hãy để mọi thứ lắng xuống, như nước đục rồi sẽ tự trong.",
-      "Vạn sự khó khăn, nhưng đừng tuyệt vọng. Hãy tìm về với thiên nhiên, với những điều giản dị nhất để chữa lành tâm hồn. Thuận theo tự nhiên, không làm gì mà như làm tất cả, đó là cách an nhiên nhất để vượt qua."
+      "Dẫu trang viết hôm nay nhuốm màu trắc trở, bạn vẫn là người cầm bút. Hãy nhớ lẽ 'Vô thường' - vạn vật đều biến dịch. Cứ bình tâm đi qua ngày giông gió, ngày mai trời sẽ lại sáng."
     ]
   }
 }
