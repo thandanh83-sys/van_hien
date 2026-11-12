@@ -1,15 +1,16 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.5 - UNIVERSAL & ELEGANT)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.5 - ULTIMATE HARMONY)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
-   - Dữ liệu ngoại vi (External Data): Không hardcode Từ điển, Thể loại, 
-     Vận khí. Mọi thứ được fetch từ JSON để dễ bảo trì.
-   - Định tuyến Vạn năng (Universal Router): Tự động nhận diện ID, Tên, 
-     hoặc Số La Mã. Chỉ cuộn tới và phát sáng (không tự mở Accordion).
-   - Trải nghiệm Liền mạch (Seamless): Fate Modal render ngầm (chống CLS), 
-     Splash chuyển cảnh mượt mà sang Trang chủ.
-   - Tiết kiệm Data (Data Economy): Phân trang 2 chiều, LRU Cache.
+   - Tương tác Tĩnh tại (Zen-like Interaction): Fate Modal render ngầm 
+     (chống Layout Shift), hiển thị Lời bình và Lời khuyên phân tách.
+   - Điều hướng Chính xác (Precision Routing): Universal Router phối hợp 
+     nhiều định danh; chờ layout ổn định trước khi cuộn, không tự mở Accordion.
+   - Dữ liệu Ngoại vi (External Data): Mọi cấu hình (Từ điển, Thể loại, Vận khí)
+     đều được fetch từ JSON, tuyệt đối không hardcode.
+   - Bọc thép (Fault-Tolerant): safeFetch đảm bảo App không bao giờ sập
+     nếu một file JSON bị lỗi mạng.
    ===================================================================== */
 
 /* =====================================================================
@@ -38,13 +39,14 @@ let WORKS_DATA  = [];
 let QUOTES_DATA = [];
 let COMMENTARY_DATA = {};
 
-// BIẾN MỚI (Trỏ đến Data từ JSON)
-let DICTIONARY_DATA = {};
+let DICTIONARY_DATA = { symbols: {}, dienTich: {}, hanViet: {} };
 let CATEGORY_NAMES = {};
 let FORTUNE_CONFIG = {};
 let FORTUNE_ADVICE = {};
 
-const GLOBAL_INDEX = new Map();
+const GLOBAL_INDEX = new Map(); 
+const GLOBAL_INDEX_BY_KEY = new Map(); 
+const GLOBAL_RECORDS = []; 
 
 let currentMainCat = 'all';
 let currentGenre = 'all';
@@ -71,7 +73,7 @@ const PerformanceEngine = (() => {
 })();
 
 /* =====================================================================
-   MODULE 2: VIEW MANAGER (PROMISE-BASED, CHỐNG RACE CONDITION)
+   MODULE 2: VIEW MANAGER (PROMISE-BASED)
    ===================================================================== */
 const ViewManager = (() => {
     const scrollPositions = { home: 0, heritage: 0, encyclopedia: 0, analyze: 0 };
@@ -99,11 +101,10 @@ const ViewManager = (() => {
 
     async function switchView(viewId) {
         const targetView = document.getElementById(`view-${viewId}`);
-        if (!targetView) { console.warn('[VIEW] Không tìm thấy:', viewId); return false; }
+        if (!targetView) return false;
         
         const token = ++switchToken;
         const currentViewId = getCurrentViewId();
-        
         if (currentViewId === viewId) { ensureViewRendered(viewId); return true; }
 
         if (currentViewId) {
@@ -169,15 +170,47 @@ function toggleMobileMenu() {
    ===================================================================== */
 function debounce(func, wait) {
     let timeout;
-    return function(...args) {
+    const debounced = function(...args) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
+    debounced.cancel = () => { clearTimeout(timeout); timeout = null; };
+    return debounced;
 }
+
+let cancelPendingEncyclopediaSearch = () => {};
 
 function removeAccents(str) {
     if (!str) return '';
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+}
+
+function normalizeRouteText(value) {
+    return removeAccents(String(value ?? '').normalize('NFKC').toLocaleLowerCase('vi'))
+        .replace(/[’'`]/g, '')
+        .replace(/[^\p{L}\p{N}]+/gu, ' ')
+        .trim()
+        .replace(/\s+/g, ' ');
+}
+
+function normalizeRouteId(value) {
+    return normalizeRouteText(value).replace(/\s+/g, '-');
+}
+
+function normalizeRouteGroup(value) {
+    const key = normalizeRouteId(value);
+    const aliases = {
+        'triet-thuyet': 'triet-thuyet', 'ly-thuyet': 'triet-thuyet', 'theory': 'triet-thuyet',
+        'ky-tai': 'ky-tai', 'tac-gia': 'ky-tai', 'author': 'ky-tai', 'authors': 'ky-tai',
+        'tinh-hoa': 'tinh-hoa', 'tac-pham': 'tinh-hoa', 'work': 'tinh-hoa', 'works': 'tinh-hoa', 'heritage': 'tinh-hoa'
+    };
+    return aliases[key] || null;
+}
+
+function getRecordTitleAlias(item, group) {
+    const title = String(item?.title || '').trim();
+    if (group === 'ky-tai') return title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
+    return title;
 }
 
 function escapeHTML(str) {
@@ -194,7 +227,6 @@ function highlightText(text, tokens) {
     }).join('');
 }
 
-// Định dạng nội dung: Chia mục I, II, III... và bỏ in đậm tên bài thơ
 function formatContent(html) {
     if (!html) return '';
     let formatted = html.replace(/([IVX]+\.)\s/g, '<br><br><strong style="color:var(--accent-text);">$1</strong> ');
@@ -203,30 +235,17 @@ function formatContent(html) {
     return formatted;
 }
 
-// Hàm lấy đoạn trích thông minh (Cắt ở dấu chấm, tách đoạn)
 function getSmartExcerpt(htmlContent) {
     if (!htmlContent) return '';
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
-    
     let paragraphs = Array.from(tempDiv.querySelectorAll('p')).map(p => p.innerHTML.trim()).filter(t => t.length > 0);
     if (paragraphs.length === 0) paragraphs = tempDiv.innerText.split('\n').filter(t => t.trim().length > 0);
-
-    let excerpt = "";
-    if (paragraphs.length > 0) {
-        excerpt = paragraphs[0];
-        if (excerpt.replace(/<[^>]*>/g, '').length < 100 && paragraphs.length > 1) {
-            excerpt += "<br><br>" + paragraphs[1];
-        }
-    } else {
-        excerpt = tempDiv.innerText;
-    }
-
+    let excerpt = paragraphs.length > 0 ? paragraphs[0] : tempDiv.innerText;
     const plainText = excerpt.replace(/<[^>]*>/g, '');
     if (plainText.length > 250) {
         const cutIndex = plainText.indexOf('.', 150);
-        if (cutIndex !== -1) excerpt = plainText.substring(0, cutIndex + 1) + '...';
-        else excerpt = plainText.substring(0, 250) + '...';
+        excerpt = cutIndex !== -1 ? plainText.substring(0, cutIndex + 1) + '...' : plainText.substring(0, 250) + '...';
     }
     return excerpt.replace(/\n/g, '<br>');
 }
@@ -302,7 +321,6 @@ function renderHeritage() {
     if (!grid) return;
 
     let data = WORKS_DATA;
-
     if (currentMainCat !== 'all') data = data.filter(i => i.loai_hinh === currentMainCat);
     if (currentGenre !== 'all') data = data.filter(i => i.the_loai?.includes(currentGenre));
     if (keyword) data = data.filter(i =>
@@ -323,14 +341,12 @@ function renderHeritage() {
     const paged = data.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     grid.innerHTML = paged.map(item => {
-        const tags = Array.isArray(item.the_loai)
-            ? item.the_loai.map(g => `<span class="h-tag">${g}</span>`).join(' ')
-            : '';
+        const tags = Array.isArray(item.the_loai) ? item.the_loai.map(g => `<span class="h-tag">${g}</span>`).join(' ') : '';
         const btn = item.id
-            ? `<button onclick="gotoEncyclopediaById('${item.id}')" class="detail-btn">Chi tiết ${ICONS.arrowRight}</button>`
+            ? `<button type="button" class="detail-btn" data-route-encyclopedia="true" data-route-id="${escapeHTML(item.id)}" data-route-group="tinh-hoa" data-route-title="${escapeHTML(item.title)}" data-route-author="${escapeHTML(item.author || '')}">Chi tiết ${ICONS.arrowRight}</button>`
             : '';
         return `
-        <div class="heritage-card" id="${item.id}">
+        <div class="heritage-card" id="heritage-${escapeHTML(normalizeRouteId(item.id))}" data-item-id="${escapeHTML(item.id)}" data-group="tinh-hoa">
             <div style="display:flex;flex-wrap:wrap;margin-bottom:10px;">${tags}</div>
             <h3>${item.title}</h3>
             <div class="h-author">${ICONS.pen} ${item.author}</div>
@@ -387,7 +403,9 @@ const ContentManager = (() => {
         const key = `${group}:${item.id}`;
         const cached = getCache(key);
         if (cached) return cached;
-        if (pending.has(key)) return pending.get(key);
+        const inFlight = pending.get(key);
+        if (inFlight && !inFlight.signal?.aborted) return inFlight.promise;
+        if (inFlight) pending.delete(key);
 
         const task = (async () => {
             let result;
@@ -411,9 +429,11 @@ const ContentManager = (() => {
             }
         })();
 
-        pending.set(key, task);
+        pending.set(key, { promise: task, signal });
         try { return await task; }
-        finally { pending.delete(key); }
+        finally {
+            if (pending.get(key)?.promise === task) pending.delete(key);
+        }
     }
 
     return { load, clearCache: () => { cache.clear(); currentSize = 0; }, getStats: () => ({ items: cache.size, size: currentSize }) };
@@ -432,16 +452,20 @@ async function ensureAccordionContent(details) {
     if (!details || !details.open) return;
     const itemId = details.dataset.id;
     const group = details.dataset.group;
+    const cacheKey = `${group}:${itemId}`;
     const contentDiv = details.querySelector('.accordion-content');
     if (!itemId || !group || !contentDiv) return;
     if (contentDiv.dataset.contentLoaded === 'true') return;
     if (contentDiv.dataset.loading === 'true') return;
 
     const controller = new AbortController();
-    accordionAbortControllers.set(itemId, controller);
+    accordionAbortControllers.set(cacheKey, controller);
 
     const item = findEncyclopediaItem(itemId, group);
-    if (!item) return;
+    if (!item) {
+        if (accordionAbortControllers.get(cacheKey) === controller) accordionAbortControllers.delete(cacheKey);
+        return;
+    }
 
     contentDiv.dataset.loading = 'true';
     contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic;padding:10px;">${ICONS.clock} Đang tải nội dung...</p>`;
@@ -464,15 +488,17 @@ async function ensureAccordionContent(details) {
         contentDiv.innerHTML = `<p style="padding:10px;color:var(--text-muted);">Không thể tải nội dung. Hãy thử lại.</p>`;
     } finally {
         delete contentDiv.dataset.loading;
-        accordionAbortControllers.delete(itemId);
+        if (accordionAbortControllers.get(cacheKey) === controller) accordionAbortControllers.delete(cacheKey);
     }
 }
 
 function clearAccordionContent(details) {
     const itemId = details.dataset.id;
-    if (accordionAbortControllers.has(itemId)) {
-        accordionAbortControllers.get(itemId).abort();
-        accordionAbortControllers.delete(itemId);
+    const group = details.dataset.group;
+    const cacheKey = `${group}:${itemId}`;
+    if (accordionAbortControllers.has(cacheKey)) {
+        accordionAbortControllers.get(cacheKey).abort();
+        accordionAbortControllers.delete(cacheKey);
     }
     const content = details.querySelector('.accordion-content');
     if (!content) return;
@@ -501,72 +527,84 @@ function bindEncyclopediaEvents() {
 }
 
 /* =====================================================================
-   MODULE 5.1: SEARCH ENGINE (BUILD NGẦM)
+   MODULE 5.1: SEARCH ENGINE
    ===================================================================== */
 const VDSearchEngine = (() => {
-    let invertedIndex = {}, docLengths = {}, totalDocs = 0, isIndexed = false;
+    let invertedIndex = Object.create(null), docLengths = Object.create(null), totalDocs = 0, isIndexed = false;
     const STOPWORDS = new Set(["cua","va","la","co","trong","cho","nhung","cac","mot","duoc","voi","da","de","khi","ra","ve","tu","nhu","nguoi","tai","thi","ma","nay","do"]);
 
     function tokenize(text) {
         if (!text) return [];
-        const clean = removeAccents(text.toLowerCase().replace(/<[^>]*>/g, ' '));
+        const clean = normalizeRouteText(String(text).replace(/<[^>]*>/g, ' '));
         return (clean.match(/[\p{L}\p{N}]+/gu) || []).filter(w => w.length > 1 && !STOPWORDS.has(w));
     }
 
     async function buildIndexAsync() {
-        invertedIndex = {}; docLengths = {};
-        const entries = Array.from(GLOBAL_INDEX.entries());
+        invertedIndex = Object.create(null);
+        docLengths = Object.create(null);
+        const entries = GLOBAL_RECORDS.slice();
         totalDocs = entries.length;
         const CHUNK = 50;
         for (let i = 0; i < entries.length; i += CHUNK) {
-            entries.slice(i, i + CHUNK).forEach(([id, idx]) => {
-                const item = idx.data;
+            entries.slice(i, i + CHUNK).forEach(record => {
+                const item = record.data;
+                const key = record.key;
                 const words = tokenize([item.title, item.author, item.desc, item.content].join(' '));
-                docLengths[id] = words.length;
+                docLengths[key] = Math.max(words.length, 1);
                 words.forEach(w => {
-                    if (!invertedIndex[w]) invertedIndex[w] = {};
-                    invertedIndex[w][id] = (invertedIndex[w][id] || 0) + 1;
+                    if (!invertedIndex[w]) invertedIndex[w] = Object.create(null);
+                    invertedIndex[w][key] = (invertedIndex[w][key] || 0) + 1;
                 });
             });
             await new Promise(r => setTimeout(r, 0));
         }
         isIndexed = true;
-        console.log("[SEARCH] Build index xong.");
+        console.log(`[SEARCH] Build index xong: ${totalDocs} tài liệu.`);
     }
 
     function search(query) {
-        const qNorm = removeAccents(query.trim().toLowerCase());
-        const tokens = qNorm.split(/\s+/).filter(t => t.length);
-        if (!tokens.length) return [];
-        const scores = {};
+        const qNorm = normalizeRouteText(query);
+        const tokens = tokenize(qNorm);
+        if (!qNorm) return [];
+        const scores = new Map();
 
-        GLOBAL_INDEX.forEach((idx, id) => {
-            const item = idx.data;
-            const tTitle = removeAccents((item.title || '').toLowerCase());
-            const tContent = removeAccents((item.content || '').toLowerCase());
-            if (qNorm.length > 2) {
-                if (tTitle.includes(qNorm)) scores[id] = (scores[id] || 0) + 500;
-                else if (tContent.includes(qNorm)) scores[id] = (scores[id] || 0) + 100;
-            }
-        });
+        for (const record of GLOBAL_RECORDS) {
+            const item = record.data;
+            const title = normalizeRouteText(item.title);
+            const titleAlias = normalizeRouteText(getRecordTitleAlias(item, record.group));
+            const author = normalizeRouteText(item.author);
+            let score = 0;
+            if (title === qNorm || titleAlias === qNorm) score += 700;
+            else if (title.includes(qNorm) || titleAlias.includes(qNorm)) score += 360;
+            if (author && author === qNorm) score += record.group === 'ky-tai' ? 620 : 260;
+            else if (author && author.includes(qNorm)) score += 120;
+            if (score) scores.set(record.key, score);
+        }
 
-        tokens.forEach(w => {
-            if (!invertedIndex[w]) return;
-            const docs = invertedIndex[w];
-            const idf = Math.log(totalDocs / Object.keys(docs).length) + 1;
-            for (const [docId, count] of Object.entries(docs)) {
-                const tf = count / docLengths[docId];
-                let score = tf * idf;
-                const item = GLOBAL_INDEX.get(docId).data;
-                const tTitle = removeAccents((item.title || '').toLowerCase());
-                const tAuthor = removeAccents((item.author || '').toLowerCase());
-                if (tTitle.includes(w)) score *= 5;
-                else if (tAuthor.includes(w)) score *= 3;
-                scores[docId] = (scores[docId] || 0) + score;
-            }
-        });
+        if (isIndexed && tokens.length) {
+            tokens.forEach(w => {
+                const docs = invertedIndex[w];
+                if (!docs) return;
+                const docCount = Object.keys(docs).length;
+                const idf = Math.log((totalDocs || 1) / Math.max(docCount, 1)) + 1;
+                for (const [key, count] of Object.entries(docs)) {
+                    const record = GLOBAL_INDEX_BY_KEY.get(key);
+                    if (!record) continue;
+                    const tf = count / (docLengths[key] || 1);
+                    let score = tf * idf;
+                    const title = normalizeRouteText(record.data.title);
+                    const author = normalizeRouteText(record.data.author);
+                    if (title.includes(w)) score *= 5;
+                    else if (author.includes(w)) score *= 3;
+                    scores.set(key, (scores.get(key) || 0) + score);
+                }
+            });
+        }
 
-        return Object.entries(scores).map(([id, score]) => ({ id, score })).sort((a, b) => b.score - a.score);
+        return Array.from(scores, ([key, score]) => {
+            const record = GLOBAL_INDEX_BY_KEY.get(key);
+            return record ? { key, id: record.id, group: record.group, score } : null;
+        }).filter(Boolean).sort((a, b) => b.score - a.score);
     }
 
     return { buildIndexAsync, search, getIndexStatus: () => isIndexed };
@@ -577,7 +615,7 @@ function triggerAsyncSearchIndex() {
 }
 
 /* =====================================================================
-   MODULE 5.2: RENDER ENCYCLOPEDIA & ROUTER
+   MODULE 5.2: RENDER ENCYCLOPEDIA
    ===================================================================== */
 function romanToInt(roman) {
     if (roman === '0') return 0;
@@ -620,11 +658,13 @@ function filterEncyclopediaGroup(group, btnElement) {
 function renderEncyclopediaList(dataToRender, isSearchMode = false, tokens = []) {
     const container = document.getElementById('encyclopedia-container');
     if (!container) return;
+
     currentEncyDataForRender = dataToRender;
+    container.dataset.searchMode = isSearchMode ? 'true' : 'false';
 
     if (!dataToRender?.length) {
         container.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);">Không có dữ liệu.</p>`;
-        document.getElementById('encyclopedia-pagination').innerHTML = '';
+        document.getElementById('encyclopedia-pagination')?.replaceChildren();
         container.dataset.renderedGroup = currentEncyGroup;
         bindEncyclopediaEvents();
         return;
@@ -633,6 +673,7 @@ function renderEncyclopediaList(dataToRender, isSearchMode = false, tokens = [])
     const totalPages = Math.ceil(dataToRender.length / ENCY_ITEMS_PER_PAGE);
     if (currentEncyPage > totalPages) currentEncyPage = totalPages;
     if (currentEncyPage < 1) currentEncyPage = 1;
+
     const pagedData = dataToRender.slice((currentEncyPage - 1) * ENCY_ITEMS_PER_PAGE, currentEncyPage * ENCY_ITEMS_PER_PAGE);
 
     container.innerHTML = pagedData.map(item => {
@@ -645,9 +686,10 @@ function renderEncyclopediaList(dataToRender, isSearchMode = false, tokens = [])
             const bc = group === 'triet-thuyet' ? '#557a6f' : (group === 'ky-tai' ? '#8bb8a8' : '#d4c4a8');
             badge = `<span style="font-size:0.65em;opacity:0.9;color:#fff;background-color:${bc};padding:2px 6px;border-radius:4px;margin-left:8px;white-space:nowrap;font-family:var(--font-body);">${bt}</span>`;
         }
+        const safeDomId = `ency-${group}-${normalizeRouteId(item.id).replace(/[^a-z0-9_-]/g, '-')}`;
         return `
-        <div class="accordion-item" id="${escapeHTML(item.id)}" data-id="${escapeHTML(item.id)}" data-group="${group}">
-            <details data-id="${escapeHTML(item.id)}" data-group="${group}">
+        <div class="accordion-item" id="${escapeHTML(safeDomId)}" data-id="${escapeHTML(item.id)}" data-item-id="${escapeHTML(item.id)}" data-group="${escapeHTML(group)}">
+            <details data-id="${escapeHTML(item.id)}" data-item-id="${escapeHTML(item.id)}" data-group="${escapeHTML(group)}">
                 <summary><span class="summary-title">${title} ${badge}</span>${ICONS.chevron}</summary>
                 <div class="accordion-content"></div>
             </details>
@@ -688,99 +730,280 @@ function searchEncyclopedia() {
 
     const results = VDSearchEngine.search(kw);
     if (!results.length) {
-        document.getElementById('encyclopedia-container').innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy kết quả nào cho "${escapeHTML(kw)}".</p>`;
+        const emptyContainer = document.getElementById('encyclopedia-container');
+        emptyContainer.dataset.searchMode = 'true';
+        emptyContainer.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy kết quả nào cho "${escapeHTML(kw)}".</p>`;
         document.getElementById('encyclopedia-count').textContent = `Tìm thấy 0 mục`;
         document.getElementById('encyclopedia-pagination').innerHTML = '';
         return;
     }
     const tokens = removeAccents(kw.toLowerCase()).split(/\s+/).filter(t => t.length);
     const data = results.map(r => {
-        const idx = GLOBAL_INDEX.get(r.id);
-        return { ...idx.data, _group: idx.type };
-    });
+        const idx = GLOBAL_INDEX_BY_KEY.get(r.key);
+        return idx ? { ...idx.data, _group: idx.group || idx.type } : null;
+    }).filter(Boolean);
     currentEncyPage = 1;
     renderEncyclopediaList(data, true, tokens);
     document.getElementById('encyclopedia-count').textContent = `Tìm thấy ${results.length} mục`;
 }
 
-// HÀM ĐIỀU HƯỚNG VẠN NĂNG (UNIVERSAL SMART ROUTER)
-// Nhận diện: ID, Số La Mã, Tên Tác Phẩm, hoặc Tên Tác Giả. Chỉ cuộn và phát sáng.
-async function gotoEncyclopediaById(query) {
-    if (!query) return;
-    let searchId = String(query).toLowerCase().trim();
-    
-    let targetId = null;
-    let targetGroup = null;
+/* =====================================================================
+   MODULE 5.3: ROUTER VẠN NĂNG
+   ===================================================================== */
+let encyclopediaNavigationToken = 0;
+let lastHighlightedTarget = null;
+const highlightTimers = new WeakMap();
 
-    // 1. Xử lý nếu là số La Mã (VD: V -> quyen-v)
-    if (/^[ivxlcdm]+$/i.test(searchId)) {
-        const vol = `quyen-${searchId}`;
-        if (THEORY_DATA.some(i => i.id === vol)) { targetId = vol; targetGroup = 'triet-thuyet'; }
-    }
-
-    // 2. TÌM KIẾM THÔNG MINH
-    if (!targetId) {
-        if (GLOBAL_INDEX.has(searchId)) {
-            targetId = searchId; targetGroup = GLOBAL_INDEX.get(searchId).type;
-        } else {
-            const theoryMatch = THEORY_DATA.find(i => i.title.toLowerCase().includes(searchId));
-            const authorMatch = AUTHOR_DATA.find(i => i.title.toLowerCase().includes(searchId));
-            const worksMatch = WORKS_DATA.find(i => i.title.toLowerCase().includes(searchId));
-
-            if (theoryMatch) { targetId = theoryMatch.id; targetGroup = 'triet-thuyet'; }
-            else if (authorMatch) { targetId = authorMatch.id; targetGroup = 'ky-tai'; }
-            else if (worksMatch) { targetId = worksMatch.id; targetGroup = 'tinh-hoa'; }
+function extractRouteLocator(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    try {
+        const parsed = new URL(raw, window.location.href);
+        if (parsed.hash) return decodeURIComponent(parsed.hash.slice(1));
+        for (const name of ['id', 'target', 'item', 'slug', 'key']) {
+            const candidate = parsed.searchParams.get(name);
+            if (candidate) return candidate;
         }
+        if (/^[a-z][a-z0-9+.-]*:/i.test(raw) || raw.startsWith('/')) {
+            const leaf = parsed.pathname.split('/').filter(Boolean).pop();
+            return leaf ? decodeURIComponent(leaf.replace(/\.html?$/i, '')) : raw;
+        }
+    } catch (_) { /* Do nothing */ }
+    return raw.replace(/^#/, '');
+}
+
+function resolveEncyclopediaTarget(input) {
+    if (!GLOBAL_RECORDS.length) return { ok: false, reason: 'not-ready' };
+
+    const options = (input && typeof input === 'object') ? input : { query: input };
+    let explicitGroup = normalizeRouteGroup(options.group || options.type || options.category);
+    const rawKey = String(options.key || '').trim();
+    let keyLocator = '';
+    if (rawKey.includes(':')) {
+        const sep = rawKey.indexOf(':');
+        const keyGroup = normalizeRouteGroup(rawKey.slice(0, sep));
+        if (keyGroup) { explicitGroup = explicitGroup || keyGroup; keyLocator = rawKey.slice(sep + 1); }
+    }
+    
+    const suppliedId = extractRouteLocator(options.id || options.itemId || options.targetId || options.slug || options.anchor || options.hash || options.href || keyLocator || rawKey);
+    const suppliedTitle = options.title || options.name || '';
+    const suppliedAuthor = options.author || '';
+    const suppliedVolume = options.volume || options.roman || '';
+    const queryText = String(options.query || options.value || suppliedTitle || suppliedId || suppliedVolume || '').trim();
+    const queryNorm = normalizeRouteText(queryText);
+    const idNorm = normalizeRouteId(suppliedId || queryText);
+    const titleNorm = normalizeRouteText(suppliedTitle || queryText);
+    const authorNorm = normalizeRouteText(suppliedAuthor);
+
+    let records = explicitGroup ? GLOBAL_RECORDS.filter(r => r.group === explicitGroup) : GLOBAL_RECORDS.slice();
+    if (!records.length) return { ok: false, reason: 'group-empty' };
+
+    if (authorNorm && titleNorm) {
+        const paired = records.filter(r => r.group === 'tinh-hoa' && normalizeRouteText(r.data.author) === authorNorm && normalizeRouteText(r.data.title) === titleNorm);
+        if (paired.length === 1) return { ok: true, record: paired[0] };
+        if (paired.length > 1) return { ok: false, reason: 'ambiguous', candidates: paired };
     }
 
-    if (!targetId) { console.warn('[ROUTER] Không tìm thấy dữ liệu cho:', query); return; }
+    if (idNorm) {
+        const exactId = records.filter(r => normalizeRouteId(r.id) === idNorm);
+        if (exactId.length === 1) return { ok: true, record: exactId[0] };
+        if (exactId.length > 1) return { ok: false, reason: 'ambiguous', candidates: exactId };
+    }
 
-    // 3. Reset thanh tìm kiếm
-    const si = document.getElementById('encyclopedia-search');
-    if (si) si.value = '';
+    const volumeText = normalizeRouteText(suppliedVolume || queryText).replace(/^quyen\s+/, '');
+    const romanMatch = volumeText.match(/^([ivxlcdm]+|\d+)$/i);
+    if (romanMatch && (!explicitGroup || explicitGroup === 'triet-thuyet')) {
+        const volumeId = `quyen-${romanMatch[1].toLowerCase()}`;
+        const volumeRecord = records.find(r => r.group === 'triet-thuyet' && normalizeRouteId(r.id) === volumeId);
+        if (volumeRecord) return { ok: true, record: volumeRecord };
+    }
+
+    const cleanQuery = removeAccents(titleNorm);
+    const exactTitle = records.filter(r => {
+        const names = [r.data.title, getRecordTitleAlias(r.data, r.group), r.data.alias, ...(Array.isArray(r.data.aliases) ? r.data.aliases : [])].filter(Boolean).map(normalizeRouteText);
+        const cleanNames = names.map(removeAccents);
+        return names.includes(titleNorm) || cleanNames.includes(cleanQuery);
+    });
+    if (exactTitle.length === 1) return { ok: true, record: exactTitle[0] };
+    if (exactTitle.length > 1) return { ok: false, reason: 'ambiguous', candidates: exactTitle };
+
+    const exactAuthorProfiles = records.filter(r => r.group === 'ky-tai' && normalizeRouteText(getRecordTitleAlias(r.data, r.group)) === queryNorm);
+    if (exactAuthorProfiles.length === 1) return { ok: true, record: exactAuthorProfiles[0] };
+    if (exactAuthorProfiles.length > 1) return { ok: false, reason: 'ambiguous', candidates: exactAuthorProfiles };
+
+    const exactWorksByAuthor = records.filter(r => r.group === 'tinh-hoa' && normalizeRouteText(r.data.author) === queryNorm);
+    if (exactWorksByAuthor.length === 1) return { ok: true, record: exactWorksByAuthor[0] };
+    if (exactWorksByAuthor.length > 1) {
+        const profiles = records.filter(r => r.group === 'ky-tai' && normalizeRouteText(getRecordTitleAlias(r.data, r.group)) === queryNorm);
+        if (profiles.length === 1) return { ok: true, record: profiles[0] };
+        return { ok: false, reason: 'ambiguous', candidates: exactWorksByAuthor };
+    }
+
+    if (queryNorm.length >= 4) {
+        const partial = records.filter(r =>
+            normalizeRouteText(r.data.title).includes(queryNorm) ||
+            removeAccents(normalizeRouteText(r.data.title)).includes(cleanQuery) ||
+            normalizeRouteText(r.data.author).includes(queryNorm)
+        );
+        if (partial.length === 1) return { ok: true, record: partial[0] };
+        if (partial.length > 1) return { ok: false, reason: 'ambiguous', candidates: partial };
+    }
+
+    return { ok: false, reason: 'not-found' };
+}
+
+function findEncyclopediaDOMTarget(record) {
+    const container = document.getElementById('encyclopedia-container');
+    if (!container || !record) return null;
+    const candidates = container.querySelectorAll('.accordion-item[data-group][data-id], .accordion-item[data-group][data-item-id]');
+    for (const element of candidates) {
+        const elementId = element.dataset.itemId || element.dataset.id;
+        if (element.dataset.group === record.group && elementId === record.id) return element;
+    }
+    return null;
+}
+
+function getTheorySectionHeading(record, section) {
+    if (!record || record.group !== 'triet-thuyet' || !section || !record.data?.content) return '';
+    const wanted = String(section).trim().replace(/\.$/, '');
+    const headings = record.data.content.match(/<h[1-6]\b[^>]*>[\s\S]*?<\/h[1-6]>/gi) || [];
+    for (const heading of headings) {
+        const plain = heading.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/\s+/g, ' ').trim();
+        const match = plain.match(/^([\d]+(?:\.[\d]+)+)\.?\s*(.*)$/);
+        if (match && match[1] === wanted) return match[2].trim();
+    }
+    return '';
+}
+
+function updateEncyclopediaActiveFilter(group) {
+    document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(button => {
+        button.classList.remove('active'); button.setAttribute('aria-pressed', 'false');
+    });
+    const buttons = document.querySelectorAll('#encyclopedia-filter-bar .filter-btn');
+    const index = { 'triet-thuyet': 0, 'ky-tai': 1, 'tinh-hoa': 2 }[group];
+    if (index !== undefined && buttons[index]) {
+        buttons[index].classList.add('active'); buttons[index].setAttribute('aria-pressed', 'true');
+    }
+}
+
+async function gotoEncyclopediaById(query) {
+    const resolved = resolveEncyclopediaTarget(query);
+    if (!resolved.ok) {
+        const queryLabel = typeof query === 'object' ? (query.title || query.name || query.id || query.query || 'đích đến') : String(query ?? '');
+        const message = resolved.reason === 'ambiguous'
+            ? `Có nhiều mục gần khớp với “${queryLabel}”. Hãy truyền thêm nhóm hoặc tác giả.`
+            : `Chưa tìm thấy mục “${queryLabel}” trong Bách Khoa.`;
+        console.warn('[ROUTER]', message, resolved.candidates || '');
+        const status = document.getElementById('encyclopedia-count');
+        if (status) status.textContent = message;
+        return { ok: false, reason: resolved.reason, candidates: resolved.candidates || [] };
+    }
+
+    const record = resolved.record;
+    const token = ++encyclopediaNavigationToken;
+    cancelPendingEncyclopediaSearch();
+    const searchInput = document.getElementById('encyclopedia-search');
+    if (searchInput) searchInput.value = '';
     document.getElementById('clear-search-btn')?.classList.remove('show');
     const filterBar = document.getElementById('encyclopedia-filter-bar');
     if (filterBar) filterBar.style.display = 'flex';
 
-    // 4. Chuyển view và Render
     const switched = await switchView('encyclopedia');
-    if (!switched) return;
+    if (!switched || token !== encyclopediaNavigationToken) return { ok: false, reason: 'superseded' };
 
-    currentEncyGroup = targetGroup;
-    currentEncyPage = 1;
+    const data = getRecordsForGroup(record.group);
+    const sorted = sortEncyData(data.slice(), record.group);
+    const itemIndex = sorted.findIndex(item => item.id === record.id);
+    if (itemIndex < 0) return { ok: false, reason: 'missing-index-record' };
     
-    let data = [];
-    if (currentEncyGroup === 'triet-thuyet') data = THEORY_DATA;
-    else if (currentEncyGroup === 'ky-tai') data = AUTHOR_DATA;
-    else if (currentEncyGroup === 'tinh-hoa') data = WORKS_DATA;
+    const targetPage = Math.floor(itemIndex / ENCY_ITEMS_PER_PAGE) + 1;
+    const container = document.getElementById('encyclopedia-container');
     
-    sortEncyData(data, currentEncyGroup);
-    const itemIndex = data.findIndex(i => i.id === targetId);
-    if (itemIndex !== -1) currentEncyPage = Math.floor(itemIndex / ENCY_ITEMS_PER_PAGE) + 1;
+    const reusableTarget = currentEncyGroup === record.group && currentEncyPage === targetPage &&
+        container?.dataset.renderedGroup === record.group && container.dataset.searchMode !== 'true'
+        ? findEncyclopediaDOMTarget(record) : null;
 
-    renderEncyclopedia();
+    if (!reusableTarget) {
+        currentEncyGroup = record.group;
+        currentEncyPage = targetPage;
+        renderEncyclopedia();
+    }
+    updateEncyclopediaActiveFilter(record.group);
 
-    // Cập nhật filter btn
-    document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => {
-        b.classList.remove('active'); b.setAttribute('aria-pressed', 'false');
+    if (!reusableTarget) {
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        if (token !== encyclopediaNavigationToken) return { ok: false, reason: 'superseded' };
+    }
+
+    const targetEl = reusableTarget || findEncyclopediaDOMTarget(record);
+    if (!targetEl) return { ok: false, reason: 'dom-not-found', record };
+
+    const section = query && typeof query === 'object' ? query.section : '';
+    targetEl.querySelectorAll('.route-section-hint').forEach(node => node.remove());
+    if (section) {
+        const sectionTitle = getTheorySectionHeading(record, section);
+        const summaryTitle = targetEl.querySelector('.summary-title');
+        if (summaryTitle) {
+            const hint = document.createElement('span');
+            hint.className = 'route-section-hint';
+            hint.textContent = `Mục ${section}${sectionTitle ? ` · ${sectionTitle}` : ''}`;
+            summaryTitle.appendChild(hint);
+        }
+    }
+
+    targetEl.classList.add('is-visible');
+    document.querySelectorAll('#encyclopedia-container .accordion-item').forEach(item => {
+        item.style.contentVisibility = 'visible';
     });
-    const btns = document.querySelectorAll('#encyclopedia-filter-bar .filter-btn');
-    if (targetGroup === 'triet-thuyet' && btns[0]) { btns[0].classList.add('active'); btns[0].setAttribute('aria-pressed', 'true'); }
-    if (targetGroup === 'ky-tai' && btns[1]) { btns[1].classList.add('active'); btns[1].setAttribute('aria-pressed', 'true'); }
-    if (targetGroup === 'tinh-hoa' && btns[2]) { btns[2].classList.add('active'); btns[2].setAttribute('aria-pressed', 'true'); }
 
-    // 5. KÉO TỚI VÀ PHÁT SÁNG (Không tự động mở accordion để căn giữa chuẩn nhất)
-    let targetEl = document.getElementById(targetId) || document.querySelector(`.accordion-item[data-id="${targetId}"]`);
-    if (!targetEl) return;
-
-    await new Promise(requestAnimationFrame);
-    targetEl.classList.add('is-visible'); 
-    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (lastHighlightedTarget && lastHighlightedTarget !== targetEl) {
+        lastHighlightedTarget.classList.remove('highlight-target');
+        lastHighlightedTarget.querySelectorAll('.route-section-hint').forEach(node => node.remove());
+        lastHighlightedTarget.style.contentVisibility = '';
+        const oldTimer = highlightTimers.get(lastHighlightedTarget);
+        if (oldTimer) clearTimeout(oldTimer);
+    }
     
+    const targetTimer = highlightTimers.get(targetEl);
+    if (targetTimer) clearTimeout(targetTimer);
+    targetEl.classList.remove('highlight-target');
+    void targetEl.offsetWidth;
     targetEl.classList.add('highlight-target');
-    setTimeout(() => {
+    lastHighlightedTarget = targetEl;
+
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const targetRect = targetEl.getBoundingClientRect();
+    const destinationTop = Math.max(0, window.scrollY + targetRect.top + targetRect.height / 2 - window.innerHeight / 2);
+    
+    if (reducedMotion) {
+        const root = document.documentElement;
+        const previousBehavior = root.style.scrollBehavior;
+        root.style.scrollBehavior = 'auto';
+        window.scrollTo({ top: destinationTop, behavior: 'auto' });
+        requestAnimationFrame(() => { root.style.scrollBehavior = previousBehavior; });
+    } else {
+        window.scrollTo({ top: destinationTop, behavior: 'smooth' });
+    }
+
+    const timer = setTimeout(() => {
         targetEl.classList.remove('highlight-target');
-    }, 2500);
+        if (lastHighlightedTarget === targetEl) lastHighlightedTarget = null;
+    }, 2800);
+    highlightTimers.set(targetEl, timer);
+
+    const status = document.getElementById('encyclopedia-count');
+    if (status) {
+        const section = query && typeof query === 'object' && query.section ? ` · mục ${query.section}` : '';
+        status.textContent = `Đã định vị: ${record.data.title}${section}`;
+    }
+    return { ok: true, id: record.id, group: record.group, matchedBy: resolved.matchedBy, element: targetEl };
+}
+
+function getRecordsForGroup(group) {
+    if (group === 'triet-thuyet') return THEORY_DATA;
+    if (group === 'ky-tai') return AUTHOR_DATA;
+    if (group === 'tinh-hoa') return WORKS_DATA;
+    return [];
 }
 
 /* =====================================================================
@@ -918,11 +1141,25 @@ function executePipeline() {
     if (!hChan && !hLung && !hLien && !hCach) rhymeHtml = `<p style="font-style:italic;color:#e74c3c;padding:15px 0;text-align:center;">Bài thơ không sử dụng vần.</p>`;
 
     const tier1 = `<div style="margin-bottom:20px;"><strong>Thể thơ:</strong> ${report.form.form} <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note}</span></div>${rhymeHtml}`;
+    
     const tier2 = !report.symbols.length
         ? `<p style="font-style:italic;color:var(--text-muted);">Không phát hiện biểu tượng đặc biệt.</p>`
-        : report.symbols.map(s => `<div class="symbol-row" style="padding:8px 0;"><span class="symbol-keyword">${s.keyword}</span><span class="symbol-meaning"><em style="font-size:0.8rem;">[${s.type}]</em> ${s.mean}</span><span class="volume-link" onclick="gotoEncyclopediaById('${s.vol}')">Xem Bách Khoa</span></div>`).join('');
+        : report.symbols.map(s => `<div class="symbol-row" style="padding:8px 0;">
+            <span class="symbol-keyword">${escapeHTML(s.keyword)}</span>
+            <span class="symbol-meaning"><em style="font-size:0.8rem;">[${escapeHTML(s.type)}]</em> ${escapeHTML(s.mean)}</span>
+            <button type="button" class="volume-link" data-route-encyclopedia="true" 
+                data-route-volume="${escapeHTML(s.vol)}" 
+                data-route-section="${escapeHTML(s.sec)}" 
+                data-route-group="triet-thuyet">Xem Bách Khoa</button>
+        </div>`).join('');
+        
     const tier3 = report.questions.map(q => {
-        const formatted = q.replace(/\(Xem Quyển ([IVX]+), mục ([\d.]+)\)/g, (_, v) => `(<span class="volume-link" onclick="gotoEncyclopediaById('${v}')">Xem Bách Khoa</span>)`);
+        const formatted = q.replace(/\(Xem Quyển ([IVXLCDM]+), mục ([\d.]+)\)/g, (_, v, sec) => 
+            `(<button type="button" class="volume-link" data-route-encyclopedia="true" 
+                data-route-volume="${escapeHTML(v)}" 
+                data-route-section="${escapeHTML(sec)}" 
+                data-route-group="triet-thuyet">Xem Bách Khoa</button>)`
+        );
         return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${formatted}</div></div>`;
     }).join('');
 
@@ -992,56 +1229,110 @@ function initDewdrops() {
 
 async function loadAllData() {
     try {
-        const [rT, rA, rW, rQ, rC, rDict, rCat, rFort] = await Promise.all([
-            fetch('./data/data-ly-thuyet.json'),
-            fetch('./data/data-tac-gia.json'),
-            fetch('./data/data-tac-pham.json'),
-            fetch('./data/data-danh-ngon.json'),
-            fetch('./data/data-loi-binh.json'),
-            fetch('./data/data-tu-dien.json'),
-            fetch('./data/data-the-loai.json'),
-            fetch('./data/data-van-khi.json')
-        ]);
-        
-        THEORY_DATA = await rT.json();
-        AUTHOR_DATA = await rA.json();
-        WORKS_DATA  = await rW.json();
-        QUOTES_DATA = await rQ.json();
-        COMMENTARY_DATA = await rC.json();
-        
-        const dict = await rDict.json();
-        DICTIONARY_DATA = { symbols: dict.symbols, dienTich: dict.dienTich, hanViet: dict.hanViet };
-        CATEGORY_NAMES = await rCat.json();
-        const fort = await rFort.json();
-        FORTUNE_CONFIG = fort.config;
-        FORTUNE_ADVICE = fort.advice;
+        const safeFetch = async (url, fallback = []) => {
+            try {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            } catch (e) {
+                console.warn(`[SYSTEM] Lỗi tải file ${url}:`, e);
+                return fallback; 
+            }
+        };
 
-        const addToIndex = (arr, type) => arr.forEach(item => {
-            if (GLOBAL_INDEX.has(item.id)) {
-                console.warn(`[INDEX] Trùng ID: "${item.id}" (${GLOBAL_INDEX.get(item.id).type} vs ${type}). Giữ bản cũ.`);
-            } else GLOBAL_INDEX.set(item.id, { type, data: item });
-        });
+        const results = await Promise.all([
+            safeFetch('./data/data-ly-thuyet.json', []),
+            safeFetch('./data/data-tac-gia.json', []),
+            safeFetch('./data/data-tac-pham.json', []),
+            safeFetch('./data/data-danh-ngon.json', []), 
+            safeFetch('./data/data-loi-binh.json', {}),
+            safeFetch('./data/data-tu-dien.json', { symbols: {}, dienTich: {}, hanViet: {} }),
+            safeFetch('./data/data-the-loai.json', {}),
+            safeFetch('./data/data-van-khi.json', { config: {}, advice: {} })
+        ]);
+
+        THEORY_DATA = results[0];
+        AUTHOR_DATA = results[1];
+        WORKS_DATA  = results[2];
+        QUOTES_DATA = results[3];
+        COMMENTARY_DATA = results[4];
+        
+        DICTIONARY_DATA = results[5];
+        CATEGORY_NAMES = results[6];
+        FORTUNE_CONFIG = results[7].config || {};
+        FORTUNE_ADVICE = results[7].advice || {};
+
+        GLOBAL_INDEX.clear(); GLOBAL_INDEX_BY_KEY.clear(); GLOBAL_RECORDS.length = 0;
+        
+        const addToIndex = (arr, group) => {
+            if (!Array.isArray(arr)) return;
+            arr.forEach(item => {
+                if (!item?.id || !item?.title) return;
+                const key = `${group}:${item.id}`;
+                const record = { key, id: item.id, group, type: group, data: item };
+                if (GLOBAL_INDEX_BY_KEY.has(key)) return;
+                GLOBAL_INDEX_BY_KEY.set(key, record);
+                GLOBAL_RECORDS.push(record);
+                if (!GLOBAL_INDEX.has(item.id)) GLOBAL_INDEX.set(item.id, record);
+            });
+        };
         addToIndex(THEORY_DATA, 'triet-thuyet');
         addToIndex(AUTHOR_DATA, 'ky-tai');
         addToIndex(WORKS_DATA, 'tinh-hoa');
 
         initMainFilters();
-        renderRandomQuote();
-        if (quoteIntervalId) clearInterval(quoteIntervalId);
-        quoteIntervalId = setInterval(renderRandomQuote, 6000);
+        
+        if (QUOTES_DATA && QUOTES_DATA.length > 0) {
+            renderRandomQuote();
+            if (quoteIntervalId) clearInterval(quoteIntervalId);
+            quoteIntervalId = setInterval(renderRandomQuote, 6000);
+        } else {
+            const qContainer = document.getElementById('daily-quote-container');
+            if (qContainer) qContainer.innerHTML = `<p style="text-align:center; font-style:italic; color:var(--text-muted); padding: 20px;">Không có dữ liệu danh ngôn.</p>`;
+        }
 
         triggerAsyncSearchIndex();
+
     } catch (err) {
-        console.error("[SYSTEM] Lỗi tải dữ liệu:", err);
+        console.error("[SYSTEM] Lỗi nghiêm trọng khi tải dữ liệu:", err);
     } finally {
         initWaterCanvas();
         initDewdrops();
     }
 }
 
-// (Hàm auditWorksData, auditAuthorsData giữ nguyên - Lược bớt để file gọn hơn nhưng bạn có thể giữ)
-async function auditWorksData() { /* Giữ nguyên logic như cũ */ }
-async function auditAuthorsData() { /* Giữ nguyên logic như cũ */ }
+async function auditWorksData() {
+    console.log("%c[AUDIT] KIỂM TRA TÁC PHẨM", "color:#8bb8a8;font-weight:bold;");
+    let ok = 0, empty = 0, err = 0;
+    for (const w of WORKS_DATA) {
+        try {
+            const res = await fetch(`./data/tac-pham/${encodeURIComponent(w.id)}.json`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const d = await res.json();
+            const clean = (d.content || '').replace(/<[^>]*>/g, '').trim();
+            if (clean.length > 100 && !clean.includes('đang được Văn Đạo hiệu đính')) ok++;
+            else empty++;
+        } catch { err++; }
+    }
+    console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
+}
+
+async function auditAuthorsData() {
+    console.log("%c[AUDIT] KIỂM TRA TÁC GIẢ", "color:#8bb8a8;font-weight:bold;");
+    let ok = 0, empty = 0, err = 0;
+    for (const a of AUTHOR_DATA) {
+        try {
+            const res = await fetch(`./data/tac-gia/${encodeURIComponent(a.id)}.json`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const d = await res.json();
+            const clean = (d.content || '').replace(/<[^>]*>/g, '').trim();
+            if (clean.length > 100 && !clean.includes('đang được Văn Đạo hiệu đính')) ok++;
+            else empty++;
+        } catch { err++; }
+    }
+    console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
+}
+
 window.auditWorksData = auditWorksData;
 window.auditAuthorsData = auditAuthorsData;
 
@@ -1085,7 +1376,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (status) status.textContent = "Sẵn sàng trải nghiệm...";
     await new Promise(r => setTimeout(r, remaining));
 
-    // --- NGHI THỨC CHUYỂN GIAO: SPLASH -> SILK -> TRANG CHỦ ---
     if (splash) {
         const silkOverlay = document.getElementById('silkTransition');
         if (silkOverlay) {
@@ -1112,7 +1402,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     document.getElementById('search-input')?.addEventListener('input', debounce(() => { currentPage = 1; renderHeritage(); }, 300));
-    document.getElementById('encyclopedia-search')?.addEventListener('input', debounce(searchEncyclopedia, 300));
+    const encyclopediaSearchInput = document.getElementById('encyclopedia-search');
+    if (encyclopediaSearchInput) {
+        const debouncedSearch = debounce(searchEncyclopedia, 300);
+        cancelPendingEncyclopediaSearch = debouncedSearch.cancel;
+        encyclopediaSearchInput.addEventListener('input', debouncedSearch);
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
@@ -1125,6 +1420,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener('click', e => {
+    const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
+    if (routeControl) {
+        e.preventDefault();
+        const route = {};
+        if (routeControl.dataset.routeId) route.id = routeControl.dataset.routeId;
+        if (routeControl.dataset.routeGroup) route.group = routeControl.dataset.routeGroup;
+        if (routeControl.dataset.routeTitle) route.title = routeControl.dataset.routeTitle;
+        if (routeControl.dataset.routeAuthor) route.author = routeControl.dataset.routeAuthor;
+        if (routeControl.dataset.routeVolume) route.volume = routeControl.dataset.routeVolume;
+        if (routeControl.dataset.routeSection) route.section = routeControl.dataset.routeSection;
+        if (routeControl.dataset.routeQuery) route.query = routeControl.dataset.routeQuery;
+        if (routeControl.dataset.routeAnchor) route.anchor = routeControl.dataset.routeAnchor;
+        if (routeControl.dataset.routeHash) route.hash = routeControl.dataset.routeHash;
+        if (routeControl.dataset.routeHref) route.href = routeControl.dataset.routeHref;
+        if (routeControl.dataset.routeKey) route.key = routeControl.dataset.routeKey;
+        if (routeControl.dataset.routeValue) route.value = routeControl.dataset.routeValue;
+        gotoEncyclopediaById(route);
+        return;
+    }
+
     const navMenu = document.getElementById('navMenu');
     const menuBtn = document.querySelector('.mobile-menu-btn');
     if (navMenu?.classList.contains('show') && !navMenu.contains(e.target) && !menuBtn?.contains(e.target)) {
@@ -1143,15 +1458,15 @@ function findSymbols(text) {
     const lower = text.toLowerCase();
     const out = [];
     const { symbols, dienTich, hanViet } = DICTIONARY_DATA;
-    for (const [kw, info] of Object.entries(symbols)) if (lower.includes(kw)) out.push({ type: 'Biểu tượng', keyword: kw, ...info });
-    for (const [kw, info] of Object.entries(dienTich)) if (lower.includes(kw)) out.push({ type: 'Điển tích', keyword: kw, ...info });
-    for (const [kw, info] of Object.entries(hanViet)) if (lower.includes(kw)) out.push({ type: 'Hán Việt', keyword: kw, ...info });
+    for (const [kw, info] of Object.entries(symbols || {})) if (lower.includes(kw)) out.push({ type: 'Biểu tượng', keyword: kw, ...info });
+    for (const [kw, info] of Object.entries(dienTich || {})) if (lower.includes(kw)) out.push({ type: 'Điển tích', keyword: kw, ...info });
+    for (const [kw, info] of Object.entries(hanViet || {})) if (lower.includes(kw)) out.push({ type: 'Hán Việt', keyword: kw, ...info });
     return out;
 }
 
 function highlightSymbolsInContent(container) {
     if (!container?.firstChild) return;
-    const keywords = Object.keys(DICTIONARY_DATA.symbols).concat(Object.keys(DICTIONARY_DATA.dienTich));
+    const keywords = Object.keys(DICTIONARY_DATA.symbols || {}).concat(Object.keys(DICTIONARY_DATA.dienTich || {}));
     if (!keywords.length) return;
 
     const pattern = new RegExp(
@@ -1179,7 +1494,7 @@ function highlightSymbolsInContent(container) {
         while ((m = pattern.exec(text)) !== null) {
             if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
             const kw = m[1];
-            const info = DICTIONARY_DATA.symbols[kw.toLowerCase()] || DICTIONARY_DATA.dienTich[kw.toLowerCase()];
+            const info = (DICTIONARY_DATA.symbols && DICTIONARY_DATA.symbols[kw.toLowerCase()]) || (DICTIONARY_DATA.dienTich && DICTIONARY_DATA.dienTich[kw.toLowerCase()]);
             const span = document.createElement('span');
             span.className = 'symbol-mark';
             span.dataset.symbol = kw;
@@ -1227,13 +1542,9 @@ function appendRelatedSection(container, item, group) {
     section.innerHTML = `
         <div class="related-title">Tác phẩm liên quan</div>
         <div class="related-grid">
-            ${related.map(w => `<div class="related-card" data-goto="${escapeHTML(w.id)}">${escapeHTML(w.title)}<small>${escapeHTML(w.author || '')}</small></div>`).join('')}
+            ${related.map(w => `<button type="button" class="related-card" data-route-encyclopedia="true" data-route-id="${escapeHTML(w.id)}" data-route-group="tinh-hoa" data-route-title="${escapeHTML(w.title)}" data-route-author="${escapeHTML(w.author || '')}">${escapeHTML(w.title)}<small>${escapeHTML(w.author || '')}</small></button>`).join('')}
         </div>
     `;
-    section.addEventListener('click', e => {
-        const card = e.target.closest('[data-goto]');
-        if (card) gotoEncyclopediaById(card.dataset.goto);
-    });
     container.appendChild(section);
 }
 
@@ -1308,10 +1619,10 @@ async function randomPoem() {
     loadingEl.classList.remove('hidden');
     resultEl.classList.remove('show');
 
-    // 1. Render dữ liệu ngầm định (Để khi loading mờ đi, khung đã sẵn sàng, không gây giật CLS)
+    // 1. Render ngầm dữ liệu để chống CLS
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
     const fortuneKey = determineFortuneByContext(randomWork);
-    const fortuneInfo = FORTUNE_CONFIG[fortuneKey];
+    const fortuneInfo = FORTUNE_CONFIG[fortuneKey] || { name: 'Bình Hòa', color: '#6a7c76' };
     
     let excerpt = randomWork.desc;
     try {
@@ -1343,22 +1654,47 @@ async function randomPoem() {
     
     const bridgeText = generateBridgeText(randomWork, fortuneKey);
     
+    // Xử lý tách Nên / Tránh
+    let adviceHtml = '';
+    if (adviceText) {
+        const parts = adviceText.split('Tránh:');
+        const nenText = parts[0] ? parts[0].replace('Nên:', '').trim() : '';
+        const tranhText = parts[1] ? parts[1].trim() : '';
+
+        if (tranhText) {
+            adviceHtml = `
+                <div style="margin-bottom: 8px;">
+                    <strong style="color: var(--accent-text);">Nên:</strong> <span style="color: var(--text-main);">${nenText}</span>
+                </div>
+                <div>
+                    <strong style="color: #a36b6b;">Tránh:</strong> <span style="color: var(--text-muted);">${tranhText}</span>
+                </div>
+            `;
+        } else {
+            adviceHtml = `<div><strong style="color: var(--accent-text);">Lời khuyên:</strong> ${adviceText}</div>`;
+        }
+    }
+
     document.getElementById('fate-commentary').innerHTML = `
         <p style="margin-bottom: 15px; color: var(--accent-text); font-style: italic;">${bridgeText}</p>
         <p style="margin-bottom: 15px;">${commentaryText}</p>
-        <div style="background: rgba(0,0,0,0.03); padding: 10px 15px; border-radius: 8px; border-left: 2px solid ${fortuneInfo.color}; font-size: 0.95rem;">
-            <strong>Lời khuyên:</strong> ${adviceText}
+        <div style="background: rgba(139, 184, 168, 0.05); padding: 12px 16px; border-radius: 8px; border-left: 2px solid ${fortuneInfo.color}; font-size: 0.95rem; line-height: 1.6;">
+            ${adviceHtml}
         </div>
     `;
 
     document.getElementById('fate-goto-btn').onclick = () => {
         overlay.classList.remove('show');
         setTimeout(() => { overlay.style.display = 'none'; }, 300);
-        gotoEncyclopediaById(randomWork.id);
-        setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 500);
+        gotoEncyclopediaById({
+            id: randomWork.id,
+            group: 'tinh-hoa',
+            title: randomWork.title,
+            author: randomWork.author
+        });
     };
 
-    // 2. Đợi 1.2s (Thiền định) rồi mới từ từ làm mờ Loading để lộ Data đã render sẵn
+    // 2. Hiện kết quả sau 1.2s
     setTimeout(() => {
         loadingEl.classList.add('hidden');
         resultEl.classList.add('show');
@@ -1383,7 +1719,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-/* ---------- HÀM PHÂN TRANG DÙNG CHUNG (HỖ TRỢ MŨI TÊN) ---------- */
+/* ---------- HÀM PHÂN TRANG DÙNG CHUNG (Đã hỗ trợ mũi tên) ---------- */
 function renderPagination(totalPages, containerId = 'pagination-container', pageType = 'heritage') {
     const pagContainer = document.getElementById(containerId);
     if (!pagContainer) return;
@@ -1417,6 +1753,7 @@ function changePage(page, containerId = 'pagination-container', pageType = 'heri
 
 /* ---------- EXPORT ---------- */
 window.gotoEncyclopediaById = gotoEncyclopediaById;
+window.resolveEncyclopediaTarget = resolveEncyclopediaTarget;
 window.toggleMobileMenu = toggleMobileMenu;
 window.filterMainCategory = filterMainCategory;
 window.filterSubGenre = filterSubGenre;
