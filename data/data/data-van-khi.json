@@ -1,0 +1,18 @@
+{
+  "config": {
+    "dai-cat":   { "name": "Đại Cát",   "color": "#d4c4a8" },
+    "trung-cat": { "name": "Trung Cát", "color": "#8bb8a8" },
+    "tieu-cat":  { "name": "Tiểu Cát",  "color": "#739e8f" },
+    "binh-hoa":  { "name": "Bình Hòa",  "color": "#6a7c76" },
+    "tieu-hung": { "name": "Tiểu Hung", "color": "#a36b6b" },
+    "dai-hung":  { "name": "Đại Hung",  "color": "#804a4a" }
+  },
+  "advice": {
+    "dai-cat":   "Nên: Hành động táo bạo, nắm bắt cơ hội. Tránh: Sự chủ quan.",
+    "trung-cat": "Nên: Tiếp tục nỗ lực, mở rộng kết nối. Tránh: Nóng vội.",
+    "tieu-cat":  "Nên: Tận hưởng điều nhỏ bé, hoàn thiện việc cũ. Tránh: Kỳ vọng quá cao.",
+    "binh-hoa":  "Nên: Nghỉ ngơi, đọc sách, chiêm nghiệm. Tránh: Đưa ra quyết định lớn.",
+    "tieu-hung": "Nên: Cẩn trọng lời ăn tiếng nói, giữ bình tĩnh. Tránh: Tranh cãi.",
+    "dai-hung":  "Nên: Ẩn mình, bảo toàn sức khỏe, thiền định. Tránh: Đối đầu trực diện."
+  }
+}
