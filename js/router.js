@@ -6,8 +6,9 @@
  * ==========================================================
  */
 
+// 1. IMPORT CÁC HÀM VÀ BIẾN CẦN THIẾT
 import { STATE, ENCY_ITEMS_PER_PAGE } from './config.js';
-import { normalizeRouteText, normalizeRouteId, normalizeRouteGroup, getRecordTitleAlias } from './utils.js';
+import { normalizeRouteText, normalizeRouteId, normalizeRouteGroup, getRecordTitleAlias, removeAccents } from './utils.js';
 import { renderEncyclopedia, sortEncyData, renderHeritage } from './render.js';
 
 /* =====================================================================
@@ -17,15 +18,12 @@ const scrollPositions = { home: 0, heritage: 0, encyclopedia: 0, analyze: 0 };
 let switchToken = 0;
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
-// Danh sách các view có trong index.html
-const VIEWS = ['view-home', 'view-heritage', 'view-encyclopedia', 'view-analyze'];
-
 // Hàm dọn dẹp khi rời khỏi một View
 export function unloadView(viewId) {
     if (viewId !== 'encyclopedia') return;
     const container = document.getElementById('encyclopedia-container');
     if (!container) return;
-    // Đóng tất cả các accordion đang mở để giải phóng bộ nhớ
+    // Đóng tất cả các accordion đang mở để giải phóng bộ nhớ (DOM)
     container.querySelectorAll('details[open]').forEach(details => {
         details.open = false;
         const content = details.querySelector('.accordion-content');
@@ -33,7 +31,7 @@ export function unloadView(viewId) {
     });
 }
 
-// Hàm chuyển đổi qua lại giữa các View
+// Hàm chuyển đổi qua lại giữa các View (Home, Văn Hiến, Bách Khoa, Thi Pháp)
 export async function switchView(viewId) {
     const targetView = document.getElementById(`view-${viewId}`);
     if (!targetView) return false;
@@ -42,13 +40,13 @@ export async function switchView(viewId) {
     const activeView = document.querySelector('.view.active');
     const currentViewId = activeView ? activeView.id.replace('view-', '') : null;
 
-    // Nếu đang ở đúng view đó rồi thì không làm gì cả
+    // Nếu đang ở đúng view đó rồi thì chỉ cần render lại dữ liệu (nếu chưa)
     if (currentViewId === viewId) {
         if (viewId === 'heritage') {
             const grid = document.getElementById('heritage-grid');
             if (grid && grid.dataset.rendered !== 'true') {
                 grid.dataset.rendered = 'true';
-                renderHeritage(); // Gọi từ render.js
+                renderHeritage();
             }
         }
         if (viewId === 'encyclopedia') {
@@ -58,27 +56,27 @@ export async function switchView(viewId) {
         return true;
     }
 
-    // Lưu lại vị trí cuộn của trang hiện tại trước khi rời đi
+    // 1. Lưu lại vị trí cuộn của trang hiện tại trước khi rời đi
     if (currentViewId) {
         scrollPositions[currentViewId] = window.scrollY;
         unloadView(currentViewId);
     }
 
-    // Kích hoạt hiệu ứng Dải lụa (Silk Transition)
+    // 2. Kích hoạt hiệu ứng Dải lụa (Silk Transition)
     const silkOverlay = document.getElementById('silkTransition');
     if (silkOverlay) {
         silkOverlay.classList.remove('entering', 'leaving', 'active');
-        void silkOverlay.offsetWidth; // Ép trình duyệt reflow
+        void silkOverlay.offsetWidth; // Ép trình duyệt reflow để nhận animation mới
         silkOverlay.classList.add('active', 'entering');
         await wait(300); // Đợi dải lụa quét qua
         if (token !== switchToken) return false; // Hủy nếu người dùng bấm quá nhanh
     }
 
-    // Ẩn tất cả các view hiện tại
+    // 3. Ẩn tất cả các view hiện tại
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(l => { l.classList.remove('active'); l.removeAttribute('aria-current'); });
 
-    // Hiển thị view mới
+    // 4. Hiển thị view mới
     targetView.classList.add('active');
     const targetNav = document.getElementById(`nav-${viewId}`);
     if (targetNav) { targetNav.classList.add('active'); targetNav.setAttribute('aria-current', 'page'); }
@@ -87,7 +85,7 @@ export async function switchView(viewId) {
     const navMenu = document.getElementById('navMenu');
     if (navMenu) navMenu.classList.remove('show');
 
-    // Render dữ liệu cho View mới (nếu chưa render)
+    // 5. Render dữ liệu cho View mới (nếu chưa render)
     if (viewId === 'heritage') {
         const grid = document.getElementById('heritage-grid');
         if (grid && grid.dataset.rendered !== 'true') {
@@ -100,13 +98,13 @@ export async function switchView(viewId) {
         if (container && !container.dataset.renderedGroup) renderEncyclopedia();
     }
 
-    // Tắt hiệu ứng dải lụa
+    // 6. Tắt hiệu ứng dải lụa
     if (silkOverlay) silkOverlay.classList.remove('active', 'entering');
 
     await new Promise(requestAnimationFrame);
     if (token !== switchToken) return false;
 
-    // Khôi phục vị trí cuộn (nếu có)
+    // 7. Khôi phục vị trí cuộn (nếu quay lại trang cũ)
     window.scrollTo({ top: scrollPositions[viewId] || 0, behavior: 'instant' });
     return true;
 }
@@ -128,11 +126,12 @@ export function toggleMobileMenu() {
 let encyclopediaNavigationToken = 0;
 let lastHighlightedTarget = null;
 const highlightTimers = new WeakMap();
-let cancelPendingEncyclopediaSearch = () => {}; // Sẽ được main.js gán hàm vào
 
-// Hàm cho phép main.js truyền hàm cancel của Debounce vào
+// Hàm nhận hàm cancel từ main.js (Dùng để hủy tìm kiếm đang gõ dở)
+let cancelPendingEncyclopediaSearch = () => {};
 export function setCancelSearch(fn) { cancelPendingEncyclopediaSearch = fn; }
 
+// Hàm trích xuất ID/URL
 export function extractRouteLocator(value) {
     const raw = String(value ?? '').trim();
     if (!raw) return '';
@@ -151,6 +150,7 @@ export function extractRouteLocator(value) {
     return raw.replace(/^#/, '');
 }
 
+// Hàm phân tích Input để tìm ra Record (bài thơ/tác giả) chính xác
 export function resolveEncyclopediaTarget(input) {
     if (!STATE.GLOBAL_RECORDS.length) return { ok: false, reason: 'not-ready' };
 
@@ -231,6 +231,7 @@ export function resolveEncyclopediaTarget(input) {
     return { ok: false, reason: 'not-found' };
 }
 
+// Hàm chính: Nhảy tới một mục trong Bách Khoa
 export async function gotoEncyclopediaById(query) {
     const resolved = resolveEncyclopediaTarget(query);
     if (!resolved.ok) {
@@ -264,10 +265,11 @@ export async function gotoEncyclopediaById(query) {
     const itemIndex = sorted.findIndex(item => item.id === record.id);
     if (itemIndex < 0) return { ok: false, reason: 'missing-index-record' };
     
+    // Tính toán xem mục này nằm ở trang thứ mấy
     const targetPage = Math.floor(itemIndex / ENCY_ITEMS_PER_PAGE) + 1;
     const container = document.getElementById('encyclopedia-container');
     
-    // Kiểm tra xem DOM của mục này đã render sẵn chưa
+    // Kiểm tra xem DOM của mục này đã render sẵn chưa (để tái sử dụng)
     const reusableTarget = STATE.currentEncyGroup === record.group && STATE.currentEncyPage === targetPage &&
         container?.dataset.renderedGroup === record.group && container.dataset.searchMode !== 'true'
         ? findEncyclopediaDOMTarget(record) : null;
@@ -275,7 +277,7 @@ export async function gotoEncyclopediaById(query) {
     if (!reusableTarget) {
         STATE.currentEncyGroup = record.group;
         STATE.currentEncyPage = targetPage;
-        renderEncyclopedia(); // Gọi từ render.js
+        renderEncyclopedia();
     }
     updateEncyclopediaActiveFilter(record.group);
 
@@ -318,7 +320,7 @@ export async function gotoEncyclopediaById(query) {
     const targetTimer = highlightTimers.get(targetEl);
     if (targetTimer) clearTimeout(targetTimer);
     targetEl.classList.remove('highlight-target');
-    void targetEl.offsetWidth;
+    void targetEl.offsetWidth; // Ép reflow để animation chạy lại
     targetEl.classList.add('highlight-target');
     lastHighlightedTarget = targetEl;
 
@@ -337,6 +339,7 @@ export async function gotoEncyclopediaById(query) {
         window.scrollTo({ top: destinationTop, behavior: 'smooth' });
     }
 
+    // Tắt hiệu ứng sau 2.8s
     const timer = setTimeout(() => {
         targetEl.classList.remove('highlight-target');
         if (lastHighlightedTarget === targetEl) lastHighlightedTarget = null;
@@ -351,6 +354,7 @@ export async function gotoEncyclopediaById(query) {
     return { ok: true, id: record.id, group: record.group, matchedBy: resolved.matchedBy, element: targetEl };
 }
 
+// Hàm phụ: Tìm thẻ DOM đích trong container
 export function findEncyclopediaDOMTarget(record) {
     const container = document.getElementById('encyclopedia-container');
     if (!container || !record) return null;
@@ -362,6 +366,7 @@ export function findEncyclopediaDOMTarget(record) {
     return null;
 }
 
+// Hàm phụ: Lấy tiêu đề của mục (VD: "Thận trọng khi sử dụng...")
 export function getTheorySectionHeading(record, section) {
     if (!record || record.group !== 'triet-thuyet' || !section || !record.data?.content) return '';
     const wanted = String(section).trim().replace(/\.$/, '');
@@ -374,6 +379,7 @@ export function getTheorySectionHeading(record, section) {
     return '';
 }
 
+// Hàm phụ: Cập nhật trạng thái nút bấm bộ lọc (Active)
 export function updateEncyclopediaActiveFilter(group) {
     document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(button => {
         button.classList.remove('active'); button.setAttribute('aria-pressed', 'false');
@@ -385,6 +391,7 @@ export function updateEncyclopediaActiveFilter(group) {
     }
 }
 
+// Hàm phụ: Lấy mảng dữ liệu gốc theo nhóm
 export function getRecordsForGroup(group) {
     if (group === 'triet-thuyet') return STATE.GLOBAL_RECORDS.filter(r => r.group === 'triet-thuyet').map(r => r.data);
     if (group === 'ky-tai') return STATE.GLOBAL_RECORDS.filter(r => r.group === 'ky-tai').map(r => r.data);
