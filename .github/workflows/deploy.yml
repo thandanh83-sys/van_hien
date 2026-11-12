@@ -1,6 +1,6 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TRIỂN KHAI LÊN GITHUB PAGES
-# Tên file: deploy.yml
+# Tên file: .github/workflows/deploy.yml
 # Tác giả: Văn Đạo
 # 
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -12,7 +12,7 @@
 # - Bảo mật tuyệt đối: Chỉ cấp các quyền tối thiểu cần thiết để đọc code 
 #   và ghi lên Pages.
 # - Toàn vẹn: Đóng gói toàn bộ thư mục gốc (dấu chấm `.`) để không bỏ sót 
-#   bất kỳ file JSON hay asset nào.
+#   bất kỳ file JSON hay asset nào. Tự động nhận diện file .nojekyll.
 # =====================================================================
 
 name: Deploy to GitHub Pages
@@ -78,6 +78,8 @@ jobs:
         # Chỉ cần lấy code mới nhất (fetch-depth: 1 mặc định) để deploy.
         # Không cần lấy toàn bộ lịch sử commit như các bot tách dữ liệu,
         # giúp quá trình checkout diễn ra nhanh hơn.
+        with:
+          fetch-depth: 1
 
       # -----------------------------------------------------------------
       # BƯỚC 2: CẤU HÌNH GITHUB PAGES
@@ -98,6 +100,8 @@ jobs:
           # (index.html, style.css, script.js, sw.js, thư mục data/, assets/...)
           # và nén chúng lại thành một gói (artifact) để chuyển sang bước deploy.
           # Kể cả thư mục data/tac-pham/ có hàng ngàn file JSON cũng sẽ được nén gọn gàng.
+          # Lưu ý: Action này tự động nhận diện và tôn trọng file .nojekyll ở thư mục gốc,
+          # đảm bảo GitHub Pages không can thiệp vào cấu trúc thư mục của bạn.
 
       # -----------------------------------------------------------------
       # BƯỚC 4: XUẤT BẢN LÊN WEB (DEPLOY)
