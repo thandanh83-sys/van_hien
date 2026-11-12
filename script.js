@@ -1,12 +1,13 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.7 - FULL FUNCTIONALITY)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.8 - FULLY RESTORED)
    Tác giả: Văn Đạo
    
-   CẬP NHẬT V4.7:
+   CẬP NHẬT V4.8:
+   - Khôi phục đầy đủ ICON sparkle.
+   - Khôi phục 2 hàm auditWorksData và auditAuthorsData.
+   - Tích hợp hoàn chỉnh Tủ Sách Offline (Start, Pause, Resume, Cancel).
    - Sửa lỗi Badge "Tương truyền" trong Danh ngôn.
-   - Thêm logic hoàn chỉnh cho Tủ Sách Offline (Tải, Dừng, Tiếp tục, Hủy).
-   - Tích hợp API Storage để báo cáo dung lượng thực tế.
-   - Tối ưu hóa hiệu năng render.
+   - Tối ưu hóa hiệu năng và bộ nhớ đệm.
    ===================================================================== */
 
 /* =====================================================================
@@ -21,7 +22,8 @@ const ICONS = {
     check:      `<svg ${SVG_ATTR} width="16" height="16" stroke="#10b981"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
     question:   `<svg ${SVG_ATTR} width="18" height="18" style="color:var(--accent-gold); flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
     arrowRight: `<svg ${SVG_ATTR} width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`,
-    chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`
+    chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
+    sparkle:    `<svg ${SVG_ATTR} width="18" height="18"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>`
 };
 
 const ITEMS_PER_PAGE = 20;
@@ -1293,6 +1295,41 @@ async function loadAllData() {
     }
 }
 
+async function auditWorksData() {
+    console.log("%c[AUDIT] KIỂM TRA TÁC PHẨM", "color:#8bb8a8;font-weight:bold;");
+    let ok = 0, empty = 0, err = 0;
+    for (const w of WORKS_DATA) {
+        try {
+            const res = await fetch(`./data/tac-pham/${encodeURIComponent(w.id)}.json`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const d = await res.json();
+            const clean = (d.content || '').replace(/<[^>]*>/g, '').trim();
+            if (clean.length > 100 && !clean.includes('đang được Văn Đạo hiệu đính')) ok++;
+            else empty++;
+        } catch { err++; }
+    }
+    console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
+}
+
+async function auditAuthorsData() {
+    console.log("%c[AUDIT] KIỂM TRA TÁC GIẢ", "color:#8bb8a8;font-weight:bold;");
+    let ok = 0, empty = 0, err = 0;
+    for (const a of AUTHOR_DATA) {
+        try {
+            const res = await fetch(`./data/tac-gia/${encodeURIComponent(a.id)}.json`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const d = await res.json();
+            const clean = (d.content || '').replace(/<[^>]*>/g, '').trim();
+            if (clean.length > 100 && !clean.includes('đang được Văn Đạo hiệu đính')) ok++;
+            else empty++;
+        } catch { err++; }
+    }
+    console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
+}
+
+window.auditWorksData = auditWorksData;
+window.auditAuthorsData = auditAuthorsData;
+
 function renderRandomQuote() { 
     const c = document.getElementById('daily-quote-container');
     if (!c || QUOTES_DATA.length === 0) return; 
@@ -1303,7 +1340,6 @@ function renderRandomQuote() {
         currentQuoteIndex = newIndex;
         const quote = QUOTES_DATA[currentQuoteIndex];
         
-        // [ĐÃ SỬA LỖI]: Xóa Badge 'Tương truyền' (attributed) khỏi danh sách hiển thị
         let statusBadge = '';
         if (quote.verificationStatus && quote.verificationStatus !== 'attributed') {
             const statusMap = {
@@ -1393,7 +1429,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener('click', e => {
-    // Xử lý tất cả các nút có data-route-encyclopedia
     const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
     if (routeControl) {
         e.preventDefault();
@@ -1414,7 +1449,6 @@ document.addEventListener('click', e => {
         return;
     }
 
-    // Xử lý đóng menu mobile
     const navMenu = document.getElementById('navMenu');
     const menuBtn = document.querySelector('.mobile-menu-btn');
     if (navMenu?.classList.contains('show') && !navMenu.contains(e.target) && !menuBtn?.contains(e.target)) {
