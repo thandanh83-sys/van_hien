@@ -1,29 +1,57 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - VARIABLES CSS (css/variables.css)
- * Chức năng: Chứa biến màu sắc, font chữ, thời gian chuyển động.
+ * Chức năng: Chứa toàn bộ biến số của thiết kế (Màu sắc, 
+ * Font chữ, Kích thước, Easing). Giúp đồng bộ giao diện 
+ * và dễ dàng thay đổi theme sau này.
  * ==========================================================
  */
-:root {
-    /* BẢNG MÀU BẠCH NGỌC */
-    --bg-base: #fdfbf7;        /* Màu nền chính (Trắng ngà) */
-    --bg-paper: #ffffff;       /* Màu nền giấy đọc */
-    --text-main: #2c3e38;      /* Màu chữ chính (Xanh rêu đậm) */
-    --text-muted: #6b7c76;     /* Màu chữ phụ, mờ hơn */
-    
-    --accent: #8bb8a8;         /* Màu ngọc bích (Nút bấm, điểm nhấn) */
-    --accent-gold: #d4c4a8;    /* Màu vàng cát (Viền, đường kẻ) */
-    --bg-highlight: #f0ead6;   /* Màu be nhạt (Highlight từ khóa) */
-    --danger: #a85858;         /* Màu đỏ trầm (Nút xóa, cảnh báo) */
-    
-    /* FONT CHỮ */
-    --font-title: 'Alex Brush', cursive;      /* Font viết tay cho tiêu đề lớn */
-    --font-body: 'Times New Roman', serif;    /* Font chân cho nội dung */
 
-    /* HIỆU ỨNG CHUYỂN ĐỘNG */
-    --ease-silk: cubic-bezier(0.25, 1, 0.5, 1); /* Chuyển động mượt như lụa */
+:root {
+    /* =================================================================
+       1. BẢNG MÀU BẠCH NGỌC & NGỌC THẠCH Á ĐÔNG
+       ================================================================= */
+    /* Nền & Chữ cơ bản */
+    --bg-base: #fdfbf7;           /* Màu trắng ngà thanh khiết (Nền chính) */
+    --text-main: #2c3e38;         /* Màu xanh rêu đậm (Chữ chính, dễ đọc) */
+    --text-muted: #6a7c76;        /* Màu xanh xám (Chữ phụ, mô tả, ghi chú) */
     
-    /* KÍCH THƯỚC CỐ ĐỊNH */
-    --header-height: 60px;
-    --nav-height: 65px;
+    /* Điểm nhấn (Ngọc Bích, Kim Cổ) */
+    --accent: #8bb8a8;            /* Màu ngọc bích (Nút bấm, viền, icon) */
+    --accent-hover: #739e8f;      /* Màu ngọc bích đậm hơn (Khi rê chuột) */
+    --accent-gold: #d4c4a8;       /* Màu vàng cát (Đường kẻ, điểm nhấn sang trọng) */
+    --accent-text: #557a6f;       /* Màu ngọc bích trầm (Dùng cho chữ nhấn mạnh) */
+    
+    /* Nền & Viền của các khối (Card, Modal) */
+    --card-bg: rgba(253, 251, 247, 0.95); /* Nền thẻ hơi trong suốt nhẹ */
+    --border-color: rgba(139, 184, 168, 0.2); /* Viền mờ màu ngọc bích */
+    
+    /* Đổ bóng (Box Shadow) */
+    --shadow: 0 10px 30px rgba(139, 184, 168, 0.12);       /* Bóng đổ nhẹ, thanh thoát */
+    --shadow-heavy: 0 20px 50px rgba(0, 0, 0, 0.15);       /* Bóng đổ đậm (Dùng cho Modal) */
+
+    /* =================================================================
+       2. HỆ THỐNG FONT CHỮ (TYPOGRAPHY)
+       ================================================================= */
+    /* Font viết tay (Alex Brush) - Dùng cho Tiêu đề lớn, Lời bình */
+    --font-calligraphy: 'Alex Brush', cursive;          
+    /* Font chân phương (Times New Roman) - Dùng cho Nội dung đọc */
+    --font-body: 'Times New Roman', Times, serif;       
+    
+    /* Kích thước chữ mặc định khi đọc bài */
+    --read-font-size: 1.15rem;    
+
+    /* =================================================================
+       3. KÍCH THƯỚC & BO GÓC (SIZES & RADIUS)
+       ================================================================= */
+    --radius-pill: 50px;          /* Bo tròn hoàn toàn (Dùng cho Nút, Thanh tìm kiếm) */
+    --radius-card: 24px;          /* Bo góc mềm mại (Dùng cho Thẻ, Khung) */
+
+    /* =================================================================
+       4. HIỆU ỨNG CHUYỂN ĐỘNG (EASING CURVES)
+       ================================================================= */
+    /* Hiệu ứng mượt mà như dải lụa (Dùng cho menu, modal) */
+    --ease-silk: cubic-bezier(0.25, 0.8, 0.25, 1);
+    /* Hiệu ứng sắc bén, dứt khoát (Dùng cho chuyển cảnh) */
+    --ease-silk-sharp: cubic-bezier(0.76, 0, 0.24, 1);
 }
