@@ -1,0 +1,56 @@
+[
+  {
+    "id": "tho-sonnet",
+    "name": "Thơ Sonnet",
+    "name_en": "Sonnet",
+    "parent": "thi-ca",
+    "classification": "hinh-thuc-tho",
+    "description": "Một hình thức thơ có cấu trúc chặt chẽ, thường gồm 14 dòng, với quy tắc vần và nhịp tùy truyền thống (Ý, Anh).",
+    "related": ["tho-tru-tinh"]
+  },
+  {
+    "id": "tho-luc-bat",
+    "name": "Thơ Lục Bát",
+    "name_en": "Luc Bat",
+    "parent": "thi-ca",
+    "classification": "the-tho-truyen-thong",
+    "description": "Thể thơ truyền thống Việt Nam, luân phiên câu 6 chữ và 8 chữ, gieo vần ở chữ cuối.",
+    "related": ["truyen-kieu", "ca-dao"]
+  },
+  {
+    "id": "tho-haiku",
+    "name": "Thơ Haiku",
+    "name_en": "Haiku",
+    "parent": "thi-ca",
+    "classification": "hinh-thuc-tho",
+    "description": "Thể thơ Nhật Bản cực ngắn, thường 3 dòng với cấu trúc 5-7-5 âm tiết, tập trung vào thiên nhiên và khoảnh khắc hiện tại.",
+    "related": ["thien-nhien"]
+  },
+  {
+    "id": "tieu-thuyet-hien-sinh",
+    "name": "Tiểu thuyết Hiện sinh",
+    "name_en": "Existential Novel",
+    "parent": "van-xuoi",
+    "classification": "khuynh-huong",
+    "description": "Thể loại văn xuôi tập trung vào sự phi lý của cuộc đời, sự tự do và nỗi lo âu của con người.",
+    "related": ["albert-camus"]
+  },
+  {
+    "id": "truyen-ngan",
+    "name": "Truyện ngắn",
+    "name_en": "Short Story",
+    "parent": "van-xuoi",
+    "classification": "the-loai",
+    "description": "Tác phẩm tự sự cỡ nhỏ, thường tập trung vào một sự kiện hoặc một vài nhân vật trong khoảng thời gian ngắn.",
+    "related": ["lao-hac", "chi-pheo"]
+  },
+  {
+    "id": "bi-kich",
+    "name": "Bi kịch",
+    "name_en": "Tragedy",
+    "parent": "kich-san-khau",
+    "classification": "the-loai-kich",
+    "description": "Thể loại kịch phản ánh những xung đột gay gắt, kết thúc thường bi thảm, khơi gợi sự thanh lọc cảm xúc.",
+    "related": ["hamlet"]
+  }
+]
