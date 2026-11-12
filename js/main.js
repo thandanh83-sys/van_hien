@@ -1,7 +1,7 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
- * Chức năng: Khởi chạy App, quản lý Splash, Load Data, Bói Thơ,
+ * Chức năng: Khởi chạy App, quản lý Splash, Load Data, Bói Thơ (AI),
  * Thi Pháp, Canvas, và gắn toàn bộ sự kiện giao diện.
  * ==========================================================
  */
@@ -21,6 +21,8 @@ import {
 } from './render.js';
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
+// Import AI Nội bộ
+import { calculateFortune, generateBridgeText, synthesizeCommentary } from './ai.js';
 
 // =====================================================================
 // PHẦN 1: HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
@@ -244,7 +246,7 @@ function executePipeline() {
 }
 
 // =====================================================================
-// PHẦN 3: LOAD DATA & DANH NGÔN
+// PHẦN 3: LOAD DATA & DANH NGÔN (ĐÃ XÓA NHÃN XÁC MINH)
 // =====================================================================
 async function loadAllData() {
     try {
@@ -276,7 +278,6 @@ async function loadAllData() {
         APP_DATA.WORKS_DATA  = results[2];
         APP_DATA.QUOTES_DATA = results[3];
         APP_DATA.COMMENTARY_DATA = results[4];
-        
         APP_DATA.DICTIONARY_DATA = results[5];
         APP_DATA.CATEGORY_NAMES = results[6];
         APP_DATA.FORTUNE_CONFIG = results[7].config || {};
@@ -327,6 +328,7 @@ async function loadAllData() {
     }
 }
 
+// ĐÃ XÓA HOÀN TOÀN NHÃN "NGUYÊN VĂN"
 function renderRandomQuote() { 
     const c = document.getElementById('daily-quote-container');
     if (!c || APP_DATA.QUOTES_DATA.length === 0) return; 
@@ -336,87 +338,16 @@ function renderRandomQuote() {
         do { newIndex = Math.floor(Math.random() * APP_DATA.QUOTES_DATA.length); } while (APP_DATA.QUOTES_DATA.length > 1 && newIndex === STATE.currentQuoteIndex);
         STATE.currentQuoteIndex = newIndex;
         const quote = APP_DATA.QUOTES_DATA[STATE.currentQuoteIndex];
-        
-        let statusBadge = '';
-        if (quote.verificationStatus) {
-            const statusMap = {
-                'verified': { text: 'Nguyên văn', color: '#10b981' },
-                'translated': { text: 'Bản dịch', color: '#3b82f6' },
-                'attributed': { text: 'Tương truyền', color: '#8bb8a8' },
-                'needs-review': { text: 'Cần kiểm chứng', color: '#a36b6b' },
-                'author-declared': { text: 'Văn Đạo', color: '#d4c4a8' }
-            };
-            const statusInfo = statusMap[quote.verificationStatus] || { text: 'Khác', color: '#6a7c76' };
-            statusBadge = `<span style="display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 4px; border: 1px solid ${statusInfo.color}; color: ${statusInfo.color}; font-size: 0.65rem; font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${statusInfo.text}</span>`;
-        }
 
-        c.innerHTML = `<p class="quote-text">${quote.text}</p><p class="quote-author">— ${quote.author} —</p>${statusBadge}`;
+        c.innerHTML = `<p class="quote-text">${quote.text}</p><p class="quote-author">— ${quote.author} —</p>`;
         c.style.opacity = 1;
     }, 500);
 }
 
 // =====================================================================
-// PHẦN 4: BÓI THƠ (FATE MODAL)
+// PHẦN 4: BÓI THƠ (TÍCH HỢP AI NỘI BỘ - 0MS)
 // =====================================================================
-function determineFortuneByContext(work) {
-    const author = (work.author || '').toLowerCase();
-    const era = (work.era || '').toLowerCase();
-    const genres = (work.the_loai || []).join(' ').toLowerCase();
-
-    if (author.includes('hồ xuân hương') || author.includes('nguyễn du') || author.includes('nam cao') || author.includes('vũ trọng phụng')) {
-        return Math.random() > 0.4 ? 'tieu-hung' : 'binh-hoa';
-    }
-    if (author.includes('hồ chí minh') || author.includes('tố hữu') || author.includes('phạm tiến duật') || author.includes('chính hữu')) {
-        return Math.random() > 0.5 ? 'dai-cat' : 'trung-cat';
-    }
-    if (author.includes('nguyễn trãi') || author.includes('lý thường kiệt') || author.includes('trần quốc tuấn')) {
-        return 'dai-cat';
-    }
-    if (era.includes('kháng chiến') || era.includes('194') || era.includes('195') || era.includes('196') || era.includes('197')) {
-        return Math.random() > 0.4 ? 'tieu-hung' : 'trung-cat';
-    }
-    if (era.includes('tk 19') || era.includes('tk 18') || era.includes('trung đại') || era.includes('nhà')) {
-        return Math.random() > 0.5 ? 'binh-hoa' : 'trung-cat';
-    }
-    if (genres.includes('truyện ngắn') || genres.includes('tiểu thuyết')) {
-        return Math.random() > 0.5 ? 'tieu-cat' : 'tieu-hung';
-    }
-    if (genres.includes('thơ đường luật') || genres.includes('thơ mới') || genres.includes('lục bát')) {
-        return Math.random() > 0.5 ? 'binh-hoa' : 'trung-cat';
-    }
-
-    const random = Math.random();
-    if (random < 0.1) return 'dai-cat';
-    if (random < 0.3) return 'trung-cat';
-    if (random < 0.6) return 'tieu-cat';
-    if (random < 0.8) return 'binh-hoa';
-    if (random < 0.95) return 'tieu-hung';
-    return 'dai-hung';
-}
-
-function generateBridgeText(work, fortuneKey) {
-    const title = work.title;
-    const author = work.author;
-    const genre = (work.the_loai && work.the_loai[0]) || 'Văn học';
-    
-    const bridges = {
-        'dai-cat': `Vận khí hanh thông, và dường như duyên lành đưa bạn đến với "${title}" của ${author} để tiếp thêm sức mạnh cho những dự định lớn lao.`,
-        'trung-cat': `Mọi sự đang trên đà thuận lợi. Tác phẩm ${genre} "${title}" của ${author} như một lời cổ vũ nhẹ nhàng cho những nỗ lực của bạn.`,
-        'tieu-cat': `Một chút may mắn ghé thăm. Hãy để "${title}" của ${author} mang đến cho bạn những phút giây thư thái và niềm vui từ những điều giản dị.`,
-        'binh-hoa': `Ngày hôm nay như mặt hồ phẳng lặng. Thật hợp để bạn tĩnh tâm cùng "${title}" của ${author} và chiêm nghiệm về những giá trị bình dị.`,
-        'tieu-hung': `Dẫu có chút gợn sóng trên mặt hồ tâm trí, nhưng "${title}" của ${author} sẽ là một người bạn đồng hành, nhắc bạn giữ sự điềm tĩnh và nhìn sâu vào bên trong.`,
-        'dai-hung': `Trang đời hôm nay có chút bão giông. Hãy để "${title}" của ${author} làm chỗ dựa tinh thần, nhắc bạn rằng nghịch cảnh chính là chất liệu làm nên bản lĩnh.`
-    };
-    return bridges[fortuneKey] || "";
-}
-
-function getSmartExcerpt(html) {
-    if (!html) return '';
-    const plain = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    return plain.length > 200 ? plain.slice(0, 200) + '...' : plain;
-}
-
-async function randomPoem() {
+function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(w => w.desc && w.desc.trim() !== '');
     if (!validWorks || validWorks.length === 0) {
         alert("Kho tàng văn học đang được tải, vui lòng thử lại sau giây lát.");
@@ -431,32 +362,20 @@ async function randomPoem() {
     void overlay.offsetWidth; 
     overlay.classList.add('show');
     
-    loadingEl.classList.remove('hidden');
-    resultEl.classList.remove('show');
+    // Ẩn loading ngay lập tức (0ms)
+    loadingEl.classList.add('hidden');
+    resultEl.classList.add('show');
 
+    // 1. AI chọn bài và tính vận khí
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
-    const fortuneKey = determineFortuneByContext(randomWork);
+    const fortuneKey = calculateFortune(randomWork); 
     const fortuneInfo = APP_DATA.FORTUNE_CONFIG[fortuneKey] || { name: 'Bình Hòa', color: '#6a7c76' };
     
-    let excerpt = randomWork.desc;
-    try {
-        const res = await fetch(`./data/tac-pham/${encodeURIComponent(randomWork.id)}.json`);
-        if (res.ok) {
-            const data = await res.json();
-            if (data.content) {
-                const plainTextCheck = data.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-                if (plainTextCheck.length > 50 && !plainTextCheck.includes('đang được Văn Đạo hiệu đính')) {
-                    excerpt = `"${getSmartExcerpt(data.content)}"`; 
-                }
-            }
-        }
-    } catch (e) { console.log("Lỗi tải excerpt"); }
+    // 2. AI tổng hợp câu dẫn, lời bình, lời khuyên
+    const bridgeText = generateBridgeText(randomWork, fortuneKey); 
+    const { commentaryText, adviceHtml } = synthesizeCommentary(randomWork, fortuneKey); 
 
-    const fortuneData = APP_DATA.COMMENTARY_DATA[fortuneKey];
-    const adviceText = fortuneData?.advice || "";
-    const pool = fortuneData?.commentaries || ["Một ngày bình yên để đọc và ngẫm."];
-    const commentaryText = pool[Math.floor(Math.random() * pool.length)];
-
+    // 3. Hiển thị lên Giao diện
     const badge = document.getElementById('fate-badge');
     badge.textContent = `Vận Khí: ${fortuneInfo.name}`;
     badge.style.color = fortuneInfo.color;
@@ -464,38 +383,36 @@ async function randomPoem() {
     
     document.getElementById('fate-title').textContent = randomWork.title;
     document.getElementById('fate-author').textContent = `— ${randomWork.author} —`;
-    document.getElementById('fate-excerpt').innerHTML = excerpt;
-    
-    const bridgeText = generateBridgeText(randomWork, fortuneKey);
-    
-    let adviceHtml = '';
-    if (adviceText) {
-        const parts = adviceText.split('Tránh:');
-        const nenText = parts[0] ? parts[0].replace('Nên:', '').trim() : '';
-        const tranhText = parts[1] ? parts[1].trim() : '';
+    document.getElementById('fate-excerpt').innerHTML = `"${randomWork.desc}"`;
 
-        if (tranhText) {
-            adviceHtml = `
-                <div style="margin-bottom: 8px;">
-                    <strong style="color: var(--accent-text);">Nên:</strong> <span style="color: var(--text-main);">${nenText}</span>
-                </div>
-                <div>
-                    <strong style="color: #a36b6b;">Tránh:</strong> <span style="color: var(--text-muted);">${tranhText}</span>
-                </div>
-            `;
-        } else {
-            adviceHtml = `<div><strong style="color: var(--accent-text);">Lời khuyên:</strong> ${adviceText}</div>`;
-        }
+    let adviceWrapper = '';
+    if (adviceHtml) {
+        adviceWrapper = `
+            <div style="background: rgba(139, 184, 168, 0.05); padding: 12px 16px; border-radius: 8px; border-left: 2px solid ${fortuneInfo.color}; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                ${adviceHtml}
+            </div>
+        `;
     }
 
     document.getElementById('fate-commentary').innerHTML = `
         <p style="margin-bottom: 15px; color: var(--accent-text); font-style: italic;">${bridgeText}</p>
         <p style="margin-bottom: 15px;">${commentaryText}</p>
-        <div style="background: rgba(139, 184, 168, 0.05); padding: 12px 16px; border-radius: 8px; border-left: 2px solid ${fortuneInfo.color}; font-size: 0.95rem; line-height: 1.6;">
-            ${adviceHtml}
-        </div>
+        ${adviceWrapper}
     `;
 
+    // 4. Liên kết mạng lưới tri thức
+    const authorObj = APP_DATA.AUTHOR_DATA.find(a => a.title.includes(randomWork.author));
+    if (authorObj) {
+        document.getElementById('fate-commentary').innerHTML += `
+            <div style="text-align: center; margin-top: 15px; font-size: 0.9rem;">
+                <button data-route-encyclopedia="true" data-route-id="${authorObj.id}" data-route-group="ky-tai" class="volume-link" style="font-size: 0.9rem;">
+                    Khám phá hồ sơ tác giả ${randomWork.author} →
+                </button>
+            </div>
+        `;
+    }
+
+    // 5. Nút đọc toàn bộ
     document.getElementById('fate-goto-btn').onclick = () => {
         overlay.classList.remove('show');
         setTimeout(() => { overlay.style.display = 'none'; }, 300);
@@ -506,16 +423,10 @@ async function randomPoem() {
             author: randomWork.author
         });
     };
-
-    setTimeout(() => {
-        loadingEl.classList.add('hidden');
-        resultEl.classList.add('show');
-    }, 1200);
 }
 
 // =====================================================================
 // PHẦN 5: XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
-// (Để index.html có thể gọi bằng sự kiện onclick)
 // =====================================================================
 window.executePipeline = executePipeline;
 window.randomPoem = randomPoem;
@@ -582,7 +493,7 @@ window.auditAuthorsData = async function() {
 // PHẦN 6: KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
 // =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // 6.1. Gắn sự kiện cho các nút Bói Thơ (Fate Modal)
+    // 6.1. Gắn sự kiện cho các nút Bói Thơ
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
     document.getElementById('fate-close-btn')?.addEventListener('click', () => {
         const o = document.getElementById('fate-modal-overlay');
@@ -629,15 +540,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         splash.classList.add('leaving'); 
         setTimeout(() => {
             splash.remove();
-            const homeView = document.getElementById('view-home');
-            if (homeView) homeView.classList.add('elegant-fade-in');
+            // Đã xóa hiệu ứng elegant-fade-in gây lỗi trắng trang
         }, 500); 
         setTimeout(() => {
             if (silkOverlay) silkOverlay.classList.remove('active', 'entering');
         }, 1000);
     }
 
-    // 6.3. Khôi phục bản nháp (nếu có)
+    // 6.3. Khôi phục bản nháp
     const draft = localStorage.getItem('vandao_draft_poem');
     if (draft) {
         const pi = document.getElementById('poemInput');
@@ -655,7 +565,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         encyclopediaSearchInput.addEventListener('input', debouncedSearch);
     }
 
-    // 6.5. Xử lý URL params (chuyển tab nếu có)
+    // 6.5. Xử lý URL params
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
     if (initialTab && ['heritage', 'encyclopedia', 'analyze'].includes(initialTab)) {
@@ -663,7 +573,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // 6.6. Sự kiện click chung toàn cục (Routing, đóng menu)
+    // 6.6. Sự kiện click chung toàn cục
     document.addEventListener('click', e => {
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
@@ -693,7 +603,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 6.7. Logic cho Settings Dialog (Tủ Sách Offline)
+    // 6.7. Settings Dialog
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
@@ -716,7 +626,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 6.8. NỐI SỰ KIỆN CHO CÁC NÚT TẢI OFFLINE (MỚI BỔ SUNG)
+    // 6.8. NÚT TẢI OFFLINE
     const btnOfflineStart = document.getElementById('offline-btn-start');
     const btnOfflineCancel = document.getElementById('offline-btn-cancel');
     const btnOfflineClear = document.getElementById('offline-btn-clear');
