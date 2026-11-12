@@ -1,454 +1,175 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <!-- ================================================================= -->
-    <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                       -->
-    <!-- ================================================================= -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
-    <meta name="author" content="Văn Đạo">
-    <title>VĂN ĐẠO - Đại Bách Khoa Toàn Thư</title>
-    
-    <!-- ================================================================= -->
-    <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang - LCP)       -->
-    <!-- ================================================================= -->
-    <link rel="preload" href="assets/fonts/AlexBrush-Regular.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="assets/khung.jpg" as="image">
-
-    <!-- ================================================================= -->
-    <!-- 3. FAVICON & PWA MANIFEST                                        -->
-    <!-- ================================================================= -->
-    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    <link rel="manifest" href="manifest.json">
-
-    <!-- ================================================================= -->
-    <!-- 4. CẤU HÌNH PWA CHO iOS VÀ ĐỒNG BỘ MÀU THANH TRẠNG THÁI          -->
-    <!-- ================================================================= -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Văn Đạo - Đại Bách Khoa Toàn Thư Văn Học Việt Nam">
     <meta name="theme-color" content="#fdfbf7">
 
-    <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS                                             -->
-    <!-- ================================================================= -->
-    <link rel="stylesheet" href="style.css">
+    <title>Văn Đạo | Đại Bách Khoa Toàn Thư</title>
+
+    <!-- Khai báo PWA (Cài đặt ứng dụng lên màn hình chính) -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/images/icon-192x192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <!-- Preload Fonts (Tối ưu tốc độ tải chữ) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+
+    <!-- GỌI CÁC FILE CSS THEO ĐÚNG THỨ TỰ ƯU TIÊN (Tầng 5) -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/layouts.css">
+    <link rel="stylesheet" href="css/reader.css">
 </head>
-<body>
 
-    <!-- ================================================================= -->
-    <!-- 6. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG (SKIP LINK)                        -->
-    <!-- ================================================================= -->
-    <a href="#main-content" class="skip-link">Bỏ qua điều hướng, đến nội dung chính</a>
+<body class="loading">
 
-    <!-- ================================================================= -->
-    <!-- 7. LỚP HIỆU ỨNG SÓNG NƯỚC (CANVAS)                               -->
-    <!-- ================================================================= -->
-    <canvas id="water-canvas" aria-hidden="true"></canvas>
-
-    <!-- ================================================================= -->
-    <!-- 8. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC                     -->
-    <!-- ================================================================= -->
-    <div class="silk-transition-overlay" id="silkTransition" aria-hidden="true">
-        <div class="silk-sweep"></div>
-        <div class="silk-glow"></div>
+    <!-- ========================================== -->
+    <!-- 1. MÀN HÌNH CHỜ (SPLASH SCREEN)            -->
+    <!-- Sẽ được JS đổ nội dung vào và tự động xóa sau 6s -->
+    <!-- ========================================== -->
+    <div id="splash-screen">
+        <!-- Nội dung HTML ở đây sẽ được sinh ra bởi js/main.js để đảm bảo tính linh hoạt -->
     </div>
 
-    <!-- ================================================================= -->
-    <!-- 9. MÀN HÌNH CHỜ: NGỌC THANH BOOT EXPERIENCE                       -->
-    <!-- ================================================================= -->
-    <div id="jade-splash" aria-hidden="true">
-        <div class="silk-layer silk-layer-1"></div>
-        <div class="silk-layer silk-layer-2"></div>
-        <div class="silk-layer silk-layer-3"></div>
-        
-        <div class="boot-content">
-            <h1 class="boot-brand">NGỌC THANH</h1>
-            <p class="boot-subtitle">A WORLD OF KNOWLEDGE</p>
-            <div class="boot-status">
-                <span class="status-text" id="bootStatusText">Đang khởi tạo trải nghiệm...</span>
-            </div>
-            <div class="boot-quote">
-                <p id="splash-quote-text"></p>
-            </div>
+
+    <!-- ========================================== -->
+    <!-- 2. THANH ĐIỀU HƯỚNG TRÊN CÙNG (HEADER)      -->
+    <!-- ========================================== -->
+    <header id="app-header">
+        <!-- Logo (Bấm vào để về trang chủ) -->
+        <a href="#/home" class="header-logo" onclick="window.navigateTo('home')">Văn Đạo</a>
+
+        <!-- Các nút chức năng bên phải -->
+        <div class="header-actions">
+            <!-- Nút Tìm kiếm -->
+            <button id="btn-search" aria-label="Tìm kiếm">
+                <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+            <!-- Nút Cài đặt (Gear icon) -->
+            <button id="btn-settings" aria-label="Cài đặt">
+                <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
+            <!-- Nút Menu (Chỉ dùng cho Mobile) -->
+            <button id="btn-menu" aria-label="Menu">
+                <svg class="icon-svg" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
         </div>
+    </header>
+
+
+    <!-- ========================================== -->
+    <!-- 3. THANH TÌM KIẾM (ẨN/HIỆN BẰNG JS)        -->
+    <!-- ========================================== -->
+    <div id="search-container" style="display: none; padding: 10px 20px; background: var(--bg-base); z-index: 999;">
+        <input type="text" id="search-input" placeholder="Tìm tên tác phẩm, tác giả (không cần dấu)..." style="width: 100%; padding: 10px; border: 1px solid #d4c4a8; border-radius: 8px; font-family: var(--font-body);">
+        <div id="search-results" style="display: none; margin-top: 10px; background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"></div>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- 10. LỚP HIỆU ỨNG HẠT SƯƠNG                                       -->
-    <!-- ================================================================= -->
-    <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
 
-    <!-- ================================================================= -->
-    <!-- 11. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                         -->
-    <!-- ================================================================= -->
-    <div class="container">
+    <!-- ========================================== -->
+    <!-- 4. KHUNG CHỨA NỘI DUNG CHÍNH (CÁC VIEW)    -->
+    <!-- ========================================== -->
+    <main id="app-content">
         
-        <!-- ============================================================= -->
-        <!-- 11.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
-        <!-- ============================================================= -->
-        <header>
-            <nav class="navbar" aria-label="Điều hướng chính">
-                <!-- Logo VĂN ĐẠO -->
-                <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
-                
-                <!-- Các nút điều hướng (Desktop) -->
-                <div class="nav-links" id="navMenu" role="menubar">
-                    <button class="nav-btn active" onclick="switchView('home')" id="nav-home" role="menuitem" aria-current="page">
-                        <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                        Trang Chủ
-                    </button>
-                    
-                    <button class="nav-btn" onclick="switchView('heritage')" id="nav-heritage" role="menuitem">
-                        <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                        Văn Hiến
-                    </button>
-                    
-                    <button class="nav-btn" onclick="switchView('encyclopedia')" id="nav-encyclopedia" role="menuitem">
-                        <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                        Bách Khoa
-                    </button>
-                    
-                    <button class="nav-btn" onclick="switchView('analyze')" id="nav-analyze" role="menuitem">
-                        <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                        Thi Pháp
-                    </button>
-                </div>
+        <!-- View 1: Trang Chủ -->
+        <section id="view-home" class="view active">
+            <!-- Nội dung sẽ do js/render.js đổ vào -->
+        </section>
 
-                <!-- Khối nút bên phải: Cài đặt + Hamburger -->
-                <div class="nav-actions" style="display: flex; align-items: center; gap: 8px; margin-left: 15px;">
-                    <!-- Nút Cài đặt (Icon Bánh răng) -->
-                    <button id="btn-open-settings" class="nav-icon-btn" aria-label="Cài đặt" title="Cài đặt">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                    </button>
-                    
-                    <!-- Nút Menu Hamburger (Mobile) -->
-                    <button class="mobile-menu-btn" id="btn-toggle-menu" onclick="toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                    </button>
-                </div>
-            </nav>
-        </header>
+        <!-- View 2: Trang Đọc Bài Thơ / Tác Phẩm -->
+        <section id="view-detail" class="view">
+            <!-- Nội dung sẽ do js/render.js đổ vào -->
+        </section>
 
-        <!-- ============================================================= -->
-        <!-- 11.2. NỘI DUNG CHÍNH (MAIN)                                   -->
-        <!-- ============================================================= -->
-        <main id="main-content">
-            
-            <!-- ========================================================= -->
-            <!-- VIEW 1: TRANG CHỦ (HOME)                                  -->
-            <!-- ========================================================= -->
-            <section id="view-home" class="view active" role="tabpanel" aria-label="Trang chủ">
-                <div class="hero">
-                    <div class="hero-content">
-                        <h1>Vẻ Đẹp <i>Bạch Ngọc</i><br><span class="no-wrap">Giữa Làn Nước Tĩnh</span></h1>
-                        <p>Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</p>
-                        
-                        <!-- KHỐI NÚT HERO (PC 1 hàng, Mobile song song) -->
-                        <div class="hero-actions">
-                            <button class="btn-hero-primary" onclick="switchView('heritage')">Khám Phá Tuyệt Tác</button>
-                            
-                            <button id="draw-literary-fate-btn" class="btn-hero-secondary" aria-label="Một bài thơ cho hôm nay">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/>
-                                </svg>
-                                Một bài thơ
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="hero-visual">
-                        <div class="arch-frame">
-                            <img src="assets/khung.jpg" alt="Tranh sáo trúc" loading="lazy" decoding="async">
-                        </div>
-                    </div>
-                </div>
+        <!-- View 3: Trang Chi Tiết Tác Giả -->
+        <section id="view-author" class="view">
+            <!-- Nội dung sẽ do js/render.js đổ vào -->
+        </section>
 
-                <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Có hiển thị Badge xác minh) -->
-                <div id="daily-quote-container" aria-live="polite"></div>
-            </section>
+        <!-- View 4: Trang Lý Thuyết / Thi Pháp -->
+        <section id="view-theory" class="view">
+            <!-- Nội dung sẽ do js/render.js đổ vào -->
+        </section>
 
-            <!-- ========================================================= -->
-            <!-- VIEW 2: VĂN HIẾN (HERITAGE)                               -->
-            <!-- ========================================================= -->
-            <section id="view-heritage" class="view" role="tabpanel" aria-label="Văn Hiến">
-                <h1 class="page-title">Văn Hiến</h1>
-                <p class="page-desc">Danh mục Tác phẩm</p>
-                
-                <div class="search-container" role="search">
-                    <label for="search-input" class="sr-only">Tìm tên tác phẩm hoặc tác giả</label>
-                    <div class="search-wrap">
-                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="search" id="search-input" placeholder="Tìm tên tác phẩm..." aria-describedby="heritage-count">
-                    </div>
-                    <p id="heritage-count" class="sr-only" role="status" aria-live="polite"></p>
-                </div>
+    </main>
 
-                <div class="filter-bar" id="main-filter-bar"></div>
-                <div class="filter-bar" id="sub-filter-bar" style="display: none;"></div>
-                
-                <div class="heritage-grid" id="heritage-grid"></div>
-                <div id="pagination-container" class="pagination-container"></div>
-            </section>
 
-            <!-- ========================================================= -->
-            <!-- VIEW 3: ĐẠI BÁCH KHOA (ENCYCLOPEDIA)                      -->
-            <!-- ========================================================= -->
-            <section id="view-encyclopedia" class="view" role="tabpanel" aria-label="Đại Bách Khoa">
-                <h1 class="page-title">Đại Bách Khoa</h1>
-                <p class="page-desc">Hệ thống tri thức</p>
-                
-                <div class="search-container" role="search">
-                    <label for="encyclopedia-search" class="sr-only">Tìm trong Bách Khoa</label>
-                    <div class="search-wrap search-box-wrapper">
-                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="search" id="encyclopedia-search" placeholder="Tìm tên Quyển, tác giả hoặc nội dung..." aria-describedby="encyclopedia-count" oninput="handleSearchInput()">
-                        <button type="button" id="clear-search-btn" class="clear-btn" onclick="clearSearch()" title="Xóa tìm kiếm">
-                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    </div>
-                    <p id="encyclopedia-count" class="sr-only" role="status" aria-live="polite"></p>
-                </div>
-
-                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
-                    <div class="filter-bar" id="encyclopedia-filter-bar" style="margin-bottom: 0;">
-                        <button class="filter-btn active" aria-pressed="true" onclick="filterEncyclopediaGroup('triet-thuyet', this)">Triết Thuyết</button>
-                        <button class="filter-btn" aria-pressed="false" onclick="filterEncyclopediaGroup('ky-tai', this)">Kỳ Tài</button>
-                        <button class="filter-btn" aria-pressed="false" onclick="filterEncyclopediaGroup('tinh-hoa', this)">Tinh Hoa</button>
-                    </div>
-                </div>
-
-                <div id="encyclopedia-container"></div>
-                <div id="encyclopedia-pagination" class="pagination-container"></div>
-            </section>
-
-            <!-- ========================================================= -->
-            <!-- VIEW 4: THI PHÁP HỌC (ANALYZE)                            -->
-            <!-- ========================================================= -->
-            <section id="view-analyze" class="view" role="tabpanel" aria-label="Thi Pháp Học">
-                <h1 class="page-title">Thi Pháp Học</h1>
-                
-                <div class="analyze-box">
-                    <label for="poemInput" class="sr-only">Nhập bài thơ cần phân tích</label>
-                    <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
-                    <button onclick="executePipeline()">Phân Tích Ngay</button>
-                </div>
-                
-                <!-- Panel chứa kết quả 4 tầng (do JS sinh ra) -->
-                <div id="results-panel" aria-live="polite"></div>
-            </section>
-
-        </main>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- 12. FATE MODAL: MỘT BÀI THƠ CHO HÔM NAY                           -->
-    <!-- ================================================================= -->
-    <div id="fate-modal-overlay" style="display: none;">
-        <div id="fate-modal">
-            <!-- Nút X -->
-            <button id="fate-close-btn" class="fate-close-btn" aria-label="Đóng">&times;</button>
-            
-            <!-- Trạng thái Loading (Đè lên) -->
-            <div id="fate-loading">
-                <div class="spinner"></div>
-                <p style="margin-top: 20px; font-family: var(--font-body); color: var(--text-muted); font-style: italic;">Đang tìm duyên lành...</p>
+    <!-- ========================================== -->
+    <!-- 5. MODAL CÀI ĐẶT (BẬT LÊN TỪ NÚT GEAR)     -->
+    <!-- ========================================== -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Cài đặt</h2>
+                <button class="btn-close-modal" id="btn-close-settings" aria-label="Đóng">&times;</button>
             </div>
-
-            <!-- Trạng thái Kết quả -->
-            <div id="fate-result">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h2 id="fate-title" style="font-family: var(--font-calligraphy); font-size: 2.5rem; color: var(--text-main); margin: 0 0 5px;"></h2>
-                    <p id="fate-author" style="font-family: var(--font-body); font-size: 1rem; color: var(--text-muted); font-style: italic; text-transform: uppercase; letter-spacing: 1px;"></p>
-                </div>
+            
+            <div class="modal-body">
+                <h3 style="font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); margin-bottom: 15px;">DỮ LIỆU & LƯU TRỮ</h3>
                 
-                <div style="background: rgba(139, 184, 168, 0.05); padding: 20px; border-left: 3px solid var(--accent-gold); border-radius: 4px; margin-bottom: 30px;">
-                    <p id="fate-excerpt" style="font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.8; font-style: italic; margin: 0;"></p>
-                </div>
-
-                <!-- KHỐI LỜI BÌNH & VẬN KHÍ (Đã căn hàng Flexbox) -->
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed rgba(139, 184, 168, 0.3); padding-bottom: 8px;">
-                        <p style="font-family: var(--font-calligraphy); font-size: 1.8rem; color: var(--accent-text); margin: 0;">Lời Bình</p>
-                        <span id="fate-badge" style="font-size: 0.75rem; padding: 3px 10px; border: 1px solid var(--accent); color: var(--accent-text); border-radius: 20px; text-transform: uppercase; font-weight: 700; transition: all 0.3s;"></span>
+                <div class="settings-group" style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong style="font-family: var(--font-body);">Tủ Sách Offline</strong>
+                        <!-- Dung lượng sẽ được js/offline.js cập nhật -->
+                        <span id="storage-text" style="font-size: 0.9rem; color: #888;">Đang kiểm tra...</span>
                     </div>
+                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Mang thư viện tri thức theo bên mình, kể cả khi không có kết nối mạng.</p>
                     
-                    <div id="fate-commentary" style="font-family: var(--font-body); font-size: 1.05rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; text-align: left;"></div>
-                </div>
-                
-                <div style="display: flex; justify-content: center; border-top: 1px solid rgba(139, 184, 168, 0.15); padding-top: 20px; margin-top: 20px;">
-                    <button id="fate-goto-btn" style="background: transparent; border: none; color: var(--accent); font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; cursor: pointer; padding: 0; letter-spacing: 1px; text-transform: uppercase; transition: color 0.3s;">Đọc toàn bộ tác phẩm &rarr;</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================================================================= -->
-    <!-- 13. SETTINGS DIALOG: TỦ SÁCH OFFLINE (HTML5 Dialog)               -->
-    <!-- ================================================================= -->
-    <dialog id="settings-dialog" style="border: none; padding: 0; background: transparent; outline: none;">
-        <div id="settings-modal" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); box-shadow: 0 20px 50px rgba(0,0,0,0.2); width: 90vw; max-width: 450px; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative;">
-            
-            <button id="btn-close-settings" class="fate-close-btn" aria-label="Đóng">&times;</button>
-            
-            <div style="text-align: center; margin-bottom: 24px;">
-                <h2 style="font-family: var(--font-calligraphy); font-size: 2.5rem; color: var(--accent-text); margin: 0;">Cài đặt</h2>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <p style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Dữ liệu & Lưu trữ</p>
-                
-                <div style="background: rgba(139, 184, 168, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 1rem;">Tủ Sách Offline</span>
-                        <!-- API Storage sẽ cập nhật thẻ span này -->
-                        <span id="settings-storage-text" style="font-family: var(--font-body); font-size: 0.8rem; color: var(--text-muted);">Chưa kiểm tra</span>
-                    </div>
-                    <p style="font-family: var(--font-body); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5;">
-                        Mang thư viện tri thức theo bên mình, kể cả khi không có kết nối mạng.
-                    </p>
-
+                    <!-- Nút tải toàn bộ (Sử dụng class chuẩn Bạch Ngọc) -->
+                    <button id="btn-download-all" class="btn btn-primary" style="width: 100%;">TẢI TOÀN BỘ</button>
+                    
                     <!-- Thanh tiến trình (Ẩn mặc định) -->
-                    <div id="offline-progress-section" style="display: none; margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; font-family: var(--font-body); font-size: 0.85rem; margin-bottom: 8px;">
-                            <span id="offline-progress-text">Đang tải...</span>
-                            <span id="offline-progress-percent">0%</span>
-                        </div>
-                        <div style="width: 100%; height: 6px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden;">
-                            <div id="offline-progress-bar" style="height: 100%; width: 0%; background: var(--accent); transition: width 0.3s;"></div>
-                        </div>
+                    <div class="vd-progress-container" id="progress-container" style="display: none;">
+                        <div class="vd-progress-bar" id="progress-bar"></div>
                     </div>
+                    <span class="vd-progress-text" id="progress-text" style="display: none;">0%</span>
+                </div>
 
-                    <!-- Cụm nút điều khiển: Start -> Pause/Resume/Cancel -->
-                    <div style="display: flex; gap: 10px;">
-                        <button id="offline-btn-start" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem;">Tải Toàn Bộ</button>
-                        <button id="offline-btn-pause" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem; display: none;">Tạm Dừng</button>
-                        <button id="offline-btn-resume" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem; display: none;">Tiếp Tục</button>
-                        <button id="offline-btn-cancel" class="btn" style="display: none; flex: 1; padding: 8px; font-size: 0.8rem; background: transparent; border-color: #a36b6b; color: #a36b6b;">Hủy</button>
-                    </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <button id="btn-clear-cache" class="btn btn-danger" style="background: none; border: none; font-size: 0.9rem;">
+                        <svg class="icon-svg" style="stroke: #a85858; vertical-align: middle;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Xóa dữ liệu Offline
+                    </button>
                 </div>
             </div>
-
-            <div style="text-align: center; border-top: 1px dashed var(--border-color); padding-top: 15px;">
-                <button class="offline-text-btn" id="offline-btn-clear" style="color: #a36b6b; margin: 0 auto;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    Xóa dữ liệu Offline
-                </button>
-            </div>
         </div>
-    </dialog>
-
-    <!-- ================================================================= -->
-    <!-- 14. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
-    <!-- ================================================================= -->
-    <div id="update-banner" aria-live="polite" role="alert" style="
-        position: fixed; bottom: 20px; left: 50%;
-        transform: translateX(-50%) translateY(120px);
-        background: linear-gradient(135deg, #1a3a2a, #0f2a1f);
-        color: #d4c4a8; padding: 14px 20px; border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        border: 1px solid rgba(139,184,168,0.3);
-        font-family: var(--font-body);
-        font-size: 14px; z-index: 999999;
-        display: flex; align-items: center; gap: 12px;
-        transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.35s;
-        opacity: 0; pointer-events: none; max-width: 92vw;
-    ">
-        <span>Phiên bản mới đã sẵn sàng.</span>
-        <button id="update-btn" style="
-            background: #8bb8a8; color: #0a1a12; border: none;
-            padding: 8px 14px; border-radius: 6px; cursor: pointer;
-            font-weight: 700; font-size: 13px;
-            font-family: var(--font-body);
-        ">Cập nhật</button>
-        <button id="dismiss-btn" aria-label="Đóng" style="
-            background: transparent; color: #8bb8a8; border: none;
-            padding: 8px; cursor: pointer; font-size: 18px; line-height: 1;
-        ">×</button>
     </div>
 
-    <!-- ================================================================= -->
-    <!-- 15. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
-    <!-- ================================================================= -->
-    <script>
-        window.VD_APP_VERSION = '5.0.0';
-        window.VD_BUILD_DATE  = '2026-11-20';
-    </script>
-    
-    <!-- File script chính xử lý logic -->
-    <script src="script.js"></script>
 
-    <!-- ================================================================= -->
-    <!-- 16. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
-    <!-- ================================================================= -->
-    <script>
-    (function () {
-        if (!('serviceWorker' in navigator)) return;
+    <!-- ========================================== -->
+    <!-- 6. BOTTOM NAVIGATION (CHỈ HIỆN TRÊN MOBILE) -->
+    <!-- ========================================== -->
+    <nav id="bottom-nav">
+        <a href="#/home" class="nav-item active" data-target="home" onclick="window.navigateTo('home')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <span>Trang Chủ</span>
+        </a>
+        <a href="#/van-hien" class="nav-item" data-target="van-hien" onclick="window.navigateTo('home')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            <span>Văn Hiến</span>
+        </a>
+        <a href="#/bach-khoa" class="nav-item" data-target="bach-khoa" onclick="window.navigateTo('home')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            <span>Bách Khoa</span>
+        </a>
+        <a href="#/thi-phap" class="nav-item" data-target="thi-phap" onclick="window.navigateTo('home')">
+            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <span>Thi Pháp</span>
+        </a>
+    </nav>
 
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (refreshing) return;
-            refreshing = true;
-            window.location.reload();
-        });
 
-        function showUpdateBanner(worker) {
-            const banner = document.getElementById('update-banner');
-            if (!banner) return;
+    <!-- ========================================== -->
+    <!-- 7. GỌI FILE JAVASCRIPT CHÍNH (MODULE)      -->
+    <!-- ========================================== -->
+    <!-- Bắt buộc phải có type="module" để chạy import/export -->
+    <script type="module" src="js/main.js"></script>
 
-            banner.style.transform = 'translateX(-50%) translateY(0)';
-            banner.style.opacity = '1';
-            banner.style.pointerEvents = 'auto';
-
-            document.getElementById('update-btn').onclick = () => {
-                worker.postMessage({ type: 'SKIP_WAITING' });
-                banner.style.transform = 'translateX(-50%) translateY(120px)';
-                banner.style.opacity = '0';
-            };
-
-            document.getElementById('dismiss-btn').onclick = () => {
-                banner.style.transform = 'translateX(-50%) translateY(120px)';
-                banner.style.opacity = '0';
-                banner.style.pointerEvents = 'none';
-            };
-        }
-
-        window.addEventListener('load', () => {
-            const swUrl = './sw.js';
-
-            navigator.serviceWorker.register(swUrl).then(reg => {
-                reg.update().catch(() => {});
-
-                setInterval(() => {
-                    if (document.visibilityState === 'visible') {
-                        reg.update().catch(() => {});
-                    }
-                }, 5 * 60 * 1000);
-
-                if (reg.waiting) showUpdateBanner(reg.waiting);
-
-                reg.addEventListener('updatefound', () => {
-                    const installing = reg.installing;
-                    if (!installing) return;
-                    installing.addEventListener('statechange', () => {
-                        if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                            showUpdateBanner(installing);
-                        }
-                    });
-                });
-            }).catch(err => console.warn('[SW] Registration failed:', err));
-        });
-    })();
-    </script>
 </body>
 </html>
