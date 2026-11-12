@@ -1,18 +1,42 @@
 {
   "config": {
-    "dai-cat":   { "name": "Đại Cát",   "color": "#d4c4a8" },
-    "trung-cat": { "name": "Trung Cát", "color": "#8bb8a8" },
-    "tieu-cat":  { "name": "Tiểu Cát",  "color": "#739e8f" },
-    "binh-hoa":  { "name": "Bình Hòa",  "color": "#6a7c76" },
-    "tieu-hung": { "name": "Tiểu Hung", "color": "#a36b6b" },
-    "dai-hung":  { "name": "Đại Hung",  "color": "#804a4a" }
+    "dai-cat": {
+      "name": "Đại Cát",
+      "color": "#d4c4a8",
+      "description": "Vạn sự hanh thông, cát tường như ý"
+    },
+    "trung-cat": {
+      "name": "Trung Cát",
+      "color": "#8bb8a8",
+      "description": "Thuận buồm xuôi gió, vững bước tiến lên"
+    },
+    "tieu-cat": {
+      "name": "Tiểu Cát",
+      "color": "#739e8f",
+      "description": "Bình an hỷ lạc, vạn sự khởi sắc"
+    },
+    "binh-hoa": {
+      "name": "Bình Hòa",
+      "color": "#6a7c76",
+      "description": "Mây trôi nước chảy, tĩnh tại an nhiên"
+    },
+    "tieu-hung": {
+      "name": "Tiểu Hung",
+      "color": "#a36b6b",
+      "description": "Gợn sóng nhỏ, cần tĩnh tâm quan sát"
+    },
+    "dai-hung": {
+      "name": "Đại Hung",
+      "color": "#804a4a",
+      "description": "Bão giông thử thách, ẩn mình chờ thời"
+    }
   },
   "advice": {
-    "dai-cat":   "Nên: Hành động táo bạo, nắm bắt cơ hội. Tránh: Sự chủ quan.",
-    "trung-cat": "Nên: Tiếp tục nỗ lực, mở rộng kết nối. Tránh: Nóng vội.",
-    "tieu-cat":  "Nên: Tận hưởng điều nhỏ bé, hoàn thiện việc cũ. Tránh: Kỳ vọng quá cao.",
-    "binh-hoa":  "Nên: Nghỉ ngơi, đọc sách, chiêm nghiệm. Tránh: Đưa ra quyết định lớn.",
-    "tieu-hung": "Nên: Cẩn trọng lời ăn tiếng nói, giữ bình tĩnh. Tránh: Tranh cãi.",
-    "dai-hung":  "Nên: Ẩn mình, bảo toàn sức khỏe, thiền định. Tránh: Đối đầu trực diện."
+    "dai-cat": "Nên: Hành động quyết đoán, nắm bắt cơ duyên. Hãy lấy chữ 'Nhân' và sự bao dung để dẫn dắt sự thành công. Tránh: Sự kiêu ngạo, bởi 'thịnh mãn tất suy', hãy giữ tâm khiêm hạ.",
+    "trung-cat": "Nên: Tiếp tục nỗ lực, vun bồi đức hạnh và mở rộng các mối thiện duyên. Tránh: Sự nóng vội muốn thấy kết quả ngay. Thành quả ngọt ngào nhất luôn cần thời gian ủ chín.",
+    "tieu-cat": "Nên: Trân trọng những điều giản dị, hoàn thiện những việc còn dang dở và biết đủ. Tránh: Những kỳ vọng quá cao. Bình yên trong tâm trí chính là món quà quý giá nhất.",
+    "binh-hoa": "Nên: Nghỉ ngơi, đọc sách, chiêm nghiệm và lắng nghe tiếng nói nội tâm. Tránh: Đưa ra những quyết định lớn khi tâm chưa tĩnh. Hãy thuận theo tự nhiên, 'vô vi' mà hữu thành.",
+    "tieu-hung": "Nên: Cẩn trọng trong lời ăn tiếng nói, thực hành sự nhẫn nhịn và giữ bình tĩnh. Tránh: Tranh cãi, đối đầu. Lùi một bước để thấy biển rộng trời cao, mọi sự rồi sẽ tự lắng xuống.",
+    "dai-hung": "Nên: Ẩn mình, bảo toàn sức khỏe, thiền định và quán chiếu nội tâm. Tránh: Đối đầu trực diện hay mạo hiểm. Hãy xem nghịch cảnh là chất liệu tôi luyện bản lĩnh, bình tâm đi qua ngày giông gió."
   }
 }
