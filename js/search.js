@@ -1,183 +1,162 @@
 /**
  * ==========================================================
- * VĂN ĐẠO - SEARCH ENGINE MODULE (js/search.js)
- * Chức năng: Tìm kiếm thông minh, không phân biệt dấu (VDSearchEngine).
- * Áp dụng: Inverted Index để tìm kiếm với tốc độ O(1).
+ * VĂN ĐẠO - SEARCH MODULE (js/search.js)
+ * Chức năng: Cỗ máy tìm kiếm VDSearchEngine.
+ * Áp dụng thuật toán Inverted Index + TF-IDF, không phân biệt dấu.
  * ==========================================================
  */
 
-import { CONFIG } from './config.js';
+import { STATE } from './config.js';
+import { normalizeRouteText, getRecordTitleAlias } from './utils.js';
 
-// Biến lưu trữ Index (Từ khóa -> Mảng các ID)
-let invertedIndex = {};
-// Biến lưu trữ dữ liệu gốc để lấy thông tin hiển thị
-let searchData = [];
+export const VDSearchEngine = (() => {
+    let invertedIndex = Object.create(null);
+    let docLengths = Object.create(null);
+    let totalDocs = 0;
+    let isIndexed = false;
 
-/**
- * ==========================================
- * 1. HÀM CHUẨN HÓA TIẾNG VIỆT (XÓA DẤU)
- * Ví dụ: "Nguyễn Trãi" -> "nguyen trai"
- * ==========================================
- */
-function removeDiacritics(str) {
-    if (!str) return '';
-    return str
-        .normalize('NFD') // Tách các dấu ra khỏi chữ cái
-        .replace(/[\u0300-\u036f]/g, '') // Xóa các dấu thanh
-        .replace(/đ/g, 'd') // Xử lý chữ đ
-        .replace(/Đ/g, 'D')
-        .toLowerCase()
-        .trim();
-}
+    // Danh sách các từ dừng (Stopwords) - Những từ quá phổ biến, không cần đưa vào Index
+    const STOPWORDS = new Set([
+        "cua", "va", "la", "co", "trong", "cho", "nhung", "cac", "mot", 
+        "duoc", "voi", "da", "de", "khi", "ra", "ve", "tu", "nhu", "nguoi", 
+        "tai", "thi", "ma", "nay", "do"
+    ]);
 
-/**
- * ==========================================
- * 2. HÀM TÁCH TỪ (TOKENIZER)
- * Cắt câu thành các từ đơn, xóa dấu câu.
- * ==========================================
- */
-function tokenize(text) {
-    const normalized = removeDiacritics(text);
-    // Thay thế các ký tự đặc biệt bằng khoảng trắng, sau đó cắt theo khoảng trắng
-    return normalized.replace(/[^\w\s]/gi, ' ').split(/\s+/).filter(word => word.length > 0);
-}
+    /**
+     * Hàm tách từ (Tokenizer): Làm sạch text và chia thành mảng các từ đơn
+     */
+    function tokenize(text) {
+        if (!text) return [];
+        // Xóa các thẻ HTML (nếu có) và chuẩn hóa text (bỏ dấu, viết thường)
+        const clean = normalizeRouteText(String(text).replace(/<[^>]*>/g, ' '));
+        // Tách theo khoảng trắng, giữ lại các từ dài hơn 1 ký tự và không nằm trong STOPWORDS
+        return (clean.match(/[\p{L}\p{N}]+/gu) || []).filter(w => w.length > 1 && !STOPWORDS.has(w));
+    }
 
-/**
- * ==========================================
- * 3. XÂY DỰNG INVERTED INDEX (Tạo bộ não tìm kiếm)
- * Chạy 1 lần duy nhất khi load app. Chỉ dùng file Index nhẹ.
- * ==========================================
- */
-export async function buildSearchIndex() {
-    try {
-        console.log("[Search Engine] Đang xây dựng Inverted Index...");
+    /**
+     * Hàm xây dựng chỉ mục (Index Builder): Chạy 1 lần khi khởi động App
+     */
+    async function buildIndexAsync() {
+        invertedIndex = Object.create(null);
+        docLengths = Object.create(null);
         
-        // Tải file Index tác phẩm (Nhẹ, không chứa nội dung chi tiết)
-        const res = await fetch(CONFIG.DATA_PATHS.TAC_PHAM_INDEX);
-        searchData = await res.json();
+        // Lấy toàn bộ dữ liệu từ State
+        const entries = STATE.GLOBAL_RECORDS.slice();
+        totalDocs = entries.length;
         
-        invertedIndex = {}; // Reset index
-
-        searchData.forEach(item => {
-            const id = item.id;
-            // Gộp Tên tác phẩm và Tên tác giả để tìm kiếm
-            const textToIndex = `${item.ten_tac_pham || ''} ${item.tac_gia || ''}`;
-            const words = tokenize(textToIndex);
-
-            // Đưa từng từ vào Index
-            words.forEach(word => {
-                if (!invertedIndex[word]) {
-                    invertedIndex[word] = new Set(); // Dùng Set để tránh trùng lặp ID
-                }
-                invertedIndex[word].add(id);
+        const CHUNK_SIZE = 50; // Chia lô 50 tài liệu để không chặn UI
+        
+        for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
+            const chunk = entries.slice(i, i + CHUNK_SIZE);
+            
+            chunk.forEach(record => {
+                const item = record.data;
+                const key = record.key;
+                
+                // Gom Tên tác phẩm, Tác giả, Mô tả, Nội dung để đưa vào bộ lọc tìm kiếm
+                const titleText = item.title || item.name || '';
+                const words = tokenize([titleText, item.author, item.desc, item.description, item.content].join(' '));
+                
+                // Lưu độ dài tài liệu (dùng cho thuật toán TF-IDF)
+                docLengths[key] = Math.max(words.length, 1);
+                
+                // Đưa từng từ vào Inverted Index
+                words.forEach(w => {
+                    if (!invertedIndex[w]) invertedIndex[w] = Object.create(null);
+                    invertedIndex[w][key] = (invertedIndex[w][key] || 0) + 1;
+                });
             });
-        });
-
-        console.log(`[Search Engine] Đã index xong ${searchData.length} tác phẩm.`);
-        return true;
-    } catch (error) {
-        console.error("[Search Engine] Lỗi xây dựng Index:", error);
-        return false;
-    }
-}
-
-/**
- * ==========================================
- * 4. HÀM TÌM KIẾM CHÍNH (SEARCH)
- * Nhận câu truy vấn từ người dùng -> Trả về danh sách kết quả.
- * ==========================================
- */
-export function searchWorks(query) {
-    if (!query || query.trim() === '') return [];
-
-    const queryWords = tokenize(query);
-    if (queryWords.length === 0) return [];
-
-    // Tìm giao (Intersection) của các tập hợp ID chứa từng từ khóa
-    let matchedIds = null;
-
-    queryWords.forEach(word => {
-        // Tìm các ID chứa từ này (hỗ trợ tìm gần đúng: gõ "ngu" ra "nguyen")
-        let currentMatches = new Set();
-        
-        Object.keys(invertedIndex).forEach(indexWord => {
-            if (indexWord.includes(word)) {
-                invertedIndex[indexWord].forEach(id => currentMatches.add(id));
-            }
-        });
-
-        // Nếu là từ đầu tiên, gán làm gốc
-        if (matchedIds === null) {
-            matchedIds = currentMatches;
-        } else {
-            // Nếu là các từ tiếp theo, phải chứa TẤT CẢ các từ (Phép giao)
-            matchedIds = new Set([...matchedIds].filter(id => currentMatches.has(id)));
+            
+            // Nhường luồng (Yield) để trình duyệt kịp vẽ UI, tránh bị đơ
+            await new Promise(r => setTimeout(r, 0));
         }
-    });
-
-    if (!matchedIds || matchedIds.size === 0) return [];
-
-    // Lấy thông tin chi tiết của các ID tìm được từ mảng searchData gốc
-    const results = searchData.filter(item => matchedIds.has(item.id));
-    
-    return results;
-}
-
-/**
- * ==========================================
- * 5. KHỞI TẠO SỰ KIỆN TÌM KIẾM (Gắn vào ô Input)
- * ==========================================
- */
-export function initSearch(inputElement) {
-    if (!inputElement) return;
-
-    // Gắn sự kiện khi người dùng gõ phím (Debounce để không spam tìm kiếm)
-    let timeout = null;
-    inputElement.addEventListener('input', (e) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            const query = e.target.value;
-            const results = searchWorks(query);
-            renderSearchResults(results, query);
-        }, 300); // Đợi 300ms sau khi ngừng gõ mới bắt đầu tìm
-    });
-}
-
-/**
- * ==========================================
- * 6. HIỂN THỊ KẾT QUẢ TÌM KIẾM (UI)
- * ==========================================
- */
-function renderSearchResults(results, query) {
-    const container = document.getElementById('search-results');
-    if (!container) return;
-
-    // Nếu ô tìm kiếm trống, ẩn kết quả
-    if (!query || query.trim() === '') {
-        container.innerHTML = '';
-        container.style.display = 'none';
-        return;
+        
+        isIndexed = true;
+        console.log(`[SEARCH ENGINE] Đã xây dựng xong Inverted Index cho ${totalDocs} tài liệu.`);
     }
 
-    container.style.display = 'block';
+    /**
+     * Hàm Tìm kiếm chính (Search)
+     * @param {string} query - Từ khóa người dùng nhập
+     * @returns {Array} Danh sách kết quả đã sắp xếp theo điểm số
+     */
+    function search(query) {
+        const qNorm = normalizeRouteText(query);
+        const tokens = tokenize(qNorm);
+        if (!qNorm) return [];
+        
+        const scores = new Map();
 
-    if (results.length === 0) {
-        container.innerHTML = `<div class="no-result">Không tìm thấy kết quả cho "${query}"</div>`;
-        return;
+        // BƯỚC 1: Tìm kiếm chính xác (Exact Match) dựa trên Tiêu đề và Tác giả
+        for (const record of STATE.GLOBAL_RECORDS) {
+            const item = record.data;
+            const titleText = item.title || item.name || '';
+            const title = normalizeRouteText(titleText);
+            const titleAlias = normalizeRouteText(getRecordTitleAlias(item, record.group));
+            const author = normalizeRouteText(item.author);
+            
+            let score = 0;
+            // Ưu tiên khớp chính xác tiêu đề
+            if (title === qNorm || titleAlias === qNorm) score += 700;
+            else if (title.includes(qNorm) || titleAlias.includes(qNorm)) score += 360;
+            
+            // Ưu tiên khớp tên tác giả (điểm cao hơn nếu tìm ở nhóm Tác giả 'ky-tai')
+            if (author && author === qNorm) score += record.group === 'ky-tai' ? 620 : 260;
+            else if (author && author.includes(qNorm)) score += 120;
+            
+            if (score) scores.set(record.key, score);
+        }
+
+        // BƯỚC 2: Tìm kiếm mờ (Fuzzy Match) dựa trên Inverted Index và TF-IDF
+        if (isIndexed && tokens.length) {
+            tokens.forEach(w => {
+                const docs = invertedIndex[w];
+                if (!docs) return;
+                
+                const docCount = Object.keys(docs).length;
+                // Công thức IDF (Inverse Document Frequency): Từ nào xuất hiện ở ít tài liệu thì điểm càng cao
+                const idf = Math.log((totalDocs || 1) / Math.max(docCount, 1)) + 1;
+                
+                for (const [key, count] of Object.entries(docs)) {
+                    const record = STATE.GLOBAL_INDEX_BY_KEY.get(key);
+                    if (!record) continue;
+                    
+                    // Công thức TF (Term Frequency)
+                    const tf = count / (docLengths[key] || 1);
+                    let score = tf * idf;
+                    
+                    // Nhân hệ số ưu tiên nếu từ khóa nằm trong Tiêu đề hoặc Tác giả
+                    const titleText = record.data.title || record.data.name || '';
+                    const title = normalizeRouteText(titleText);
+                    const author = normalizeRouteText(record.data.author);
+                    if (title.includes(w)) score *= 5;
+                    else if (author.includes(w)) score *= 3;
+                    
+                    scores.set(key, (scores.get(key) || 0) + score);
+                }
+            });
+        }
+
+        // BƯỚC 3: Chuyển Map thành Mảng và Sắp xếp giảm dần theo điểm
+        return Array.from(scores, ([key, score]) => {
+            const record = STATE.GLOBAL_INDEX_BY_KEY.get(key);
+            return record ? { key, id: record.id, group: record.group, score } : null;
+        }).filter(Boolean).sort((a, b) => b.score - a.score);
     }
 
-    // Render danh sách kết quả
-    let html = `<div class="search-results-list">`;
-    results.forEach(item => {
-        // Làm nổi bật từ khóa tìm kiếm (có thể dùng CSS)
-        html += `
-            <div class="search-item" onclick="window.navigateTo('doc-bai', '${item.id}')">
-                <h4 class="search-title">${item.ten_tac_pham}</h4>
-                <p class="search-author">${item.tac_gia}</p>
-            </div>
-        `;
-    });
-    html += `</div>`;
-    
-    container.innerHTML = html;
+    return { 
+        buildIndexAsync, 
+        search, 
+        getIndexStatus: () => isIndexed 
+    };
+})();
+
+/**
+ * Hàm kích hoạt chạy ngầm việc xây dựng Index (được gọi từ main.js)
+ * Ngăn việc gọi hàm buildIndexAsync nhiều lần không cần thiết.
+ */
+export function triggerAsyncSearchIndex() {
+    if (!VDSearchEngine.getIndexStatus()) {
+        VDSearchEngine.buildIndexAsync();
+    }
 }
