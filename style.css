@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.5 - ELEGANT MODAL)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.5 - ELEGANT & TINH TẾ)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -7,6 +7,7 @@
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
    - Hiệu năng: Tối ưu GPU, content-visibility (chống lag khi có ngàn thẻ).
    - Tương tác: Fate Modal (Chống Layout Shift), Nút Hero (PC 1 hàng, Mobi song song).
+   - Liền mạch: Sự chuyển cảnh mượt mà từ Splash -> Trang chủ -> Các View.
    ===================================================================== */
 
 /* =====================================================================
@@ -137,7 +138,7 @@ body {
 }
 
 /* =====================================================================
-   6. MÀN HÌNH CHỜ: BOOT EXPERIENCE
+   6. MÀN HÌNH CHỜ: BOOT EXPERIENCE (DẢI LỤA + TEXT)
    ===================================================================== */
 #jade-splash { 
     position: fixed; inset: 0; z-index: 999999; 
@@ -202,7 +203,7 @@ body {
 .elegant-fade-in { animation: elegantFadeIn 1.2s var(--ease-silk) forwards; }
 
 /* =====================================================================
-   7. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA
+   7. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC
    ===================================================================== */
 .silk-transition-overlay {
     position: fixed; inset: 0; z-index: 999998; pointer-events: none; overflow: hidden;
@@ -251,7 +252,7 @@ body {
 .mobile-menu-btn svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
-   9. TYPOGRAPHY & BUTTONS
+   9. TYPOGRAPHY & BUTTONS CHUNG
    ===================================================================== */
 .nav-btn, .btn, .filter-btn, .pagination-container button {
     font-family: var(--font-body) !important; font-size: 0.85rem !important; 
@@ -285,8 +286,10 @@ body {
 
 /* Nút mũi tên phân trang */
 .page-btn.arrow-btn {
-    font-size: 1.1rem; font-weight: 400; padding: 0 12px;
-    font-family: Arial, sans-serif !important; 
+    font-size: 1.1rem;
+    font-weight: 400;
+    padding: 0 12px;
+    font-family: Arial, sans-serif !important; /* Font không chân cho mũi tên sắc nét */
 }
 
 /* =====================================================================
@@ -387,7 +390,10 @@ body {
 .clear-btn.show { display: flex; }
 .clear-btn svg { width: 20px; height: 20px; stroke: currentColor; }
 
-mark { background-color: #d4ece6; color: var(--text-main); padding: 0 4px; border-radius: 4px; font-weight: 700; box-shadow: 0 0 4px rgba(139, 184, 168, 0.3); }
+mark {
+    background-color: #d4ece6; color: var(--text-main); padding: 0 4px;
+    border-radius: 4px; font-weight: 700; box-shadow: 0 0 4px rgba(139, 184, 168, 0.3);
+}
 
 /* =====================================================================
    13. VĂN HIẾN (CARDS & PAGINATION)
@@ -412,6 +418,25 @@ mark { background-color: #d4ece6; color: var(--text-main); padding: 0 4px; borde
     border-color: var(--accent) !important;
     background-color: rgba(139, 184, 168, 0.15) !important; 
     animation: glowPulse 2.5s ease-out forwards;
+}
+
+/* NHÃN PHỤ ĐỊNH VỊ TIỂU MỤC (Route Hint) */
+.route-section-hint {
+    display: inline-flex;
+    align-items: center;
+    margin: 7px 0 0 10px;
+    padding: 4px 9px;
+    border: 1px solid rgba(139, 184, 168, 0.5);
+    border-radius: 999px;
+    background: rgba(139, 184, 168, 0.12);
+    color: var(--accent-text);
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.45;
+    vertical-align: middle;
+}
+@media (max-width: 640px) {
+    .route-section-hint { display: table; margin: 8px 0 0; }
 }
 
 @keyframes glowPulse {
@@ -460,8 +485,17 @@ mark { background-color: #d4ece6; color: var(--text-main); padding: 0 4px; borde
 .related-section { margin-top: 32px; padding-top: 24px; border-top: 1px dashed rgba(139,184,168,0.3); }
 .related-title { font-family: var(--font-body); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; }
 .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-.related-card { position: relative; padding: 10px 28px 10px 14px; background: rgba(139,184,168,0.06); border-left: 2px solid var(--accent); border-radius: 6px; cursor: pointer; transition: background 0.2s; font-size: 0.9rem; }
-.related-card::after { content: '→'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%) translateX(-4px); opacity: 0; transition: opacity 0.2s, transform 0.2s; color: var(--accent); }
+.related-card {
+    position: relative; padding: 10px 28px 10px 14px; background: rgba(139,184,168,0.06);
+    border: 0; border-left: 2px solid var(--accent); border-radius: 6px;
+    width: 100%; text-align: left; color: var(--text-main); font-family: var(--font-body);
+    cursor: pointer; transition: background 0.2s; font-size: 0.9rem;
+}
+.related-card::after {
+    content: '→'; position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%) translateX(-4px); opacity: 0;
+    transition: opacity 0.2s, transform 0.2s; color: var(--accent);
+}
 .related-card:hover { background: rgba(139,184,168,0.15); }
 .related-card:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
 .related-card small { display: block; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; }
@@ -491,12 +525,26 @@ mark { background-color: #d4ece6; color: var(--text-main); padding: 0 4px; borde
 .symbol-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; flex-wrap: wrap; }
 .symbol-keyword { font-family: var(--font-body); font-weight: 700; font-size: 1.2rem; color: var(--text-main); min-width: 80px; }
 .symbol-meaning { flex: 1; color: var(--text-muted); font-size: 1rem; line-height: 1.4; }
-.volume-link { color: var(--accent-text); cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; text-decoration: underline; }
+.volume-link { color: var(--accent-text); background: transparent; border: 0; padding: 0; cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; text-decoration: underline; }
 .question-item { padding: 6px 0; line-height: 1.5; color: var(--text-main); font-size: 1rem; display: flex; align-items: flex-start; font-family: var(--font-body); }
 
-/* Symbol Highlighter (Tooltip) */
-.symbol-mark { background: linear-gradient(transparent 60%, rgba(212,196,168,0.35) 60%); cursor: help; padding: 0 1px; position: relative; }
-.symbol-mark::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(4px); background: var(--text-main, #2c3e38); color: var(--bg-base, #fdfbf7); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-family: var(--font-body); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-style: normal; }
+/* Symbol Highlighter - Tooltip CSS */
+.symbol-mark {
+    background: linear-gradient(transparent 60%, rgba(212,196,168,0.35) 60%);
+    cursor: help; padding: 0 1px; position: relative;
+}
+.symbol-mark::after {
+    content: attr(data-tooltip);
+    position: absolute; bottom: 100%; left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: var(--text-main, #2c3e38); color: var(--bg-base, #fdfbf7);
+    padding: 6px 12px; border-radius: 6px;
+    font-size: 0.8rem; font-family: var(--font-body);
+    white-space: nowrap; opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-style: normal;
+}
 .symbol-mark:hover::after { opacity: 1; transform: translateX(-50%) translateY(-4px); }
 
 /* =====================================================================
@@ -510,7 +558,7 @@ mark { background-color: #d4ece6; color: var(--text-main); padding: 0 4px; borde
 .skeleton-line.desc { height: 12px; width: 100%; }
 
 /* =====================================================================
-   17. FATE MODAL (HỘP THOẠI NỔI GIỮA MÀN HÌNH - FIX CLS)
+   17. FATE MODAL (HỘP THOẠI NỔI GIỮA MÀN HÌNH - CHỐNG CLS)
    ===================================================================== */
 #fate-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
