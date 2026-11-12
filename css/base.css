@@ -1,0 +1,80 @@
+/**
+ * ==========================================================
+ * VĂN ĐẠO - BASE CSS (css/base.css)
+ * Chức năng: Reset CSS, định dạng thẻ cơ bản toàn trang.
+ * ==========================================================
+ */
+
+/* 1. RESET CƠ BẢN (Xóa margin, padding mặc định) */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Xóa viền xanh khi chạm trên Mobile */
+}
+
+/* 2. ĐỊNH DẠNG THẺ HTML & BODY */
+html {
+    font-size: 16px;
+    scroll-behavior: smooth; /* Cuộn trang mượt */
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    line-height: 1.5;
+    overflow-x: hidden; /* Chặn cuộn ngang */
+    -webkit-font-smoothing: antialiased; /* Chữ mượt hơn trên Mac/iOS */
+}
+
+/* 3. ĐỊNH DẠNG THẺ LINK VÀ NÚT */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+    outline: none;
+}
+
+/* 4. ĐỊNH DẠNG HÌNH ẢNH */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* 5. ĐỊNH DẠNG DANH SÁCH */
+ul, ol {
+    list-style: none;
+}
+
+/* 6. TÙY CHỈNH THANH CUỘN (SCROLLBAR) CHO PC */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent-gold);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* 7. TIỆN ÍCH CHUNG */
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.fade-in { animation: fadeIn 0.5s var(--ease-silk) forwards; }
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
