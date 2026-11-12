@@ -2,25 +2,29 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Chức năng: Khởi chạy App, quản lý Splash, Load Data, Bói Thơ,
- * Thi Pháp, Canvas, và gắn sự kiện toàn cục.
+ * Thi Pháp, Canvas, và gắn toàn bộ sự kiện giao diện.
  * ==========================================================
  */
 
-// 1. IMPORT CÁC MODULE CON
+// =====================================================================
+// 1. IMPORT CÁC MODULE (Đảm bảo đúng đường dẫn)
+// =====================================================================
 import { APP_DATA, STATE, ICONS } from './config.js';
-import { debounce, normalizeRouteText, removeAccents, escapeHTML } from './utils.js';
+import { debounce, escapeHTML, removeAccents } from './utils.js';
 import { switchView, toggleMobileMenu, gotoEncyclopediaById, setCancelSearch } from './router.js';
 import { 
     initMainFilters, renderHeritage, searchEncyclopedia, 
     bindEncyclopediaEvents, filterEncyclopediaGroup, 
     filterMainCategory, filterSubGenre, renderEncyclopedia, 
-    renderPagination, changePage, findSymbols, renderEncyclopediaList 
+    renderPagination, changePage, findSymbols, renderEncyclopediaList,
+    PerformanceEngine
 } from './render.js';
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
+import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
 
-/* =====================================================================
-   PHẦN 1: HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
-   ===================================================================== */
+// =====================================================================
+// PHẦN 1: HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
+// =====================================================================
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
     if (!canvas || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -74,9 +78,9 @@ function initDewdrops() {
     }
 }
 
-/* =====================================================================
-   PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER) - TRÍCH XUẤT NGUYÊN BẢN
-   ===================================================================== */
+// =====================================================================
+// PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER) - TRÍCH XUẤT NGUYÊN BẢN
+// =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
         const nfd = s.normalize('NFD');
@@ -157,7 +161,7 @@ const POETRY_ANALYZER = (() => {
         if (!bangTrac.length) return null;
         const form = detectForm(bangTrac);
         const rhymes = checkRhymeDetails(bangTrac);
-        const symbols = findSymbols(text); // Gọi hàm từ render.js
+        const symbols = findSymbols(text); 
         const questions = buildQuestions(form, rhymes, symbols);
         return { bangTrac, form, rhymes, symbols, questions };
     }
@@ -239,9 +243,9 @@ function executePipeline() {
     `;
 }
 
-/* =====================================================================
-   PHẦN 3: LOAD DATA & DANH NGÔN
-   ===================================================================== */
+// =====================================================================
+// PHẦN 3: LOAD DATA & DANH NGÔN
+// =====================================================================
 async function loadAllData() {
     try {
         const safeFetch = async (url, fallback = []) => {
@@ -255,7 +259,6 @@ async function loadAllData() {
             }
         };
 
-        // Nạp 9 file JSON
         const results = await Promise.all([
             safeFetch('./data/data-ly-thuyet.json', []),
             safeFetch('./data/data-tac-gia.json', []),
@@ -268,7 +271,6 @@ async function loadAllData() {
             safeFetch('./data/data-tu-dien-the-loai.json', [])
         ]);
 
-        // Gán vào APP_DATA (object toàn cục từ config.js)
         APP_DATA.THEORY_DATA = results[0];
         APP_DATA.AUTHOR_DATA = results[1];
         APP_DATA.WORKS_DATA  = results[2];
@@ -353,9 +355,9 @@ function renderRandomQuote() {
     }, 500);
 }
 
-/* =====================================================================
-   PHẦN 4: BÓI THƠ (FATE MODAL)
-   ===================================================================== */
+// =====================================================================
+// PHẦN 4: BÓI THƠ (FATE MODAL)
+// =====================================================================
 function determineFortuneByContext(work) {
     const author = (work.author || '').toLowerCase();
     const era = (work.era || '').toLowerCase();
@@ -432,7 +434,6 @@ async function randomPoem() {
     loadingEl.classList.remove('hidden');
     resultEl.classList.remove('show');
 
-    // 1. Render ngầm dữ liệu để chống CLS
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
     const fortuneKey = determineFortuneByContext(randomWork);
     const fortuneInfo = APP_DATA.FORTUNE_CONFIG[fortuneKey] || { name: 'Bình Hòa', color: '#6a7c76' };
@@ -467,7 +468,6 @@ async function randomPoem() {
     
     const bridgeText = generateBridgeText(randomWork, fortuneKey);
     
-    // Xử lý tách Nên / Tránh
     let adviceHtml = '';
     if (adviceText) {
         const parts = adviceText.split('Tránh:');
@@ -507,17 +507,16 @@ async function randomPoem() {
         });
     };
 
-    // 2. Hiện kết quả sau 1.2s
     setTimeout(() => {
         loadingEl.classList.add('hidden');
         resultEl.classList.add('show');
     }, 1200);
 }
 
-/* =====================================================================
-   PHẦN 5: XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
-   (Để index.html có thể gọi bằng sự kiện onclick)
-   ===================================================================== */
+// =====================================================================
+// PHẦN 5: XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
+// (Để index.html có thể gọi bằng sự kiện onclick)
+// =====================================================================
 window.executePipeline = executePipeline;
 window.randomPoem = randomPoem;
 window.switchView = switchView;
@@ -528,8 +527,24 @@ window.filterSubGenre = filterSubGenre;
 window.filterEncyclopediaGroup = filterEncyclopediaGroup;
 window.searchEncyclopedia = searchEncyclopedia;
 window.changePage = changePage;
-window.handleSearchInput = () => {};
-window.clearSearch = () => {};
+
+window.handleSearchInput = function() {
+    const input = document.getElementById('encyclopedia-search');
+    const clearBtn = document.getElementById('clear-search-btn');
+    if (!input || !clearBtn) return;
+    if (input.value.length > 0) clearBtn.classList.add('show');
+    else clearBtn.classList.remove('show');
+};
+
+window.clearSearch = function() {
+    const input = document.getElementById('encyclopedia-search');
+    const clearBtn = document.getElementById('clear-search-btn');
+    if (!input) return;
+    input.value = ''; 
+    if (clearBtn) clearBtn.classList.remove('show'); 
+    input.focus(); 
+    searchEncyclopedia(); 
+};
 
 window.auditWorksData = async function() {
     console.log("%c[AUDIT] KIỂM TRA TÁC PHẨM", "color:#8bb8a8;font-weight:bold;");
@@ -563,11 +578,11 @@ window.auditAuthorsData = async function() {
     console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
 };
 
-/* =====================================================================
-   PHẦN 6: KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
-   ===================================================================== */
+// =====================================================================
+// PHẦN 6: KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
+// =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Gắn sự kiện click cho các nút
+    // 6.1. Gắn sự kiện cho các nút Bói Thơ (Fate Modal)
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
     document.getElementById('fate-close-btn')?.addEventListener('click', () => {
         const o = document.getElementById('fate-modal-overlay');
@@ -581,7 +596,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Splash Screen Flow
+    // 6.2. Splash Screen & Load Data
     const splash = document.getElementById('jade-splash');
     const status = document.getElementById('bootStatusText');
     const qc = document.querySelector('.boot-quote');
@@ -622,7 +637,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     }
 
-    // Khôi phục bản nháp (nếu có)
+    // 6.3. Khôi phục bản nháp (nếu có)
     const draft = localStorage.getItem('vandao_draft_poem');
     if (draft) {
         const pi = document.getElementById('poemInput');
@@ -630,7 +645,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // Sự kiện tìm kiếm
+    // 6.4. Gắn sự kiện Tìm kiếm
     document.getElementById('search-input')?.addEventListener('input', debounce(() => { STATE.currentPage = 1; renderHeritage(); }, 300));
     
     const encyclopediaSearchInput = document.getElementById('encyclopedia-search');
@@ -640,7 +655,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         encyclopediaSearchInput.addEventListener('input', debouncedSearch);
     }
 
-    // Xử lý URL params (chuyển tab nếu có)
+    // 6.5. Xử lý URL params (chuyển tab nếu có)
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
     if (initialTab && ['heritage', 'encyclopedia', 'analyze'].includes(initialTab)) {
@@ -648,7 +663,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // Sự kiện click chung (Routing, đóng menu)
+    // 6.6. Sự kiện click chung toàn cục (Routing, đóng menu)
     document.addEventListener('click', e => {
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
@@ -678,7 +693,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Logic cho Settings Dialog (Tủ Sách Offline)
+    // 6.7. Logic cho Settings Dialog (Tủ Sách Offline)
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
@@ -701,5 +716,61 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // 6.8. NỐI SỰ KIỆN CHO CÁC NÚT TẢI OFFLINE (MỚI BỔ SUNG)
+    const btnOfflineStart = document.getElementById('offline-btn-start');
+    const btnOfflineCancel = document.getElementById('offline-btn-cancel');
+    const btnOfflineClear = document.getElementById('offline-btn-clear');
+    const progressSection = document.getElementById('offline-progress-section');
+    const progressBar = document.getElementById('offline-progress-bar');
+    const progressText = document.getElementById('offline-progress-text');
+    const progressPercent = document.getElementById('offline-progress-percent');
+
+    if (btnOfflineStart) {
+        btnOfflineStart.addEventListener('click', async () => {
+            btnOfflineStart.disabled = true;
+            btnOfflineStart.textContent = "Đang tải...";
+            if (progressSection) progressSection.style.display = 'block';
+            if (btnOfflineCancel) btnOfflineCancel.style.display = 'block';
+
+            const result = await downloadAllOffline((percent, completed, total, failed) => {
+                if (progressBar) progressBar.style.width = `${percent}%`;
+                if (progressPercent) progressPercent.textContent = `${percent}%`;
+                if (progressText) progressText.textContent = `Đã tải ${completed}/${total} file`;
+            });
+
+            btnOfflineStart.disabled = false;
+            btnOfflineStart.textContent = "Tải Toàn Bộ";
+            if (btnOfflineCancel) btnOfflineCancel.style.display = 'none';
+
+            if (result.success) {
+                alert(`Tải hoàn tất! Thành công: ${result.total - result.failed} file. Lỗi: ${result.failed} file.`);
+                if (progressSection) progressSection.style.display = 'none';
+            } else {
+                alert("Quá trình tải bị gián đoạn hoặc gặp lỗi.");
+            }
+        });
+    }
+
+    if (btnOfflineCancel) {
+        btnOfflineCancel.addEventListener('click', () => {
+            cancelDownload(); 
+            btnOfflineStart.disabled = false;
+            btnOfflineStart.textContent = "Tải Toàn Bộ";
+            btnOfflineCancel.style.display = 'none';
+        });
+    }
+
+    if (btnOfflineClear) {
+        btnOfflineClear.addEventListener('click', async () => {
+            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu Offline?")) {
+                await clearOfflineData();
+                alert("Đã xóa dữ liệu Offline thành công!");
+                if (progressSection) progressSection.style.display = 'none';
+                if (progressBar) progressBar.style.width = '0%';
+            }
+        });
+    }
+
+    // 6.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
     bindEncyclopediaEvents();
 });
