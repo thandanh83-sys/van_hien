@@ -6,22 +6,32 @@
  * ==========================================================
  */
 
-// 1. IMPORT CÁC MODULE CON (Đảm bảo bạn đã tạo các file này trong thư mục js/)
+// 1. IMPORT CÁC MODULE CON (Khớp chính xác với cấu trúc thư mục của bạn)
 import { STATE, ICONS, CONFIG } from './config.js';
 import { initRouter, navigateTo } from './router.js';
-import { initSearch } from './search.js';
-import { renderWorkDetail, renderHomeView } from './render.js';
-import { loadSingleItem, checkStorageSize } from './offline.js';
-import { initPerformance } from './performance.js';
+import { initSearch, buildSearchIndex } from './search.js';
+import { renderHomeView } from './render.js';
+import { downloadAllOffline, checkStorageSize, clearOfflineData } from './offline.js';
 
-// 2. KHAI BÁO CÁC PHẦN TỬ DOM TOÀN CỤC
+// 2. KHAI BÁO CÁC PHẦN TỬ DOM TOÀN CỤC (Khớp ID với index.html)
 const DOM = {
     body: document.body,
     splash: document.getElementById('splash-screen'),
-    app: document.getElementById('app'),
+    appContent: document.getElementById('app-content'),
     btnSettings: document.getElementById('btn-settings'),
+    btnSearch: document.getElementById('btn-search'),
     btnMenu: document.getElementById('btn-menu'),
-    modalSettings: document.getElementById('settings-modal')
+    modalSettings: document.getElementById('settings-modal'),
+    btnCloseSettings: document.getElementById('btn-close-settings'),
+    searchContainer: document.getElementById('search-container'),
+    searchInput: document.getElementById('search-input'),
+    
+    // Các nút trong phần Cài đặt
+    btnDownloadAll: document.getElementById('btn-download-all'),
+    progressContainer: document.getElementById('progress-container'),
+    progressBar: document.getElementById('progress-bar'),
+    progressText: document.getElementById('progress-text'),
+    btnClearCache: document.getElementById('btn-clear-cache')
 };
 
 /**
@@ -43,12 +53,12 @@ async function initSplashScreen() {
         // Random 1 câu danh ngôn
         const randomQuote = danhNgonList[Math.floor(Math.random() * danhNgonList.length)];
 
-        // Render giao diện Splash (Tuyệt đối không có nút Bản Dịch / Nguyên Văn)
+        // Render giao diện Splash (Sử dụng ảnh nen.jpg thực tế của bạn)
         DOM.splash.innerHTML = `
-            <div class="splash-content fade-in">
-                <img src="assets/images/splash-art.jpg" alt="Văn Đạo" class="splash-image">
-                <h2 class="splash-quote">"${randomQuote.text}"</h2>
-                <p class="splash-author">— ${randomQuote.author} —</p>
+            <div class="splash-content fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                <img src="assets/nen.jpg" alt="Văn Đạo" class="splash-image">
+                <h2 class="splash-quote">"${randomQuote.text || randomQuote.noi_dung}"</h2>
+                <p class="splash-author">— ${randomQuote.author || randomQuote.tac_gia} —</p>
             </div>
         `;
 
@@ -82,70 +92,110 @@ async function initSplashScreen() {
  * KHỐI 2: KHỞI CHẠY APP CHÍNH
  * ==========================================
  */
-function startApp() {
+async function startApp() {
     console.log("[Văn Đạo] Khởi chạy hệ thống...");
     
     // 1. Khởi tạo Router (Xử lý chuyển trang)
     initRouter();
-    
-    // 2. Khởi tạo Performance (Lazy load ảnh, tối ưu cuộn)
-    if (initPerformance) initPerformance();
+
+    // 2. Xây dựng bộ não tìm kiếm (Search Index)
+    await buildSearchIndex();
 
     // 3. Tải View mặc định (Trang Chủ)
     renderHomeView();
 
-    // 4. Khởi tạo Search Engine (Nếu có thanh tìm kiếm)
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) initSearch(searchInput);
+    // 4. Khởi tạo sự kiện cho thanh tìm kiếm
+    if (DOM.searchInput) {
+        initSearch(DOM.searchInput);
+    }
     
     // 5. Cập nhật dung lượng Offline
-    if (checkStorageSize) checkStorageSize();
+    checkStorageSize();
 }
 
 /**
  * ==========================================
- * KHỐI 3: GẮN CÁC SỰ KIỆN TOÀN CỤC (EVENT LISTENERS)
+ * KHỐI 3: GẮN CÁC SỰ KIỆN TƯƠNG TÁC (EVENT LISTENERS)
  * ==========================================
  */
 function bindGlobalEvents() {
-    // 3.1. Sự kiện mở/đóng Cài đặt
-    if (DOM.btnSettings) {
+    // 3.1. Mở/Đóng Modal Cài đặt
+    if (DOM.btnSettings && DOM.modalSettings) {
         DOM.btnSettings.addEventListener('click', () => {
-            if (DOM.modalSettings) DOM.modalSettings.classList.add('active');
+            DOM.modalSettings.classList.add('active');
+            checkStorageSize(); // Cập nhật dung lượng mỗi khi mở
         });
     }
 
-    // 3.2. Sự kiện Menu (Mobile)
-    if (DOM.btnMenu) {
-        DOM.btnMenu.addEventListener('click', () => {
-            // Gọi hàm mở menu (nằm trong router hoặc render)
-            navigateTo('menu'); 
+    if (DOM.btnCloseSettings) {
+        DOM.btnCloseSettings.addEventListener('click', () => {
+            DOM.modalSettings.classList.remove('active');
         });
     }
 
-    // 3.3. Xử lý Sự kiện Click ra ngoài để đóng Tooltip / Modal
-    document.addEventListener('click', (e) => {
-        // Đóng Tooltip (nếu click không trúng vào tooltip hoặc từ khóa highlight)
-        const tooltip = document.querySelector('.vd-tooltip');
-        if (tooltip && !e.target.closest('.highlight')) {
-            tooltip.remove();
-        }
+    // 3.2. Bật/Tắt thanh Tìm kiếm
+    if (DOM.btnSearch && DOM.searchContainer) {
+        DOM.btnSearch.addEventListener('click', () => {
+            if (DOM.searchContainer.style.display === 'none') {
+                DOM.searchContainer.style.display = 'block';
+                DOM.searchInput.focus();
+            } else {
+                DOM.searchContainer.style.display = 'none';
+            }
+        });
+    }
 
-        // Đóng Modal Cài đặt nếu click ra ngoài
+    // 3.3. Xử lý Tải Toàn Bộ Offline
+    if (DOM.btnDownloadAll) {
+        DOM.btnDownloadAll.addEventListener('click', async () => {
+            // Đổi trạng thái nút
+            DOM.btnDownloadAll.innerText = "ĐANG TẢI...";
+            DOM.btnDownloadAll.disabled = true;
+            
+            // Hiển thị thanh tiến trình
+            DOM.progressContainer.style.display = 'block';
+            DOM.progressText.style.display = 'block';
+
+            // Gọi hàm tải từ offline.js
+            const result = await downloadAllOffline((percent) => {
+                // Callback cập nhật % liên tục
+                DOM.progressBar.style.width = `${percent}%`;
+                DOM.progressText.innerText = `${percent}%`;
+            });
+
+            // Hoàn tất
+            DOM.btnDownloadAll.innerText = "TẢI TOÀN BỘ";
+            DOM.btnDownloadAll.disabled = false;
+            
+            if (result.success) {
+                alert(`Đã tải xong! Thành công: ${result.total - result.failed} file. Lỗi: ${result.failed} file.`);
+                setTimeout(() => {
+                    DOM.progressContainer.style.display = 'none';
+                    DOM.progressText.style.display = 'none';
+                    DOM.progressBar.style.width = '0%';
+                }, 3000);
+            } else {
+                alert("Lỗi khi tải dữ liệu. Vui lòng thử lại.");
+            }
+        });
+    }
+
+    // 3.4. Xóa dữ liệu Offline
+    if (DOM.btnClearCache) {
+        DOM.btnClearCache.addEventListener('click', async () => {
+            const confirmDelete = confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu Offline?");
+            if (confirmDelete) {
+                await clearOfflineData();
+                checkStorageSize(); // Cập nhật lại dung lượng
+            }
+        });
+    }
+
+    // 3.5. Click ra ngoài Modal để đóng
+    window.addEventListener('click', (e) => {
         if (e.target === DOM.modalSettings) {
             DOM.modalSettings.classList.remove('active');
         }
-    });
-
-    // 3.4. Lắng nghe sự kiện offline/online
-    window.addEventListener('online', () => {
-        console.log("[Mạng] Đã có kết nối Internet.");
-        DOM.body.classList.remove('is-offline');
-    });
-    
-    window.addEventListener('offline', () => {
-        console.warn("[Mạng] Mất kết nối Internet.");
-        DOM.body.classList.add('is-offline');
     });
 }
 
@@ -174,12 +224,12 @@ function registerServiceWorker() {
  * ==========================================
  */
 document.addEventListener('DOMContentLoaded', () => {
-    // Bước 1: Gắn sự kiện toàn cục
+    // 1. Gắn sự kiện toàn cục
     bindGlobalEvents();
     
-    // Bước 2: Đăng ký PWA
+    // 2. Đăng ký PWA
     registerServiceWorker();
     
-    // Bước 3: Chạy Splash Screen
+    // 3. Chạy Splash Screen (Sau khi đã có đủ sự kiện)
     initSplashScreen();
 });
