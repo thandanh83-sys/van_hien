@@ -1,67 +1,59 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - TỆP KHAI BÁO MÔI TRƯỜNG PYTHON (REQUIREMENTS)
-# Mục đích: Quản lý các thư viện phụ thuộc cho các công cụ (tools/)
+# Mục đích: Quản lý thư viện phụ thuộc cho các công cụ (tools/)
 # Tác giả: Văn Đạo
 # =====================================================================
 
 # ---------------------------------------------------------------------
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY)
 # ---------------------------------------------------------------------
-# Các script hiện tại trong thư mục `tools/` (split_works.py, split_authors.py, 
-# auto_fill_content.py) được viết HOÀN TOÀN bằng Thư viện chuẩn (Standard Library) 
-# của Python như: os, sys, json, pathlib.
+# Các script trong thư mục `tools/` được viết HOÀN TOÀN bằng Thư viện chuẩn 
+# (Standard Library) của Python như: os, sys, json, pathlib.
 # 
-# Do đó, dự án này hiện tại KHÔNG CẦN BẤT KỲ THƯ VIỆN BÊN THỨ BA NÀO.
-# Điều này giúp GitHub Actions chạy cực nhanh, bảo mật tuyệt đối và 
-# không bao giờ gặp lỗi "Dependency Hell" (xung đột phiên bản).
-# 
-# Dưới đây là các thư viện được để dạng COMMENT (vô hiệu hóa). 
-# Nếu trong tương lai bạn muốn nâng cấp VĂN ĐẠO, bạn chỉ cần xóa dấu `#` 
-# ở đầu dòng để kích hoạt chúng.
+# Dự án này KHÔNG CẦN BẤT KỲ THƯ VIỆN BÊN THỨ BA NÀO.
+# Điều này giúp GitHub Actions chạy cực nhanh và không gặp lỗi xung đột.
+# Dưới đây là các thư viện để dạng COMMENT, nếu cần thì xóa dấu # để bật.
 # ---------------------------------------------------------------------
 
 # ---------------------------------------------------------------------
-# 1. LÕI XỬ LÝ DỮ LIỆU (DATA PROCESSING - Dự phòng tương lai)
+# 1. LÕI XỬ LÝ DỮ LIỆU (Dự phòng)
 # ---------------------------------------------------------------------
-# Dùng để kiểm tra tính hợp lệ của file JSON trước khi commit (Schema Validation)
 # jsonschema>=4.20.0
-
-# Dùng để tải dữ liệu từ các API bên ngoài (ví dụ: tự động lấy tiểu sử tác giả)
 # requests>=2.31.0
-
-# Dùng để xử lý văn bản tiếng Việt nâng cao (tách từ, chuẩn hóa ngữ pháp)
 # underthesea>=6.8.0
 
 # ---------------------------------------------------------------------
-# 2. ĐỊNH DẠNG & KIỂM TRA CODE (CODE QUALITY - Dành cho Dev)
+# 2. ĐỊNH DẠNG & KIỂM TRA CODE
 # ---------------------------------------------------------------------
-# Tự động căn lề, format code Python cho đẹp (Thanh tao từ trong code)
 # black>=23.12.0
-
-# Kiểm tra lỗi cú pháp, cảnh báo code thừa (Linting)
 # flake8>=6.1.0
-
-# Sắp xếp các dòng import gọn gàng
 # isort>=5.13.2
 
 # ---------------------------------------------------------------------
-# 3. KIỂM THỬ TỰ ĐỘNG (TESTING - Dự phòng)
+# 3. KIỂM THỬ TỰ ĐỘNG
 # ---------------------------------------------------------------------
-# Dùng để viết Unit Test cho các script Python
 # pytest>=7.4.0
 
-# ---------------------------------------------------------------------
-# HƯỚNG DẪN SỬ DỤNG (HOW TO USE)
-# ---------------------------------------------------------------------
-# 1. Nếu bạn mở khóa bất kỳ thư viện nào ở trên, hãy chạy lệnh sau 
-#    tại thư mục gốc của dự án để cài đặt:
-#    $ pip install -r requirements.txt
+
+# =====================================================================
+# ⚠️ GHI CHÚ BẢO TRÌ QUAN TRỌNG (MAINTENANCE NOTES)
+# =====================================================================
+# Nếu bạn không muốn đọc file README.md dài dòng, hãy đọc 4 gạch đầu dòng
+# dưới đây mỗi khi có ý định sửa code. Đây là những "bẫy" phổ biến nhất:
 #
-# 2. Để cập nhật file này tự động với các thư viện đang có trong môi trường:
-#    $ pip freeze > requirements.txt
+# 1. SỬA GIAO DIỆN (HTML/CSS/JS): 
+#    Phải đổi CACHE_VERSION trong sw.js (VD: 'v4.8.0' -> 'v4.8.1'). 
+#    Nếu không, trình duyệt sẽ không tải code mới của bạn.
 #
-# 3. Trong file .github/workflows/*.yml, bạn có thể thêm bước cài đặt 
-#    (nếu cần thiết):
-#    - name: Install dependencies
-#      run: pip install -r requirements.txt
-# ---------------------------------------------------------------------
+# 2. SỬA DỮ LIỆU TÁC PHẨM/TÁC GIẢ:
+#    Đừng sửa tay hàng ngàn file. Hãy tạo file *-master.json rồi chạy tool.
+#    Nhớ chạy: `python tools/validate_data.py` để kiểm tra.
+#
+# 3. SỬA TỪ ĐIỂN (data-tu-dien.json):
+#    Không thêm các từ quá phổ biến (nước, gió, mây) vào mục "symbols" 
+#    nếu không muốn Tooltip bắt nhầm từ trong câu (VD: "yêu nước").
+#
+# 4. TỦ SÁCH OFFLINE:
+#    Logic nằm ở 2 nơi: script.js (OfflineLibrary) và sw.js (message event).
+#    Nếu sửa bên này phải sửa bên kia để chúng khớp lệnh (postMessage).
+# =====================================================================
