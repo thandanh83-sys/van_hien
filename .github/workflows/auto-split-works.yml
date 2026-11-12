@@ -1,14 +1,14 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TÁCH DỮ LIỆU TÁC PHẨM
-# Tên file: auto-split-works.yml (Đồng bộ với auto-split-authors.yml)
+# Tên file: .github/workflows/auto-split-works.yml
 # Tác giả: Văn Đạo
 # 
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
 # - Khiêm nhường: Chỉ thức giậy khi thực sự có "hạt giống" mới được gieo 
 #   (file data-tac-pham-master.json thay đổi).
-# - Kỷ luật: Không chạy hỗn loạn. Phải xếp hàng (concurrency) để không 
-#   dẫm đạp lên các bot khác (tác giả, deploy).
-# - Trung thực: Kiểm tra kỹ cú pháp và sự thay đổi trước khi commit, 
+# - Kỷ luật: Xếp hàng (concurrency) để không dẫm đạp lên các bot khác 
+#   (tách tác giả, điền nội dung, deploy).
+# - Trung thực: Kiểm tra cú pháp và sự thay đổi trước khi commit, 
 #   không bao giờ tạo ra "commit rác".
 # - Thanh tịnh: Xử lý xong thì tự động dọn dẹp (xóa file master) để 
 #   kho lưu trữ luôn gọn gàng.
@@ -24,24 +24,24 @@ name: Auto Split Works Data
 on:
   push:
     paths:
-      # Chỉ thức giậy khi file Master Tác Phẩm này bị thay đổi.
-      # Việc giới hạn `paths` giúp tiết kiệm tài nguyên của GitHub Actions,
-      # tránh việc bot chạy vô ích khi bạn chỉ sửa file CSS hay JS.
+      # Chỉ kích hoạt khi file Master Tác Phẩm này bị thay đổi.
+      # Việc giới hạn `paths` giúp tiết kiệm tài nguyên GitHub Actions,
+      # tránh việc bot chạy vô ích khi bạn chỉ sửa CSS hay JS.
       - 'data/data-tac-pham-master.json'
       
-  # Thêm nút bấm chạy thủ công trên giao diện GitHub (Tab Actions) 
-  # để bạn có thể test bất cứ lúc nào mà không cần tạo file Master.
+  # Nút bấm chạy thủ công trên giao diện GitHub (Tab Actions) 
+  # để test bất cứ lúc nào mà không cần tạo file Master.
   workflow_dispatch:
 
 # =====================================================================
 # 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
 # =====================================================================
-# Đảm bảo bot Tác Phẩm này không chạy cùng lúc với bot Tác Giả (auto-split-authors)
+# Đảm bảo bot này không chạy cùng lúc với bot Tác Giả (auto-split-authors)
 # hay bot Deploy. Mọi thứ phải xếp hàng chạy tuần tự để tránh lỗi Git Push.
 concurrency:
   group: git-push-group
   # Nếu bot đang chạy thì phải đợi nó chạy xong, không được hủy ngang.
-  # Việc hủy ngang giữa chừng có thể khiến dữ liệu bị tách dở dang (rác).
+  # Việc hủy ngang có thể khiến dữ liệu bị tách dở dang (rác).
   cancel-in-progress: false 
 
 # =====================================================================
@@ -53,9 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     
     # KỶ LUẬT THỜI GIAN: Tự động hủy nếu chạy quá 10 phút.
-    # Script Python của VĂN ĐẠO chỉ mất vài giây để chạy. Nếu quá 10 phút,
-    # chắc chắn có lỗi (ví dụ: vòng lặp vô hạn hoặc file JSON quá khổng lồ).
-    # Việc này giúp bạn không phải chờ đợi bot treo hàng giờ đồng hồ.
+    # Script Python chỉ mất vài giây. Nếu quá 10 phút, chắc chắn có lỗi 
+    # (ví dụ: vòng lặp vô hạn hoặc file JSON quá khổng lồ).
     timeout-minutes: 10
     
     # Cấp quyền cho bot được phép ghi (Commit) dữ liệu vào kho code
@@ -85,7 +84,6 @@ jobs:
       # -----------------------------------------------------------------
       # BƯỚC 3: KIỂM TRA CÚ PHÁP PYTHON (LÁ CHẮN AN TOÀN)
       # -----------------------------------------------------------------
-      # TẠI SAO CẦN BƯỚC NÀY?
       # Nếu bạn sửa code Python và vô tình thiếu dấu ngoặc, bot sẽ chạy được 
       # nửa chừng rồi crash. Việc kiểm tra cú pháp (py_compile) trước khi chạy 
       # giúp phát hiện lỗi ngay lập tức, báo đỏ cho bạn biết mà sửa.
@@ -102,7 +100,6 @@ jobs:
       # -----------------------------------------------------------------
       # BƯỚC 5: LÁ CHẮN CHỐNG VÒNG LẶP (BẢO HIỂM KÉP)
       # -----------------------------------------------------------------
-      # TẠI SAO CẦN BƯỚC NÀY?
       # Script Python đã có lệnh unlink() để xóa file Master. Tuy nhiên, nếu 
       # vì lý do nào đó (file bị khóa, lỗi quyền), file Master vẫn còn sót lại.
       # Khi bot commit, file Master này lại kích hoạt chính nó chạy lại -> 
