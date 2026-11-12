@@ -3,7 +3,7 @@
     "text": "Văn học là nhân học.",
     "author": "M. Gorky",
     "source": "Bàn về văn học",
-    "verificationStatus": "verified"
+    "verificationStatus": "attributed"
   },
   {
     "text": "Thơ là tiếng nói của tâm hồn, là sự thăng hoa của cảm xúc.",
@@ -87,7 +87,7 @@
     "text": "Dưới ánh mặt trời, không có nghề nào cao quý hơn nghề dạy học.",
     "author": "Comenxki",
     "source": "Lý luận dạy học vĩ đại (Didactica Magna)",
-    "verificationStatus": "verified"
+    "verificationStatus": "needs-review"
   },
   {
     "text": "Một người thầy giỏi giống như ngọn nến – đốt cháy chính mình để soi sáng đường cho những người khác.",
@@ -146,7 +146,7 @@
   {
     "text": "Ngôn từ là áo xiêm của tư tưởng.",
     "author": "Samuel Johnson",
-    "source": "Từ điển tiếng Anh (Lời tựa)",
+    "source": "Prefaces, Biographical and Critical, to the Works of the English Poets (1779)",
     "verificationStatus": "verified"
   },
   {
@@ -157,8 +157,8 @@
   },
   {
     "text": "Thi dĩ ngôn chí.",
-    "author": "Khổng Tử",
-    "source": "Thượng Thư / Luận Ngữ",
+    "author": "Thượng Thư",
+    "source": "Thượng Thư - Thuấn Điển",
     "verificationStatus": "verified"
   },
   {
@@ -207,13 +207,13 @@
     "text": "Ngôn ngữ là nhà của hiện hữu.",
     "author": "Martin Heidegger",
     "source": "Thư về chủ nghĩa nhân văn",
-    "verificationStatus": "verified"
+    "verificationStatus": "translated"
   },
   {
     "text": "Thơ là sự biểu hiện tự phát của tình cảm mạnh mẽ, nó bắt nguồn từ cảm xúc được tĩnh lặng hồi tưởng.",
     "author": "William Wordsworth",
-    "source": "Lời tựa cho Bản tình ca trữ tình (Lyrical Ballads)",
-    "verificationStatus": "verified"
+    "source": "Lời tựa cho Bản tình ca trữ tình (Lyrical Ballads, 1800)",
+    "verificationStatus": "translated"
   },
   {
     "text": "Văn học không chỉ là tấm gương phản chiếu hiện thực mà còn là ngọn đuốc soi đường cho nhân loại.",
@@ -268,5 +268,113 @@
     "author": "Văn Đạo",
     "source": "Tuyên ngôn Văn Đạo - Quyển II",
     "verificationStatus": "author-declared"
+  },
+  {
+    "text": "Tri chi giả bất như hiếu chi giả, hiếu chi giả bất như lạc chi giả.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Ung Dã",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Tam nhân hành, tất hữu ngã sư yên.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Thuật Nhi",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Kiến hiền tư tề yên, kiến bất hiền nhi nội tự tỉnh dã.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Lý Nhân",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Tuế hàn, nhiên hậu tri tùng bách chi hậu điêu dã.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Tử Hãn",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Thệ giả như tư phù, bất xả trú dạ.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Tử Hãn",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Tri giả lạc thủy, nhân giả lạc sơn.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Ung Dã",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Bất hoạn nhân chi bất kỷ tri, hoạn bất tri nhân dã.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Học Nhi",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Quân tử hòa nhi bất đồng, tiểu nhân đồng nhi bất hòa.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Tử Lộ",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Kỷ sở bất dục, vật thi ư nhân.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Vệ Linh Công",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Công dục thiện kỳ sự, tất tiên lợi kỳ khí.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Vệ Linh Công",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Chất thắng văn tắc dã, văn thắng chất tắc sử, văn chất bân bân, nhiên hậu quân tử.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Ung Dã",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Học nhi bất yếm, hối nhân bất quyện.",
+    "author": "Khổng Tử",
+    "source": "Luận Ngữ - Thuật Nhi",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Tri túc bất nhục, tri chỉ bất đãi.",
+    "author": "Lão Tử",
+    "source": "Đạo Đức Kinh - Chương 44",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Thiên lý chi hành, thủy ư túc hạ.",
+    "author": "Lão Tử",
+    "source": "Đạo Đức Kinh - Chương 64",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Đại trực nhược khuất, đại xảo nhược chuyết, đại biện nhược nột.",
+    "author": "Lão Tử",
+    "source": "Đạo Đức Kinh - Chương 45",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Phản giả đạo chi động, nhược giả đạo chi dụng.",
+    "author": "Lão Tử",
+    "source": "Đạo Đức Kinh - Chương 40",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Vi học nhật ích, vi đạo nhật tổn.",
+    "author": "Lão Tử",
+    "source": "Đạo Đức Kinh - Chương 48",
+    "verificationStatus": "verified"
+  },
+  {
+    "text": "Thiên hạ nan sự, tất tác ư dị; thiên hạ đại sự, tất tác ư tế.",
+    "author": "Lão Tử",
+    "source": "Đạo Đức Kinh - Chương 63",
+    "verificationStatus": "verified"
   }
 ]
