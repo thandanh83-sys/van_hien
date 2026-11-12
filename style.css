@@ -1,11 +1,13 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.7 - ELEGANT & FIXED)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.9 - FINAL POLISH)
    Tác giả: Văn Đạo
    
-   CẬP NHẬT V4.7:
-   - Fix lỗi Highlight tô nền lệch (chữ "liễu", "nước").
-   - Fix lỗi Tooltip đè lên văn bản.
-   - Bổ sung CSS cho cụm nút Tủ Sách Offline (Start, Pause, Resume, Cancel).
+   TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+   - Giao diện Bạch Ngọc: Tĩnh tại, thanh tao, không phô trương.
+   - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
+   - Hiệu năng: Tối ưu GPU, content-visibility (chống lag khi có ngàn thẻ).
+   - Tương tác: HTML5 Dialog (Tủ sách Offline), Fate Modal (Bói thơ).
+   - Fix V4.9: Sửa lỗi Highlight lệch chữ, Tooltip đè văn bản, tối ưu UI Thi Pháp.
    ===================================================================== */
 
 /* =====================================================================
@@ -49,7 +51,7 @@
     --radius-pill: 50px;          
     --radius-card: 24px; 
 
-    /* Easing chuẩn (Học từ Chromium - Dải lụa) */
+    /* Easing chuẩn (Dải lụa) */
     --ease-silk: cubic-bezier(0.25, 0.8, 0.25, 1);
     --ease-silk-sharp: cubic-bezier(0.76, 0, 0.24, 1);
 }
@@ -248,7 +250,6 @@ body {
 
 .nav-links { display: flex; align-items: center; gap: 24px; }
 
-/* Khối bên phải Navbar: Cài đặt + Hamburger */
 .nav-actions {
     display: flex; align-items: center; gap: 8px; margin-left: 15px;
 }
@@ -298,7 +299,6 @@ body {
     box-shadow: 0 4px 12px rgba(85, 122, 111, 0.25) !important; 
 }
 
-/* Nút mũi tên phân trang */
 .page-btn.arrow-btn {
     font-size: 1.1rem; font-weight: 400; padding: 0 12px;
     font-family: Arial, sans-serif !important; 
@@ -323,7 +323,6 @@ body {
 .hero-content .no-wrap { white-space: nowrap; } 
 .hero-content p { font-family: var(--font-body); font-size: 1.15rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.7; text-align: left; }
 
-/* KHỐI NÚT HERO (PC 1 HÀNG - MOBILE SONG SONG) */
 .hero-actions {
     display: flex;
     align-items: center;
@@ -332,7 +331,6 @@ body {
     flex-wrap: wrap;
 }
 
-/* Nút Chính (Khám Phá) */
 .btn-hero-primary {
     display: inline-flex; align-items: center; justify-content: center;
     padding: 14px 32px; background: var(--bg-base); border: 1px solid var(--accent);
@@ -342,7 +340,6 @@ body {
 }
 .btn-hero-primary:hover { background: var(--accent); color: #fff; }
 
-/* Nút Phụ (Một bài thơ) */
 .btn-hero-secondary {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     padding: 13px 24px; background: transparent; border: 1px solid var(--border-color);
@@ -363,7 +360,6 @@ body {
 .arch-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 170px 170px 16px 16px; transition: transform 1s ease; }
 .arch-frame:hover img { transform: scale(1.03); }
 
-/* Khối Danh ngôn */
 #daily-quote-container { margin-top: 20px; text-align: center; padding: 40px 20px; transition: opacity 0.5s ease; }
 .quote-text { font-family: var(--font-body); font-size: 1.6rem; color: var(--text-main); font-style: italic; line-height: 1.5; max-width: 700px; margin: 0 auto 15px; text-wrap: balance; }
 .quote-author { font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; color: var(--accent-text); letter-spacing: 2px; text-transform: uppercase; }
@@ -425,14 +421,12 @@ mark {
 .heritage-card.is-visible, .accordion-item.is-visible { opacity: 1; transform: translateY(0); }
 .heritage-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(139, 184, 168, 0.15); border-color: var(--accent); }
 
-/* HIỆU ỨNG HIGHLIGHT TỎA SÁNG */
 .accordion-item.highlight-target, .heritage-card.highlight-target {
     border-color: var(--accent) !important;
     background-color: rgba(139, 184, 168, 0.15) !important; 
     animation: glowPulse 2.5s ease-out forwards;
 }
 
-/* NHÃN PHỤ ĐỊNH VỊ TIỂU MỤC (Route Hint) */
 .route-section-hint {
     display: inline-flex;
     align-items: center;
@@ -466,7 +460,6 @@ mark {
 .detail-btn { background: transparent; color: var(--accent-text); border: none; padding: 0; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.3s; }
 .detail-btn:hover { gap: 8px; color: var(--accent-hover); }
 
-/* Phân trang chung */
 .pagination-container { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 30px; padding: 20px 0; }
 .page-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); min-width: 36px; height: 36px; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-family: var(--font-body); font-weight: 700; font-size: 0.9rem; transition: 0.2s; }
 .page-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
@@ -493,7 +486,6 @@ mark {
 .accordion-content { animation: fadeInContent 0.4s ease forwards; }
 @keyframes fadeInContent { 0% { opacity: 0; transform: translateY(-5px); } 100% { opacity: 1; transform: translateY(0); } }
 
-/* Tác phẩm liên quan */
 .related-section { margin-top: 32px; padding-top: 24px; border-top: 1px dashed rgba(139,184,168,0.3); }
 .related-title { font-family: var(--font-body); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; }
 .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
@@ -513,7 +505,7 @@ mark {
 .related-card small { display: block; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; }
 
 /* =====================================================================
-   15. THI PHÁP HỌC & SYMBOL HIGHLIGHTER
+   15. THI PHÁP HỌC (POETRY ANALYZER)
    ===================================================================== */
 .analyze-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 20px; margin-top: 30px; margin-bottom: 30px; box-shadow: var(--shadow); }
 .analyze-box textarea { width: 100%; height: 140px; background: transparent; border: none; outline: none; resize: vertical; font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.7; }
@@ -524,12 +516,27 @@ mark {
 .result-step.tier-0 { border-left-color: var(--text-muted); }
 .result-step.tier-2 { border-left-color: var(--accent-gold); }
 .result-step.tier-3 { border-left-color: #8b5a2b; }
-.tier-label { display: inline-block; font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; padding: 3px 8px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 10px; text-transform: uppercase; }
-.tier-0 .tier-label { color: var(--text-muted); }
-.tier-1 .tier-label { color: var(--accent-text); border-color: var(--accent); }
-.tier-2 .tier-label { color: #b89a64; border-color: var(--accent-gold); }
-.tier-3 .tier-label { color: #8b5a2b; border-color: #8b5a2b; }
-.step-title { font-family: var(--font-body); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 0.5px; font-weight: 700; }
+
+/* Tinh chỉnh nhãn Tầng thanh thoát */
+.tier-label { 
+    display: inline-block; 
+    font-family: var(--font-body); 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    letter-spacing: 2px; 
+    padding: 4px 12px; 
+    background: transparent; 
+    border: 1px solid var(--border-color); 
+    border-radius: 4px; 
+    margin-bottom: 12px; 
+    text-transform: uppercase; 
+}
+.tier-0 .tier-label { color: var(--text-muted); border-color: rgba(106,124,118,0.4); }
+.tier-1 .tier-label { color: var(--accent-text); border-color: rgba(85,122,111,0.4); }
+.tier-2 .tier-label { color: #b89a64; border-color: rgba(184,154,100,0.4); }
+.tier-3 .tier-label { color: #8b5a2b; border-color: rgba(139,90,43,0.4); }
+
+.step-title { font-family: var(--font-body); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 15px; letter-spacing: 1px; font-weight: 700; }
 .tier-note { font-size: 0.85rem; color: var(--text-muted); font-style: italic; margin-top: 10px; text-align: center; }
 
 .line-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-family: var(--font-body); font-size: 1.1rem; white-space: nowrap; }
@@ -541,16 +548,16 @@ mark {
 .question-item { padding: 6px 0; line-height: 1.5; color: var(--text-main); font-size: 1rem; display: flex; align-items: flex-start; font-family: var(--font-body); }
 
 /* =====================================================================
-   [FIX LỖI 1 & 2]: SYMBOL HIGHLIGHTER & TOOLTIP
+   16. SYMBOL HIGHLIGHTER & TOOLTIP (ĐÃ FIX LỖI LỆCH & ĐÈ CHỮ)
    ===================================================================== */
 .symbol-mark {
-    background: #f0ead6; /* Dùng màu nền đặc thay vì gradient để không bị lệch chữ */
+    background: #f0ead6; /* Nền đặc, không dùng gradient để không lệch dấu */
     color: var(--text-main);
     padding: 0 4px; 
     border-radius: 4px;
     cursor: help; 
     position: relative;
-    display: inline; /* Đảm bảo không bị vỡ dòng */
+    display: inline; /* Giữ nguyên dòng chảy của text */
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 }
@@ -568,7 +575,7 @@ mark {
     font-size: 0.85rem; 
     font-family: var(--font-body);
     
-    /* [FIX]: Khống chế chiều rộng để không đè lên chữ khác */
+    /* Khống chế chiều rộng để không đè lên văn bản xung quanh */
     width: max-content;
     max-width: 250px; 
     white-space: normal; 
@@ -576,7 +583,7 @@ mark {
     text-align: center;
     
     opacity: 0; 
-    pointer-events: none; /* Không cản trở việc bôi đen/click văn bản */
+    pointer-events: none; /* Không chặn việc click/bôi đen văn bản */
     transition: opacity 0.2s ease, transform 0.2s ease;
     z-index: 1000; 
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -609,7 +616,7 @@ mark {
 }
 
 /* =====================================================================
-   16. FATE MODAL (HỘP THOẠI NỔI GIỮA MÀN HÌNH - CHỐNG CLS)
+   17. FATE MODAL (BÓI THƠ - CHỐNG CLS)
    ===================================================================== */
 #fate-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -631,7 +638,6 @@ mark {
 
 #fate-modal-overlay.show #fate-modal { transform: translateY(0) scale(1); }
 
-/* Nút X (Góc trên phải của modal) */
 .fate-close-btn {
     position: absolute; top: 15px; right: 15px; background: transparent; border: none;
     color: var(--text-muted); font-size: 1.8rem; line-height: 1; cursor: pointer;
@@ -641,7 +647,6 @@ mark {
 }
 .fate-close-btn:hover { color: var(--text-main); background: rgba(139, 184, 168, 0.15); transform: rotate(90deg); }
 
-/* Trạng thái Loading (Đặt absolute đè lên để không gây Layout Shift) */
 #fate-loading {
     position: absolute; inset: 0; background: var(--card-bg);
     border-radius: var(--radius-card); display: flex; flex-direction: column;
@@ -650,11 +655,9 @@ mark {
 }
 #fate-loading.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
-/* Trạng thái Kết quả */
 #fate-result { opacity: 0; transition: opacity 0.4s ease; visibility: hidden; }
 #fate-result.show { opacity: 1; visibility: visible; }
 
-/* Vòng xoay Loading (Spinner) */
 .spinner {
     width: 40px; height: 40px; border: 3px solid rgba(139, 184, 168, 0.2);
     border-top-color: var(--accent); border-radius: 50%; margin: 0 auto;
@@ -663,7 +666,7 @@ mark {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* =====================================================================
-   17. SETTINGS DIALOG (TỦ SÁCH OFFLINE) & [FIX LỖI 3]
+   18. SETTINGS DIALOG (TỦ SÁCH OFFLINE)
    ===================================================================== */
 dialog {
     border: none;
@@ -689,7 +692,6 @@ dialog[open] {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Các nút Tủ Sách Offline */
 .btn {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -714,14 +716,14 @@ dialog[open] {
 .offline-text-btn:hover { opacity: 0.7; }
 
 /* =====================================================================
-   18. UPDATE BANNER (Cập nhật Service Worker)
+   19. UPDATE BANNER (Cập nhật Service Worker)
    ===================================================================== */
 #update-banner { font-family: var(--font-body); }
 #update-btn:hover { background: #a3d0c0 !important; }
 #dismiss-btn:hover { background: rgba(139, 184, 168, 0.15); border-radius: 50%; }
 
 /* =====================================================================
-   19. RESPONSIVE (MOBILE)
+   20. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
     .dewdrop-container { display: none !important; }
@@ -776,20 +778,25 @@ dialog[open] {
     .pattern-text { margin-left: 5px; }
     .quote-text { font-size: 1.4rem; }
     
-    /* Modal Mobile */
     #fate-modal { padding: 20px; width: 95%; }
     .fate-close-btn { top: 10px; right: 10px; }
     
-    /* Tủ sách Offline Mobile */
     #settings-modal { padding: 20px !important; }
 }
 
 /* =====================================================================
-   20. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
+   21. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
    ===================================================================== */
 button:active, .btn:active, .filter-btn:active, .page-btn:active, .nav-btn:active {
     transform: scale(0.95) !important;
     transition: transform 0.1s ease !important;
+}
+
+/* Nút AI Gợi ý (dùng cho Thi Pháp) */
+.btn-ai-hint:hover {
+    background: rgba(139, 184, 168, 0.1) !important;
+    border-style: solid !important;
+    transform: translateY(-1px);
 }
 
 @media (prefers-reduced-motion: reduce) {
