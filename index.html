@@ -6,7 +6,6 @@
     <!-- ================================================================= -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
     <title>VĂN ĐẠO | Đại Bách Khoa Toàn Thư</title>
@@ -45,7 +44,7 @@
 <body>
 
     <!-- ================================================================= -->
-    <!-- 6. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG (Dành cho người dùng bàn phím)    -->
+    <!-- 6. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG                                   -->
     <!-- ================================================================= -->
     <a href="#main-content" class="skip-link">Bỏ qua điều hướng, đến nội dung chính</a>
 
@@ -64,7 +63,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 9. MÀN HÌNH CHỜ (SPLASH SCREEN) - KHÔNG CHỨA NÚT THỪA            -->
+    <!-- 9. MÀN HÌNH CHỜ (SPLASH SCREEN)                                  -->
     <!-- ================================================================= -->
     <div id="jade-splash" aria-hidden="true">
         <div class="silk-layer silk-layer-1"></div>
@@ -77,7 +76,6 @@
             <div class="boot-status">
                 <span class="status-text" id="bootStatusText">Đang khởi tạo trải nghiệm...</span>
             </div>
-            <!-- Nội dung Danh ngôn sẽ được JS (main.js) tự động đổ vào đây -->
             <div class="boot-quote">
                 <p id="splash-quote-text"></p>
             </div>
@@ -280,7 +278,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 12. SETTINGS DIALOG: TỦ SÁCH OFFLINE (Đã căn giữa hoàn hảo)       -->
+    <!-- 12. SETTINGS DIALOG: TỦ SÁCH OFFLINE (HTML5 Dialog)               -->
     <!-- ================================================================= -->
     <dialog id="settings-dialog">
         <div id="settings-modal">
@@ -314,7 +312,7 @@
 
                     <div style="display: flex; gap: 10px;">
                         <button id="offline-btn-start" class="btn filter-btn" style="flex: 1; padding: 10px; font-size: 0.8rem;">Tải Toàn Bộ</button>
-                        <button id="offline-btn-cancel" class="btn filter-btn" style="flex: 1; padding: 10px; font-size: 0.8rem; background: transparent; border-color: #a36b6b; color: #a36b6b;">Hủy</button>
+                        <button id="offline-btn-cancel" class="btn filter-btn" style="flex: 1; padding: 10px; font-size: 0.8rem; background: transparent; border-color: #a36b6b; color: #a36b6b; display: none;">Hủy</button>
                     </div>
                 </div>
             </div>
@@ -329,41 +327,7 @@
     </dialog>
 
     <!-- ================================================================= -->
-    <!-- 13. BOTTOM NAVIGATION (CHỈ HIỆN TRÊN MOBILE)                      -->
-    <!-- ================================================================= -->
-    <nav id="bottom-nav">
-        <a href="#/home" class="nav-item active" data-target="home" onclick="window.switchView('home')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-            <span>Trang Chủ</span>
-        </a>
-        <a href="#/heritage" class="nav-item" data-target="heritage" onclick="window.switchView('heritage')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-            <span>Văn Hiến</span>
-        </a>
-        <a href="#/encyclopedia" class="nav-item" data-target="encyclopedia" onclick="window.switchView('encyclopedia')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-            </svg>
-            <span>Bách Khoa</span>
-        </a>
-        <a href="#/analyze" class="nav-item" data-target="analyze" onclick="window.switchView('analyze')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 20h9"></path>
-                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-            </svg>
-            <span>Thi Pháp</span>
-        </a>
-    </nav>
-
-    <!-- ================================================================= -->
-    <!-- 14. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
+    <!-- 13. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
     <!-- ================================================================= -->
     <div id="update-banner" aria-live="polite" role="alert">
         <span>Phiên bản mới đã sẵn sàng.</span>
@@ -372,7 +336,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 15. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
+    <!-- 14. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
         window.VD_APP_VERSION = '5.0.0';
@@ -383,7 +347,7 @@
     <script type="module" src="js/main.js"></script>
 
     <!-- ================================================================= -->
-    <!-- 16. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
+    <!-- 15. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
     <!-- ================================================================= -->
     <script>
     (function () {
