@@ -18,7 +18,7 @@
     <link rel="preload" href="assets/khung.jpg" as="image">
 
     <!-- ================================================================= -->
-    <!-- 3. FAVICON & PWA MANIFEST (TRỎ THẲNG ĐẾN FILE TRONG ASSETS)       -->
+    <!-- 3. FAVICON & PWA MANIFEST                                        -->
     <!-- ================================================================= -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
@@ -93,8 +93,10 @@
         <!-- ============================================================= -->
         <header>
             <nav class="navbar" aria-label="Điều hướng chính">
+                <!-- Logo VĂN ĐẠO -->
                 <div class="nav-brand" onclick="switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
                 
+                <!-- Các nút điều hướng (Desktop) -->
                 <div class="nav-links" id="navMenu" role="menubar">
                     <button class="nav-btn active" onclick="switchView('home')" id="nav-home" role="menuitem" aria-current="page">
                         <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -117,9 +119,21 @@
                     </button>
                 </div>
 
-                <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                </button>
+                <!-- Khối nút bên phải: Cài đặt + Hamburger -->
+                <div class="nav-actions" style="display: flex; align-items: center; gap: 8px; margin-left: 15px;">
+                    <!-- Nút Cài đặt (Icon Bánh răng) -->
+                    <button id="btn-open-settings" class="nav-icon-btn" aria-label="Cài đặt" title="Cài đặt">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Nút Menu Hamburger (Mobile) -->
+                    <button class="mobile-menu-btn" id="btn-toggle-menu" onclick="toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                    </button>
+                </div>
             </nav>
         </header>
 
@@ -137,7 +151,7 @@
                         <h1>Vẻ Đẹp <i>Bạch Ngọc</i><br><span class="no-wrap">Giữa Làn Nước Tĩnh</span></h1>
                         <p>Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</p>
                         
-                        <!-- KHỐI NÚT HERO (Tự động co giãn PC/Mobile) -->
+                        <!-- KHỐI NÚT HERO (PC 1 hàng, Mobile song song) -->
                         <div class="hero-actions">
                             <button class="btn-hero-primary" onclick="switchView('heritage')">Khám Phá Tuyệt Tác</button>
                             
@@ -157,7 +171,7 @@
                     </div>
                 </div>
 
-                <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
+                <!-- KHỐI DANH NGÔN NGẪU NHIÊN (Có hiển thị Badge xác minh) -->
                 <div id="daily-quote-container" aria-live="polite"></div>
             </section>
 
@@ -237,14 +251,14 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 12. FATE MODAL (Nổi giữa màn hình, chống giật CLS)                -->
+    <!-- 12. FATE MODAL: MỘT BÀI THƠ CHO HÔM NAY                           -->
     <!-- ================================================================= -->
     <div id="fate-modal-overlay" style="display: none;">
         <div id="fate-modal">
-            <!-- Nút X (Góc trên phải của modal) -->
+            <!-- Nút X -->
             <button id="fate-close-btn" class="fate-close-btn" aria-label="Đóng">&times;</button>
             
-            <!-- Trạng thái Đang tải (Loading) -->
+            <!-- Trạng thái Loading (Đè lên) -->
             <div id="fate-loading">
                 <div class="spinner"></div>
                 <p style="margin-top: 20px; font-family: var(--font-body); color: var(--text-muted); font-style: italic;">Đang tìm duyên lành...</p>
@@ -252,30 +266,25 @@
 
             <!-- Trạng thái Kết quả -->
             <div id="fate-result">
-                <!-- Tiêu đề tác phẩm -->
                 <div style="text-align: center; margin-bottom: 20px;">
                     <h2 id="fate-title" style="font-family: var(--font-calligraphy); font-size: 2.5rem; color: var(--text-main); margin: 0 0 5px;"></h2>
                     <p id="fate-author" style="font-family: var(--font-body); font-size: 1rem; color: var(--text-muted); font-style: italic; text-transform: uppercase; letter-spacing: 1px;"></p>
                 </div>
                 
-                <!-- Đoạn trích -->
                 <div style="background: rgba(139, 184, 168, 0.05); padding: 20px; border-left: 3px solid var(--accent-gold); border-radius: 4px; margin-bottom: 30px;">
                     <p id="fate-excerpt" style="font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.8; font-style: italic; margin: 0;"></p>
                 </div>
 
-                <!-- KHỐI LỜI BÌNH & VẬN KHÍ -->
+                <!-- KHỐI LỜI BÌNH & VẬN KHÍ (Đã căn hàng Flexbox) -->
                 <div>
-                    <!-- Dòng chứa Lời Bình (trái) và Vận Khí (phải) -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed rgba(139, 184, 168, 0.3); padding-bottom: 8px;">
                         <p style="font-family: var(--font-calligraphy); font-size: 1.8rem; color: var(--accent-text); margin: 0;">Lời Bình</p>
                         <span id="fate-badge" style="font-size: 0.75rem; padding: 3px 10px; border: 1px solid var(--accent); color: var(--accent-text); border-radius: 20px; text-transform: uppercase; font-weight: 700; transition: all 0.3s;"></span>
                     </div>
                     
-                    <!-- Nội dung Lời Bình -->
                     <div id="fate-commentary" style="font-family: var(--font-body); font-size: 1.05rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; text-align: left;"></div>
                 </div>
                 
-                <!-- Nút điều hướng -->
                 <div style="display: flex; justify-content: center; border-top: 1px solid rgba(139, 184, 168, 0.15); padding-top: 20px; margin-top: 20px;">
                     <button id="fate-goto-btn" style="background: transparent; border: none; color: var(--accent); font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; cursor: pointer; padding: 0; letter-spacing: 1px; text-transform: uppercase; transition: color 0.3s;">Đọc toàn bộ tác phẩm &rarr;</button>
                 </div>
@@ -284,7 +293,58 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 13. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
+    <!-- 13. SETTINGS DIALOG: TỦ SÁCH OFFLINE (HTML5 Dialog)               -->
+    <!-- ================================================================= -->
+    <dialog id="settings-dialog" style="border: none; padding: 0; background: transparent; outline: none;">
+        <div id="settings-modal" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); box-shadow: 0 20px 50px rgba(0,0,0,0.2); width: 90vw; max-width: 450px; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative;">
+            
+            <button id="btn-close-settings" class="fate-close-btn" aria-label="Đóng">&times;</button>
+            
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h2 style="font-family: var(--font-calligraphy); font-size: 2.5rem; color: var(--accent-text); margin: 0;">Cài đặt</h2>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <p style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Dữ liệu & Lưu trữ</p>
+                
+                <div style="background: rgba(139, 184, 168, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 1rem;">Tủ Sách Offline</span>
+                        <span id="settings-storage-text" style="font-family: var(--font-body); font-size: 0.8rem; color: var(--text-muted);">Chưa kiểm tra</span>
+                    </div>
+                    <p style="font-family: var(--font-body); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5;">
+                        Mang thư viện tri thức theo bên mình, kể cả khi không có kết nối mạng.
+                    </p>
+
+                    <div id="offline-progress-section" style="display: none; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; font-family: var(--font-body); font-size: 0.85rem; margin-bottom: 8px;">
+                            <span id="offline-progress-text">Đang tải...</span>
+                            <span id="offline-progress-percent">0%</span>
+                        </div>
+                        <div style="width: 100%; height: 6px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden;">
+                            <div id="offline-progress-bar" style="height: 100%; width: 0%; background: var(--accent); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button id="offline-btn-start" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem;">Tải Toàn Bộ</button>
+                        <button id="offline-btn-pause" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem; display: none;">Tạm Dừng</button>
+                        <button id="offline-btn-cancel" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem; background: transparent; border-color: #a36b6b; color: #a36b6b;">Hủy</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                <button class="offline-text-btn" id="offline-btn-clear" style="color: #a36b6b; margin: 0 auto;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    Xóa dữ liệu Offline
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- ================================================================= -->
+    <!-- 14. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
     <!-- ================================================================= -->
     <div id="update-banner" aria-live="polite" role="alert" style="
         position: fixed; bottom: 20px; left: 50%;
@@ -313,18 +373,18 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 14. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
+    <!-- 15. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
-        window.VD_APP_VERSION = '4.5.0';
-        window.VD_BUILD_DATE  = '2026-11-15';
+        window.VD_APP_VERSION = '4.6.0';
+        window.VD_BUILD_DATE  = '2026-11-20';
     </script>
     
     <!-- File script chính xử lý logic -->
     <script src="script.js"></script>
 
     <!-- ================================================================= -->
-    <!-- 15. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
+    <!-- 16. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
     <!-- ================================================================= -->
     <script>
     (function () {
@@ -359,7 +419,6 @@
         }
 
         window.addEventListener('load', () => {
-            // Bỏ timestamp để tránh reload vô tận
             const swUrl = './sw.js';
 
             navigator.serviceWorker.register(swUrl).then(reg => {
