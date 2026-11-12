@@ -1,13 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.4 - ELEGANT MODAL)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.5 - ELEGANT MODAL)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
    - Giao diện Bạch Ngọc: Tĩnh tại, thanh tao, không phô trương.
    - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
    - Hiệu năng: Tối ưu GPU, content-visibility (chống lag khi có ngàn thẻ).
-   - Tương tác: Fate Modal (Hộp thoại nổi giữa màn hình), Phân trang mũi tên.
-   - Liền mạch: Sự chuyển cảnh mượt mà từ Splash -> Trang chủ -> Các View.
+   - Tương tác: Fate Modal (Chống Layout Shift), Nút Hero (PC 1 hàng, Mobi song song).
    ===================================================================== */
 
 /* =====================================================================
@@ -138,7 +137,7 @@ body {
 }
 
 /* =====================================================================
-   6. MÀN HÌNH CHỜ: BOOT EXPERIENCE (DẢI LỤA + TEXT)
+   6. MÀN HÌNH CHỜ: BOOT EXPERIENCE
    ===================================================================== */
 #jade-splash { 
     position: fixed; inset: 0; z-index: 999999; 
@@ -203,7 +202,7 @@ body {
 .elegant-fade-in { animation: elegantFadeIn 1.2s var(--ease-silk) forwards; }
 
 /* =====================================================================
-   7. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC
+   7. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA
    ===================================================================== */
 .silk-transition-overlay {
     position: fixed; inset: 0; z-index: 999998; pointer-events: none; overflow: hidden;
@@ -252,7 +251,7 @@ body {
 .mobile-menu-btn svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
-   9. TYPOGRAPHY & BUTTONS CHUNG
+   9. TYPOGRAPHY & BUTTONS
    ===================================================================== */
 .nav-btn, .btn, .filter-btn, .pagination-container button {
     font-family: var(--font-body) !important; font-size: 0.85rem !important; 
@@ -286,10 +285,8 @@ body {
 
 /* Nút mũi tên phân trang */
 .page-btn.arrow-btn {
-    font-size: 1.1rem;
-    font-weight: 400;
-    padding: 0 12px;
-    font-family: Arial, sans-serif !important; /* Font không chân cho mũi tên sắc nét */
+    font-size: 1.1rem; font-weight: 400; padding: 0 12px;
+    font-family: Arial, sans-serif !important; 
 }
 
 /* =====================================================================
@@ -309,14 +306,38 @@ body {
 }
 .hero-content h1 i { font-style: italic; color: var(--accent-text); }
 .hero-content .no-wrap { white-space: nowrap; } 
-.hero-content p { font-family: var(--font-body); font-size: 1.15rem; color: var(--text-muted); margin-bottom: 30px; line-height: 1.7; text-align: left; }
+.hero-content p { font-family: var(--font-body); font-size: 1.15rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.7; text-align: left; }
 
-.btn { 
-    display: inline-block; padding: 14px 32px; background: var(--bg-base); 
-    border: 1px solid var(--accent); border-radius: var(--radius-pill); 
-    color: var(--accent-text); box-shadow: var(--shadow); cursor: pointer; 
+/* KHỐI NÚT HERO (PC 1 HÀNG - MOBILE SONG SONG) */
+.hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
 }
-.btn:hover { background: var(--accent); color: #fff; }
+
+/* Nút Chính (Khám Phá) */
+.btn-hero-primary {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 14px 32px; background: var(--bg-base); border: 1px solid var(--accent);
+    border-radius: var(--radius-pill); color: var(--accent-text); box-shadow: var(--shadow);
+    cursor: pointer; font-family: var(--font-body); font-size: 0.85rem; font-weight: 700;
+    text-transform: uppercase; transition: all 0.3s var(--ease-silk);
+}
+.btn-hero-primary:hover { background: var(--accent); color: #fff; }
+
+/* Nút Phụ (Một bài thơ) */
+.btn-hero-secondary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 13px 24px; background: transparent; border: 1px solid var(--border-color);
+    border-radius: var(--radius-pill); color: var(--text-muted); cursor: pointer;
+    font-family: var(--font-body); font-size: 0.85rem; font-weight: 700;
+    text-transform: uppercase; transition: all 0.3s var(--ease-silk);
+}
+.btn-hero-secondary:hover { border-color: var(--accent-gold); color: var(--accent-text); background: rgba(212, 196, 168, 0.1); }
+.btn-hero-secondary svg { transition: transform 0.6s ease; }
+.btn-hero-secondary:hover svg { transform: rotate(180deg); }
 
 .hero-visual { flex: 1; display: flex; justify-content: flex-end; }
 .arch-frame { 
@@ -326,20 +347,6 @@ body {
 }
 .arch-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 170px 170px 16px 16px; transition: transform 1s ease; }
 .arch-frame:hover img { transform: scale(1.03); }
-
-/* Nút Một bài thơ cho hôm nay */
-#literary-divination-section { margin-top: 40px; margin-bottom: 20px; }
-
-.random-poem-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 10px 20px; background: transparent; color: var(--accent);
-    border: 1px solid var(--accent); border-radius: 999px;
-    font-family: var(--font-body); font-size: 0.9rem; cursor: pointer;
-    transition: all 0.25s ease;
-}
-.random-poem-btn:hover { background: var(--accent); color: #0a1a12; letter-spacing: 0.5px; }
-.random-poem-btn svg { transition: transform 0.6s ease; }
-.random-poem-btn:hover svg { transform: rotate(180deg); }
 
 /* Khối Danh ngôn */
 #daily-quote-container { margin-top: 20px; text-align: center; padding: 40px 20px; transition: opacity 0.5s ease; }
@@ -380,10 +387,7 @@ body {
 .clear-btn.show { display: flex; }
 .clear-btn svg { width: 20px; height: 20px; stroke: currentColor; }
 
-mark {
-    background-color: #d4ece6; color: var(--text-main); padding: 0 4px;
-    border-radius: 4px; font-weight: 700; box-shadow: 0 0 4px rgba(139, 184, 168, 0.3);
-}
+mark { background-color: #d4ece6; color: var(--text-main); padding: 0 4px; border-radius: 4px; font-weight: 700; box-shadow: 0 0 4px rgba(139, 184, 168, 0.3); }
 
 /* =====================================================================
    13. VĂN HIẾN (CARDS & PAGINATION)
@@ -456,16 +460,8 @@ mark {
 .related-section { margin-top: 32px; padding-top: 24px; border-top: 1px dashed rgba(139,184,168,0.3); }
 .related-title { font-family: var(--font-body); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; }
 .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-.related-card {
-    position: relative; padding: 10px 28px 10px 14px; background: rgba(139,184,168,0.06);
-    border-left: 2px solid var(--accent); border-radius: 6px;
-    cursor: pointer; transition: background 0.2s; font-size: 0.9rem;
-}
-.related-card::after {
-    content: '→'; position: absolute; right: 12px; top: 50%;
-    transform: translateY(-50%) translateX(-4px); opacity: 0;
-    transition: opacity 0.2s, transform 0.2s; color: var(--accent);
-}
+.related-card { position: relative; padding: 10px 28px 10px 14px; background: rgba(139,184,168,0.06); border-left: 2px solid var(--accent); border-radius: 6px; cursor: pointer; transition: background 0.2s; font-size: 0.9rem; }
+.related-card::after { content: '→'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%) translateX(-4px); opacity: 0; transition: opacity 0.2s, transform 0.2s; color: var(--accent); }
 .related-card:hover { background: rgba(139,184,168,0.15); }
 .related-card:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
 .related-card small { display: block; color: var(--text-muted); font-size: 0.75rem; margin-top: 4px; }
@@ -498,23 +494,9 @@ mark {
 .volume-link { color: var(--accent-text); cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; text-decoration: underline; }
 .question-item { padding: 6px 0; line-height: 1.5; color: var(--text-main); font-size: 1rem; display: flex; align-items: flex-start; font-family: var(--font-body); }
 
-/* Symbol Highlighter - Tooltip CSS */
-.symbol-mark {
-    background: linear-gradient(transparent 60%, rgba(212,196,168,0.35) 60%);
-    cursor: help; padding: 0 1px; position: relative;
-}
-.symbol-mark::after {
-    content: attr(data-tooltip);
-    position: absolute; bottom: 100%; left: 50%;
-    transform: translateX(-50%) translateY(4px);
-    background: var(--text-main, #2c3e38); color: var(--bg-base, #fdfbf7);
-    padding: 6px 12px; border-radius: 6px;
-    font-size: 0.8rem; font-family: var(--font-body);
-    white-space: nowrap; opacity: 0; pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    font-style: normal;
-}
+/* Symbol Highlighter (Tooltip) */
+.symbol-mark { background: linear-gradient(transparent 60%, rgba(212,196,168,0.35) 60%); cursor: help; padding: 0 1px; position: relative; }
+.symbol-mark::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(4px); background: var(--text-main, #2c3e38); color: var(--bg-base, #fdfbf7); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-family: var(--font-body); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-style: normal; }
 .symbol-mark:hover::after { opacity: 1; transform: translateX(-50%) translateY(-4px); }
 
 /* =====================================================================
@@ -528,92 +510,93 @@ mark {
 .skeleton-line.desc { height: 12px; width: 100%; }
 
 /* =====================================================================
-   17. FATE MODAL (HỘP THOẠI NỔI GIỮA MÀN HÌNH)
+   17. FATE MODAL (HỘP THOẠI NỔI GIỮA MÀN HÌNH - FIX CLS)
    ===================================================================== */
 #fate-modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(253, 251, 247, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 999999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 999999; display: flex; justify-content: center; align-items: center;
+    opacity: 0; transition: opacity 0.3s ease;
 }
 
 #fate-modal-overlay.show { opacity: 1; }
 
 #fate-modal {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-card);
-    box-shadow: 0 20px 50px rgba(139, 184, 168, 0.2);
-    width: 90%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 30px;
-    position: relative;
-    transform: translateY(20px) scale(0.98);
-    transition: transform 0.4s var(--ease-silk);
+    background: var(--card-bg); border: 1px solid var(--border-color);
+    border-radius: var(--radius-card); box-shadow: 0 20px 50px rgba(139, 184, 168, 0.2);
+    width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;
+    padding: 30px; position: relative; min-height: 350px; /* QUAN TRỌNG: Giữ khung không bị giật */
+    transform: translateY(20px) scale(0.98); transition: transform 0.4s var(--ease-silk);
 }
 
-#fate-modal-overlay.show #fate-modal {
-    transform: translateY(0) scale(1);
-}
+#fate-modal-overlay.show #fate-modal { transform: translateY(0) scale(1); }
 
-/* Nút X (Góc trên phải) */
+/* Nút X (Góc trên phải của modal) */
 .fate-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    font-size: 1.8rem;
-    line-height: 1;
-    cursor: pointer;
+    position: absolute; top: 15px; right: 15px; background: transparent; border: none;
+    color: var(--text-muted); font-size: 1.8rem; line-height: 1; cursor: pointer;
     transition: color 0.2s, transform 0.2s, background 0.2s;
-    width: 36px; height: 36px;
-    display: flex; justify-content: center; align-items: center;
-    border-radius: 50%;
-    z-index: 10;
+    width: 36px; height: 36px; display: flex; justify-content: center; align-items: center;
+    border-radius: 50%; z-index: 20;
 }
+.fate-close-btn:hover { color: var(--text-main); background: rgba(139, 184, 168, 0.15); transform: rotate(90deg); }
 
-.fate-close-btn:hover {
-    color: var(--text-main);
-    background: rgba(139, 184, 168, 0.15);
-    transform: rotate(90deg);
+/* Trạng thái Loading (Đặt absolute đè lên để không gây Layout Shift) */
+#fate-loading {
+    position: absolute; inset: 0; background: var(--card-bg);
+    border-radius: var(--radius-card); display: flex; flex-direction: column;
+    justify-content: center; align-items: center; z-index: 10;
+    transition: opacity 0.4s ease, visibility 0.4s ease; opacity: 1; visibility: visible;
 }
+#fate-loading.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+/* Trạng thái Kết quả */
+#fate-result { opacity: 0; transition: opacity 0.4s ease; visibility: hidden; }
+#fate-result.show { opacity: 1; visibility: visible; }
 
 /* Vòng xoay Loading (Spinner) */
 .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid rgba(139, 184, 168, 0.2);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    margin: 0 auto;
+    width: 40px; height: 40px; border: 3px solid rgba(139, 184, 168, 0.2);
+    border-top-color: var(--accent); border-radius: 50%; margin: 0 auto;
     animation: spin 1s linear infinite;
 }
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* =====================================================================
-   18. RESPONSIVE (MOBILE)
+   18. UPDATE BANNER (Cập nhật Service Worker)
+   ===================================================================== */
+#update-banner { font-family: var(--font-body); }
+#update-btn:hover { background: #a3d0c0 !important; }
+#dismiss-btn:hover { background: rgba(139, 184, 168, 0.15); border-radius: 50%; }
+
+/* =====================================================================
+   19. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
     .dewdrop-container { display: none !important; }
     .container { padding: calc(80px + env(safe-area-inset-top)) 16px 30px 16px; }
-    .hero { flex-direction: column; text-align: center; gap: 20px; }
     
+    .hero { flex-direction: column; text-align: center; gap: 20px; }
     .hero-content h1 { font-size: 2.5rem; line-height: 1.2; padding: 0 10px; text-align: center; }
     .hero-content .no-wrap { white-space: normal; }
     .hero-content p { text-align: center; font-size: 1rem; margin-bottom: 20px; }
+    
+    /* BỐ CỤC NÚT HERO: Ép 2 NÚT SONG SONG TRÊN MOBILE */
+    .hero-actions {
+        flex-direction: row; 
+        justify-content: center;
+        width: 100%;
+        gap: 10px; 
+    }
+    .btn-hero-primary, .btn-hero-secondary {
+        flex: 1; /* Chia đều 50/50 */
+        padding: 12px 5px; 
+        font-size: 0.7rem; 
+        letter-spacing: 0.5px;
+        white-space: nowrap; 
+    }
+
     .hero-visual { justify-content: center; }
     .arch-frame { width: 260px; height: 340px; border-radius: 130px 130px 16px 16px; }
     .arch-frame img { border-radius: 120px 120px 10px 10px; }
@@ -650,7 +633,7 @@ mark {
 }
 
 /* =====================================================================
-   19. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
+   20. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
    ===================================================================== */
 button:active, .btn:active, .filter-btn:active, .page-btn:active, .nav-btn:active {
     transform: scale(0.95) !important;
@@ -662,10 +645,3 @@ button:active, .btn:active, .filter-btn:active, .page-btn:active, .nav-btn:activ
     .heritage-card, .accordion-item { opacity: 1 !important; transform: none !important; }
     #jade-splash, .silk-transition-overlay { display: none !important; }
 }
-
-/* =====================================================================
-   20. UPDATE BANNER (Cập nhật Service Worker)
-   ===================================================================== */
-#update-banner { font-family: var(--font-body); }
-#update-btn:hover { background: #a3d0c0 !important; }
-#dismiss-btn:hover { background: rgba(139, 184, 168, 0.15); border-radius: 50%; }
