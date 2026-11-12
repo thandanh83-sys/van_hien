@@ -15,7 +15,7 @@
 // =====================================================================
 // I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
-const CACHE_VERSION = 'v4.5.1';
+const CACHE_VERSION = 'v4.5.0';
 
 const STATIC_CACHE  = `vandao-static-${CACHE_VERSION}`;
 const HTML_CACHE    = `vandao-html-${CACHE_VERSION}`;
