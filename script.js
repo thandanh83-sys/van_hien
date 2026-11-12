@@ -1,12 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.6 - UNIFIED KNOWLEDGE WEB)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.7 - FULL FUNCTIONALITY)
    Tác giả: Văn Đạo
    
-   TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
-   - Dữ liệu ngoại vi: Nạp 9 file JSON (bao gồm cả Thể loại).
-   - Điều hướng Chính xác: Hỗ trợ tìm kiếm Thể loại (dùng name) và Tác phẩm (dùng title).
-   - Học thuật: Tự động sinh Badge xác minh cho Danh ngôn.
-   - Trải nghiệm: Tủ sách Offline dùng HTML5 Dialog.
+   CẬP NHẬT V4.7:
+   - Sửa lỗi Badge "Tương truyền" trong Danh ngôn.
+   - Thêm logic hoàn chỉnh cho Tủ Sách Offline (Tải, Dừng, Tiếp tục, Hủy).
+   - Tích hợp API Storage để báo cáo dung lượng thực tế.
+   - Tối ưu hóa hiệu năng render.
    ===================================================================== */
 
 /* =====================================================================
@@ -21,8 +21,7 @@ const ICONS = {
     check:      `<svg ${SVG_ATTR} width="16" height="16" stroke="#10b981"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
     question:   `<svg ${SVG_ATTR} width="18" height="18" style="color:var(--accent-gold); flex-shrink:0;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
     arrowRight: `<svg ${SVG_ATTR} width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`,
-    chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
-    sparkle:    `<svg ${SVG_ATTR} width="18" height="18"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>`
+    chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`
 };
 
 const ITEMS_PER_PAGE = 20;
@@ -39,7 +38,7 @@ let DICTIONARY_DATA = { symbols: {}, dienTich: {}, hanViet: {} };
 let CATEGORY_NAMES = {};
 let FORTUNE_CONFIG = {};
 let FORTUNE_ADVICE = {};
-let THE_LOAI_DATA = []; // Biến mới chứa dữ liệu Thể loại
+let THE_LOAI_DATA = []; 
 
 const GLOBAL_INDEX = new Map(); 
 const GLOBAL_INDEX_BY_KEY = new Map(); 
@@ -403,7 +402,6 @@ const ContentManager = (() => {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     result = await res.json();
                 } else {
-                    // Thể loại không có file riêng, dùng mô tả trực tiếp
                     result = { content: item.description || '' };
                 }
                 setCache(key, result);
@@ -430,7 +428,7 @@ function findEncyclopediaItem(id, group) {
     if (group === 'triet-thuyet') return THEORY_DATA.find(i => i.id === id);
     if (group === 'ky-tai') return AUTHOR_DATA.find(i => i.id === id);
     if (group === 'tinh-hoa') return WORKS_DATA.find(i => i.id === id);
-    if (group === 'the-loai') return THE_LOAI_DATA.find(i => i.id === id); // Hỗ trợ Thể loại
+    if (group === 'the-loai') return THE_LOAI_DATA.find(i => i.id === id);
     return null;
 }
 
@@ -535,7 +533,6 @@ const VDSearchEngine = (() => {
             entries.slice(i, i + CHUNK).forEach(record => {
                 const item = record.data;
                 const key = record.key;
-                // Hỗ trợ cả title (Tác phẩm) và name (Thể loại)
                 const titleText = item.title || item.name || '';
                 const words = tokenize([titleText, item.author, item.desc, item.description, item.content].join(' '));
                 docLengths[key] = Math.max(words.length, 1);
@@ -668,14 +665,13 @@ function renderEncyclopediaList(dataToRender, isSearchMode = false, tokens = [])
 
     container.innerHTML = pagedData.map(item => {
         const group = item._group || currentEncyGroup;
-        let displayTitle = item.title || item.name; // Hỗ trợ cả title và name
+        let displayTitle = item.title || item.name; 
         let badge = '';
         if (isSearchMode) {
             displayTitle = highlightText(displayTitle, tokens);
             let bt = group === 'triet-thuyet' ? 'Lý Thuyết' : (group === 'ky-tai' ? 'Tác Giả' : 'Tác Phẩm');
             let bc = group === 'triet-thuyet' ? '#557a6f' : (group === 'ky-tai' ? '#8bb8a8' : '#d4c4a8');
             
-            // Xử lý badge cho Thể loại
             if (group === 'the-loai') {
                 bt = 'Thể Loại';
                 bc = '#b89a64';
@@ -1231,7 +1227,6 @@ async function loadAllData() {
             }
         };
 
-        // Nạp 9 file JSON
         const results = await Promise.all([
             safeFetch('./data/data-ly-thuyet.json', []),
             safeFetch('./data/data-tac-gia.json', []),
@@ -1241,7 +1236,7 @@ async function loadAllData() {
             safeFetch('./data/data-tu-dien.json', { symbols: {}, dienTich: {}, hanViet: {} }),
             safeFetch('./data/data-the-loai.json', {}),
             safeFetch('./data/data-van-khi.json', { config: {}, advice: {} }),
-            safeFetch('./data/data-tu-dien-the-loai.json', []) // Dữ liệu thể loại mới
+            safeFetch('./data/data-tu-dien-the-loai.json', [])
         ]);
 
         THEORY_DATA = results[0];
@@ -1262,7 +1257,6 @@ async function loadAllData() {
             if (!Array.isArray(arr)) return;
             arr.forEach(item => {
                 if (!item?.id) return;
-                // Một số thể loại có thể không có title mà chỉ có name
                 if (!item?.title && !item?.name) return; 
                 
                 const key = `${group}:${item.id}`;
@@ -1276,7 +1270,7 @@ async function loadAllData() {
         addToIndex(THEORY_DATA, 'triet-thuyet');
         addToIndex(AUTHOR_DATA, 'ky-tai');
         addToIndex(WORKS_DATA, 'tinh-hoa');
-        addToIndex(THE_LOAI_DATA, 'the-loai'); // Nạp thể loại vào mạng lưới
+        addToIndex(THE_LOAI_DATA, 'the-loai');
 
         initMainFilters();
         
@@ -1299,41 +1293,6 @@ async function loadAllData() {
     }
 }
 
-async function auditWorksData() {
-    console.log("%c[AUDIT] KIỂM TRA TÁC PHẨM", "color:#8bb8a8;font-weight:bold;");
-    let ok = 0, empty = 0, err = 0;
-    for (const w of WORKS_DATA) {
-        try {
-            const res = await fetch(`./data/tac-pham/${encodeURIComponent(w.id)}.json`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const d = await res.json();
-            const clean = (d.content || '').replace(/<[^>]*>/g, '').trim();
-            if (clean.length > 100 && !clean.includes('đang được Văn Đạo hiệu đính')) ok++;
-            else empty++;
-        } catch { err++; }
-    }
-    console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
-}
-
-async function auditAuthorsData() {
-    console.log("%c[AUDIT] KIỂM TRA TÁC GIẢ", "color:#8bb8a8;font-weight:bold;");
-    let ok = 0, empty = 0, err = 0;
-    for (const a of AUTHOR_DATA) {
-        try {
-            const res = await fetch(`./data/tac-gia/${encodeURIComponent(a.id)}.json`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const d = await res.json();
-            const clean = (d.content || '').replace(/<[^>]*>/g, '').trim();
-            if (clean.length > 100 && !clean.includes('đang được Văn Đạo hiệu đính')) ok++;
-            else empty++;
-        } catch { err++; }
-    }
-    console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
-}
-
-window.auditWorksData = auditWorksData;
-window.auditAuthorsData = auditAuthorsData;
-
 function renderRandomQuote() { 
     const c = document.getElementById('daily-quote-container');
     if (!c || QUOTES_DATA.length === 0) return; 
@@ -1344,18 +1303,19 @@ function renderRandomQuote() {
         currentQuoteIndex = newIndex;
         const quote = QUOTES_DATA[currentQuoteIndex];
         
-        // Badge xác minh (Tuần 3)
+        // [ĐÃ SỬA LỖI]: Xóa Badge 'Tương truyền' (attributed) khỏi danh sách hiển thị
         let statusBadge = '';
-        if (quote.verificationStatus) {
+        if (quote.verificationStatus && quote.verificationStatus !== 'attributed') {
             const statusMap = {
                 'verified': { text: 'Nguyên văn', color: '#10b981' },
                 'translated': { text: 'Bản dịch', color: '#3b82f6' },
-                'attributed': { text: 'Tương truyền', color: '#8bb8a8' },
                 'needs-review': { text: 'Cần kiểm chứng', color: '#a36b6b' },
                 'author-declared': { text: 'Văn Đạo', color: '#d4c4a8' }
             };
-            const statusInfo = statusMap[quote.verificationStatus] || { text: 'Khác', color: '#6a7c76' };
-            statusBadge = `<span style="display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 4px; border: 1px solid ${statusInfo.color}; color: ${statusInfo.color}; font-size: 0.65rem; font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${statusInfo.text}</span>`;
+            const statusInfo = statusMap[quote.verificationStatus];
+            if (statusInfo) {
+                statusBadge = `<span style="display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 4px; border: 1px solid ${statusInfo.color}; color: ${statusInfo.color}; font-size: 0.65rem; font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${statusInfo.text}</span>`;
+            }
         }
 
         c.innerHTML = `<p class="quote-text">${quote.text}</p><p class="quote-author">— ${quote.author} —</p>${statusBadge}`;
@@ -1464,10 +1424,9 @@ document.addEventListener('click', e => {
 });
 
 /* =====================================================================
-   MODULE 10: TÍNH NĂNG MỞ RỘNG (1.4, 1.5, 2.5) & SETTINGS UI
+   MODULE 10: TÍNH NĂNG MỞ RỘNG & SETTINGS UI
    ===================================================================== */
 
-/* ---------- 2.5: SYMBOL HIGHLIGHTER ---------- */
 function findSymbols(text) {
     if (!text) return [];
     const lower = text.toLowerCase();
@@ -1523,7 +1482,6 @@ function highlightSymbolsInContent(container) {
     });
 }
 
-/* ---------- 1.4: RELATED CONTENT ---------- */
 function findRelatedWorks(current, limit = 5) {
     if (!current) return [];
     const curSyms = new Set(findSymbols(current.content || '').map(s => s.keyword));
@@ -1563,7 +1521,6 @@ function appendRelatedSection(container, item, group) {
     container.appendChild(section);
 }
 
-/* ---------- 1.5: RANDOM POEM (LITERARY DIVINATION MODAL) ---------- */
 function determineFortuneByContext(work) {
     const author = (work.author || '').toLowerCase();
     const era = (work.era || '').toLowerCase();
@@ -1616,6 +1573,18 @@ function generateBridgeText(work, fortuneKey) {
     return bridges[fortuneKey] || "";
 }
 
+function getSmartExcerpt(html) {
+    if (!html) return "";
+    let text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (text.length > 250) {
+        text = text.substring(0, 250);
+        let lastSpace = text.lastIndexOf(' ');
+        if (lastSpace > 0) text = text.substring(0, lastSpace);
+        text += "...";
+    }
+    return text;
+}
+
 async function randomPoem() {
     const validWorks = WORKS_DATA.filter(w => w.desc && w.desc.trim() !== '');
     if (!validWorks || validWorks.length === 0) {
@@ -1634,7 +1603,6 @@ async function randomPoem() {
     loadingEl.classList.remove('hidden');
     resultEl.classList.remove('show');
 
-    // 1. Render ngầm dữ liệu để chống CLS
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
     const fortuneKey = determineFortuneByContext(randomWork);
     const fortuneInfo = FORTUNE_CONFIG[fortuneKey] || { name: 'Bình Hòa', color: '#6a7c76' };
@@ -1669,7 +1637,6 @@ async function randomPoem() {
     
     const bridgeText = generateBridgeText(randomWork, fortuneKey);
     
-    // Xử lý tách Nên / Tránh
     let adviceHtml = '';
     if (adviceText) {
         const parts = adviceText.split('Tránh:');
@@ -1709,14 +1676,184 @@ async function randomPoem() {
         });
     };
 
-    // 2. Hiện kết quả sau 1.2s
     setTimeout(() => {
         loadingEl.classList.add('hidden');
         resultEl.classList.add('show');
     }, 1200);
 }
 
-/* ---------- SETTINGS & OFFLINE UI ---------- */
+/* =====================================================================
+   MODULE BỔ SUNG: TỦ SÁCH OFFLINE (KẾT NỐI SERVICE WORKER)
+   ===================================================================== */
+const OfflineLibrary = {
+    isDownloading: false,
+    isPaused: false,
+    queue: [],
+    totalFiles: 0,
+    downloadedFiles: 0,
+
+    init() {
+        this.btnStart = document.getElementById('offline-btn-start');
+        this.btnPause = document.getElementById('offline-btn-pause');
+        this.btnResume = document.getElementById('offline-btn-resume');
+        this.btnCancel = document.getElementById('offline-btn-cancel');
+        this.btnClear = document.getElementById('offline-btn-clear');
+        this.progressSection = document.getElementById('offline-progress-section');
+        this.progressBar = document.getElementById('offline-progress-bar');
+        this.progressPercent = document.getElementById('offline-progress-percent');
+        this.storageText = document.getElementById('settings-storage-text');
+
+        if (!this.btnStart) return;
+
+        this.btnStart.addEventListener('click', () => this.start());
+        this.btnPause.addEventListener('click', () => this.pause());
+        this.btnResume.addEventListener('click', () => this.resume());
+        this.btnCancel.addEventListener('click', () => this.cancel());
+        if(this.btnClear) this.btnClear.addEventListener('click', () => this.clearData());
+
+        navigator.serviceWorker?.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'BATCH_COMPLETED') {
+                this.handleBatchCompleted(event.data.results);
+            }
+        });
+
+        document.getElementById('btn-open-settings')?.addEventListener('click', () => this.checkStorage());
+    },
+
+    async checkStorage() {
+        if (navigator.storage && navigator.storage.estimate) {
+            try {
+                const estimate = await navigator.storage.estimate();
+                const usedMB = (estimate.usage / (1024 * 1024)).toFixed(1);
+                this.storageText.textContent = `Đã dùng: ${usedMB} MB`;
+                this.storageText.style.color = 'var(--accent-text)';
+            } catch(e) {}
+        }
+    },
+
+    async start() {
+        if (!WORKS_DATA.length && !AUTHOR_DATA.length) {
+            alert("Dữ liệu chưa tải xong. Vui lòng đợi trong giây lát.");
+            return;
+        }
+        this.isDownloading = true;
+        this.isPaused = false;
+        this.downloadedFiles = 0;
+        
+        this.queue = [];
+        WORKS_DATA.forEach(w => this.queue.push({ id: w.id, url: `./data/tac-pham/${w.id}.json` }));
+        AUTHOR_DATA.forEach(a => this.queue.push({ id: a.id, url: `./data/tac-gia/${a.id}.json` }));
+        
+        this.totalFiles = this.queue.length;
+        
+        this.progressSection.style.display = 'block';
+        this.btnStart.style.display = 'none';
+        this.btnPause.style.display = 'block';
+        this.btnResume.style.display = 'none';
+        this.btnCancel.style.display = 'block';
+        
+        this.processNextBatch();
+    },
+
+    async processNextBatch() {
+        if (!this.isDownloading || this.isPaused) return;
+        if (this.queue.length === 0) {
+            this.finish();
+            return;
+        }
+
+        const batch = this.queue.splice(0, 10);
+        
+        try {
+            const sw = navigator.serviceWorker.controller || (await navigator.serviceWorker.ready).active;
+            if (sw) {
+                sw.postMessage({ type: 'DOWNLOAD_BATCH', batch: batch });
+            } else {
+                alert("Service Worker chưa sẵn sàng. Vui lòng tải lại trang!");
+                this.cancel();
+            }
+        } catch (err) {
+            console.warn("Lỗi Service Worker:", err);
+            this.cancel();
+        }
+    },
+
+    handleBatchCompleted(results) {
+        if (!this.isDownloading) return;
+        
+        this.downloadedFiles += results.length;
+        const percent = Math.round((this.downloadedFiles / this.totalFiles) * 100);
+        
+        this.progressBar.style.width = `${percent}%`;
+        this.progressPercent.textContent = `${percent}%`;
+        
+        if (this.downloadedFiles >= this.totalFiles) {
+            this.finish();
+        } else if (!this.isPaused) {
+            this.processNextBatch();
+        }
+    },
+
+    pause() {
+        this.isPaused = true;
+        this.btnPause.style.display = 'none';
+        this.btnResume.style.display = 'block';
+    },
+
+    resume() {
+        this.isPaused = false;
+        this.btnResume.style.display = 'none';
+        this.btnPause.style.display = 'block';
+        this.processNextBatch(); 
+    },
+
+    cancel() {
+        this.isDownloading = false;
+        this.isPaused = false;
+        this.queue = [];
+        this.resetUI();
+    },
+
+    finish() {
+        this.isDownloading = false;
+        this.btnPause.style.display = 'none';
+        this.btnResume.style.display = 'none';
+        this.btnCancel.style.display = 'none';
+        this.btnStart.style.display = 'block';
+        this.btnStart.textContent = 'Đã Tải Xong';
+        
+        setTimeout(() => this.checkStorage(), 1000);
+    },
+
+    resetUI() {
+        this.progressSection.style.display = 'none';
+        this.progressBar.style.width = '0%';
+        this.progressPercent.textContent = '0%';
+        this.btnStart.style.display = 'block';
+        this.btnPause.style.display = 'none';
+        this.btnResume.style.display = 'none';
+        this.btnCancel.style.display = 'none';
+        this.btnStart.textContent = 'Tải Toàn Bộ';
+    },
+
+    async clearData() {
+        if (!confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu tải Offline?")) return;
+        
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            for (let name of cacheNames) {
+                if (name.includes('vandao-data')) {
+                    await caches.delete(name);
+                }
+            }
+            alert("Đã xóa dữ liệu Offline thành công!");
+            this.checkStorage();
+            this.resetUI();
+        }
+    }
+};
+
+/* ---------- SETTINGS & MODAL EVENTS ---------- */
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
 
@@ -1734,43 +1871,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Khởi tạo Settings Dialog
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
 
     if (settingsDialog && btnOpenSettings && btnCloseSettings) {
         btnOpenSettings.addEventListener('click', () => {
-            if (typeof settingsDialog.showModal === 'function') {
-                settingsDialog.showModal();
-            } else {
-                // Fallback cho trình duyệt cũ không hỗ trợ dialog
-                settingsDialog.setAttribute('open', '');
-            }
+            if (typeof settingsDialog.showModal === 'function') settingsDialog.showModal();
+            else settingsDialog.setAttribute('open', '');
         });
 
         btnCloseSettings.addEventListener('click', () => {
-            if (typeof settingsDialog.close === 'function') {
-                settingsDialog.close();
-            } else {
-                settingsDialog.removeAttribute('open');
-            }
+            if (typeof settingsDialog.close === 'function') settingsDialog.close();
+            else settingsDialog.removeAttribute('open');
         });
 
-        // Click ra ngoài để đóng
         settingsDialog.addEventListener('click', (e) => {
             const dialogDimensions = settingsDialog.getBoundingClientRect();
-            if (
-                e.clientX < dialogDimensions.left ||
-                e.clientX > dialogDimensions.right ||
-                e.clientY < dialogDimensions.top ||
-                e.clientY > dialogDimensions.bottom
-            ) {
+            if (e.clientX < dialogDimensions.left || e.clientX > dialogDimensions.right || e.clientY < dialogDimensions.top || e.clientY > dialogDimensions.bottom) {
                 if (typeof settingsDialog.close === 'function') settingsDialog.close();
                 else settingsDialog.removeAttribute('open');
             }
         });
     }
+
+    // Khởi tạo Offline Library
+    OfflineLibrary.init();
 });
 
 /* ---------- HÀM PHÂN TRANG DÙNG CHUNG ---------- */
