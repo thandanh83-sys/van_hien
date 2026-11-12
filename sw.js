@@ -49,6 +49,7 @@ const PRECACHE_ASSETS = [
     './js/render.js',
     './js/router.js',
     './js/offline.js',
+    './js/ai.js',      // Bổ sung file AI Nội bộ
     './js/main.js',
     
     // --- Hình ảnh Bạch Ngọc & Icons ---
