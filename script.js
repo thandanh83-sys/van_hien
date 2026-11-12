@@ -1,16 +1,12 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.5 - ULTIMATE HARMONY)
+   VĂN ĐẠO ENGINE - MASTER SCRIPT (VERSION 4.6 - UNIFIED KNOWLEDGE WEB)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
-   - Tương tác Tĩnh tại (Zen-like Interaction): Fate Modal render ngầm 
-     (chống Layout Shift), hiển thị Lời bình và Lời khuyên phân tách.
-   - Điều hướng Chính xác (Precision Routing): Universal Router phối hợp 
-     nhiều định danh; chờ layout ổn định trước khi cuộn, không tự mở Accordion.
-   - Dữ liệu Ngoại vi (External Data): Mọi cấu hình (Từ điển, Thể loại, Vận khí)
-     đều được fetch từ JSON, tuyệt đối không hardcode.
-   - Bọc thép (Fault-Tolerant): safeFetch đảm bảo App không bao giờ sập
-     nếu một file JSON bị lỗi mạng.
+   - Dữ liệu ngoại vi: Nạp 9 file JSON (bao gồm cả Thể loại).
+   - Điều hướng Chính xác: Hỗ trợ tìm kiếm Thể loại (dùng name) và Tác phẩm (dùng title).
+   - Học thuật: Tự động sinh Badge xác minh cho Danh ngôn.
+   - Trải nghiệm: Tủ sách Offline dùng HTML5 Dialog.
    ===================================================================== */
 
 /* =====================================================================
@@ -43,6 +39,7 @@ let DICTIONARY_DATA = { symbols: {}, dienTich: {}, hanViet: {} };
 let CATEGORY_NAMES = {};
 let FORTUNE_CONFIG = {};
 let FORTUNE_ADVICE = {};
+let THE_LOAI_DATA = []; // Biến mới chứa dữ liệu Thể loại
 
 const GLOBAL_INDEX = new Map(); 
 const GLOBAL_INDEX_BY_KEY = new Map(); 
@@ -202,12 +199,14 @@ function normalizeRouteGroup(value) {
     const aliases = {
         'triet-thuyet': 'triet-thuyet', 'ly-thuyet': 'triet-thuyet', 'theory': 'triet-thuyet',
         'ky-tai': 'ky-tai', 'tac-gia': 'ky-tai', 'author': 'ky-tai', 'authors': 'ky-tai',
-        'tinh-hoa': 'tinh-hoa', 'tac-pham': 'tinh-hoa', 'work': 'tinh-hoa', 'works': 'tinh-hoa', 'heritage': 'tinh-hoa'
+        'tinh-hoa': 'tinh-hoa', 'tac-pham': 'tinh-hoa', 'work': 'tinh-hoa', 'works': 'tinh-hoa', 'heritage': 'tinh-hoa',
+        'the-loai': 'the-loai', 'genre': 'the-loai', 'genres': 'the-loai'
     };
     return aliases[key] || null;
 }
 
 function getRecordTitleAlias(item, group) {
+    if (group === 'the-loai') return String(item?.name || '').trim();
     const title = String(item?.title || '').trim();
     if (group === 'ky-tai') return title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
     return title;
@@ -233,21 +232,6 @@ function formatContent(html) {
     formatted = formatted.replace(/^<strong>(.*?)<\/strong>/, '$1');
     formatted = formatted.replace(/^<b>(.*?)<\/b>/, '$1');
     return formatted;
-}
-
-function getSmartExcerpt(htmlContent) {
-    if (!htmlContent) return '';
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    let paragraphs = Array.from(tempDiv.querySelectorAll('p')).map(p => p.innerHTML.trim()).filter(t => t.length > 0);
-    if (paragraphs.length === 0) paragraphs = tempDiv.innerText.split('\n').filter(t => t.trim().length > 0);
-    let excerpt = paragraphs.length > 0 ? paragraphs[0] : tempDiv.innerText;
-    const plainText = excerpt.replace(/<[^>]*>/g, '');
-    if (plainText.length > 250) {
-        const cutIndex = plainText.indexOf('.', 150);
-        excerpt = cutIndex !== -1 ? plainText.substring(0, cutIndex + 1) + '...' : plainText.substring(0, 250) + '...';
-    }
-    return excerpt.replace(/\n/g, '<br>');
 }
 
 function handleSearchInput() {
@@ -419,7 +403,8 @@ const ContentManager = (() => {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     result = await res.json();
                 } else {
-                    result = { content: item.content || '' };
+                    // Thể loại không có file riêng, dùng mô tả trực tiếp
+                    result = { content: item.description || '' };
                 }
                 setCache(key, result);
                 return result;
@@ -445,6 +430,7 @@ function findEncyclopediaItem(id, group) {
     if (group === 'triet-thuyet') return THEORY_DATA.find(i => i.id === id);
     if (group === 'ky-tai') return AUTHOR_DATA.find(i => i.id === id);
     if (group === 'tinh-hoa') return WORKS_DATA.find(i => i.id === id);
+    if (group === 'the-loai') return THE_LOAI_DATA.find(i => i.id === id); // Hỗ trợ Thể loại
     return null;
 }
 
@@ -549,7 +535,9 @@ const VDSearchEngine = (() => {
             entries.slice(i, i + CHUNK).forEach(record => {
                 const item = record.data;
                 const key = record.key;
-                const words = tokenize([item.title, item.author, item.desc, item.content].join(' '));
+                // Hỗ trợ cả title (Tác phẩm) và name (Thể loại)
+                const titleText = item.title || item.name || '';
+                const words = tokenize([titleText, item.author, item.desc, item.description, item.content].join(' '));
                 docLengths[key] = Math.max(words.length, 1);
                 words.forEach(w => {
                     if (!invertedIndex[w]) invertedIndex[w] = Object.create(null);
@@ -570,7 +558,8 @@ const VDSearchEngine = (() => {
 
         for (const record of GLOBAL_RECORDS) {
             const item = record.data;
-            const title = normalizeRouteText(item.title);
+            const titleText = item.title || item.name || '';
+            const title = normalizeRouteText(titleText);
             const titleAlias = normalizeRouteText(getRecordTitleAlias(item, record.group));
             const author = normalizeRouteText(item.author);
             let score = 0;
@@ -592,7 +581,8 @@ const VDSearchEngine = (() => {
                     if (!record) continue;
                     const tf = count / (docLengths[key] || 1);
                     let score = tf * idf;
-                    const title = normalizeRouteText(record.data.title);
+                    const titleText = record.data.title || record.data.name || '';
+                    const title = normalizeRouteText(titleText);
                     const author = normalizeRouteText(record.data.author);
                     if (title.includes(w)) score *= 5;
                     else if (author.includes(w)) score *= 3;
@@ -638,7 +628,7 @@ function sortEncyData(data, group) {
             return getNum(a.id) - getNum(b.id);
         }
         const clean = t => t.replace(/^(Quyển [IVXLCDM]+\.|Chân Dung Tác Giả:)\s*/i, '').toLowerCase();
-        return clean(a.title).localeCompare(clean(b.title));
+        return clean(a.title || a.name || '').localeCompare(clean(b.title || b.name || ''));
     });
 }
 
@@ -678,19 +668,26 @@ function renderEncyclopediaList(dataToRender, isSearchMode = false, tokens = [])
 
     container.innerHTML = pagedData.map(item => {
         const group = item._group || currentEncyGroup;
-        let title = item.title;
+        let displayTitle = item.title || item.name; // Hỗ trợ cả title và name
         let badge = '';
         if (isSearchMode) {
-            title = highlightText(item.title, tokens);
-            const bt = group === 'triet-thuyet' ? 'Lý Thuyết' : (group === 'ky-tai' ? 'Tác Giả' : 'Tác Phẩm');
-            const bc = group === 'triet-thuyet' ? '#557a6f' : (group === 'ky-tai' ? '#8bb8a8' : '#d4c4a8');
+            displayTitle = highlightText(displayTitle, tokens);
+            let bt = group === 'triet-thuyet' ? 'Lý Thuyết' : (group === 'ky-tai' ? 'Tác Giả' : 'Tác Phẩm');
+            let bc = group === 'triet-thuyet' ? '#557a6f' : (group === 'ky-tai' ? '#8bb8a8' : '#d4c4a8');
+            
+            // Xử lý badge cho Thể loại
+            if (group === 'the-loai') {
+                bt = 'Thể Loại';
+                bc = '#b89a64';
+            }
+            
             badge = `<span style="font-size:0.65em;opacity:0.9;color:#fff;background-color:${bc};padding:2px 6px;border-radius:4px;margin-left:8px;white-space:nowrap;font-family:var(--font-body);">${bt}</span>`;
         }
         const safeDomId = `ency-${group}-${normalizeRouteId(item.id).replace(/[^a-z0-9_-]/g, '-')}`;
         return `
         <div class="accordion-item" id="${escapeHTML(safeDomId)}" data-id="${escapeHTML(item.id)}" data-item-id="${escapeHTML(item.id)}" data-group="${escapeHTML(group)}">
             <details data-id="${escapeHTML(item.id)}" data-item-id="${escapeHTML(item.id)}" data-group="${escapeHTML(group)}">
-                <summary><span class="summary-title">${title} ${badge}</span>${ICONS.chevron}</summary>
+                <summary><span class="summary-title">${displayTitle} ${badge}</span>${ICONS.chevron}</summary>
                 <div class="accordion-content"></div>
             </details>
         </div>`;
@@ -820,9 +817,9 @@ function resolveEncyclopediaTarget(input) {
 
     const cleanQuery = removeAccents(titleNorm);
     const exactTitle = records.filter(r => {
-        const names = [r.data.title, getRecordTitleAlias(r.data, r.group), r.data.alias, ...(Array.isArray(r.data.aliases) ? r.data.aliases : [])].filter(Boolean).map(normalizeRouteText);
-        const cleanNames = names.map(removeAccents);
-        return names.includes(titleNorm) || cleanNames.includes(cleanQuery);
+        const itemName = r.data.title || r.data.name || '';
+        const names = [itemName, getRecordTitleAlias(r.data, r.group)].filter(Boolean).map(normalizeRouteText);
+        return names.includes(titleNorm) || names.map(removeAccents).includes(cleanQuery);
     });
     if (exactTitle.length === 1) return { ok: true, record: exactTitle[0] };
     if (exactTitle.length > 1) return { ok: false, reason: 'ambiguous', candidates: exactTitle };
@@ -831,20 +828,13 @@ function resolveEncyclopediaTarget(input) {
     if (exactAuthorProfiles.length === 1) return { ok: true, record: exactAuthorProfiles[0] };
     if (exactAuthorProfiles.length > 1) return { ok: false, reason: 'ambiguous', candidates: exactAuthorProfiles };
 
-    const exactWorksByAuthor = records.filter(r => r.group === 'tinh-hoa' && normalizeRouteText(r.data.author) === queryNorm);
-    if (exactWorksByAuthor.length === 1) return { ok: true, record: exactWorksByAuthor[0] };
-    if (exactWorksByAuthor.length > 1) {
-        const profiles = records.filter(r => r.group === 'ky-tai' && normalizeRouteText(getRecordTitleAlias(r.data, r.group)) === queryNorm);
-        if (profiles.length === 1) return { ok: true, record: profiles[0] };
-        return { ok: false, reason: 'ambiguous', candidates: exactWorksByAuthor };
-    }
-
     if (queryNorm.length >= 4) {
-        const partial = records.filter(r =>
-            normalizeRouteText(r.data.title).includes(queryNorm) ||
-            removeAccents(normalizeRouteText(r.data.title)).includes(cleanQuery) ||
-            normalizeRouteText(r.data.author).includes(queryNorm)
-        );
+        const partial = records.filter(r => {
+            const itemName = r.data.title || r.data.name || '';
+            return normalizeRouteText(itemName).includes(queryNorm) ||
+                   removeAccents(normalizeRouteText(itemName)).includes(cleanQuery) ||
+                   normalizeRouteText(r.data.author).includes(queryNorm);
+        });
         if (partial.length === 1) return { ok: true, record: partial[0] };
         if (partial.length > 1) return { ok: false, reason: 'ambiguous', candidates: partial };
     }
@@ -994,7 +984,7 @@ async function gotoEncyclopediaById(query) {
     const status = document.getElementById('encyclopedia-count');
     if (status) {
         const section = query && typeof query === 'object' && query.section ? ` · mục ${query.section}` : '';
-        status.textContent = `Đã định vị: ${record.data.title}${section}`;
+        status.textContent = `Đã định vị: ${record.data.title || record.data.name}${section}`;
     }
     return { ok: true, id: record.id, group: record.group, matchedBy: resolved.matchedBy, element: targetEl };
 }
@@ -1003,6 +993,7 @@ function getRecordsForGroup(group) {
     if (group === 'triet-thuyet') return THEORY_DATA;
     if (group === 'ky-tai') return AUTHOR_DATA;
     if (group === 'tinh-hoa') return WORKS_DATA;
+    if (group === 'the-loai') return THE_LOAI_DATA;
     return [];
 }
 
@@ -1240,6 +1231,7 @@ async function loadAllData() {
             }
         };
 
+        // Nạp 9 file JSON
         const results = await Promise.all([
             safeFetch('./data/data-ly-thuyet.json', []),
             safeFetch('./data/data-tac-gia.json', []),
@@ -1248,7 +1240,8 @@ async function loadAllData() {
             safeFetch('./data/data-loi-binh.json', {}),
             safeFetch('./data/data-tu-dien.json', { symbols: {}, dienTich: {}, hanViet: {} }),
             safeFetch('./data/data-the-loai.json', {}),
-            safeFetch('./data/data-van-khi.json', { config: {}, advice: {} })
+            safeFetch('./data/data-van-khi.json', { config: {}, advice: {} }),
+            safeFetch('./data/data-tu-dien-the-loai.json', []) // Dữ liệu thể loại mới
         ]);
 
         THEORY_DATA = results[0];
@@ -1261,13 +1254,17 @@ async function loadAllData() {
         CATEGORY_NAMES = results[6];
         FORTUNE_CONFIG = results[7].config || {};
         FORTUNE_ADVICE = results[7].advice || {};
+        THE_LOAI_DATA = results[8];
 
         GLOBAL_INDEX.clear(); GLOBAL_INDEX_BY_KEY.clear(); GLOBAL_RECORDS.length = 0;
         
         const addToIndex = (arr, group) => {
             if (!Array.isArray(arr)) return;
             arr.forEach(item => {
-                if (!item?.id || !item?.title) return;
+                if (!item?.id) return;
+                // Một số thể loại có thể không có title mà chỉ có name
+                if (!item?.title && !item?.name) return; 
+                
                 const key = `${group}:${item.id}`;
                 const record = { key, id: item.id, group, type: group, data: item };
                 if (GLOBAL_INDEX_BY_KEY.has(key)) return;
@@ -1279,6 +1276,7 @@ async function loadAllData() {
         addToIndex(THEORY_DATA, 'triet-thuyet');
         addToIndex(AUTHOR_DATA, 'ky-tai');
         addToIndex(WORKS_DATA, 'tinh-hoa');
+        addToIndex(THE_LOAI_DATA, 'the-loai'); // Nạp thể loại vào mạng lưới
 
         initMainFilters();
         
@@ -1336,16 +1334,31 @@ async function auditAuthorsData() {
 window.auditWorksData = auditWorksData;
 window.auditAuthorsData = auditAuthorsData;
 
-function renderRandomQuote() {
+function renderRandomQuote() { 
     const c = document.getElementById('daily-quote-container');
-    if (!c || !QUOTES_DATA.length) return;
+    if (!c || QUOTES_DATA.length === 0) return; 
     c.style.opacity = 0;
     setTimeout(() => {
-        let ni;
-        do { ni = Math.floor(Math.random() * QUOTES_DATA.length); } while (QUOTES_DATA.length > 1 && ni === currentQuoteIndex);
-        currentQuoteIndex = ni;
-        const q = QUOTES_DATA[currentQuoteIndex];
-        c.innerHTML = `<p class="quote-text">${q.text}</p><p class="quote-author">— ${q.author} —</p>`;
+        let newIndex;
+        do { newIndex = Math.floor(Math.random() * QUOTES_DATA.length); } while (QUOTES_DATA.length > 1 && newIndex === currentQuoteIndex);
+        currentQuoteIndex = newIndex;
+        const quote = QUOTES_DATA[currentQuoteIndex];
+        
+        // Badge xác minh (Tuần 3)
+        let statusBadge = '';
+        if (quote.verificationStatus) {
+            const statusMap = {
+                'verified': { text: 'Nguyên văn', color: '#10b981' },
+                'translated': { text: 'Bản dịch', color: '#3b82f6' },
+                'attributed': { text: 'Tương truyền', color: '#8bb8a8' },
+                'needs-review': { text: 'Cần kiểm chứng', color: '#a36b6b' },
+                'author-declared': { text: 'Văn Đạo', color: '#d4c4a8' }
+            };
+            const statusInfo = statusMap[quote.verificationStatus] || { text: 'Khác', color: '#6a7c76' };
+            statusBadge = `<span style="display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 4px; border: 1px solid ${statusInfo.color}; color: ${statusInfo.color}; font-size: 0.65rem; font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">${statusInfo.text}</span>`;
+        }
+
+        c.innerHTML = `<p class="quote-text">${quote.text}</p><p class="quote-author">— ${quote.author} —</p>${statusBadge}`;
         c.style.opacity = 1;
     }, 500);
 }
@@ -1420,6 +1433,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 document.addEventListener('click', e => {
+    // Xử lý tất cả các nút có data-route-encyclopedia
     const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
     if (routeControl) {
         e.preventDefault();
@@ -1440,6 +1454,7 @@ document.addEventListener('click', e => {
         return;
     }
 
+    // Xử lý đóng menu mobile
     const navMenu = document.getElementById('navMenu');
     const menuBtn = document.querySelector('.mobile-menu-btn');
     if (navMenu?.classList.contains('show') && !navMenu.contains(e.target) && !menuBtn?.contains(e.target)) {
@@ -1449,7 +1464,7 @@ document.addEventListener('click', e => {
 });
 
 /* =====================================================================
-   MODULE 10: TÍNH NĂNG MỞ RỘNG (1.4, 1.5, 2.5)
+   MODULE 10: TÍNH NĂNG MỞ RỘNG (1.4, 1.5, 2.5) & SETTINGS UI
    ===================================================================== */
 
 /* ---------- 2.5: SYMBOL HIGHLIGHTER ---------- */
@@ -1701,6 +1716,7 @@ async function randomPoem() {
     }, 1200);
 }
 
+/* ---------- SETTINGS & OFFLINE UI ---------- */
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
 
@@ -1717,9 +1733,47 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target === overlay) closeModal();
         });
     }
+
+    // Khởi tạo Settings Dialog
+    const settingsDialog = document.getElementById('settings-dialog');
+    const btnOpenSettings = document.getElementById('btn-open-settings');
+    const btnCloseSettings = document.getElementById('btn-close-settings');
+
+    if (settingsDialog && btnOpenSettings && btnCloseSettings) {
+        btnOpenSettings.addEventListener('click', () => {
+            if (typeof settingsDialog.showModal === 'function') {
+                settingsDialog.showModal();
+            } else {
+                // Fallback cho trình duyệt cũ không hỗ trợ dialog
+                settingsDialog.setAttribute('open', '');
+            }
+        });
+
+        btnCloseSettings.addEventListener('click', () => {
+            if (typeof settingsDialog.close === 'function') {
+                settingsDialog.close();
+            } else {
+                settingsDialog.removeAttribute('open');
+            }
+        });
+
+        // Click ra ngoài để đóng
+        settingsDialog.addEventListener('click', (e) => {
+            const dialogDimensions = settingsDialog.getBoundingClientRect();
+            if (
+                e.clientX < dialogDimensions.left ||
+                e.clientX > dialogDimensions.right ||
+                e.clientY < dialogDimensions.top ||
+                e.clientY > dialogDimensions.bottom
+            ) {
+                if (typeof settingsDialog.close === 'function') settingsDialog.close();
+                else settingsDialog.removeAttribute('open');
+            }
+        });
+    }
 });
 
-/* ---------- HÀM PHÂN TRANG DÙNG CHUNG (Đã hỗ trợ mũi tên) ---------- */
+/* ---------- HÀM PHÂN TRANG DÙNG CHUNG ---------- */
 function renderPagination(totalPages, containerId = 'pagination-container', pageType = 'heritage') {
     const pagContainer = document.getElementById(containerId);
     if (!pagContainer) return;
