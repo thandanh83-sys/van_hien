@@ -1,0 +1,28 @@
+{
+  "symbols": {
+    "trăng": { "vol": "V", "sec": "5.2", "mean": "đoàn viên, nhớ quê, cô đơn" },
+    "nguyệt": { "vol": "V", "sec": "5.2", "mean": "Hán Việt của 'trăng'" },
+    "liễu": { "vol": "V", "sec": "5.2", "mean": "chia biệt" },
+    "đào": { "vol": "V", "sec": "5.2", "mean": "tuổi trẻ, mùa xuân" },
+    "sen": { "vol": "V", "sec": "5.2", "mean": "thanh khiết" },
+    "hạc": { "vol": "V", "sec": "5.2", "mean": "thanh cao, trường thọ" },
+    "nhạn": { "vol": "V", "sec": "5.2", "mean": "tin tức" },
+    "mây": { "vol": "V", "sec": "5.2", "mean": "phiêu du" },
+    "nước": { "vol": "V", "sec": "5.2", "mean": "thời gian, mềm mại" },
+    "thuyền": { "vol": "V", "sec": "5.2", "mean": "hành trình" },
+    "bến đò": { "vol": "V", "sec": "5.2", "mean": "gặp gỡ, chia tay" }
+  },
+  "dienTich": {
+    "sân lai": { "vol": "V", "sec": "5.2", "mean": "lòng hiếu thảo" },
+    "ngưu lang": { "vol": "V", "sec": "5.2", "mean": "tình yêu bị ngăn cách" },
+    "chức nữ": { "vol": "V", "sec": "5.2", "mean": "tình yêu bị ngăn cách" },
+    "gót sen": { "vol": "V", "sec": "5.2", "mean": "đôi chân phụ nữ phong kiến" },
+    "bèo dạt": { "vol": "V", "sec": "5.2", "mean": "thân phận trôi nổi" },
+    "chim lồng": { "vol": "V", "sec": "5.2", "mean": "bị giam hãm" }
+  },
+  "hanViet": {
+    "vọng": { "vol": "VIII", "sec": "8.5", "mean": "望 — trông về, ngóng đợi." },
+    "khúc": { "vol": "VIII", "sec": "8.5", "mean": "曲 — khúc nhạc." },
+    "dặm trường": { "vol": "VIII", "sec": "8.5", "mean": "trường = 長 (dài) — đường xa." }
+  }
+}
