@@ -1,0 +1,257 @@
+/**
+ * ==========================================================
+ * VĂN ĐẠO - LAYOUTS CSS (css/layouts.css)
+ * Chức năng: Định hình khung xương (Header, Modal, Splash, Nav).
+ * Đã sửa: Căn giữa Modal Cài đặt, dọn sạch Splash Screen.
+ * ==========================================================
+ */
+
+/* ==========================================
+ * 1. SPLASH SCREEN (MÀN HÌNH CHỜ 6S)
+ * Sửa lỗi: Không cho nội dung bên dưới lọt ra ngoài
+ * ========================================== */
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-base, #fdfbf7); /* Nền đặc, không xuyên thấu */
+    z-index: 99999; /* Nằm trên cùng, đè lên mọi thứ */
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    
+    transition: opacity 0.8s var(--ease-silk, ease);
+}
+
+/* Hiệu ứng mờ dần khi kết thúc 6s */
+#splash-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.splash-image {
+    max-width: 250px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.splash-quote {
+    font-family: var(--font-body, 'Times New Roman', serif);
+    font-size: 1.5rem;
+    font-style: italic;
+    color: var(--text-main, #2c3e38);
+    line-height: 1.6;
+    max-width: 600px;
+    margin-bottom: 15px;
+}
+
+.splash-author {
+    font-family: var(--font-title, 'Alex Brush', cursive);
+    font-size: 1.8rem;
+    color: var(--accent, #8bb8a8);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* ==========================================
+ * 2. HEADER (THANH ĐIỀU HƯỚNG TRÊN CÙNG)
+ * ========================================== */
+#app-header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 60px;
+    background-color: rgba(253, 251, 247, 0.95); /* Trong suốt nhẹ */
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid rgba(212, 196, 168, 0.2); /* Viền vàng nhạt */
+}
+
+.header-logo {
+    font-family: var(--font-title, 'Alex Brush', cursive);
+    font-size: 2rem;
+    color: var(--text-main, #2c3e38);
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.header-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-main, #2c3e38);
+    padding: 5px;
+    transition: color 0.2s ease;
+}
+
+.header-actions button:hover {
+    color: var(--accent, #8bb8a8);
+}
+
+/* ==========================================
+ * 3. MODAL CÀI ĐẶT (SỬA LỖI LỆCH/TRÀN)
+ * Căn giữa hoàn hảo trên cả Mobile và PC
+ * ========================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(44, 62, 56, 0.4); /* Nền tối mờ */
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    
+    /* Ẩn mặc định, JS sẽ thêm class 'active' để hiện */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95); /* Hiệu ứng thu nhỏ nhẹ khi mở */
+    
+    width: 90%; /* Mobile: Rộng 90% màn hình */
+    max-width: 500px; /* PC: Không rộng quá 500px */
+    max-height: 85vh; /* Không cao quá 85% màn hình */
+    overflow-y: auto; /* Nếu nội dung dài thì có thanh cuộn bên trong */
+    
+    background-color: var(--bg-base, #fdfbf7);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    
+    transition: transform 0.3s var(--ease-silk, ease);
+}
+
+.modal-overlay.active .modal-content {
+    transform: translate(-50%, -50%) scale(1); /* Phóng to về kích thước chuẩn */
+}
+
+/* Tiêu đề Modal */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px dashed var(--accent-gold, #d4c4a8);
+    padding-bottom: 15px;
+}
+
+.modal-title {
+    font-family: var(--font-title, 'Alex Brush', cursive);
+    font-size: 2rem;
+    color: var(--text-main, #2c3e38);
+    margin: 0;
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-main, #2c3e38);
+}
+
+/* ==========================================
+ * 4. BOTTOM NAVIGATION (THANH ĐIỀU HƯỚNG DƯỚI ĐÁY)
+ * Chỉ hiện trên Mobile
+ * ========================================== */
+#bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65px;
+    background-color: var(--bg-base, #fdfbf7);
+    border-top: 1px solid rgba(212, 196, 168, 0.3);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom); /* Hỗ trợ iPhone tai thỏ */
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #a0a0a0;
+    font-size: 0.75rem;
+    font-family: var(--font-body, 'Times New Roman', serif);
+    transition: color 0.2s ease;
+}
+
+.nav-item.active {
+    color: var(--accent, #8bb8a8);
+}
+
+.nav-item svg {
+    margin-bottom: 4px;
+    width: 24px;
+    height: 24px;
+}
+
+/* Ẩn Bottom Nav trên màn hình PC */
+@media (min-width: 768px) {
+    #bottom-nav {
+        display: none;
+    }
+    #app-content {
+        padding-bottom: 20px; /* Không cần chừa khoảng trống cho bottom nav */
+    }
+}
+
+/* ==========================================
+ * 5. KHUNG CHỨA NỘI DUNG CHÍNH
+ * ========================================== */
+#app-content {
+    padding-top: 80px; /* Chừa khoảng trống cho Header */
+    padding-bottom: 80px; /* Chừa khoảng trống cho Bottom Nav trên Mobile */
+    min-height: 100vh;
+    width: 100%;
+    max-width: 800px; /* Giới hạn chiều rộng để dễ đọc trên PC */
+    margin: 0 auto; /* Căn giữa trên PC */
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* Các View (Trang) mặc định bị ẩn, JS sẽ bật lên */
+.view {
+    display: none;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.view.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
