@@ -1,0 +1,29 @@
+/**
+ * ==========================================================
+ * VĂN ĐẠO - VARIABLES CSS (css/variables.css)
+ * Chức năng: Chứa biến màu sắc, font chữ, thời gian chuyển động.
+ * ==========================================================
+ */
+:root {
+    /* BẢNG MÀU BẠCH NGỌC */
+    --bg-base: #fdfbf7;        /* Màu nền chính (Trắng ngà) */
+    --bg-paper: #ffffff;       /* Màu nền giấy đọc */
+    --text-main: #2c3e38;      /* Màu chữ chính (Xanh rêu đậm) */
+    --text-muted: #6b7c76;     /* Màu chữ phụ, mờ hơn */
+    
+    --accent: #8bb8a8;         /* Màu ngọc bích (Nút bấm, điểm nhấn) */
+    --accent-gold: #d4c4a8;    /* Màu vàng cát (Viền, đường kẻ) */
+    --bg-highlight: #f0ead6;   /* Màu be nhạt (Highlight từ khóa) */
+    --danger: #a85858;         /* Màu đỏ trầm (Nút xóa, cảnh báo) */
+    
+    /* FONT CHỮ */
+    --font-title: 'Alex Brush', cursive;      /* Font viết tay cho tiêu đề lớn */
+    --font-body: 'Times New Roman', serif;    /* Font chân cho nội dung */
+
+    /* HIỆU ỨNG CHUYỂN ĐỘNG */
+    --ease-silk: cubic-bezier(0.25, 1, 0.5, 1); /* Chuyển động mượt như lụa */
+    
+    /* KÍCH THƯỚC CỐ ĐỊNH */
+    --header-height: 60px;
+    --nav-height: 65px;
+}
