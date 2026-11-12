@@ -9,7 +9,7 @@
     
     <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
-    <title>VĂN ĐẠO</title>
+    <title>VĂN ĐẠO - Đại Bách Khoa Toàn Thư</title>
     
     <!-- ================================================================= -->
     <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang - LCP)       -->
@@ -310,12 +310,14 @@
                 <div style="background: rgba(139, 184, 168, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-family: var(--font-body); font-weight: 700; font-size: 1rem;">Tủ Sách Offline</span>
+                        <!-- API Storage sẽ cập nhật thẻ span này -->
                         <span id="settings-storage-text" style="font-family: var(--font-body); font-size: 0.8rem; color: var(--text-muted);">Chưa kiểm tra</span>
                     </div>
                     <p style="font-family: var(--font-body); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5;">
                         Mang thư viện tri thức theo bên mình, kể cả khi không có kết nối mạng.
                     </p>
 
+                    <!-- Thanh tiến trình (Ẩn mặc định) -->
                     <div id="offline-progress-section" style="display: none; margin-bottom: 15px;">
                         <div style="display: flex; justify-content: space-between; font-family: var(--font-body); font-size: 0.85rem; margin-bottom: 8px;">
                             <span id="offline-progress-text">Đang tải...</span>
@@ -326,10 +328,12 @@
                         </div>
                     </div>
 
+                    <!-- Cụm nút điều khiển: Start -> Pause/Resume/Cancel -->
                     <div style="display: flex; gap: 10px;">
                         <button id="offline-btn-start" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem;">Tải Toàn Bộ</button>
                         <button id="offline-btn-pause" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem; display: none;">Tạm Dừng</button>
-                        <button id="offline-btn-cancel" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem; background: transparent; border-color: #a36b6b; color: #a36b6b;">Hủy</button>
+                        <button id="offline-btn-resume" class="btn" style="flex: 1; padding: 8px; font-size: 0.8rem; display: none;">Tiếp Tục</button>
+                        <button id="offline-btn-cancel" class="btn" style="display: none; flex: 1; padding: 8px; font-size: 0.8rem; background: transparent; border-color: #a36b6b; color: #a36b6b;">Hủy</button>
                     </div>
                 </div>
             </div>
@@ -376,7 +380,7 @@
     <!-- 15. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
-        window.VD_APP_VERSION = '4.6.0';
+        window.VD_APP_VERSION = '4.7.0';
         window.VD_BUILD_DATE  = '2026-11-20';
     </script>
     
