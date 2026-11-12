@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO SERVICE WORKER (VERSION 4.7.0 - FULL OFFLINE SUPPORT)
+   VĂN ĐẠO SERVICE WORKER (VERSION 5.0.0 - FULL OFFLINE MASTERY)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -8,17 +8,17 @@
       - JSON: Stale-While-Revalidate (Tốc độ là ưu tiên, cập nhật ngầm).
       - CSS/JS/Ảnh/Font: Stale-While-Revalidate.
    2. Sự tĩnh tại (No Auto-Skip): TUYỆT ĐỐI KHÔNG gọi skipWaiting() trong 
-      install. SW mới phải chờ người dùng xác nhận (qua banner).
+      install. SW mới phải chờ người dùng xác nhận (qua banner cập nhật).
    3. Smart Offline (Tủ Sách Offline): Hỗ trợ tải theo lô (Batch Download), 
       xác thực JSON trước khi lưu, và trả kết quả về cho script.js qua 
-      event.source.postMessage.
+      event.source.postMessage để cập nhật thanh tiến trình.
    ===================================================================== */
 
 // =====================================================================
 // I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
-// Đã nâng cấp lên v4.7.0 để đồng bộ với script.js và style.css mới
-const CACHE_VERSION = 'v4.7.0';
+// Nâng cấp lên v5.0.0 để đồng bộ với script.js và style.css mới
+const CACHE_VERSION = 'v5.0.0';
 
 const STATIC_CACHE  = `vandao-static-${CACHE_VERSION}`;
 const HTML_CACHE    = `vandao-html-${CACHE_VERSION}`;
@@ -33,6 +33,8 @@ const PRECACHE_ASSETS = [
     './',
     './index.html',
     './manifest.json',
+    './style.css',
+    './script.js',
     
     // --- Hình ảnh Bạch Ngọc & Icons ---
     './assets/nen.jpg',
@@ -74,7 +76,7 @@ self.addEventListener('install', (event) => {
             );
         })
     );
-    // KHÔNG gọi self.skipWaiting() ở đây. SW sẽ chờ người dùng xác nhận.
+    // KHÔNG gọi self.skipWaiting() ở đây. SW sẽ chờ người dùng xác nhận qua banner.
 });
 
 // =====================================================================
@@ -112,7 +114,7 @@ self.addEventListener('activate', (event) => {
 
 /**
  * Chiến lược Network First (Ưu tiên mạng, fallback về cache)
- * Dùng cho HTML.
+ * Dùng cho HTML. Đảm bảo người dùng luôn nhận được bản cập nhật mới nhất nếu có mạng.
  */
 async function networkFirstWithTimeout(request, cacheName, timeoutMs) {
     const cache = await caches.open(cacheName);
@@ -130,13 +132,14 @@ async function networkFirstWithTimeout(request, cacheName, timeoutMs) {
         clearTimeout(timer);
         const cached = await cache.match(request);
         if (cached) return cached;
-        return caches.match('./index.html'); // Fallback về trang chủ
+        // Fallback cuối cùng nếu mất mạng hoàn toàn
+        return caches.match('./index.html'); 
     }
 }
 
 /**
  * Chiến lược Stale-While-Revalidate (Trả cache ngay, cập nhật ngầm)
- * Dùng cho JSON, CSS, JS, Ảnh, Font.
+ * Dùng cho JSON, CSS, JS, Ảnh, Font. Đảm bảo tốc độ tải tức thì.
  */
 async function staleWhileRevalidate(request, cacheName) {
     const cache = await caches.open(cacheName);
@@ -232,12 +235,11 @@ self.addEventListener('message', (event) => {
                 }
                 
                 // [QUAN TRỌNG]: Trả kết quả về cho script.js
-                // Dùng event.source.postMessage thay vì event.ports[0] 
-                // để đồng bộ với cách lắng nghe trong script.js
+                // Dùng event.source.postMessage để đồng bộ với cách lắng nghe trong script.js V5.0
                 if (event.source) {
                     event.source.postMessage({ type: 'BATCH_COMPLETED', results });
                 } else {
-                    // Fallback nếu không lấy được source
+                    // Fallback nếu không lấy được source (gửi cho tất cả clients)
                     const clients = await self.clients.matchAll();
                     clients.forEach(client => {
                         client.postMessage({ type: 'BATCH_COMPLETED', results });
