@@ -1,6 +1,6 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG ĐIỀN NỘI DUNG THIẾU
-# Tên file: auto-fill.yml
+# Tên file: .github/workflows/auto-fill.yml
 # Tác giả: Văn Đạo
 # 
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -33,6 +33,7 @@ on:
 concurrency:
   group: git-push-group
   # Nếu bot đang chạy thì phải đợi nó chạy xong, không được hủy ngang.
+  # Việc hủy ngang có thể khiến dữ liệu bị điền dở dang.
   cancel-in-progress: false 
 
 # =====================================================================
@@ -61,6 +62,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           # Lấy toàn bộ lịch sử commit (tránh lỗi shallow clone khi bot commit).
+          # Nếu không có fetch-depth: 0, bot có thể gặp lỗi "fatal: shallow update not allowed".
           fetch-depth: 0 
 
       # -----------------------------------------------------------------
