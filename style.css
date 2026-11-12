@@ -1,13 +1,11 @@
 /* =====================================================================
-   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.6 - ELEGANT & TINH TẾ)
+   VĂN ĐẠO ENGINE - MASTER STYLESHEET (VERSION 4.7 - ELEGANT & FIXED)
    Tác giả: Văn Đạo
    
-   TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
-   - Giao diện Bạch Ngọc: Tĩnh tại, thanh tao, không phô trương.
-   - Hệ thống Typography: Alex Brush (Tiêu đề) + Times New Roman (Nội dung).
-   - Hiệu năng: Tối ưu GPU, content-visibility (chống lag khi có ngàn thẻ).
-   - Tương tác: HTML5 Dialog (Tủ sách Offline), Fate Modal (Chống CLS).
-   - Liền mạch: Sự chuyển cảnh mượt mà từ Splash -> Trang chủ -> Các View.
+   CẬP NHẬT V4.7:
+   - Fix lỗi Highlight tô nền lệch (chữ "liễu", "nước").
+   - Fix lỗi Tooltip đè lên văn bản.
+   - Bổ sung CSS cho cụm nút Tủ Sách Offline (Start, Pause, Resume, Cancel).
    ===================================================================== */
 
 /* =====================================================================
@@ -261,8 +259,6 @@ body {
     transition: all 0.3s; display: flex; align-items: center; justify-content: center;
 }
 .nav-icon-btn:hover { color: var(--accent); background: rgba(139, 184, 168, 0.1); }
-
-/* Trạng thái Icon Cài đặt khi tải Offline */
 .nav-icon-btn.state-downloading svg { animation: spin 2s linear infinite; color: var(--accent); }
 .nav-icon-btn.state-ready svg { color: #10b981; }
 
@@ -544,37 +540,76 @@ mark {
 .volume-link { color: var(--accent-text); background: transparent; border: 0; padding: 0; cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; text-decoration: underline; }
 .question-item { padding: 6px 0; line-height: 1.5; color: var(--text-main); font-size: 1rem; display: flex; align-items: flex-start; font-family: var(--font-body); }
 
-/* Symbol Highlighter - Tooltip CSS */
+/* =====================================================================
+   [FIX LỖI 1 & 2]: SYMBOL HIGHLIGHTER & TOOLTIP
+   ===================================================================== */
 .symbol-mark {
-    background: linear-gradient(transparent 60%, rgba(212,196,168,0.35) 60%);
-    cursor: help; padding: 0 1px; position: relative;
+    background: #f0ead6; /* Dùng màu nền đặc thay vì gradient để không bị lệch chữ */
+    color: var(--text-main);
+    padding: 0 4px; 
+    border-radius: 4px;
+    cursor: help; 
+    position: relative;
+    display: inline; /* Đảm bảo không bị vỡ dòng */
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
 }
+
 .symbol-mark::after {
     content: attr(data-tooltip);
-    position: absolute; bottom: 100%; left: 50%;
-    transform: translateX(-50%) translateY(4px);
-    background: var(--text-main, #2c3e38); color: var(--bg-base, #fdfbf7);
-    padding: 6px 12px; border-radius: 6px;
-    font-size: 0.8rem; font-family: var(--font-body);
-    white-space: nowrap; opacity: 0; pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: absolute; 
+    bottom: 100%; 
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    background: var(--text-main, #2c3e38); 
+    color: var(--bg-base, #fdfbf7);
+    padding: 8px 12px; 
+    border-radius: 6px;
+    font-size: 0.85rem; 
+    font-family: var(--font-body);
+    
+    /* [FIX]: Khống chế chiều rộng để không đè lên chữ khác */
+    width: max-content;
+    max-width: 250px; 
+    white-space: normal; 
+    line-height: 1.5;
+    text-align: center;
+    
+    opacity: 0; 
+    pointer-events: none; /* Không cản trở việc bôi đen/click văn bản */
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1000; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     font-style: normal;
 }
-.symbol-mark:hover::after { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+.symbol-mark:hover::after { 
+    opacity: 1; 
+    transform: translateX(-50%) translateY(0); 
+}
+
+/* Mũi tên nhỏ chỉ xuống của Tooltip */
+.symbol-mark::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    border-width: 6px;
+    border-style: solid;
+    border-color: var(--text-main) transparent transparent transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1000;
+}
+.symbol-mark:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
 
 /* =====================================================================
-   16. SKELETON LOADING
-   ===================================================================== */
-.skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite linear; border-radius: var(--radius-card); }
-@keyframes skeletonLoading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-.skeleton-card { height: 250px; padding: 20px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--radius-card); }
-.skeleton-line { height: 15px; border-radius: 4px; background: #e0e0e0; }
-.skeleton-line.title { height: 25px; width: 60%; }
-.skeleton-line.desc { height: 12px; width: 100%; }
-
-/* =====================================================================
-   17. FATE MODAL (HỘP THOẠI NỔI GIỮA MÀN HÌNH - CHỐNG CLS)
+   16. FATE MODAL (HỘP THOẠI NỔI GIỮA MÀN HÌNH - CHỐNG CLS)
    ===================================================================== */
 #fate-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -628,7 +663,7 @@ mark {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* =====================================================================
-   18. SETTINGS DIALOG (TỦ SÁCH OFFLINE)
+   17. SETTINGS DIALOG (TỦ SÁCH OFFLINE) & [FIX LỖI 3]
    ===================================================================== */
 dialog {
     border: none;
@@ -654,14 +689,21 @@ dialog[open] {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Các nút tùy chọn tải Offline */
-.offline-option-btn {
-    width: 100%; display: flex; justify-content: space-between; align-items: center;
-    background: transparent; border: 1px solid var(--border-color); border-radius: 12px;
-    padding: 12px 16px; cursor: pointer; transition: all 0.2s;
-    text-align: left;
+/* Các nút Tủ Sách Offline */
+.btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    border-radius: 8px;
+    transition: all 0.2s ease;
 }
-.offline-option-btn:hover { border-color: var(--accent); background: rgba(139, 184, 168, 0.05); }
+.btn:hover {
+    border-color: var(--accent);
+    background: rgba(139, 184, 168, 0.1);
+}
+.btn:active {
+    transform: scale(0.96);
+}
 
 .offline-text-btn {
     background: transparent; border: none; cursor: pointer;
@@ -672,14 +714,14 @@ dialog[open] {
 .offline-text-btn:hover { opacity: 0.7; }
 
 /* =====================================================================
-   19. UPDATE BANNER (Cập nhật Service Worker)
+   18. UPDATE BANNER (Cập nhật Service Worker)
    ===================================================================== */
 #update-banner { font-family: var(--font-body); }
 #update-btn:hover { background: #a3d0c0 !important; }
 #dismiss-btn:hover { background: rgba(139, 184, 168, 0.15); border-radius: 50%; }
 
 /* =====================================================================
-   20. RESPONSIVE (MOBILE)
+   19. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
     .dewdrop-container { display: none !important; }
@@ -690,7 +732,6 @@ dialog[open] {
     .hero-content .no-wrap { white-space: normal; }
     .hero-content p { text-align: center; font-size: 1rem; margin-bottom: 20px; }
     
-    /* BỐ CỤC NÚT HERO: Ép 2 NÚT SONG SONG TRÊN MOBILE */
     .hero-actions {
         flex-direction: row; 
         justify-content: center;
@@ -738,10 +779,13 @@ dialog[open] {
     /* Modal Mobile */
     #fate-modal { padding: 20px; width: 95%; }
     .fate-close-btn { top: 10px; right: 10px; }
+    
+    /* Tủ sách Offline Mobile */
+    #settings-modal { padding: 20px !important; }
 }
 
 /* =====================================================================
-   21. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
+   20. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
    ===================================================================== */
 button:active, .btn:active, .filter-btn:active, .page-btn:active, .nav-btn:active {
     transform: scale(0.95) !important;
