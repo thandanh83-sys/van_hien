@@ -1,95 +1,57 @@
 {
-  "name": "VĂN ĐẠO — Đại Bách Khoa Toàn Thư",
+  "name": "Văn Đạo | Đại Bách Khoa Toàn Thư",
   "short_name": "Văn Đạo",
-  "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.",
-  "version": "5.0.0",
-  "id": "/van_hien/",
+  "description": "Vẻ Đẹp Bạch Ngọc Giữa Làn Nước Tĩnh. Hệ thống tri thức văn học, tra cứu tác giả, tác phẩm và thi pháp.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
   "orientation": "portrait-primary",
   "background_color": "#fdfbf7",
   "theme_color": "#fdfbf7",
   "lang": "vi",
   "dir": "ltr",
-  "categories": [
-    "books",
-    "education",
-    "literature",
-    "reference"
-  ],
-  "prefer_related_applications": false,
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "handle_links": "preferred",
+  "categories": ["education", "books", "literature"],
   "icons": [
     {
-      "src": "assets/web-app-manifest-192x192.png",
+      "src": "./assets/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "assets/web-app-manifest-512x512.png",
+      "src": "./assets/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any"
-    },
-    {
-      "src": "assets/web-app-manifest-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "assets/web-app-manifest-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "assets/khung.jpg",
-      "sizes": "1080x1920",
-      "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "Giao diện Bạch Ngọc - Trang chủ"
-    },
-    {
-      "src": "assets/nen.jpg",
-      "sizes": "1080x1920",
-      "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "Không gian đọc Văn Đạo"
     }
   ],
   "shortcuts": [
     {
-      "name": "Văn Hiến (Tác phẩm)",
+      "name": "Văn Hiến",
       "short_name": "Văn Hiến",
-      "description": "Tra cứu danh mục tác phẩm văn học",
-      "url": "./index.html?tab=heritage",
-      "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
+      "description": "Tra cứu tác giả, tác phẩm",
+      "url": "./index.html#/van-hien",
+      "icons": [{ "src": "./assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Đại Bách Khoa",
+      "name": "Bách Khoa",
       "short_name": "Bách Khoa",
-      "description": "Hệ thống tri thức lý thuyết và tác giả",
-      "url": "./index.html?tab=encyclopedia",
-      "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
+      "description": "Tra cứu lý thuyết, từ điển",
+      "url": "./index.html#/bach-khoa",
+      "icons": [{ "src": "./assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Thi Pháp Học",
+      "name": "Thi Pháp",
       "short_name": "Thi Pháp",
-      "description": "Phân tích cấu trúc thơ (Bằng/Trắc)",
-      "url": "./index.html?tab=analyze",
-      "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
+      "description": "Phân tích thi pháp học",
+      "url": "./index.html#/thi-phap",
+      "icons": [{ "src": "./assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     }
   ]
 }
