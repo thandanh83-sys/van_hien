@@ -1,39 +1,57 @@
 [
   {
-    "id": "tho-sonnet",
-    "name": "Thơ Sonnet",
-    "name_en": "Sonnet",
-    "parent": "thi-ca",
-    "classification": "hinh-thuc-tho",
-    "description": "Một hình thức thơ có cấu trúc chặt chẽ, thường gồm 14 dòng, với quy tắc vần và nhịp tùy truyền thống (Ý, Anh).",
-    "related": ["tho-tru-tinh"]
-  },
-  {
     "id": "tho-luc-bat",
     "name": "Thơ Lục Bát",
     "name_en": "Luc Bat",
     "parent": "thi-ca",
     "classification": "the-tho-truyen-thong",
-    "description": "Thể thơ truyền thống Việt Nam, luân phiên câu 6 chữ và 8 chữ, gieo vần ở chữ cuối.",
-    "related": ["truyen-kieu", "ca-dao"]
+    "description": "Thể thơ truyền thống Việt Nam, luân phiên câu 6 chữ và 8 chữ, gieo vần ở chữ cuối. Nhịp điệu mềm mại, uyển chuyển như dòng nước, mang đậm hồn cốt dân tộc.",
+    "related": ["truyen-kieu", "luc-van-tien", "ca-dao-than-than"]
   },
   {
-    "id": "tho-haiku",
-    "name": "Thơ Haiku",
-    "name_en": "Haiku",
+    "id": "tho-duong-luat",
+    "name": "Thơ Đường Luật",
+    "name_en": "Tang Poetry",
     "parent": "thi-ca",
-    "classification": "hinh-thuc-tho",
-    "description": "Thể thơ Nhật Bản cực ngắn, thường 3 dòng với cấu trúc 5-7-5 âm tiết, tập trung vào thiên nhiên và khoảnh khắc hiện tại.",
-    "related": ["thien-nhien"]
+    "classification": "the-tho-truyen-thong",
+    "description": "Thể thơ có nguồn gốc từ Trung Hoa, quy định chặt chẽ về niêm, luật, vần, đối. Thường thấy ở dạng Thất ngôn tứ tuyệt hoặc bát cú. Cấu trúc nghiêm ngặt, ngôn từ hàm súc.",
+    "related": ["banh-troi-nuoc", "qua-deo-ngang", "thu-dieu", "ban-den-choi-nha", "nam-quoc-son-ha", "quyen-iv"]
   },
   {
-    "id": "tieu-thuyet-hien-sinh",
-    "name": "Tiểu thuyết Hiện sinh",
-    "name_en": "Existential Novel",
-    "parent": "van-xuoi",
-    "classification": "khuynh-huong",
-    "description": "Thể loại văn xuôi tập trung vào sự phi lý của cuộc đời, sự tự do và nỗi lo âu của con người.",
-    "related": ["albert-camus"]
+    "id": "tho-tu-do",
+    "name": "Thơ Tự Do",
+    "name_en": "Free Verse",
+    "parent": "thi-ca",
+    "classification": "the-tho-hien-dai",
+    "description": "Thể thơ không bị ràng buộc bởi số chữ, số câu, nhịp điệu hay vần điệu. Cảm xúc tuôn trào theo mạch tự nhiên. Đại diện cho sự phóng khoáng của thi ca hiện đại.",
+    "related": ["tay-tien", "dat-nuoc", "mua-xuan-nho-nho", "sang-thu", "quyen-iv"]
+  },
+  {
+    "id": "tho-moi",
+    "name": "Thơ Mới",
+    "name_en": "New Poetry Movement",
+    "parent": "thi-ca",
+    "classification": "trao-luu-van-hoc",
+    "description": "Phong trào thơ ca Việt Nam giai đoạn 1932-1945, chịu ảnh hưởng của thơ phương Tây. Giải phóng cái tôi cá nhân, khát vọng sống mãnh liệt, ngôn từ tinh tế và giàu hình ảnh.",
+    "related": ["voi-vang", "nho-rung", "day-thon-vi-da", "song", "quyen-ix"]
+  },
+  {
+    "id": "truyen-tho-nom",
+    "name": "Truyện Thơ Nôm",
+    "name_en": "Nom Narrative Poem",
+    "parent": "thi-ca",
+    "classification": "the-loai-dac-thu",
+    "description": "Truyện kể dài bằng thơ, thường dùng thể lục bát hoặc song thất lục bát. Đặc sản của văn học trung đại Việt Nam, phản ánh số phận con người và xã hội phong kiến.",
+    "related": ["truyen-kieu", "luc-van-tien", "quyen-iv"]
+  },
+  {
+    "id": "ngam-khuc",
+    "name": "Ngâm Khúc",
+    "name_en": "Lament",
+    "parent": "thi-ca",
+    "classification": "the-loai-tru-tinh",
+    "description": "Thể thơ trữ tình dài, thường dùng để bộc lộ những nỗi niềm bi tráng, sầu muộn hoặc oán trách. Âm điệu thường da diết, buồn thương.",
+    "related": ["chinh-phu-ngam-khuc", "cung-oan-ngam-khuc"]
   },
   {
     "id": "truyen-ngan",
@@ -41,16 +59,115 @@
     "name_en": "Short Story",
     "parent": "van-xuoi",
     "classification": "the-loai",
-    "description": "Tác phẩm tự sự cỡ nhỏ, thường tập trung vào một sự kiện hoặc một vài nhân vật trong khoảng thời gian ngắn.",
-    "related": ["lao-hac", "chi-pheo"]
+    "description": "Tác phẩm tự sự cỡ nhỏ, thường tập trung vào một sự kiện hoặc một vài nhân vật trong khoảng thời gian ngắn. Cốt truyện thường có nút thắt và mở ra những chiêm nghiệm sâu sắc.",
+    "related": ["lao-hac", "chi-pheo", "vo-nhat", "chiec-luoc-nga", "ben-que", "quyen-iv"]
+  },
+  {
+    "id": "tieu-thuyet",
+    "name": "Tiểu thuyết",
+    "name_en": "Novel",
+    "parent": "van-xuoi",
+    "classification": "the-loai",
+    "description": "Tác phẩm tự sự cỡ lớn, phản ánh bức tranh xã hội rộng lớn với nhiều tuyến nhân vật và sự kiện đan xen. Có khả năng bao quát hiện thực và đi sâu vào thế giới nội tâm.",
+    "related": ["so-do", "tat-den", "toi-ac-va-hinh-phat", "chiến-tranh-va-hoa-binh"]
+  },
+  {
+    "id": "truyen-chuong-hoi",
+    "name": "Truyện Chương Hồi",
+    "name_en": "Chapter Novel",
+    "parent": "van-xuoi",
+    "classification": "the-loai-co-dien",
+    "description": "Thể tiểu thuyết truyền thống của Trung Hoa, mỗi chương thường kết thúc bằng một tình tiết gây tò mò (hồi hộp). Phản ánh lịch sử và tranh đấu quyền lực.",
+    "related": ["tam-quoc-dien-nghia", "tay-du-ky", "hong-lau"]
+  },
+  {
+    "id": "cao-hich",
+    "name": "Cáo - Hịch",
+    "name_en": "Proclamation",
+    "parent": "van-chinh-luan",
+    "classification": "the-loai-chinh-luan",
+    "description": "Thể văn chính luận thời cổ, dùng để tuyên bố, kêu gọi hoặc răn dạy. Ngôn từ hùng hồn, mang tính quốc gia và tinh thần dân tộc sâu sắc.",
+    "related": ["binh-ngo-dai-cao", "hich-tuong-si", "quyen-iv"]
+  },
+  {
+    "id": "but-ky",
+    "name": "Bút Ký",
+    "name_en": "Essay",
+    "parent": "ky-khao-cuu",
+    "classification": "the-loai-ky",
+    "description": "Thể ký ghi chép những sự việc, con người có thật nhưng giàu chất trữ tình. Thể hiện cái tôi cá nhân tinh tế và những rung cảm sâu sắc trước vẻ đẹp của cuộc sống.",
+    "related": ["ai-da-dat-ten-cho-dong-song", "nguoi-lai-do-song-da"]
+  },
+  {
+    "id": "hoi-ky",
+    "name": "Hồi Ký",
+    "name_en": "Memoir",
+    "parent": "ky-khao-cuu",
+    "classification": "the-loai-ky",
+    "description": "Tác phẩm tự sự ghi lại những sự kiện có thật trong quá khứ của chính tác giả. Mang tính xác thực cao, thường chứa đựng những chiêm nghiệm nhân sinh.",
+    "related": ["nhung-ngay-tho-au"]
+  },
+  {
+    "id": "truyen-thuyet",
+    "name": "Truyền Thuyết",
+    "name_en": "Legend",
+    "parent": "van-hoc-dan-gian",
+    "classification": "the-loai-dan-gian",
+    "description": "Truyện dân gian kể về các sự kiện, nhân vật lịch sử có yếu tố thần kỳ. Thể hiện lòng tự hào dân tộc và quan niệm của nhân dân về lịch sử.",
+    "related": ["thanh-giong", "son-tinh-thuy-tinh", "su-tich-dua-hau", "con-rong-chau-tien"]
+  },
+  {
+    "id": "co-tich",
+    "name": "Cổ Tích",
+    "name_en": "Fairy Tale",
+    "parent": "van-hoc-dan-gian",
+    "classification": "the-loai-dan-gian",
+    "description": "Truyện dân gian phản ánh ước mơ về công lý, hạnh phúc của nhân dân. Thường có yếu tố thần kỳ, và cái thiện luôn chiến thắng cái ác.",
+    "related": ["tam-cam", "thach-sanh", "cay-tre-tram-dot", "truyen-cay-khe"]
+  },
+  {
+    "id": "ngu-ngon",
+    "name": "Ngụ Ngôn",
+    "name_en": "Fable",
+    "parent": "van-hoc-dan-gian",
+    "classification": "the-loai-dan-gian",
+    "description": "Câu chuyện ngắn mượn loài vật hoặc sự vật để gửi gắm bài học đạo lý, triết lý nhân sinh. Ngôn từ hàm súc, giàu tính giáo huấn.",
+    "related": ["ech-ngoi-day-gieng", "thay-boi-xem-voi"]
+  },
+  {
+    "id": "ca-dao-tuc-ngu",
+    "name": "Ca Dao - Tục Ngữ",
+    "name_en": "Folk Poetry & Proverbs",
+    "parent": "van-hoc-dan-gian",
+    "classification": "the-loai-dan-gian",
+    "description": "Thể loại trữ tình dân gian, thường viết theo thể lục bát. Diễn tả đời sống tâm tư, tình cảm và kho tàng kinh nghiệm sống của nhân dân lao động.",
+    "related": ["ca-dao-than-than", "ca-dao-tinh-yeu", "tuc-ngu-ve-thien-nhien"]
   },
   {
     "id": "bi-kich",
-    "name": "Bi kịch",
+    "name": "Bi Kịch",
     "name_en": "Tragedy",
     "parent": "kich-san-khau",
     "classification": "the-loai-kich",
-    "description": "Thể loại kịch phản ánh những xung đột gay gắt, kết thúc thường bi thảm, khơi gợi sự thanh lọc cảm xúc.",
-    "related": ["hamlet"]
+    "description": "Thể loại kịch phản ánh những xung đột gay gắt, thường kết thúc bi thảm. Khơi gợi sự thanh lọc cảm xúc và những suy ngẫm sâu sắc về số phận con người.",
+    "related": ["hamlet", "vu-nhu-to"]
+  },
+  {
+    "id": "tho-sonnet",
+    "name": "Thơ Sonnet",
+    "name_en": "Sonnet",
+    "parent": "thi-ca",
+    "classification": "hinh-thuc-tho-quoc-te",
+    "description": "Một hình thức thơ có cấu trúc chặt chẽ, thường gồm 14 dòng, với quy tắc vần và nhịp tùy truyền thống (Ý, Anh). Thể hiện sự tinh tế trong tư duy và cảm xúc.",
+    "related": ["william-shakespeare"]
+  },
+  {
+    "id": "tho-haiku",
+    "name": "Thơ Haiku",
+    "name_en": "Haiku",
+    "parent": "thi-ca",
+    "classification": "hinh-thuc-tho-quoc-te",
+    "description": "Thể thơ Nhật Bản cực ngắn, thường 3 dòng với cấu trúc 5-7-5 âm tiết. Tập trung vào thiên nhiên và khoảnh khắc hiện tại, gợi mở sự tĩnh lặng và chiêm nghiệm.",
+    "related": ["matsuo-basho"]
   }
 ]
