@@ -2,10 +2,10 @@
  * ==========================================================
  * VĂN ĐẠO AI - CORE MODULE (js/ai/core.js)
  * Vị trí: js/ai/core.js
- * Version: 2.0.0 (Offline-First & DataHub Integration)
+ * Version: 3.0.0 (Unified Intelligence Network)
  * ==========================================================
  * CHỨC NĂNG:
- * - Quản lý bộ nhớ đệm (Cache Manager).
+ * - Quản lý bộ nhớ đệm kết quả AI (CoreCache).
  * - Xây dựng chỉ mục từ điển (Dictionary Index).
  * - Xử lý văn bản có trọng số (Weighted Matching).
  * - Cung cấp hằng số dùng chung (Fortune Levels, Dictionary Groups).
@@ -16,14 +16,15 @@
 
 import { APP_DATA, STATE } from '../config.js';
 import { normalizeRouteText } from '../utils.js';
-import { DataHub } from '../network/data-hub.js'; // Kết nối với Trung tâm Dữ liệu
+import { DataHub } from '../network/data-hub.js'; // Kết nối với Trái tim dữ liệu
 
-// ==========================================================
+// =====================================================================
 // PHẦN 1: HẰNG SỐ DÙNG CHUNG
-// ==========================================================
+// =====================================================================
 
 /**
  * Danh sách 11 nhóm từ điển có sẵn trong hệ thống.
+ * Dùng để phân loại khi xây dựng Dictionary Index.
  */
 export const DICTIONARY_GROUPS = Object.freeze({
     symbols:      'Biểu tượng',
@@ -41,6 +42,7 @@ export const DICTIONARY_GROUPS = Object.freeze({
 
 /**
  * 6 bậc vận khí với trọng số và lời khuyên.
+ * Dùng cho tính năng Bói thơ (Fortune Agent).
  */
 export const FORTUNE_LEVELS = Object.freeze([
     { 
@@ -76,14 +78,19 @@ export const FORTUNE_MAP = Object.freeze(
     Object.fromEntries(FORTUNE_LEVELS.map(item => [item.key, item]))
 );
 
-// ==========================================================
-// PHẦN 2: CACHE MANAGER (Quản lý bộ nhớ đệm)
-// ==========================================================
+// =====================================================================
+// PHẦN 2: CACHE MANAGER (Quản lý bộ nhớ đệm kết quả AI)
+// =====================================================================
 const CACHE_LIMIT = 200;
 const resultCache = new Map();
-export const CACHE_VERSION = 'v2.0.0'; // Tăng version khi có thay đổi lớn
+export const CACHE_VERSION = 'v3.0.0'; // Tăng version khi có thay đổi lớn
 
 export const CoreCache = {
+    /**
+     * Lưu kết quả vào cache.
+     * @param {string} key - Khóa cache (thường là hash của câu hỏi)
+     * @param {*} value - Giá trị cần lưu
+     */
     set(key, value) {
         const fullKey = `${CACHE_VERSION}:${key}`;
         if (resultCache.has(fullKey)) resultCache.delete(fullKey);
@@ -93,21 +100,47 @@ export const CoreCache = {
             resultCache.delete(oldest);
         }
     },
+
+    /**
+     * Lấy kết quả từ cache.
+     * @param {string} key 
+     * @returns {*|null}
+     */
     get(key) {
         const fullKey = `${CACHE_VERSION}:${key}`;
         if (!resultCache.has(fullKey)) return null;
-        try { return JSON.parse(JSON.stringify(resultCache.get(fullKey))); } 
-        catch { return null; }
+        try { 
+            return JSON.parse(JSON.stringify(resultCache.get(fullKey))); 
+        } catch { 
+            return null; 
+        }
     },
-    clear() { resultCache.clear(); },
-    stats() { return { size: resultCache.size, limit: CACHE_LIMIT, version: CACHE_VERSION }; }
+
+    /**
+     * Xóa toàn bộ cache.
+     */
+    clear() { 
+        resultCache.clear(); 
+    },
+
+    /**
+     * Lấy thống kê cache (dùng cho debug).
+     */
+    stats() { 
+        return { size: resultCache.size, limit: CACHE_LIMIT, version: CACHE_VERSION }; 
+    }
 };
 
-// ==========================================================
+// =====================================================================
 // PHẦN 3: DICTIONARY INDEX (Tối ưu tra cứu từ điển)
-// ==========================================================
+// =====================================================================
 let dictionaryIndexCache = null;
 
+/**
+ * Xây dựng chỉ mục từ điển từ APP_DATA.DICTIONARY_DATA.
+ * Chuyển đổi cấu trúc lồng nhau thành một mảng phẳng để tra cứu nhanh.
+ * @returns {Array} Mảng các entry đã được chuẩn hóa.
+ */
 export function getDictionaryIndex() {
     if (dictionaryIndexCache) return dictionaryIndexCache;
     
@@ -132,22 +165,29 @@ export function getDictionaryIndex() {
     return dictionaryIndexCache;
 }
 
+/**
+ * Xóa cache từ điển (dùng khi dữ liệu từ điển thay đổi).
+ */
 export function invalidateDictionaryIndex() {
     dictionaryIndexCache = null;
 }
 
-// ==========================================================
+// =====================================================================
 // PHẦN 4: TEXT PROCESSING (Xử lý văn bản)
-// ==========================================================
+// =====================================================================
 
 /**
  * Đếm từ khóa có trọng số, xóa vùng đã đếm để tránh trùng lặp.
+ * @param {string} text - Văn bản đầu vào (đã chuẩn hóa)
+ * @param {Array<{t: string, w: number}>} terms - Mảng các từ khóa và trọng số
+ * @returns {{score: number, hits: string[]}}
  */
 export function countWeightedMatches(text, terms) {
     let remaining = text;
     let score = 0;
     const hits = [];
     
+    // Sắp xếp theo độ dài giảm dần để ưu tiên cụm từ dài
     const sortedTerms = [...terms].sort((a, b) => b.t.length - a.t.length);
 
     for (const item of sortedTerms) {
@@ -169,6 +209,9 @@ export function countWeightedMatches(text, terms) {
 
 /**
  * Trích xuất entity (từ khóa chính) từ câu hỏi.
+ * @param {string} input - Câu hỏi gốc
+ * @param {RegExp[]} patternsToRemove - Mảng các pattern cần loại bỏ
+ * @returns {string} - Chuỗi đã được làm sạch
  */
 export function extractEntity(input, patternsToRemove = []) {
     let clean = input;
@@ -176,9 +219,9 @@ export function extractEntity(input, patternsToRemove = []) {
     return clean.replace(/[?!.]/g, '').trim();
 }
 
-// ==========================================================
+// =====================================================================
 // PHẦN 5: ID RESOLVER (Cầu nối giữa AI và DataHub)
-// ==========================================================
+// =====================================================================
 
 /**
  * [CỰC KỲ QUAN TRỌNG] Lấy dữ liệu chi tiết của một ID bất kỳ.
@@ -194,7 +237,6 @@ export async function resolveAndFetch(id) {
         // 1. Lấy thông tin cơ bản (Metadata) từ DataHub
         const meta = DataHub.getMetadata(id);
         if (!meta) {
-            // Thử tìm qua Search Engine nếu ID không chính xác
             console.warn(`[CORE] Không tìm thấy ID "${id}" trong Metadata.`);
             return null;
         }
@@ -213,22 +255,38 @@ export async function resolveAndFetch(id) {
     }
 }
 
-// ==========================================================
+// =====================================================================
 // PHẦN 6: SAFE DATA ACCESS (Truy xuất dữ liệu an toàn)
-// ==========================================================
+// =====================================================================
+
+/**
+ * Lấy mảng dữ liệu an toàn từ APP_DATA.
+ * @param {string} key - Tên trường trong APP_DATA
+ * @returns {Array}
+ */
 export function safeGetArray(key) {
     const data = APP_DATA[key];
     return Array.isArray(data) ? data : [];
 }
 
+/**
+ * Lấy object dữ liệu an toàn từ APP_DATA.
+ * @param {string} key - Tên trường trong APP_DATA
+ * @returns {Object}
+ */
 export function safeGetObject(key) {
     const data = APP_DATA[key];
     return (data && typeof data === 'object' && !Array.isArray(data)) ? data : {};
 }
 
-// ==========================================================
-// PHẦN 7: DEBUG HELPERS
-// ==========================================================
+// =====================================================================
+// PHẦN 7: DEBUG HELPERS (Công cụ gỡ lỗi)
+// =====================================================================
+
+/**
+ * In ra trạng thái hiện tại của Core AI.
+ * Dùng trong Console: window.debugCore()
+ */
 export function debugCore() {
     const dictIndex = getDictionaryIndex();
     console.log('%c[CORE AI] Trạng thái hiện tại:', 'color: #8bb8a8; font-weight: bold;');
