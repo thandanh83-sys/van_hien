@@ -2,14 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 1.3.3 (Multi-Agent Integration)
+ * Version: 2.0.0 (DataHub Integration & Clean Architecture)
  * ==========================================================
  * CHỨC NĂNG:
- * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
- * - Load dữ liệu từ JSON vào APP_DATA.
- * - Xử lý Thi Pháp Học (Tích hợp Tầng 4: Tán thưởng & Phê bình).
- * - Xử lý Bói Thơ (Tích hợp Fortune + Praise + Critic).
- * - Gắn sự kiện Tìm kiếm (Master AI), Cài đặt (Network/Offline).
+ * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền (Canvas/Sương).
+ * - Nạp dữ liệu vào APP_DATA và xây dựng STATE.GLOBAL_INDEX.
+ * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI).
+ * - Gắn sự kiện Tìm kiếm Hỏi Đạo (Master AI).
+ * - Quản lý Settings (Offline & Network Health).
  * ==========================================================
  */
 
@@ -25,9 +25,8 @@ import {
     filterMainCategory, filterSubGenre, renderEncyclopedia, 
     changePage, findSymbols 
 } from './render.js';
-import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
+import { triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
-// [MULTI-AGENT] Import từ Facade AI (js/ai.js)
 import { 
     AIDispatcher, analyzeWork, calculateFortune, synthesizeDynamicFortune, 
     PraiserAgent, CriticAgent 
@@ -74,27 +73,19 @@ function initWaterCanvas() {
 function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    
-    // Tạo 20 hạt sương nhỏ, sáng, tinh tế
     for (let i = 0; i < 20; i++) {
         const d = document.createElement('div');
         d.className = 'dewdrop';
         const size = Math.random() * 3 + 3; 
         const dur = Math.random() * 20 + 25; 
         const delay = -(Math.random() * dur);
-        
-        d.style.cssText = `
-            width: ${size}px; height: ${size}px;
-            left: ${Math.random() * 100}vw;
-            animation-duration: ${dur}s;
-            animation-delay: ${delay}s;
-        `;
+        d.style.cssText = `width: ${size}px; height: ${size}px; left: ${Math.random() * 100}vw; animation-duration: ${dur}s; animation-delay: ${delay}s;`;
         container.appendChild(d);
     }
 }
 
 // =====================================================================
-// 3. THI PHÁP HỌC (POETRY ANALYZER & AI INTEGRATION)
+// 3. THI PHÁP HỌC (POETRY ANALYZER)
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
@@ -290,7 +281,7 @@ function executePipeline() {
 }
 
 // =====================================================================
-// 4. LOAD DATA & NETWORK
+// 4. LOAD DATA & KHỞI TẠO MẠNG LƯỚI
 // =====================================================================
 async function loadAllData() {
     try {
@@ -328,6 +319,7 @@ async function loadAllData() {
         APP_DATA.FORTUNE_ADVICE = results[7].advice || {};
         APP_DATA.THE_LOAI_DATA = results[8];
 
+        // Xây dựng lại Global Index (Trái tim của DataHub)
         STATE.GLOBAL_INDEX.clear(); 
         STATE.GLOBAL_INDEX_BY_KEY.clear(); 
         STATE.GLOBAL_RECORDS.length = 0;
@@ -351,6 +343,7 @@ async function loadAllData() {
         addToIndex(APP_DATA.WORKS_DATA, 'tinh-hoa');
         addToIndex(APP_DATA.THE_LOAI_DATA, 'the-loai');
 
+        // Kích hoạt mạng lưới (chỉ để hiển thị trạng thái, không bắt buộc)
         await bootstrapNetwork();
 
         initMainFilters();
@@ -393,7 +386,7 @@ function renderRandomQuote() {
 // 5. BÓI THƠ (FATE MODAL) - 4 KHỐI ĐÁNH GIÁ
 // =====================================================================
 function randomPoem() {
-    const validWorks = APP_DATA.WORKS_DATA.filter(work => work && (work.desc || work.description || work.content));
+    const validWorks = APP_DATA.WORKS_DATA.filter(work => work && work.id);
     if (!validWorks.length) return showAlert('Kho tác phẩm chưa có nội dung đủ để tạo gợi ý đọc.', 'Thông báo');
 
     const overlay = document.getElementById('fate-modal-overlay');
@@ -415,7 +408,6 @@ function randomPoem() {
 
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
     
-    // [MULTI-AGENT] Phân tích và Bói toán
     const analysis = analyzeWork(randomWork);
     const fortuneKey = calculateFortune();
     const aiResult = synthesizeDynamicFortune(randomWork, fortuneKey, analysis);
@@ -436,33 +428,23 @@ function randomPoem() {
 
     if (commentaryEl) {
         commentaryEl.innerHTML = `
-            <!-- 1. CÂU DẪN -->
             <div style="margin-bottom:18px; color:var(--accent-text); font-style:italic; line-height:1.8;">
                 ${aiResult.bridgeText}
             </div>
-
-            <!-- 2. LỜI CHIÊM NGHIỆM (Từ Vận Khí) -->
             <div style="margin-bottom:18px; padding:15px; border-radius:10px; background:rgba(139,184,168,0.07);">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-weight:700; color:${fortuneInfo.color}; text-transform:uppercase; font-size:0.8rem;">✦ Lời chiêm nghiệm</div>
                 <p style="margin:0; line-height:1.8;">${aiResult.fortuneReflection}</p>
             </div>
-
-            <!-- 3. TÁN THƯỞNG & PHÊ BÌNH (Từ Praiser & Critic) -->
             <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                <!-- Khối Tán Thưởng -->
                 <div style="background: rgba(139, 184, 168, 0.05); padding: 12px 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
                     <div style="font-weight:700; color: var(--accent-text); margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">✦ Góc Nhìn Tán Thưởng</div>
                     <p style="margin:0; line-height:1.6; font-size:0.95rem;">${aiResult.praiseCommentary}</p>
                 </div>
-
-                <!-- Khối Phê Bình -->
                 <div style="background: rgba(163, 107, 107, 0.05); padding: 12px 15px; border-radius: 8px; border-left: 3px solid #a36b6b;">
                     <div style="font-weight:700; color: #a36b6b; margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">✦ Góc Nhìn Phê Bình</div>
                     <p style="margin:0; line-height:1.6; font-size:0.95rem;">${aiResult.criticCommentary}</p>
                 </div>
             </div>
-
-            <!-- 4. LỜI KHUYÊN (Nên / Tránh) -->
             <div style="background:rgba(139,184,168,0.05); padding:15px; border-radius:8px; border-left:3px solid ${fortuneInfo.color}; font-size:0.95rem; line-height:1.7;">
                 <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên (Nên / Tránh)</div>
                 ${aiResult.adviceHtml}
@@ -486,7 +468,7 @@ function randomPoem() {
 }
 
 // =====================================================================
-// 6. MẠNG LƯỚI TRI THỨC (NETWORK STATUS)
+// 6. MẠNG LƯỚI TRI THỨC (NETWORK STATUS) - Chỉ để hiển thị
 // =====================================================================
 async function refreshNetworkStatus(forceRefresh = false) {
     const dotsEl = document.getElementById('network-dots');
@@ -567,7 +549,6 @@ window.clearSearch = function() {
     input.value = ''; 
     if (clearBtn) clearBtn.classList.remove('show'); 
     
-    // Reset trạng thái tìm kiếm
     import('./ask-dao.js').then(m => {
         m.resetSearchState({
             inputId: 'encyclopedia-search',
@@ -605,8 +586,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     await new Promise(r => setTimeout(r, 800));
     if (status) status.textContent = "Đang kết nối tri thức...";
     const t0 = Date.now();
-    try { await loadAllData(); }
-    catch (e) { console.error(e); if (status) status.textContent = "Kết nối yếu..."; await new Promise(r => setTimeout(r, 1000)); }
+    try { 
+        await loadAllData(); 
+    } catch (e) { 
+        console.error(e); 
+        if (status) status.textContent = "Kết nối yếu..."; 
+        await new Promise(r => setTimeout(r, 1000)); 
+    }
 
     if (APP_DATA.QUOTES_DATA.length && qc && qt) {
         const q = APP_DATA.QUOTES_DATA[Math.floor(Math.random() * APP_DATA.QUOTES_DATA.length)];
