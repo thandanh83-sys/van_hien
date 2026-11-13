@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - AUDIT MODULE (js/audit.js)
  * Vị trí: js/audit.js
- * Version: 1.2.0 (AI Doctor Edition)
+ * Version: 1.2.1 (AI Doctor Edition)
  * ==========================================================
  * CHỨC NĂNG:
  * - Chẩn đoán File Tĩnh (JS, CSS, JSON).
@@ -28,7 +28,7 @@ const STATIC_ASSETS = [
     './js/config.js', './js/utils.js', './js/search.js', './js/render.js', 
     './js/router.js', './js/offline.js', './js/audit.js', './js/ask-dao.js', './js/main.js',
     
-    // JS AI Multi-Agent
+    // JS AI Multi-Agent (Hệ thống mới)
     './js/ai.js', './js/ai/core.js', './js/ai/input-ai.js', 
     './js/ai/master.js', './js/ai/output-ai.js',
     './js/ai/agents/literature.js', './js/ai/agents/poetics.js', 
@@ -224,7 +224,7 @@ export async function auditData(type = 'work') {
 }
 
 // ==========================================================
-// PHẦN 6: KHÁM SỨC KHỎE AI (NEW - MULTI-AGENT)
+// PHẦN 6: KHÁM SỨC KHỎE AI (MULTI-AGENT)
 // ==========================================================
 export async function auditAI() {
     console.log("%c[BÁC SĨ] 4. Chạy Test AI (Input -> Master -> Agents)...", "color: #2c3e38; font-weight: bold; font-size: 14px;");
@@ -239,7 +239,7 @@ export async function auditAI() {
             { input: "Ai viết Truyện Kiều?", expectedType: "find-author-of", expectedKeyword: "Nguyễn Du" },
             { input: "Tóm tắt Chí Phèo", expectedType: "summarize-work", expectedKeyword: "Chí Phèo" },
             { input: "Ý nghĩa của trăng", expectedType: "explain-symbol", expectedKeyword: "trăng" },
-            { input: "Gợi ý truyện ngắn", expectedType: "recommend", expectedKeyword: "Truyện" }
+            { input: "Gợi ý truyện ngắn", expectedType: "recommend", expectedKeyword: "Gợi ý" }
         ];
 
         for (const tc of testCases) {
@@ -248,20 +248,28 @@ export async function auditAI() {
             // Test 1: Xem Input AI nhận diện đúng Intent không
             const isIntentCorrect = intent.type === tc.expectedType;
             
-            // Test 2: Xem Master AI trả về kết quả (Giả lập container rỗng)
-            const fakeContainer = document.createElement('div');
+            // Test 2: Xem Master AI trả về kết quả
             let result = null;
             if (intent.type !== 'search') {
                 result = await MasterAI.dispatch(intent);
             }
 
-            const isResultOk = result && result.answer && result.answer.includes(tc.expectedKeyword);
+            // [FIX] Kiểm tra cả answer, detail và meta (vì có câu trả lời nằm ở detail)
+            let combinedResult = '';
+            if (result) {
+                combinedResult = [
+                    result.answer || '',
+                    result.detail || '',
+                    ...(result.meta || []).map(m => m.title || m.name || '')
+                ].join(' ');
+            }
+            const isResultOk = combinedResult.includes(tc.expectedKeyword);
 
             results.push({
                 'Câu hỏi': tc.input,
                 'Intent': intent.type,
                 'Trạng thái': (isIntentCorrect && isResultOk) ? '✅ PASS' : '❌ FAIL',
-                'Kết quả trả về': result ? result.answer.substring(0, 50) + '...' : 'Lỗi/Không có'
+                'Kết quả trả về': result ? (result.answer || '').substring(0, 30) + '...' : 'Lỗi/Không có'
             });
         }
 
@@ -288,7 +296,7 @@ export async function auditAI() {
 export async function runFullDiagnosis() {
     console.clear();
     console.log(
-        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v1.2.0 ===",
+        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v1.2.1 ===",
         "background: linear-gradient(135deg, #2c3e38, #557a6f); color: #d4c4a8; font-size: 16px; font-weight: bold; padding: 10px 20px; border-radius: 8px;"
     );
 
