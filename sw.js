@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO SERVICE WORKER (VERSION 1.0.0 - NETWORK EDITION)
+   VĂN ĐẠO SERVICE WORKER (VERSION 1.2.0 - MULTI-AGENT AI)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -10,14 +10,14 @@
    2. Sự tĩnh tại (No Auto-Skip): TUYỆT ĐỐI KHÔNG gọi skipWaiting() trong 
       install. SW mới phải chờ người dùng xác nhận (qua banner).
    3. Smart Offline: Hỗ trợ tải theo lô (Batch Download) cho Tủ Sách Offline.
-   4. Network Ready: Cache toàn bộ Manifests của Máy Mẹ và Máy Con.
+   4. AI Ready: Cache toàn bộ hệ thống Multi-Agent (Input, Master, Output, Agents).
    ===================================================================== */
 
 // =====================================================================
 // I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
 // ĐỔI VERSION NÀY MỖI KHI BẠN CẬP NHẬT CODE ĐỂ XÓA CACHE CŨ
-const CACHE_VERSION = 'v1.0.1';
+const CACHE_VERSION = 'v1.2.0';
 
 const STATIC_CACHE  = `vandao-static-${CACHE_VERSION}`;
 const HTML_CACHE    = `vandao-html-${CACHE_VERSION}`;
@@ -29,7 +29,7 @@ const NETWORK_TIMEOUT = 4000;
 
 // =====================================================================
 // II. DANH SÁCH "APP SHELL" - NHỮNG FILE TỐI QUAN TRỌNG
-// Cập nhật chính xác 100% theo cấu trúc thư mục v1.0.0
+// Cập nhật chính xác 100% theo cấu trúc thư mục v1.2.0
 // =====================================================================
 const PRECACHE_ASSETS = [
     './',
@@ -43,19 +43,29 @@ const PRECACHE_ASSETS = [
     './css/layouts.css',
     './css/reader.css',
     
-    // --- Toàn bộ JS Core ---
+    // --- JS Core (Hệ thống chính) ---
     './js/config.js',
     './js/utils.js',
     './js/search.js',
     './js/render.js',
     './js/router.js',
     './js/offline.js',
-    './js/ai.js',
     './js/audit.js',
     './js/ask-dao.js',
     './js/main.js',
     
-    // --- Toàn bộ JS Network (Máy Mẹ & Máy Con) ---
+    // --- JS Multi-Agent AI (Hệ thống AI mới) ---
+    './js/ai.js',                   // File Facade (Cổng giao tiếp)
+    './js/ai/core.js',              // Hạ tầng dùng chung
+    './js/ai/input-ai.js',          // Nhận diện câu hỏi
+    './js/ai/master.js',            // Điều phối trung tâm
+    './js/ai/output-ai.js',         // Định dạng câu trả lời
+    './js/ai/agents/literature.js', // Agent Văn học
+    './js/ai/agents/poetics.js',    // Agent Thi pháp
+    './js/ai/agents/analysis.js',   // Agent Phân tích
+    './js/ai/agents/fortune-ai.js', // Agent Bói thơ
+    
+    // --- JS Network ---
     './js/network/mother.js',
     './js/network/bus.js',
     './js/network/index.js',
