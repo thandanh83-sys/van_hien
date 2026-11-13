@@ -2,7 +2,12 @@
  * ==========================================================
  * VĂN ĐẠO AI ENGINE (js/ai.js)
  * Vị trí: js/ai.js
- * Version: 1.0.8 (Extended Intents)
+ * Version: 1.0.10 (Smart Intent Detection)
+ * ==========================================================
+ * CHỨC NĂNG:
+ * - Phân tích văn bản, chấm điểm chủ đề.
+ * - Tính vận khí, tổng hợp lời bình (Bói thơ).
+ * - AIDispatcher: Nhận diện câu hỏi tự nhiên (Hỏi Đạo).
  * ==========================================================
  */
 
@@ -43,7 +48,7 @@ const THEME_RULES = [
 const FALLBACK_COMMENTARY = 'Tác phẩm cần được đọc từ những chi tiết cụ thể: hình ảnh nổi bật, giọng điệu, cách tổ chức câu chữ và mối liên hệ giữa các phần.';
 
 // ==========================================================
-// PHẦN 3: FORTUNE LEVELS (6 bậc vận khí)
+// PHẦN 3: FORTUNE LEVELS
 // ==========================================================
 const FORTUNE_LEVELS = [
     { key: 'dai-cat', weight: 10, name: 'Đại cát', color: '#b89552', advice: 'Chủ động nắm bắt cơ hội, lấy lòng nhân hậu và sự khiêm nhường làm gốc. Tránh kiêu ngạo, tự mãn hoặc xem thuận lợi nhất thời là điều hiển nhiên.' },
@@ -77,14 +82,7 @@ function countMatches(text, terms) {
 }
 
 function getWorkText(work = {}) {
-    return [
-        work.title,
-        work.author,
-        work.desc,
-        work.description,
-        work.content,
-        work.excerpt
-    ].filter(Boolean).join('\n');
+    return [work.title, work.author, work.desc, work.description, work.content, work.excerpt].filter(Boolean).join('\n');
 }
 
 function selectThemes(text) {
@@ -98,15 +96,9 @@ function selectThemes(text) {
 function getSymbolEvidence(text) {
     try {
         return findSymbols(text).slice(0, 4).map(symbol => ({
-            keyword: symbol.keyword,
-            type: symbol.type,
-            meaning: symbol.mean || '',
-            volume: symbol.vol || '',
-            section: symbol.sec || ''
+            keyword: symbol.keyword, type: symbol.type, meaning: symbol.mean || '', volume: symbol.vol || '', section: symbol.sec || ''
         }));
-    } catch (error) {
-        return [];
-    }
+    } catch (error) { return []; }
 }
 
 // ==========================================================
@@ -152,13 +144,7 @@ export function calculateFortune() {
 export function getFortuneInfo(key = 'binh-hoa') {
     const fallback = FORTUNE_FALLBACK[key] || FORTUNE_FALLBACK['binh-hoa'];
     const saved = APP_DATA.FORTUNE_CONFIG?.[key] || {};
-    return {
-        ...fallback,
-        ...saved,
-        key,
-        name: saved.name || fallback.name,
-        color: saved.color || fallback.color
-    };
+    return { ...fallback, ...saved, key, name: saved.name || fallback.name, color: saved.color || fallback.color };
 }
 
 // ==========================================================
@@ -171,7 +157,6 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa') {
     const title = work.title || 'trang sách';
     const author = work.author || 'tác giả';
     const mainTheme = analysis.themes.length > 0 ? analysis.themes[0] : 'nhân sinh';
-
     const mainSymbol = analysis.evidence.symbols.length > 0 ? `"${analysis.evidence.symbols[0].keyword}"` : null;
 
     let bridgeText = `Duyên lành đưa bạn đến với "${title}" của ${author} trong một ngày vận khí ${fortune.name.toLowerCase()}. `;
@@ -200,12 +185,7 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa') {
     if (nenText) adviceHtml += `<div style="margin-bottom:8px;"><strong style="color:var(--accent-text);">Nên:</strong> <span style="color:var(--text-main);">${escapeHTML(nenText)}</span></div>`;
     if (tranhText) adviceHtml += `<div style="margin-bottom:10px;"><strong style="color:#a36b6b;">Tránh:</strong> <span style="color:var(--text-muted);">${escapeHTML(tranhText)}</span></div>`;
     
-    adviceHtml += `
-        <div style="border-top:1px dashed rgba(128,128,128,0.2); padding-top:10px; margin-top:10px;">
-            <strong style="color:var(--accent-text);">Gợi ý đọc:</strong>
-            <span style="color:var(--text-main);">${escapeHTML(dynamicAdvice)}</span>
-        </div>
-    `;
+    adviceHtml += `<div style="border-top:1px dashed rgba(128,128,128,0.2); padding-top:10px; margin-top:10px;"><strong style="color:var(--accent-text);">Gợi ý đọc:</strong> <span style="color:var(--text-main);">${escapeHTML(dynamicAdvice)}</span></div>`;
 
     const commentaryData = APP_DATA.COMMENTARY_DATA?.[fortuneKey] || {};
     const commentaries = Array.isArray(commentaryData.commentaries) ? commentaryData.commentaries : [];
@@ -223,28 +203,36 @@ export const AIDispatcher = (() => {
         const t = (input || '').toLowerCase().trim();
         if (!t) return { type: 'empty', query: '' };
 
+        // 1. Tóm tắt
         if (/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì)/i.test(t)) {
             return { type: 'summarize-work', query: extractTitle(t.replace(/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì)/gi, '')) };
         }
 
+        // 2. Biểu tượng / Điển tích
         if (/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của)/i.test(t)) {
             const keyword = t.replace(/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của|là gì|có ý nghĩa gì|trong thơ)/gi, '').trim();
             return { type: 'explain-symbol', query: keyword };
         }
 
+        // 3. Gợi ý đọc
         if (/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc)/i.test(t)) {
             const genre = t.replace(/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc|cho tôi|về)/gi, '').trim();
             return { type: 'recommend', query: genre };
         }
 
+        // 4. Thể loại là gì
         if (/(thể loại|định nghĩa|khái niệm).*(là gì|như thế nào)/i.test(t)) {
             return { type: 'define-genre', query: extractGenre(t) };
         }
 
-        if (/(ai|tác giả).*(viết|sáng tác|của bài|của tác phẩm)/i.test(t)) {
-            return { type: 'find-author-of', query: extractTitle(t) };
+        // 5. Tác giả (Đã nâng cấp Regex bắt câu hỏi tự nhiên)
+        if (/(ai|tác giả|người nào)\s+(là|viết|sáng tác|đặt tên|tạo ra|của bài|của tác phẩm)/i.test(t)) {
+            // Cắt bỏ các từ để hỏi để lấy lại từ khóa tìm kiếm (VD: "đặt tên cho dòng sông")
+            const q = extractTitle(t.replace(/(ai là|ai viết|tác giả|người nào|đặt tên cho|viết|sáng tác|là người)/gi, ''));
+            return { type: 'find-author-of', query: q };
         }
 
+        // 6. Trạng thái mạng
         if (/(trạng thái|mạng|node|máy con|máy mẹ)/i.test(t)) {
             return { type: 'network-info', query: t };
         }
@@ -258,10 +246,8 @@ export const AIDispatcher = (() => {
                 case 'summarize-work': {
                     const resp = await MotherNode.request({ group: 'tinh-hoa' });
                     const work = (resp.records || []).find(w => w.title && w.title.toLowerCase().includes(intent.query.toLowerCase()));
-                    if (work) {
-                        return { answer: work.desc || work.description || 'Tác phẩm này chưa có tóm tắt.', detail: `Tác phẩm: "${work.title}" của ${work.author}`, source: resp.source, meta: [work] };
-                    }
-                    return { answer: 'Không tìm thấy tác phẩm này.', source: resp.source };
+                    if (work) return { answer: work.desc || work.description || 'Tác phẩm này chưa có tóm tắt.', detail: `Tác phẩm: "${work.title}" của ${work.author}`, source: resp.source, meta: [work] };
+                    return { answer: `Không tìm thấy tác phẩm "${intent.query}".`, source: resp.source };
                 }
 
                 case 'explain-symbol': {
@@ -285,17 +271,27 @@ export const AIDispatcher = (() => {
                     }
                     works.sort(() => 0.5 - Math.random());
                     const selected = works.slice(0, 4);
-                    if (selected.length > 0) {
-                        return { answer: `Gợi ý cho bạn: ${selected.map(w => w.title).join(' · ')}`, detail: 'Dựa trên sở thích của bạn', source: resp.source, meta: selected };
-                    }
+                    if (selected.length > 0) return { answer: `Gợi ý cho bạn: ${selected.map(w => w.title).join(' · ')}`, detail: 'Dựa trên sở thích của bạn', source: resp.source, meta: selected };
                     return { answer: 'Rất tiếc, chưa có tác phẩm nào phù hợp.', source: resp.source };
                 }
 
                 case 'find-author-of': {
-                    const resp = await MotherNode.request({ group: 'tinh-hoa' });
-                    const work = (resp.records || []).find(w => w.title && w.title.toLowerCase().includes(intent.query.toLowerCase()));
-                    if (work) return { answer: `${work.author || 'Không rõ tác giả'}`, detail: `Tác phẩm: "${work.title}"`, source: resp.source, meta: [work] };
-                    return { answer: 'Không tìm thấy tác phẩm này.', source: resp.source };
+                    // Dùng VDSearchEngine để tìm kiếm mờ (Fuzzy Search) thay vì tìm chính xác tuyệt đối
+                    const results = VDSearchEngine.search(intent.query);
+                    const topResult = results.find(r => r.group === 'tinh-hoa');
+                    
+                    if (topResult) {
+                        const work = APP_DATA.WORKS_DATA.find(w => w.id === topResult.id);
+                        if (work) {
+                            return { 
+                                answer: `Tác giả là: ${work.author || 'Không rõ'}`, 
+                                detail: `Tác phẩm: "${work.title}"`, 
+                                source: 'search-engine', 
+                                meta: [work] 
+                            };
+                        }
+                    }
+                    return { answer: `Không tìm thấy tác phẩm nào khớp với "${intent.query}".`, source: 'search-engine' };
                 }
 
                 case 'define-genre': {
@@ -329,14 +325,15 @@ export const AIDispatcher = (() => {
                 }
             }
         } catch (err) {
-            return { answer: `Lỗi kết nối tri thức: ${err.message}`, source: 'error', detail: 'Có thể mạng lưới đang bận, hãy thử lại.' };
+            return { answer: `Lỗi kết nối tri thức: ${err.message}`, source: 'error', detail: 'Có thể mạng lưới đang bận.' };
         }
     }
 
     function extractTitle(t) {
         const m = t.match(/["“]([^"”]+)["”]/);
         if (m) return m[1];
-        return t.replace(/^(ai|tác giả|viết|sáng tác|của bài|của tác phẩm|của)\s+/gi, '').trim();
+        // Cắt bỏ các từ để hỏi thông dụng để lấy lại từ khóa chính
+        return t.replace(/^(của bài|của tác phẩm|của|viết về|bài)\s+/gi, '').trim();
     }
     function extractGenre(t) {
         return t.replace(/thể loại|là gì|như thế nào|định nghĩa|khái niệm/gi, '').trim();
