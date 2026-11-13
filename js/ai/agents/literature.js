@@ -39,22 +39,11 @@ export const LiteratureAgent = {
         return { answer: `Không tìm thấy tác phẩm "${title}".`, source: 'local-data' };
     },
 
-    async getWorkInfo(title) {
-        const results = VDSearchEngine.search(title);
-        const top = results.find(r => r.group === 'tinh-hoa');
-        if (top) {
-            const work = APP_DATA.WORKS_DATA.find(w => w.id === top.id);
-            if (work) return { ok: true, data: work };
-        }
-        return { ok: false, answer: `Không tìm thấy tác phẩm "${title}".`, source: 'local-data' };
-    },
-
     async recommend(genre) {
         let works = APP_DATA.WORKS_DATA || [];
         if (genre) {
             works = works.filter(w => (w.the_loai && w.the_loai.join(' ').toLowerCase().includes(genre)));
         }
-        // Fisher-Yates shuffle
         for (let i = works.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [works[i], works[j]] = [works[j], works[i]];
