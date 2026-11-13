@@ -1,111 +1,89 @@
 /**
  * ==========================================================
  * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
- * Vị trí: js/ai/master.js
- * Version: 1.2.0 (Orchestrator & I/O)
- * ==========================================================
- * CHỨC NĂNG:
- * - Input Module: Nhận và chuẩn hóa câu hỏi (Intent Parser).
- * - Orchestrator: Điều phối (Dispatch) tới các Agent chuyên môn.
- * - Output Module: Tổng hợp kết quả trả về cho UI.
+ * Chức năng: Điều phối toàn bộ hệ thống Agent
  * ==========================================================
  */
 
-import { extractEntity } from './core.js';
+import { InputAI } from './input-ai.js';
+import { OutputAI } from './output-ai.js';
 import { LiteratureAgent } from './agents/literature.js';
 import { PoeticsAgent } from './agents/poetics.js';
+import { AnalysisAgent } from './agents/analysis.js';
+import { FortuneAgent } from './agents/fortune.js';
 
-// ==========================================================
-// 1. INPUT MODULE (Phân tích câu hỏi)
-// ==========================================================
-function parseIntent(input) {
-    const t = (input || '').toLowerCase().trim();
-    if (!t) return { type: 'empty', query: '' };
-
-    // Cắt bỏ từ đệm
-    let clean = t.replace(/^(hãy|giúp tôi|cho tôi biết|cho mình hỏi|xin hỏi|làm ơn)\s+/i, '');
-
-    // 1. Tóm tắt
-    if (/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì)/i.test(clean)) {
-        const q = extractEntity(clean, [/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì|tác phẩm|bài thơ|bài|của)/gi]);
-        return { type: 'summarize-work', query: q };
-    }
-
-    // 2. Tác giả
-    if (/(ai|tác giả|người nào)\s+(là|viết|sáng tác|đặt tên|tạo ra|của bài|của tác phẩm)/i.test(clean)) {
-        const q = extractEntity(clean, [/(ai là|ai viết|tác giả|người nào|đặt tên cho|viết|sáng tác|là người|của bài|của tác phẩm|của)/gi]);
-        return { type: 'find-author-of', query: q };
-    }
-
-    // 3. Biểu tượng / Điển tích
-    if (/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của)/i.test(clean)) {
-        const keyword = extractEntity(clean, [/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của|là gì|có ý nghĩa gì|trong thơ|của từ|từ)/gi]);
-        if (!keyword) return { type: 'search', query: clean }; 
-        return { type: 'explain-symbol', query: keyword };
-    }
-
-    // 4. Gợi ý đọc
-    if (/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc)/i.test(clean)) {
-        const genre = extractEntity(clean, [/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc|cho tôi|về|những|tác phẩm|các)/gi]);
-        return { type: 'recommend', query: genre };
-    }
-
-    // 5. Thể loại là gì
-    if (/(thể loại|định nghĩa|khái niệm).*(là gì|như thế nào)/i.test(clean)) {
-        const genre = extractEntity(clean, [/thể loại|là gì|như thế nào|định nghĩa|khái niệm/gi]);
-        return { type: 'define-genre', query: genre };
-    }
-
-    return { type: 'search', query: input.trim() };
-}
-
-// ==========================================================
-// 2. ORCHESTRATOR (Điều phối Agent)
-// ==========================================================
-async function dispatch(intent) {
-    try {
-        switch (intent.type) {
-            case 'summarize-work':
-                return await LiteratureAgent.summarize(intent.query);
-
-            case 'find-author-of':
-                return await LiteratureAgent.findAuthor(intent.query);
-
-            case 'explain-symbol':
-                return await PoeticsAgent.explainSymbol(intent.query);
-
-            case 'recommend':
-                return await LiteratureAgent.recommend(intent.query);
-
-            case 'define-genre':
-                return await LiteratureAgent.defineGenre(intent.query);
-
-            case 'empty':
-                return { answer: 'Vui lòng nhập câu hỏi.', source: 'system' };
-
-            case 'search':
-            default:
-                return await LiteratureAgent.search(intent.query);
-        }
-    } catch (err) {
-        console.error('[MASTER AI] Lỗi:', err);
-        return { answer: 'Đã xảy ra lỗi khi xử lý câu hỏi.', source: 'error' };
-    }
-}
-
-// ==========================================================
-// 3. EXPORT PUBLIC API (Tương thích với ask-dao.js)
-// ==========================================================
 export const MasterAI = {
-    parseIntent,
-    dispatch,
-    
-    // Hàm tiện ích cho UI gọi trực tiếp
-    async ask(query) {
-        const intent = this.parseIntent(query);
-        return await this.dispatch(intent);
+    /**
+     * Hàm xử lý chính (Giao tiếp với UI)
+     */
+    async processQuery(inputElement, container) {
+        const text = inputElement.value.trim();
+        if (!text) return;
+
+        // 1. INPUT: Nhận diện ý định
+        const intent = InputAI.parseIntent(text);
+
+        // Nếu là tìm kiếm thông thường, Master nhường quyền lại cho UI
+        if (intent.type === 'search') {
+            return { type: 'search', query: intent.query };
+        }
+
+        // 2. HIỂN THỊ LOADING
+        OutputAI.renderLoading(container);
+
+        // 3. ORCHESTRATE: Điều phối Agent
+        let result = null;
+        try {
+            switch (intent.type) {
+                case 'summarize-work':
+                    result = await LiteratureAgent.summarize(intent.query);
+                    break;
+
+                case 'find-author-of':
+                    result = await LiteratureAgent.findAuthor(intent.query);
+                    break;
+
+                case 'explain-symbol':
+                    result = await PoeticsAgent.explainSymbol(intent.query);
+                    break;
+
+                case 'recommend':
+                    result = await LiteratureAgent.recommend(intent.query);
+                    break;
+
+                case 'define-genre':
+                    result = await LiteratureAgent.defineGenre(intent.query);
+                    break;
+
+                case 'analyze-work':
+                    // Gọi LiteratureAgent lấy dữ liệu thô, sau đó đưa cho AnalysisAgent
+                    const workInfo = await LiteratureAgent.getWorkInfo(intent.query);
+                    if (workInfo.ok) {
+                        const analysis = await AnalysisAgent.analyze(workInfo.data);
+                        result = { ...analysis, meta: [workInfo.data] };
+                    } else {
+                        result = workInfo;
+                    }
+                    break;
+
+                case 'fortune':
+                    result = { answer: 'Vui lòng sử dụng nút "Một bài thơ" ở Trang Chủ để gieo quẻ.', source: 'master' };
+                    break;
+
+                default:
+                    result = { answer: 'Tôi chưa hiểu ý bạn.', source: 'master' };
+            }
+        } catch (err) {
+            console.error('[MASTER AI]', err);
+            OutputAI.renderError(container, err.message);
+            return { type: 'error' };
+        }
+
+        // 4. OUTPUT: Phân phối câu trả lời
+        OutputAI.render(container, result, text);
+        return { type: 'answered' };
     }
 };
 
-// Tương thích ngược với code cũ đang gọi AIDispatcher
+// Xuất bí danh để tương thích với code cũ nếu chưa muốn đổi
 export const AIDispatcher = MasterAI;
