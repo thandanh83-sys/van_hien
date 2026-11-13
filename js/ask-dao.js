@@ -1,25 +1,32 @@
 /**
  * ==========================================================
- * VĂN ĐẠO - HỎI ĐẠO UI (js/ask-dao.js)
+ * VĂN ĐẠO - HỎI ĐẠO UI CONTROLLER (js/ask-dao.js)
  * Vị trí: js/ask-dao.js
- * Version: 1.1.0 (Smart Search Integration)
+ * Version: 1.2.0 (Multi-Agent Interface)
  * ==========================================================
  * CHỨC NĂNG:
- * - Hợp nhất logic Tra Cứu và Hỏi Đạo.
- * - Tự động phát hiện ý định để gọi AI hoặc Tìm kiếm.
- * - Render câu trả lời của AI (Ask Result) với UI tinh tế.
+ * - Lắng nghe sự kiện từ người dùng (Enter hoặc Click).
+ * - Chuyển giao câu hỏi cho Master AI xử lý.
+ * - Điều khiển trạng thái UI (Ẩn/Hiện thanh Filter, Phân trang)
+ *   tùy thuộc vào việc Master AI trả về kết quả Tìm kiếm hay Câu trả lời.
  * ==========================================================
  */
 
-import { AIDispatcher } from './ai.js';
-import { escapeHTML } from './utils.js';
+import { MasterAI } from './ai/master.js';
 
 /**
  * Hàm xử lý hợp nhất: Tự động phát hiện Tra cứu hay Hỏi Đạo
+ * 
  * @param {Object} options - Cấu hình cho từng view (Văn Hiến hoặc Bách Khoa)
+ * @param {string} options.inputId - ID ô tìm kiếm
+ * @param {string} options.containerId - ID khung chứa kết quả
+ * @param {string} options.filterBarId - ID thanh lọc (để ẩn/hiện)
+ * @param {string} options.paginationId - ID khung phân trang (để ẩn/hiện)
+ * @param {Function} options.fallbackRenderFn - Hàm render danh sách mặc định nếu là tìm kiếm
  */
 export async function handleSmartSearch(options) {
     const { inputId, containerId, filterBarId, paginationId, fallbackRenderFn } = options;
+    
     const input = document.getElementById(inputId);
     const container = document.getElementById(containerId);
     if (!input || !container) return;
@@ -35,118 +42,60 @@ export async function handleSmartSearch(options) {
     const filterBar = document.getElementById(filterBarId);
     const pagination = document.getElementById(paginationId);
 
-    // Hiển thị trạng thái chờ
-    if (filterBar) filterBar.style.display = 'none';
-    if (pagination) pagination.style.display = 'none';
-    
-    container.innerHTML = `
-        <div class="ask-loading">
-            <div class="spinner"></div>
-            <p>Đang kết nối tri thức...</p>
-        </div>
-    `;
-
     try {
-        // 1. Phân tích ý định người dùng
-        const intent = AIDispatcher.parseIntent(text);
-        
-        // 2. Nếu là tìm kiếm thông thường hoặc rỗng -> Chuyển về Search Engine
-        if (intent.type === 'search' || intent.type === 'empty') {
+        // Giao phó toàn bộ cho Master AI (Input -> Agents -> Output)
+        // Master AI sẽ tự động hiển thị Loading và render kết quả vào container
+        const resultType = await MasterAI.processQuery(input, container);
+
+        // ĐIỀU KHIỂN UI DỰA TRÊN KẾT QUẢ
+        if (resultType && resultType.type === 'search') {
+            // Nếu là Tìm kiếm thông thường -> Hiện lại bộ lọc và phân trang
             if (filterBar) filterBar.style.display = 'flex';
             if (pagination) pagination.style.display = 'flex';
+            
+            // Gọi hàm render danh sách (từ render.js)
             if (fallbackRenderFn) fallbackRenderFn();
-            return;
+        } else {
+            // Nếu là câu hỏi (Hỏi Đạo) -> Ẩn bộ lọc và phân trang để có không gian rộng rãi
+            if (filterBar) filterBar.style.display = 'none';
+            if (pagination) pagination.style.display = 'none';
         }
 
-        // 3. Nếu là câu hỏi chuyên sâu -> Gọi AI Dispatcher
-        const result = await AIDispatcher.dispatch(intent);
-        renderAnswer(container, result, text);
-
     } catch (err) {
-        console.error('[SMART SEARCH] Lỗi:', err);
-        container.innerHTML = `<div class="ask-result ask-error"><div class="ask-answer">Đã xảy ra lỗi: ${escapeHTML(err.message)}</div></div>`;
+        console.error('[SMART SEARCH UI] Lỗi:', err);
+        // Nếu có lỗi xảy ra ở tầng UI (không phải tầng AI), hiển thị thông báo an toàn
+        container.innerHTML = `
+            <div class="ask-result ask-error">
+                <div class="ask-answer">Đã xảy ra lỗi giao diện: ${err.message}</div>
+            </div>
+        `;
     }
 }
 
 /**
  * Khôi phục giao diện tìm kiếm mặc định khi người dùng xóa chữ
+ * (Hoặc khi bấm nút X)
  */
 export function resetSearchState(options) {
     const { inputId, filterBarId, paginationId, fallbackRenderFn } = options;
     const input = document.getElementById(inputId);
-    const clearBtn = document.getElementById('clear-search-btn');
+    const clearBtn = document.getElementById('clear-search-btn'); // Dùng chung nút X
     
-    if (input) { input.value = ''; input.focus(); }
+    // 1. Reset ô input
+    if (input) { 
+        input.value = ''; 
+        input.focus(); 
+    }
+    
+    // 2. Ẩn nút X
     if (clearBtn) clearBtn.classList.remove('show');
 
+    // 3. Hiện lại bộ lọc và phân trang
     const filterBar = document.getElementById(filterBarId);
     const pagination = document.getElementById(paginationId);
     if (filterBar) filterBar.style.display = 'flex';
     if (pagination) pagination.style.display = 'flex';
     
+    // 4. Render lại danh sách mặc định
     if (fallbackRenderFn) fallbackRenderFn();
-}
-
-/**
- * Render câu trả lời của AI ra giao diện
- */
-function renderAnswer(container, result, query) {
-    let metaList = '';
-
-    // Tạo danh sách các nút liên kết (Meta items) nếu có
-    if (result.meta && Array.isArray(result.meta)) {
-        const validMetas = result.meta.filter(m => m.id && (m.title || m.name));
-
-        if (validMetas.length > 0) {
-            metaList = `
-                <div class="ask-meta-list">
-                    ${validMetas.map(m => {
-                        const title = m.title || m.name || m.id;
-                        let group = m._group;
-                        
-                        // Tự động xác định group nếu thiếu
-                        if (!group) {
-                            if (m.id.startsWith('tac-gia')) group = 'ky-tai';
-                            else if (m.id.startsWith('quyen')) group = 'triet-thuyet';
-                            else if (m.id.startsWith('tho-') || m.id.startsWith('truyen-')) group = 'the-loai';
-                            else group = 'tinh-hoa';
-                        }
-                        
-                        return `
-                            <button type="button" class="ask-meta-item"
-                                data-route-encyclopedia="true"
-                                data-route-id="${escapeHTML(m.id)}"
-                                data-route-group="${escapeHTML(group)}"
-                                data-route-title="${escapeHTML(title)}">
-                                ${escapeHTML(title)}
-                            </button>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-        }
-    }
-
-    // Map tên hiển thị của các Phân khu / Máy
-    const sourceLabels = {
-        'local-data': 'Dữ liệu nội bộ',
-        'dictionary': 'Từ điển',
-        'search-engine': 'Tìm kiếm',
-        'error': 'Lỗi'
-    };
-    const sourceLabel = sourceLabels[result.source] || result.source || 'Không rõ';
-
-    // Render HTML
-    container.innerHTML = `
-        <div class="ask-result">
-            <div class="ask-source">
-                <span class="ask-source-dot"></span>
-                ${escapeHTML(sourceLabel)}
-            </div>
-            <div class="ask-query">Hỏi: "${escapeHTML(query)}"</div>
-            <div class="ask-answer">${escapeHTML(result.answer || '')}</div>
-            ${result.detail ? `<div class="ask-detail">${escapeHTML(result.detail)}</div>` : ''}
-            ${metaList}
-        </div>
-    `;
 }
