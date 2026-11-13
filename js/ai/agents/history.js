@@ -198,3 +198,44 @@ export const HistoryAgent = {
         };
     }
 };
+
+// =====================================================================
+// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// =====================================================================
+/**
+ * Metadata tự mô tả của HistoryAgent.
+ * Chuyên trách bối cảnh lịch sử, thời đại văn học.
+ *
+ * ĐIỂM MẠNH:
+ * - 3 method độc lập, mỗi method trả lời một dạng câu hỏi riêng:
+ *   1. findWorksByEra      → "Tác phẩm thời Lê?"
+ *   2. findAuthorsByEra    → "Tác giả thời Trần?"
+ *   3. getHistoricalContext → "Truyện Kiều viết thời nào?"
+ * - Đều dùng DataHub để tra cứu (Offline-First), không tự fetch JSON.
+ */
+HistoryAgent.agentInfo = {
+    // ---- Định danh ----
+    key: 'history',
+    name: 'Lịch Sử AI',
+    description: 'Chuyên trách Bối cảnh lịch sử, Thời đại văn học.',
+
+    // ---- Năng lực (task -> method) ----
+    capabilities: {
+        'find-works-by-era': 'findWorksByEra',        // "Tác phẩm thời Lê?"
+        'find-authors-by-era': 'findAuthorsByEra',    // "Tác giả thời Trần?"
+        'get-historical-context': 'getHistoricalContext' // "Truyện Kiều viết thời nào?"
+    },
+
+    // ---- Loại dữ liệu có thể đọc ----
+    canRead: ['work', 'author', 'genre'],
+
+    // ---- Agent được phép ủy thác ----
+    canDelegate: ['literature', 'knowledge'],
+
+    // ---- Từ khóa nhận diện Intent ----
+    intentPatterns: {
+        'find-works-by-era': ['tac pham thoi', 'van hoc thoi', 'tac pham trieu dai'],
+        'find-authors-by-era': ['tac gia thoi', 'nha tho thoi', 'nha van thoi'],
+        'get-historical-context': ['viet thoi nao', 'thuoc thoi nao', 'boi canh lich su', 'hoat dong thoi nao']
+    }
+};
