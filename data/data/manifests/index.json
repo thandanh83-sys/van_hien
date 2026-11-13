@@ -1,0 +1,106 @@
+{
+  "$schema": "https://vandao.app/schemas/manifest-index/v1.json",
+  "motherId": "mother-00",
+  "label": "Văn Đạo — Máy Mẹ",
+  "description": "Bản đồ định tuyến tri thức toàn mạng. Chứa thông tin về cấu trúc, routing table và trạng thái các Máy Con.",
+  "version": "1.0.0",
+  "schemaVersion": 1,
+  "createdAt": "2026-11-21T00:00:00Z",
+  "updatedAt": "2026-11-21T00:00:00Z",
+  "locale": "vi-VN",
+  
+  "routing": {
+    "triet-thuyet": "node-triet-thuyet",
+    "ky-tai": "node-ky-tai",
+    "tinh-hoa": "node-tinh-hoa",
+    "the-loai": "node-the-loai"
+  },
+  
+  "aliases": {
+    "ly-thuyet": "triet-thuyet",
+    "theory": "triet-thuyet",
+    "tac-gia": "ky-tai",
+    "author": "ky-tai",
+    "authors": "ky-tai",
+    "tac-pham": "tinh-hoa",
+    "work": "tinh-hoa",
+    "works": "tinh-hoa",
+    "heritage": "tinh-hoa",
+    "genre": "the-loai",
+    "genres": "the-loai"
+  },
+  
+  "nodes": [
+    {
+      "id": "node-triet-thuyet",
+      "label": "Triết Thuyết",
+      "manifest": "./node-triet-thuyet.json",
+      "status": "online",
+      "priority": 1,
+      "critical": true,
+      "recordCount": 18,
+      "icon": "book-open",
+      "color": "#557a6f"
+    },
+    {
+      "id": "node-ky-tai",
+      "label": "Kỳ Tài",
+      "manifest": "./node-ky-tai.json",
+      "status": "online",
+      "priority": 1,
+      "critical": true,
+      "recordCount": 78,
+      "icon": "user",
+      "color": "#8bb8a8"
+    },
+    {
+      "id": "node-tinh-hoa",
+      "label": "Tinh Hoa",
+      "manifest": "./node-tinh-hoa.json",
+      "status": "online",
+      "priority": 1,
+      "critical": true,
+      "recordCount": 95,
+      "icon": "star",
+      "color": "#d4c4a8"
+    },
+    {
+      "id": "node-the-loai",
+      "label": "Thể Loại",
+      "manifest": "./node-the-loai.json",
+      "status": "online",
+      "priority": 2,
+      "critical": false,
+      "recordCount": 19,
+      "icon": "tag",
+      "color": "#b89a64"
+    }
+  ],
+  
+  "cacheConfig": {
+    "ttl": 300000,
+    "staleWhileRevalidate": true,
+    "persist": true
+  },
+  
+  "networkConfig": {
+    "timeout": 5000,
+    "retryAttempts": 2,
+    "retryDelay": 800,
+    "fallbackToLocal": true
+  },
+  
+  "healthCheck": {
+    "lastCheck": null,
+    "checkInterval": 30000,
+    "method": "HEAD"
+  },
+  
+  "metadata": {
+    "totalNodes": 4,
+    "totalRecords": 210,
+    "totalGroups": 4,
+    "appVersion": "1.0.0",
+    "maintainer": "Văn Đạo"
+  }
+}
