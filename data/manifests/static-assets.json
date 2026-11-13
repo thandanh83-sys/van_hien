@@ -36,7 +36,7 @@
     "./js/ai/agents/character.js",
     "./js/ai/agents/comparison.js",
     "./js/ai/agents/critic.js",
-    "./js/ai/agents/fortune-ai.js",
+    "./js/ai/agents/fortune.js",
     "./js/ai/agents/history.js",
     "./js/ai/agents/index.js",
     "./js/ai/agents/knowledge.js",
