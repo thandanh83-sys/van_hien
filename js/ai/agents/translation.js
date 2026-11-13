@@ -144,3 +144,42 @@ export const TranslationAgent = {
         return `[Translated] ${text.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}`;
     }
 };
+
+// =====================================================================
+// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// =====================================================================
+/**
+ * Metadata tự mô tả của TranslationAgent.
+ * Chuyên trách dịch thuật văn bản, tác phẩm, tên tác giả.
+ *
+ * GHI CHÚ:
+ * - Đây là Mock Translator (giả lập) để minh họa kiến trúc.
+ * - Trong tương lai, có thể thay `_mockTranslateText()` bằng lệnh
+ *   `fetch()` tới Google Translate API / OpenAI / DeepL mà KHÔNG
+ *   cần sửa `capabilities` hay `intentPatterns` — vì method name
+ *   `translate` giữ nguyên.
+ * - Hỗ trợ cả 2 chiều: dịch từ khóa tiếng Việt sang Anh (VD: "dịch
+ *   Truyện Kiều sang tiếng Anh") và ngược lại (VD: "sang tiếng việt").
+ */
+TranslationAgent.agentInfo = {
+    // ---- Định danh ----
+    key: 'translation',
+    name: 'Dịch Thuật AI',
+    description: 'Chuyên trách dịch thuật văn bản, tác phẩm.',
+
+    // ---- Năng lực ----
+    capabilities: {
+        'translate-work': 'translate'           // "Dịch Truyện Kiều sang tiếng Anh"
+    },
+
+    // ---- Loại dữ liệu có thể đọc ----
+    canRead: ['work', 'author'],
+
+    // ---- Agent được phép ủy thác ----
+    canDelegate: ['literature'],
+
+    // ---- Từ khóa nhận diện Intent ----
+    intentPatterns: {
+        'translate-work': ['dich', 'translate', 'chuyen ngu', 'dich thuat', 'sang tieng anh', 'sang tieng viet']
+    }
+};
