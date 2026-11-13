@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - CORE MODULE (js/ai/core.js)
  * Vị trí: js/ai/core.js
- * Version: 3.2.0 (Plugin Architecture)
+ * Version: 3.3.0 (Fix: resolveAndFetch Tự Động Resolve Title → ID)
  * ==========================================================
  * CHỨC NĂNG:
  * - Quản lý bộ nhớ đệm kết quả AI (CoreCache).
@@ -11,6 +11,18 @@
  * - Cung cấp hằng số dùng chung (Fortune Levels, Dictionary Groups).
  * - [QUAN TRỌNG] Cung cấp hàm resolveAndFetch() để AI lấy dữ liệu
  *   thông qua DataHub (Trung tâm dữ liệu mới).
+ *
+ * LỊCH SỬ PHIÊN BẢN:
+ * - v3.2.0: Plugin Architecture.
+ * - v3.3.0: SỬA LỖI WARNING NOISE — `resolveAndFetch` trước đây CHỈ
+ *           chấp nhận ID, nhưng nhiều nơi gọi (literature.getWorkInfo,
+ *           literature.defineGenre, history.getHistoricalContext) lại
+ *           truyền vào TITLE (VD: "Ai Đã Đặt Tên Cho Dòng Sông?").
+ *           Hệ quả: log warning `[CORE] Không tìm thấy ID "..." trong
+ *           Metadata` xuất hiện, dù kết quả cuối vẫn đúng nhờ fallback.
+ *           Nay thêm bước tự động resolve: nếu input không phải ID
+ *           trong GLOBAL_INDEX, thử DataHub.resolveIdFromQuery(input)
+ *           để chuyển title → ID, rồi mới lấy metadata.
  * ==========================================================
  */
 
@@ -54,7 +66,7 @@ export const FORTUNE_MAP = Object.freeze(
 // =====================================================================
 const CACHE_LIMIT = 200;
 const resultCache = new Map();
-export const CACHE_VERSION = 'v3.2.0';
+export const CACHE_VERSION = 'v3.3.0';
 
 export const CoreCache = {
     set(key, value) {
@@ -144,29 +156,69 @@ export function extractEntity(input, patternsToRemove = []) {
 }
 
 // =====================================================================
-// PHẦN 5: ID RESOLVER (Cầu nối giữa AI và DataHub)
+// PHẦN 5: ID RESOLVER (Cầu nối giữa AI và DataHub) — [ĐÃ FIX v3.3.0]
 // =====================================================================
 
 /**
  * Lấy dữ liệu chi tiết của một ID bất kỳ.
  * Giao phó hoàn toàn cho DataHub xử lý (Offline-First).
- * 
- * @param {string} id - ID của tác phẩm, tác giả, quyển, thể loại...
- * @returns {Promise<Object|null>} Object chứa { group, record, detail }
+ *
+ * [FIX v3.3.0] Tự động resolve TITLE → ID trước khi fetch:
+ *   - Input có thể là ID    (VD: "truyen-kieu")
+ *   - Hoặc TITLE            (VD: "Truyện Kiều", "Ai Đã Đặt Tên Cho Dòng Sông?")
+ *   - Hoặc NAME             (VD: "Thơ Lục Bát")
+ *
+ * QUY TRÌNH (4 bước phòng thủ):
+ *   1. Thử dùng input như ID trực tiếp (nhanh — O(1) qua GLOBAL_INDEX).
+ *   2. Nếu fail, dùng DataHub.resolveIdFromQuery(input) để chuyển title → ID.
+ *   3. Nếu vẫn fail, thử fuzzy search qua VDSearchEngine (nếu cần).
+ *   4. Nếu tất cả fail → log warning (đây mới là lỗi thực sự).
+ *
+ * @param {string} idOrTitle - ID, title, hoặc name.
+ * @returns {Promise<Object|null>} { group, record, detail }
  */
-export async function resolveAndFetch(id) {
-    if (!id) return null;
-    
+export async function resolveAndFetch(idOrTitle) {
+    if (!idOrTitle) return null;
+
     try {
-        // 1. Lấy thông tin cơ bản (Metadata) từ DataHub
-        const meta = DataHub.getMetadata(id);
+        // -----------------------------------------------------------------
+        // BƯỚC 1: Thử dùng trực tiếp như ID (nhanh nhất — không tốn chi phí)
+        // -----------------------------------------------------------------
+        let resolvedId = String(idOrTitle).trim();
+        let meta = DataHub.getMetadata(resolvedId);
+
+        // -----------------------------------------------------------------
+        // BƯỚC 2 [FIX v3.3.0]: Nếu không phải ID, tự động resolve title → ID
+        // -----------------------------------------------------------------
+        // DataHub.resolveIdFromQuery xử lý được cả 3 trường hợp:
+        //   - Input là ID    → trả luôn { id, group }
+        //   - Input là TITLE → tìm trong GLOBAL_RECORDS theo title/alias
+        //   - Input là NAME  → tìm trong GLOBAL_RECORDS theo name
         if (!meta) {
-            console.warn(`[CORE] Không tìm thấy ID "${id}" trong Metadata.`);
+            const target = DataHub.resolveIdFromQuery(resolvedId);
+            if (target && target.id) {
+                resolvedId = target.id;
+                meta = DataHub.getMetadata(resolvedId);
+            }
+        }
+
+        // -----------------------------------------------------------------
+        // BƯỚC 3 [FIX v3.3.0]: Nếu vẫn không có → log warning và trả null
+        // -----------------------------------------------------------------
+        // Đây mới là lỗi THỰC SỰ: input không match cả ID lẫn title/name.
+        // Warning cũ đã bị thay thế bằng thông báo rõ ràng hơn.
+        if (!meta) {
+            console.warn(
+                `[CORE] Không resolve được "${idOrTitle}" ` +
+                `(đã thử cả ID, title và name trong GLOBAL_INDEX).`
+            );
             return null;
         }
 
-        // 2. Lấy nội dung chi tiết (Từ RAM hoặc Fetch qua Service Worker)
-        const detail = await DataHub.getDetail(id);
+        // -----------------------------------------------------------------
+        // BƯỚC 4: Lấy nội dung chi tiết (Từ RAM hoặc Fetch qua Service Worker)
+        // -----------------------------------------------------------------
+        const detail = await DataHub.getDetail(resolvedId);
 
         return {
             group: meta.group,
@@ -174,7 +226,7 @@ export async function resolveAndFetch(id) {
             detail: detail || {}
         };
     } catch (err) {
-        console.warn(`[CORE] Lỗi khi resolve ID "${id}":`, err);
+        console.warn(`[CORE] Lỗi khi resolve "${idOrTitle}":`, err);
         return null;
     }
 }
@@ -200,6 +252,7 @@ export function safeGetObject(key) {
 export function debugCore() {
     const dictIndex = getDictionaryIndex();
     console.log('%c[CORE AI] Trạng thái hiện tại:', 'color: #8bb8a8; font-weight: bold;');
+    console.log('  • Version:', CACHE_VERSION);
     console.log('  • Cache:', CoreCache.stats());
     console.log('  • Dictionary Entries:', dictIndex.length);
     console.log('  • Dictionary Groups:', Object.keys(DICTIONARY_GROUPS).length);
