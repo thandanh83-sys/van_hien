@@ -2,14 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 1.0.4 (Smart Search & Cleanup)
+ * Version: 1.0.8 (Smart Search & AI Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen.
  * - Load dữ liệu từ JSON.
- * - Chứa Logic Thi Pháp Học (POETRY_ANALYZER).
- * - Xử lý Bói Thơ (Fate Modal) với AI.
- * - Gắn sự kiện toàn cục (Search, Settings, Network).
+ * - Xử lý Tìm kiếm thông minh (Gộp Tra Cứu & Hỏi Đạo).
+ * - Bắt sự kiện Hỏi AI Tóm tắt trong bài đọc.
+ * - Tích hợp AI vào Thi Pháp Học (Tầng 4).
  * ==========================================================
  */
 
@@ -27,10 +27,10 @@ import {
 } from './render.js';
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
-import { calculateFortune, synthesizeDynamicFortune, AIDispatcher } from './ai.js';
+import { calculateFortune, synthesizeDynamicFortune, AIDispatcher, analyzeWork } from './ai.js';
 import { runFullDiagnosis } from './audit.js';
 import { MotherNode, bootstrapNetwork } from './network/index.js';
-import { handleSmartSearch } from './ask-dao.js';
+import { handleSmartSearch, resetSearchState } from './ask-dao.js';
 
 // =====================================================================
 // 2. HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
@@ -93,7 +93,7 @@ function initDewdrops() {
 }
 
 // =====================================================================
-// 3. THI PHÁP HỌC (POETRY ANALYZER)
+// 3. THI PHÁP HỌC (POETRY ANALYZER & AI INTEGRATION)
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
@@ -258,7 +258,30 @@ function executePipeline() {
         <div class="result-step tier-1"><div class="tier-label">TẦNG 1</div><div class="step-title">Thể thơ & Vần</div>${tier1}</div>
         <div class="result-step tier-2"><div class="tier-label">TẦNG 2</div><div class="step-title">Biểu tượng · Điển tích</div>${tier2}</div>
         <div class="result-step tier-3"><div class="tier-label">TẦNG 3</div><div class="step-title">Câu hỏi mở</div>${tier3}</div>
+        
+        <!-- TẦNG 4: AI BÌNH LUẬN -->
+        <div class="result-step tier-4">
+            <div class="tier-label">TẦNG 4</div>
+            <div class="step-title">Cảm nhận từ AI</div>
+            <div id="ai-poetry-analysis" style="font-style: italic; color: var(--accent-text); padding: 10px;">
+                <div class="spinner" style="width: 20px; height: 20px; border-width: 2px; margin: 0 10px 0 0; display: inline-block; vertical-align: middle;"></div> Đang cảm nhận...
+            </div>
+        </div>
     `;
+
+    // Gọi AI phân tích
+    import('./ai.js').then(({ analyzeWork }) => {
+        const analysis = analyzeWork({ content: raw, title: 'Bài thơ chưa đặt tên', author: 'Khuyết danh' });
+        const aiDiv = document.getElementById('ai-poetry-analysis');
+        if (aiDiv) {
+            aiDiv.innerHTML = `
+                <p style="margin-bottom: 10px;">${escapeHTML(analysis.commentaryText)}</p>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-style: normal;">
+                    <strong>Chủ đề nhận diện:</strong> ${analysis.themes.length ? analysis.themes.join(', ') : 'Chưa rõ'}
+                </div>
+            `;
+        }
+    });
 }
 
 // =====================================================================
@@ -523,16 +546,19 @@ window.clearSearch = function() {
     const input = document.getElementById('encyclopedia-search');
     const clearBtn = document.getElementById('clear-search-btn');
     if (!input) return;
+    
     input.value = ''; 
     if (clearBtn) clearBtn.classList.remove('show'); 
-    input.focus(); 
     
-    // Reset lại giao diện tìm kiếm mặc định
-    const filterBar = document.getElementById('encyclopedia-filter-bar');
-    const pagination = document.getElementById('encyclopedia-pagination');
-    if (filterBar) filterBar.style.display = 'flex';
-    if (pagination) pagination.style.display = 'flex';
-    renderEncyclopedia(); 
+    // Reset trạng thái tìm kiếm
+    import('./ask-dao.js').then(m => {
+        m.resetSearchState({
+            inputId: 'encyclopedia-search',
+            filterBarId: 'encyclopedia-filter-bar',
+            paginationId: 'encyclopedia-pagination',
+            fallbackRenderFn: renderEncyclopedia
+        });
+    });
 };
 
 // =====================================================================
@@ -598,24 +624,55 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // 8.4. Sự kiện Tìm kiếm (Gộp Hỏi Đạo)
-    document.getElementById('search-input')?.addEventListener('input', debounce(() => { STATE.currentPage = 1; renderHeritage(); }, 300));
-    
-    const encyclopediaSearchInput = document.getElementById('encyclopedia-search');
-    if (encyclopediaSearchInput) {
-        // Gõ đến đâu tìm đến đó (Debounce)
+    // 8.4. Sự kiện Tìm kiếm (Gộp Hỏi Đạo cho cả 2 View)
+    const heritageSearchConfig = {
+        inputId: 'search-input',
+        containerId: 'heritage-grid',
+        filterBarId: 'main-filter-bar',
+        paginationId: 'pagination-container',
+        fallbackRenderFn: () => { STATE.currentPage = 1; renderHeritage(); }
+    };
+
+    const encyclopediaSearchConfig = {
+        inputId: 'encyclopedia-search',
+        containerId: 'encyclopedia-container',
+        filterBarId: 'encyclopedia-filter-bar',
+        paginationId: 'encyclopedia-pagination',
+        fallbackRenderFn: () => { searchEncyclopedia(); }
+    };
+
+    // Gắn sự kiện cho Văn Hiến
+    const heritageInput = document.getElementById('search-input');
+    if (heritageInput) {
+        heritageInput.addEventListener('input', debounce(() => {
+            if (heritageInput.value.length > 0) document.getElementById('clear-search-btn')?.classList.add('show');
+            else document.getElementById('clear-search-btn')?.classList.remove('show');
+            heritageSearchConfig.fallbackRenderFn();
+        }, 300));
+        
+        heritageInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSmartSearch(heritageSearchConfig);
+            }
+        });
+    }
+
+    // Gắn sự kiện cho Bách Khoa
+    const encyclopediaInput = document.getElementById('encyclopedia-search');
+    if (encyclopediaInput) {
         const debouncedSearch = debounce(() => {
-            searchEncyclopedia();
+            if (encyclopediaInput.value.length > 0) document.getElementById('clear-search-btn')?.classList.add('show');
+            else document.getElementById('clear-search-btn')?.classList.remove('show');
+            encyclopediaSearchConfig.fallbackRenderFn();
         }, 300);
         setCancelSearch(debouncedSearch.cancel);
         
-        encyclopediaSearchInput.addEventListener('input', debouncedSearch);
-        
-        // Nhấn Enter -> Gọi hàm gộp (Tự nhận diện AI hay Search thường)
-        encyclopediaSearchInput.addEventListener('keydown', e => {
+        encyclopediaInput.addEventListener('input', debouncedSearch);
+        encyclopediaInput.addEventListener('keydown', e => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                handleSmartSearch(); 
+                handleSmartSearch(encyclopediaSearchConfig);
             }
         });
     }
@@ -630,6 +687,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 8.6. Sự kiện click toàn cục
     document.addEventListener('click', e => {
+        // Bắt sự kiện nút Hỏi AI trong bài đọc
+        const aiBtn = e.target.closest('[data-ai-action="summarize-work"]');
+        if (aiBtn) {
+            e.preventDefault();
+            const title = aiBtn.dataset.workTitle;
+            const resultDiv = document.getElementById('ai-inline-result');
+            
+            if (resultDiv) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<div class="ask-loading" style="padding: 20px;"><div class="spinner"></div><p>AI đang đọc tác phẩm...</p></div>`;
+                
+                import('./ai.js').then(async ({ AIDispatcher }) => {
+                    const result = await AIDispatcher.dispatch({ type: 'summarize-work', query: title });
+                    resultDiv.innerHTML = `
+                        <div class="ask-result" style="margin-top: 0;">
+                            <div class="ask-answer" style="font-size: 1rem;">${escapeHTML(result.answer)}</div>
+                            ${result.detail ? `<div class="ask-detail">${escapeHTML(result.detail)}</div>` : ''}
+                        </div>
+                    `;
+                });
+            }
+            return;
+        }
+
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
             e.preventDefault();
