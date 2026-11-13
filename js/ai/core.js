@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - CORE MODULE (js/ai/core.js)
  * Vị trí: js/ai/core.js
- * Version: 1.5.0 (Offline-First Foundation)
+ * Version: 2.0.0 (Offline-First & DataHub Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Quản lý bộ nhớ đệm (Cache Manager).
@@ -10,13 +10,13 @@
  * - Xử lý văn bản có trọng số (Weighted Matching).
  * - Cung cấp hằng số dùng chung (Fortune Levels, Dictionary Groups).
  * - [QUAN TRỌNG] Cung cấp hàm resolveAndFetch() để AI lấy dữ liệu
- *   theo ID (kết nối với Máy Mẹ - mother.js).
+ *   thông qua DataHub (Trung tâm dữ liệu mới).
  * ==========================================================
  */
 
-import { APP_DATA } from '../config.js';
+import { APP_DATA, STATE } from '../config.js';
 import { normalizeRouteText } from '../utils.js';
-import { MotherNode } from '../network/mother.js'; // Import Máy Mẹ để định tuyến ID
+import { DataHub } from '../network/data-hub.js'; // Kết nối với Trung tâm Dữ liệu
 
 // ==========================================================
 // PHẦN 1: HẰNG SỐ DÙNG CHUNG
@@ -81,7 +81,7 @@ export const FORTUNE_MAP = Object.freeze(
 // ==========================================================
 const CACHE_LIMIT = 200;
 const resultCache = new Map();
-export const CACHE_VERSION = 'v1.5.0';
+export const CACHE_VERSION = 'v2.0.0'; // Tăng version khi có thay đổi lớn
 
 export const CoreCache = {
     set(key, value) {
@@ -177,13 +177,12 @@ export function extractEntity(input, patternsToRemove = []) {
 }
 
 // ==========================================================
-// PHẦN 5: ID RESOLVER (Cầu nối giữa AI và Máy Mẹ)
+// PHẦN 5: ID RESOLVER (Cầu nối giữa AI và DataHub)
 // ==========================================================
 
 /**
  * [CỰC KỲ QUAN TRỌNG] Lấy dữ liệu chi tiết của một ID bất kỳ.
- * Hàm này sẽ hỏi Máy Mẹ (MotherNode) để tìm xem ID nằm ở đâu,
- * sau đó lấy toàn bộ nội dung chi tiết (Offline-Friendly).
+ * Hàm này giao phó hoàn toàn cho DataHub xử lý (Offline-First).
  * 
  * @param {string} id - ID của tác phẩm, tác giả, quyển, thể loại...
  * @returns {Promise<Object|null>} Object chứa { group, record, detail }
@@ -192,17 +191,21 @@ export async function resolveAndFetch(id) {
     if (!id) return null;
     
     try {
-        // 1. Hỏi Máy Mẹ xem ID này nằm ở đâu và lấy record cơ bản
-        const location = await MotherNode.locateById(id);
-        if (!location) return null;
+        // 1. Lấy thông tin cơ bản (Metadata) từ DataHub
+        const meta = DataHub.getMetadata(id);
+        if (!meta) {
+            // Thử tìm qua Search Engine nếu ID không chính xác
+            console.warn(`[CORE] Không tìm thấy ID "${id}" trong Metadata.`);
+            return null;
+        }
 
-        // 2. Lấy dữ liệu chi tiết (Nội dung bài thơ/tác giả) từ Máy Mẹ
-        const detailData = await MotherNode.getDetailData(id);
+        // 2. Lấy nội dung chi tiết (Từ RAM hoặc Fetch qua Service Worker)
+        const detail = await DataHub.getDetail(id);
 
         return {
-            group: location.group,
-            record: location.record,
-            detail: detailData || {}
+            group: meta.group,
+            record: meta.data,
+            detail: detail || {}
         };
     } catch (err) {
         console.warn(`[CORE] Lỗi khi resolve ID "${id}":`, err);
@@ -236,4 +239,5 @@ export function debugCore() {
     console.log('  • Works Data:', safeGetArray('WORKS_DATA').length);
     console.log('  • Authors Data:', safeGetArray('AUTHOR_DATA').length);
     console.log('  • Genres Data:', safeGetArray('THE_LOAI_DATA').length);
+    console.log('  • DataHub Status:', DataHub.getMetadata('truyen-kieu') ? 'Sẵn sàng' : 'Chưa kết nối');
 }
