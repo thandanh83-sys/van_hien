@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - AUDIT MODULE (js/audit.js)
  * Vị trí: js/audit.js
- * Version: 4.0.7 (Smart Error Filtering)
+ * Version: 4.1.0 (Manifest-Driven Diagnostics)
  * ==========================================================
  * HƯỚNG DẪN SỬ DỤNG (Mở Console F12, gõ trực tiếp):
  * - Khám tổng quát: window.audit()
@@ -21,35 +21,7 @@ import { DataHub, AgentRegistry, VDBus } from './network/index.js';
 const BASE_URL = new URL('../', import.meta.url).href;
 
 // ==========================================================
-// PHẦN 1: DANH SÁCH FILE TĨNH
-// ==========================================================
-const STATIC_ASSETS = {
-    css: [
-        'css/variables.css', 'css/base.css', 'css/components.css', 
-        'css/layouts.css', 'css/reader.css'
-    ],
-    js: [
-        'js/config.js', 'js/utils.js', 'js/search.js', 'js/render.js', 
-        'js/router.js', 'js/offline.js', 'js/audit.js', 'js/ask-dao.js', 'js/main.js',
-        'js/ai.js', 'js/ai/core.js', 'js/ai/input-ai.js', 
-        'js/ai/master.js', 'js/ai/output-ai.js',
-        'js/ai/agents/index.js', 'js/ai/agents/literature.js', 
-        'js/ai/agents/poetics.js', 'js/ai/agents/analysis.js', 
-        'js/ai/agents/fortune-ai.js', 'js/ai/agents/knowledge.js',
-        'js/ai/agents/history.js', 'js/ai/agents/praiser.js', 'js/ai/agents/critic.js',
-        'js/network/data-hub.js', 'js/network/bus.js', 'js/network/index.js'
-    ],
-    json: [
-        'data/data-ly-thuyet.json', 'data/data-tac-gia.json', 'data/data-tac-pham.json',
-        'data/data-danh-ngon.json', 'data/data-loi-binh.json', 'data/data-tu-dien.json',
-        'data/data-the-loai.json', 'data/data-van-khi.json', 'data/data-tu-dien-the-loai.json',
-        'data/manifests/index.json', 'data/manifests/node-triet-thuyet.json', 
-        'data/manifests/node-ky-tai.json', 'data/manifests/node-tinh-hoa.json', 'data/manifests/node-the-loai.json'
-    ]
-};
-
-// ==========================================================
-// PHẦN 2: UTILITIES & LOGGING
+// PHẦN 1: UTILITIES & LOGGING
 // ==========================================================
 async function checkFile(relativePath) {
     const absoluteUrl = new URL(relativePath, BASE_URL).href;
@@ -88,33 +60,63 @@ function logSuccessShort(msg) {
 }
 
 // ==========================================================
-// PHẦN 3: CÁC HÀM KHÁM CHUYÊN KHOA
+// PHẦN 2: CÁC HÀM KHÁM CHUYÊN KHOA
 // ==========================================================
 
-// 3.1 Khám File Tĩnh
+// 2.1 Khám File Tĩnh (Đọc từ Manifest)
 export async function auditStaticFiles() {
-    logGroup('[BÁC SĨ] KHÁM FILE TĨNH (CSS, JS, JSON)...');
+    logGroup('[BÁC SĨ] KHÁM FILE TĨNH (Theo Manifest)...');
     const missingFiles = [];
-    const allUrls = [...STATIC_ASSETS.css, ...STATIC_ASSETS.js, ...STATIC_ASSETS.json];
+    let validFiles = 0;
+    let totalFiles = 0;
 
-    for (const relPath of allUrls) {
-        const result = await checkFile(relPath);
-        if (!result.ok) {
-            missingFiles.push({ file: relPath, status: result.status || result.error });
+    try {
+        const manifestUrl = new URL('data/manifests/static-assets.json', BASE_URL).href;
+        const res = await fetch(manifestUrl);
+        if (!res.ok) throw new Error(`Không tải được static-assets.json (HTTP ${res.status})`);
+        
+        const manifest = await res.json();
+        
+        // Gộp tất cả các mảng lại thành một danh sách phẳng
+        const allUrls = [
+            ...(manifest.css || []), 
+            ...(manifest.js_core || []), 
+            ...(manifest.js_ai || []), 
+            ...(manifest.js_agents || []), 
+            ...(manifest.js_network || []), 
+            ...(manifest.json_data || []), 
+            ...(manifest.json_manifests || []), 
+            ...(manifest.assets || []), 
+            ...(manifest.root || [])
+        ];
+        
+        totalFiles = allUrls.length;
+
+        for (const relPath of allUrls) {
+            const result = await checkFile(relPath);
+            if (!result.ok) {
+                missingFiles.push({ file: relPath, status: result.status || result.error });
+            } else {
+                validFiles++;
+            }
         }
-    }
 
-    if (missingFiles.length > 0) {
-        logError(`Thiếu ${missingFiles.length} file.`);
-        console.table(missingFiles);
-        logAdvice('Kiểm tra lại đường dẫn, đảm bảo file đã được push lên GitHub.');
-    } else {
-        logSuccessShort(`Toàn bộ ${allUrls.length} file tĩnh đều tồn tại.`);
+        if (missingFiles.length > 0) {
+            logError(`Thiếu ${missingFiles.length} file.`);
+            console.table(missingFiles);
+            logAdvice('Kiểm tra lại đường dẫn, đảm bảo file đã được push lên GitHub.');
+        } else {
+            logSuccessShort(`Toàn bộ ${totalFiles} file tĩnh đều tồn tại.`);
+        }
+    } catch (err) {
+        logError(`Lỗi tải Manifest: ${err.message}`);
+        logAdvice('Hãy chắc chắn file data/manifests/static-assets.json đã tồn tại và đúng cú pháp JSON.');
     }
-    return { missingFiles };
+    
+    return { missingFiles, validFiles, totalFiles };
 }
 
-// 3.2 Khám Mạng Lưới
+// 2.2 Khám Mạng Lưới
 export async function auditNetwork() {
     logGroup('[BÁC SĨ] KHÁM MẠNG LƯỚI (DataHub & AgentRegistry)...');
     const errors = [];
@@ -153,7 +155,7 @@ export async function auditNetwork() {
     return { errors };
 }
 
-// 3.3 Khám Tác Phẩm
+// 2.3 Khám Tác Phẩm
 export async function auditWorks() {
     logGroup('[BÁC SĨ] KHÁM DỮ LIỆU TÁC PHẨM...');
     const issues = [];
@@ -175,7 +177,7 @@ export async function auditWorks() {
 
     if (issues.length > 0) {
         logError(`Có ${issues.length} Tác phẩm bị lỗi.`);
-        console.table(issues); // In chi tiết toàn bộ lỗi
+        console.table(issues);
         logAdvice('Chạy tool auto_fill_content.py để bổ sung file rỗng.');
     } else {
         logSuccessShort(`Tất cả ${APP_DATA.WORKS_DATA.length} Tác phẩm đều hoàn hảo.`);
@@ -183,7 +185,7 @@ export async function auditWorks() {
     return { issues };
 }
 
-// 3.4 Khám Tác Giả
+// 2.4 Khám Tác Giả
 export async function auditAuthors() {
     logGroup('[BÁC SĨ] KHÁM DỮ LIỆU TÁC GIẢ...');
     const issues = [];
@@ -213,7 +215,7 @@ export async function auditAuthors() {
     return { issues };
 }
 
-// 3.5 Khám AI (Toàn bộ Pipeline)
+// 2.5 Khám AI (Toàn bộ Pipeline)
 export async function auditAIPipeline() {
     logGroup('[BÁC SĨ] KHÁM SỨC KHỎE AI (Pipeline)...');
     const testCases = [
@@ -282,12 +284,12 @@ export async function auditAIPipeline() {
 }
 
 // ==========================================================
-// PHẦN 4: KHÁM TỔNG QUÁT
+// PHẦN 3: KHÁM TỔNG QUÁT
 // ==========================================================
 export async function runFullDiagnosis() {
     console.clear();
     console.log(
-        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.0.7 ===",
+        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.1.0 ===",
         "background: linear-gradient(135deg, #2c3e38, #557a6f); color: #d4c4a8; font-size: 16px; font-weight: bold; padding: 10px 20px; border-radius: 8px;"
     );
 
@@ -312,7 +314,7 @@ export async function runFullDiagnosis() {
 }
 
 // ==========================================================
-// PHẦN 5: XUẤT RA WINDOW
+// PHẦN 4: XUẤT RA WINDOW
 // ==========================================================
 window.audit = runFullDiagnosis;
 window.auditStaticFiles = auditStaticFiles;
@@ -322,6 +324,10 @@ window.auditAuthors = auditAuthors;
 window.auditAIPipeline = auditAIPipeline;
 
 export default {
-    runFullDiagnosis, auditStaticFiles, auditNetwork, 
-    auditWorks, auditAuthors, auditAIPipeline
+    runFullDiagnosis, 
+    auditStaticFiles, 
+    auditNetwork, 
+    auditWorks, 
+    auditAuthors, 
+    auditAIPipeline
 };
