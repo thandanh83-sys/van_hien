@@ -1,16 +1,10 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - COMPONENTS CSS (css/components.css)
- * Chức năng: Định dạng các thành phần nhỏ lẻ (Nút, Thanh tìm kiếm,
- * Highlight, Tooltip, Progress Bar, Skeleton Loading).
- * Đã sửa: Lỗi Highlight lệch chữ, Tooltip đè lên văn bản.
  * ==========================================================
  */
 
-/* =====================================================================
-   1. HỆ THỐNG NÚT BẤM (BUTTONS & FILTERS)
-   ===================================================================== */
-/* Nút điều hướng Navbar (Trang chủ, Văn Hiến...) */
+/* 1. NÚT BẤM */
 .nav-btn, .btn, .filter-btn, .pagination-container button {
     font-family: var(--font-body) !important; 
     font-size: 0.85rem !important; 
@@ -19,322 +13,52 @@
     transition: all 0.3s var(--ease-silk);
 }
 
-.nav-btn { 
-    background: transparent; 
-    border: none; 
-    padding: 0; 
-    color: var(--text-muted); 
-    cursor: pointer; 
-    position: relative; 
-    display: flex; 
-    align-items: center; 
-    gap: 6px; 
-}
-.nav-btn:hover, .nav-btn.active { 
-    color: var(--text-main); 
-}
-/* Dấu chấm nhỏ dưới nút đang Active */
-.nav-btn::after { 
-    content: ''; 
-    position: absolute; 
-    bottom: -4px; 
-    left: 50%; 
-    width: 4px; 
-    height: 4px; 
-    border-radius: 50%; 
-    background: var(--accent-gold); 
-    transform: translateX(-50%) scale(0); 
-    transition: transform 0.3s; 
-}
-.nav-btn:hover::after, .nav-btn.active::after { 
-    transform: translateX(-50%) scale(1); 
-}
+.nav-btn { background: transparent; border: none; padding: 0; color: var(--text-muted); cursor: pointer; position: relative; display: flex; align-items: center; gap: 6px; }
+.nav-btn:hover, .nav-btn.active { color: var(--text-main); }
+.nav-btn::after { content: ''; position: absolute; bottom: -4px; left: 50%; width: 4px; height: 4px; border-radius: 50%; background: var(--accent-gold); transform: translateX(-50%) scale(0); transition: transform 0.3s; }
+.nav-btn:hover::after, .nav-btn.active::after { transform: translateX(-50%) scale(1); }
+.nav-icon { width: 16px; height: 16px; stroke-width: 2; display: none; } 
 
-/* Icon nhỏ trong nút Navbar */
-.nav-icon { 
-    width: 16px; 
-    height: 16px; 
-    stroke-width: 2; 
-    display: none; 
-} 
+.filter-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 20px; border-radius: var(--radius-pill); cursor: pointer; letter-spacing: 0.5px !important; white-space: nowrap; }
+.filter-btn:hover, .filter-btn.active { background: var(--accent-text) !important; color: #ffffff !important; border-color: var(--accent-text) !important; box-shadow: 0 4px 12px rgba(85, 122, 111, 0.25) !important; }
 
-/* Nút Bộ lọc (Văn Hiến, Bách Khoa) */
-.filter-btn { 
-    background: var(--card-bg); 
-    border: 1px solid var(--border-color); 
-    color: var(--text-main); 
-    padding: 8px 20px; 
-    border-radius: var(--radius-pill); 
-    cursor: pointer; 
-    letter-spacing: 0.5px !important; 
-    white-space: nowrap; 
-}
-.filter-btn:hover, .filter-btn.active { 
-    background: var(--accent-text) !important; 
-    color: #ffffff !important; 
-    border-color: var(--accent-text) !important; 
-    box-shadow: 0 4px 12px rgba(85, 122, 111, 0.25) !important; 
-}
+.detail-btn { background: transparent; color: var(--accent-text); border: none; padding: 0; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: 0.3s; }
+.detail-btn:hover { gap: 8px; color: var(--accent-hover); }
 
-/* Nút Xem Chi Tiết */
-.detail-btn { 
-    background: transparent; 
-    color: var(--accent-text); 
-    border: none; 
-    padding: 0; 
-    font-family: var(--font-body); 
-    font-size: 0.8rem; 
-    font-weight: 700; 
-    letter-spacing: 0.5px; 
-    text-transform: uppercase; 
-    cursor: pointer; 
-    display: inline-flex; 
-    align-items: center; 
-    gap: 4px; 
-    transition: 0.3s; 
-}
-.detail-btn:hover { 
-    gap: 8px; 
-    color: var(--accent-hover); 
-}
+.page-btn.arrow-btn { font-size: 1.1rem; font-weight: 400; padding: 0 12px; font-family: Arial, sans-serif !important; }
 
-/* Nút mũi tên phân trang */
-.page-btn.arrow-btn {
-    font-size: 1.1rem; 
-    font-weight: 400; 
-    padding: 0 12px;
-    font-family: Arial, sans-serif !important; 
-}
+/* 2. TÌM KIẾM */
+.search-container { display: flex; justify-content: center; width: 100%; margin-bottom: 25px; }
+.search-wrap { position: relative; width: 100%; max-width: 480px; margin: 0 auto; }
+.search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+#search-input, #encyclopedia-search { width: 100%; padding: 14px 20px 14px 48px; border-radius: var(--radius-pill); border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: var(--font-body); outline: none; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+#search-input:focus, #encyclopedia-search:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(139, 184, 168, 0.2); }
 
-/* =====================================================================
-   2. THANH TÌM KIẾM & Ô NHẬP LIỆU (SEARCH & INPUT)
-   ===================================================================== */
-.search-container { 
-    display: flex; 
-    justify-content: center; 
-    width: 100%; 
-    margin-bottom: 25px; 
-}
-.search-wrap { 
-    position: relative; 
-    width: 100%; 
-    max-width: 480px; 
-    margin: 0 auto; 
-}
-.search-icon { 
-    position: absolute; 
-    left: 18px; 
-    top: 50%; 
-    transform: translateY(-50%); 
-    color: var(--text-muted); 
-    pointer-events: none; 
-}
-#search-input, #encyclopedia-search { 
-    width: 100%; 
-    padding: 14px 20px 14px 48px; 
-    border-radius: var(--radius-pill); 
-    border: 1px solid var(--border-color); 
-    background: var(--card-bg); 
-    color: var(--text-main); 
-    font-family: var(--font-body); 
-    outline: none; 
-    font-size: 1rem; 
-    transition: all 0.3s ease; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.02); 
-}
-#search-input:focus, #encyclopedia-search:focus { 
-    border-color: var(--accent); 
-    box-shadow: 0 0 15px rgba(139, 184, 168, 0.2); 
-}
+.search-box-wrapper { position: relative; display: flex; align-items: center; width: 100%; }
+#encyclopedia-search { padding-right: 45px !important; }
+.clear-btn { position: absolute; right: 15px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 0; display: none; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; transition: 0.2s; }
+.clear-btn:hover { background-color: rgba(139, 184, 168, 0.2); color: var(--text-main); }
+.clear-btn.show { display: flex; }
+.clear-btn svg { width: 20px; height: 20px; stroke: currentColor; }
 
-.search-box-wrapper { 
-    position: relative; 
-    display: flex; 
-    align-items: center; 
-    width: 100%; 
-}
-#encyclopedia-search { 
-    padding-right: 45px !important; 
-}
+/* 3. HIGHLIGHT & TOOLTIP */
+mark { background-color: #d4ece6; color: var(--text-main); padding: 0 4px; border-radius: 4px; font-weight: 700; box-shadow: 0 0 4px rgba(139, 184, 168, 0.3); }
 
-/* Nút Xóa nhanh chữ trong ô tìm kiếm */
-.clear-btn {
-    position: absolute; 
-    right: 15px; 
-    background: transparent; 
-    border: none;
-    color: var(--text-muted); 
-    cursor: pointer; 
-    padding: 0; 
-    display: none; 
-    align-items: center; 
-    justify-content: center; 
-    width: 28px; 
-    height: 28px; 
-    border-radius: 50%; 
-    transition: 0.2s;
-}
-.clear-btn:hover { 
-    background-color: rgba(139, 184, 168, 0.2); 
-    color: var(--text-main); 
-}
-.clear-btn.show { 
-    display: flex; 
-}
-.clear-btn svg { 
-    width: 20px; 
-    height: 20px; 
-    stroke: currentColor; 
-}
+.symbol-mark { background: linear-gradient(transparent 60%, rgba(212,196,168,0.35) 60%); cursor: help; padding: 0 1px; position: relative; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.symbol-mark::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(4px); background: var(--text-main); color: var(--bg-base); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-family: var(--font-body); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-style: normal; }
+.symbol-mark:hover::after { opacity: 1; transform: translateX(-50%) translateY(-4px); }
 
-/* =====================================================================
-   3. HIGHLIGHT VÀ TOOLTIP (SỬA LỖI TÔ LỆCH VÀ ĐÈ CHỮ)
-   ===================================================================== */
+/* 4. CÀI ĐẶT & TIỆN ÍCH (Đã xóa vd-progress) */
+.offline-option-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; background: transparent; border: 1px solid var(--border-color); border-radius: 12px; padding: 12px 16px; cursor: pointer; transition: all 0.2s; text-align: left; }
+.offline-option-btn:hover { border-color: var(--accent); background: rgba(139, 184, 168, 0.05); }
 
-/* 3.1. Thẻ <mark> khi tìm kiếm từ khóa */
-mark {
-    background-color: #d4ece6; 
-    color: var(--text-main); 
-    padding: 0 4px;
-    border-radius: 4px; 
-    font-weight: 700; 
-    box-shadow: 0 0 4px rgba(139, 184, 168, 0.3);
-}
+.offline-text-btn { background: transparent; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-family: var(--font-body); font-size: 0.85rem; color: var(--accent-text); padding: 5px 0; transition: opacity 0.2s; text-align: left; }
+.offline-text-btn:hover { opacity: 0.7; }
 
-/* 3.2. Highlight Biểu tượng trong bài đọc */
-.symbol-mark {
-    background: linear-gradient(transparent 60%, rgba(212,196,168,0.35) 60%);
-    cursor: help; 
-    padding: 0 1px; 
-    position: relative;
-    /* Cực kỳ quan trọng: Giúp nền không bị vỡ khi chữ rớt dòng */
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-    /* Tuyệt đối KHÔNG DÙNG display: inline-block ở đây để tránh lỗi lệch dòng */
-}
-
-/* 3.3. Tooltip hiển thị nghĩa của Biểu tượng */
-.symbol-mark::after {
-    content: attr(data-tooltip);
-    position: absolute; 
-    bottom: 100%; 
-    left: 50%;
-    transform: translateX(-50%) translateY(4px);
-    background: var(--text-main, #2c3e38); 
-    color: var(--bg-base, #fdfbf7);
-    padding: 6px 12px; 
-    border-radius: 6px;
-    font-size: 0.8rem; 
-    font-family: var(--font-body);
-    white-space: nowrap; 
-    opacity: 0; 
-    /* Tuyệt đối không chặn click chuột, tránh việc tooltip che mất chữ */
-    pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    z-index: 1000; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    font-style: normal;
-}
-.symbol-mark:hover::after { 
-    opacity: 1; 
-    transform: translateX(-50%) translateY(-4px); 
-}
-
-/* =====================================================================
-   4. THANH TIẾN TRÌNH (PROGRESS BAR) & CÀI ĐẶT
-   ===================================================================== */
-.offline-option-btn {
-    width: 100%; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    background: transparent; 
-    border: 1px solid var(--border-color); 
-    border-radius: 12px;
-    padding: 12px 16px; 
-    cursor: pointer; 
-    transition: all 0.2s;
-    text-align: left;
-}
-.offline-option-btn:hover { 
-    border-color: var(--accent); 
-    background: rgba(139, 184, 168, 0.05); 
-}
-
-.offline-text-btn {
-    background: transparent; 
-    border: none; 
-    cursor: pointer;
-    display: flex; 
-    align-items: center; 
-    gap: 8px;
-    font-family: var(--font-body); 
-    font-size: 0.85rem; 
-    color: var(--accent-text);
-    padding: 5px 0; 
-    transition: opacity 0.2s; 
-    text-align: left;
-}
-.offline-text-btn:hover { 
-    opacity: 0.7; 
-}
-
-/* Thanh tiến trình (Dùng trong Tủ Sách Offline) */
-.vd-progress-container {
-    width: 100%;
-    height: 8px;
-    background-color: #e5e5e5;
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 15px 0;
-}
-
-.vd-progress-bar {
-    height: 100%;
-    width: 0%; /* Sẽ được JS cập nhật */
-    background-color: var(--accent, #8bb8a8);
-    border-radius: 4px;
-    transition: width 0.3s ease;
-}
-
-.vd-progress-text {
-    font-size: 0.85rem;
-    color: var(--text-main, #2c3e38);
-    text-align: right;
-    display: block;
-}
-
-/* =====================================================================
-   5. SKELETON LOADING (Hiệu ứng chờ tải dữ liệu)
-   ===================================================================== */
-.skeleton { 
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
-    background-size: 200% 100%; 
-    animation: skeletonLoading 1.5s infinite linear; 
-    border-radius: var(--radius-card); 
-}
-@keyframes skeletonLoading { 
-    0% { background-position: 200% 0; } 
-    100% { background-position: -200% 0; } 
-}
-.skeleton-card { 
-    height: 250px; 
-    padding: 20px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 10px; 
-    border-radius: var(--radius-card); 
-}
-.skeleton-line { 
-    height: 15px; 
-    border-radius: 4px; 
-    background: #e0e0e0; 
-}
-.skeleton-line.title { 
-    height: 25px; 
-    width: 60%; 
-}
-.skeleton-line.desc { 
-    height: 12px; 
-    width: 100%; 
-}
+/* 5. SKELETON LOADING */
+.skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite linear; border-radius: var(--radius-card); }
+@keyframes skeletonLoading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton-card { height: 250px; padding: 20px; display: flex; flex-direction: column; gap: 10px; border-radius: var(--radius-card); }
+.skeleton-line { height: 15px; border-radius: 4px; background: #e0e0e0; }
+.skeleton-line.title { height: 25px; width: 60%; }
+.skeleton-line.desc { height: 12px; width: 100%; }
