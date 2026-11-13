@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <meta name="description" content="VĂN HỌC - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
-    <meta name="author" content="Văn Học">
+    <meta name="author" content="Văn Đạo">
     <title>VĂN HỌC | Đại Bách Khoa Toàn Thư</title>
     
     <!-- ================================================================= -->
@@ -391,33 +391,39 @@
     <script type="module" src="js/main.js"></script>
 
     <!-- ================================================================= -->
-    <!-- 17. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
+    <!-- 17. ĐĂNG KÝ SERVICE WORKER (CHỐNG TỰ ĐỘNG RELOAD)                 -->
     <!-- ================================================================= -->
     <script>
     (function () {
         if (!('serviceWorker' in navigator)) return;
 
-        let refreshing = false;
+        let isUpdating = false; // Cờ đánh dấu người dùng đã chủ động bấm Cập nhật
+
+        // Chỉ tự động tải lại trang KHI VÀ CHỈ KHI người dùng đã bấm nút Cập nhật
         navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (refreshing) return;
-            refreshing = true;
-            window.location.reload();
+            if (isUpdating) {
+                window.location.reload();
+            }
         });
 
         function showUpdateBanner(worker) {
             const banner = document.getElementById('update-banner');
             if (!banner) return;
 
+            // Hiển thị banner trượt lên
             banner.style.transform = 'translateX(-50%) translateY(0)';
             banner.style.opacity = '1';
             banner.style.pointerEvents = 'auto';
 
+            // Nút "Cập nhật": Kích hoạt SW mới và cho phép reload
             document.getElementById('update-btn').onclick = () => {
+                isUpdating = true; 
                 worker.postMessage({ type: 'SKIP_WAITING' });
                 banner.style.transform = 'translateX(-50%) translateY(120px)';
                 banner.style.opacity = '0';
             };
 
+            // Nút "Để sau" (Dismiss): Chỉ ẩn banner, tiếp tục đọc bình thường
             document.getElementById('dismiss-btn').onclick = () => {
                 banner.style.transform = 'translateX(-50%) translateY(120px)';
                 banner.style.opacity = '0';
@@ -429,20 +435,22 @@
             const swUrl = './sw.js';
 
             navigator.serviceWorker.register(swUrl).then(reg => {
-                reg.update().catch(() => {});
-
+                // Kiểm tra cập nhật ngầm (giãn thời gian ra 1 tiếng để đỡ làm phiền)
                 setInterval(() => {
                     if (document.visibilityState === 'visible') {
                         reg.update().catch(() => {});
                     }
-                }, 5 * 60 * 1000);
+                }, 60 * 60 * 1000); 
 
+                // Nếu đã có bản mới đang chờ sẵn (ví dụ: mở lại tab cũ)
                 if (reg.waiting) showUpdateBanner(reg.waiting);
 
+                // Lắng nghe khi có bản mới đang được cài đặt
                 reg.addEventListener('updatefound', () => {
                     const installing = reg.installing;
                     if (!installing) return;
                     installing.addEventListener('statechange', () => {
+                        // Nếu đã cài xong và có SW cũ đang chạy -> Hiện banner hỏi ý kiến
                         if (installing.state === 'installed' && navigator.serviceWorker.controller) {
                             showUpdateBanner(installing);
                         }
