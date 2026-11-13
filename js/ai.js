@@ -1,12 +1,12 @@
 /**
  * ==========================================================
  * VĂN ĐẠO AI ENGINE (js/ai.js)
- * Hệ chuyên gia văn học chạy hoàn toàn ngoại tuyến.
- * - Dò chủ đề, tra biểu tượng để tạo lời bình/khuyên.
- * - Không dùng Math.random() để phân tích nội dung.
+ * Hệ chuyên gia văn học + Động cơ tổng hợp ngôn từ linh hoạt.
+ * Tự động kết hợp (Tác phẩm + Chủ đề + Khí vận) -> Lời khuyên độc bản.
  * ==========================================================
  */
 
+import { APP_DATA } from './config.js';
 import { findSymbols } from './render.js';
 
 // ==========================================================
@@ -16,83 +16,55 @@ const CACHE_LIMIT = 120;
 const resultCache = new Map();
 
 // ==========================================================
-// PHẦN 2. NGÂN HÀNG QUY TẮC CHỦ ĐỀ
+// PHẦN 2. NGÂN HÀNG QUY TẮC CHỦ ĐỀ (PHÂN TÍCH VĂN HỌC)
 // ==========================================================
 const THEME_RULES = [
-    {
-        id: 'nature', label: 'thiên nhiên',
-        terms: ['trăng', 'nguyệt', 'sông', 'núi', 'mây', 'gió', 'mưa', 'nắng', 'hoa', 'lá', 'chim', 'đò', 'biển', 'suối', 'thu', 'xuân', 'hạ', 'đông'],
-        commentary: 'Hệ thống hình ảnh thiên nhiên tạo nên lớp cảnh sắc cho tác phẩm. Khi đọc, cần đặt cảnh vật trong quan hệ với điểm nhìn và cảm xúc của chủ thể trữ tình, thay vì chỉ xem đó là phông nền.',
-        advice: 'Hãy chú ý những hình ảnh thiên nhiên được nhắc lại hoặc đặt ở vị trí quan trọng; sự thay đổi của cảnh có thể giúp nhận ra chuyển động trong tâm trạng và mạch ý.'
-    },
-    {
-        id: 'homesickness', label: 'quê hương và ký ức',
-        terms: ['quê', 'nhà', 'làng', 'xóm', 'đất nước', 'non sông', 'cố hương', 'xa quê', 'nhớ nhà', 'quê hương'],
-        commentary: 'Tác phẩm gợi mở mối liên hệ giữa con người với quê hương và không gian nguồn cội. Ý nghĩa của nỗi nhớ sẽ rõ hơn khi đối chiếu hình ảnh quê nhà với hoàn cảnh và giọng điệu của văn bản.',
-        advice: 'Có thể đọc kỹ những chi tiết gắn với quê nhà, nơi chốn và ký ức; chúng thường cho thấy điều nhân vật hoặc chủ thể trữ tình muốn gìn giữ.'
-    },
-    {
-        id: 'love', label: 'tình cảm',
-        terms: ['yêu', 'thương', 'tình', 'duyên', 'người thương', 'đôi', 'nhớ em', 'nhớ anh', 'lứa đôi'],
-        commentary: 'Tình cảm là một mạch đáng chú ý trong văn bản. Sắc thái của nó không chỉ nằm ở lời bộc bạch trực tiếp mà còn có thể hiện ra qua cách lựa chọn hình ảnh, nhịp điệu và khoảng lặng.',
-        advice: 'Hãy phân biệt điều văn bản nói thẳng với điều được gửi qua hình ảnh, giọng điệu hoặc sự im lặng; cách biểu đạt gián tiếp thường làm nên chiều sâu cảm xúc.'
-    },
-    {
-        id: 'time', label: 'thời gian và hồi tưởng',
-        terms: ['thời gian', 'năm tháng', 'tuổi trẻ', 'tuổi xuân', 'ngày xưa', 'hoàng hôn', 'chiều', 'bóng xế', 'phai', 'tàn'],
-        commentary: 'Dấu hiệu thời gian góp phần tạo nên chiều sâu suy tưởng. Sự đối chiếu giữa hiện tại và quá khứ, hoặc giữa cái đang có và cái đã qua, có thể là chìa khóa để đọc mạch cảm xúc.',
-        advice: 'Hãy để ý các từ chỉ thời gian và những hình ảnh biến đổi; chúng giúp nhận ra tác phẩm đang nghiêng về hồi tưởng, tiếc nuối hay suy ngẫm.'
-    },
-    {
-        id: 'humanity', label: 'thân phận con người',
-        terms: ['người', 'đời', 'phận', 'kiếp', 'nhân sinh', 'đau', 'khổ', 'nước mắt', 'công bằng', 'bất công', 'nghèo', 'khổ đau'],
-        commentary: 'Văn bản hướng sự chú ý đến thân phận và trải nghiệm con người. Khi bình giảng, nên gắn suy tưởng nhân sinh với chi tiết cụ thể, tránh tách thông điệp khỏi hoàn cảnh được miêu tả.',
-        advice: 'Hãy tìm chi tiết cho thấy con người đang sống trong hoàn cảnh nào, chịu tác động bởi điều gì và lựa chọn ra sao; từ đó mới rút ra nhận xét về tư tưởng của tác phẩm.'
-    },
-    {
-        id: 'patriotism', label: 'quê hương và cộng đồng',
-        terms: ['tổ quốc', 'đất nước', 'giang sơn', 'độc lập', 'tự do', 'chiến sĩ', 'quê hương', 'đồng bào', 'non sông'],
-        commentary: 'Tác phẩm có những dấu hiệu hướng về cộng đồng và đất nước. Cần xem tình cảm ấy được thể hiện qua hình tượng, giọng điệu và hoàn cảnh lịch sử nào để tránh bình luận chung chung.',
-        advice: 'Hãy liên hệ hình ảnh cá nhân với cộng đồng, đồng thời chú ý những chi tiết cụ thể làm nên cảm hứng quê hương, đất nước trong văn bản.'
-    },
-    {
-        id: 'resilience', label: 'nghị lực và hy vọng',
-        terms: ['vượt', 'đường xa', 'bão', 'giông', 'gian nan', 'khó khăn', 'bền chí', 'kiên trì', 'hy vọng', 'niềm tin'],
-        commentary: 'Văn bản gợi ra hành trình đối diện thử thách và khả năng hướng về phía trước. Giá trị của mạch ý này cần được nhìn từ diễn biến và lựa chọn của con người trong tác phẩm.',
-        advice: 'Hãy quan sát cách văn bản chuyển từ khó khăn sang suy ngẫm hoặc hy vọng; sự chuyển giọng ấy thường quan trọng hơn một lời khuyên được rút ra vội vàng.'
-    }
+    { id: 'nature', label: 'thiên nhiên', terms: ['trăng', 'nguyệt', 'sông', 'núi', 'mây', 'gió', 'mưa', 'nắng', 'hoa', 'lá', 'chim', 'đò', 'biển', 'suối', 'thu', 'xuân', 'hạ', 'đông'], commentary: 'Hệ thống hình ảnh thiên nhiên tạo nên lớp cảnh sắc cho tác phẩm. Khi đọc, cần đặt cảnh vật trong quan hệ với điểm nhìn và cảm xúc của chủ thể trữ tình, thay vì chỉ xem đó là phông nền.' },
+    { id: 'homesickness', label: 'quê hương và ký ức', terms: ['quê', 'nhà', 'làng', 'xóm', 'đất nước', 'non sông', 'cố hương', 'xa quê', 'nhớ nhà', 'quê hương'], commentary: 'Tác phẩm gợi mở mối liên hệ giữa con người với quê hương và không gian nguồn cội. Ý nghĩa của nỗi nhớ sẽ rõ hơn khi đối chiếu hình ảnh quê nhà với hoàn cảnh và giọng điệu của văn bản.' },
+    { id: 'love', label: 'tình cảm', terms: ['yêu', 'thương', 'tình', 'duyên', 'người thương', 'đôi', 'nhớ em', 'nhớ anh', 'lứa đôi'], commentary: 'Tình cảm là một mạch đáng chú ý trong văn bản. Sắc thái của nó không chỉ nằm ở lời bộc bạch trực tiếp mà còn có thể hiện ra qua cách lựa chọn hình ảnh, nhịp điệu và khoảng lặng.' },
+    { id: 'time', label: 'thời gian và hồi tưởng', terms: ['thời gian', 'năm tháng', 'tuổi trẻ', 'tuổi xuân', 'ngày xưa', 'hoàng hôn', 'chiều', 'bóng xế', 'phai', 'tàn'], commentary: 'Dấu hiệu thời gian góp phần tạo nên chiều sâu suy tưởng. Sự đối chiếu giữa hiện tại và quá khứ, hoặc giữa cái đang có và cái đã qua, có thể là chìa khóa để đọc mạch cảm xúc.' },
+    { id: 'humanity', label: 'thân phận con người', terms: ['người', 'đời', 'phận', 'kiếp', 'nhân sinh', 'đau', 'khổ', 'nước mắt', 'công bằng', 'bất công', 'nghèo', 'khổ đau'], commentary: 'Văn bản hướng sự chú ý đến thân phận và trải nghiệm con người. Khi bình giảng, nên gắn suy tưởng nhân sinh với chi tiết cụ thể, tránh tách thông điệp khỏi hoàn cảnh được miêu tả.' },
+    { id: 'patriotism', label: 'quê hương và cộng đồng', terms: ['tổ quốc', 'đất nước', 'giang sơn', 'độc lập', 'tự do', 'chiến sĩ', 'quê hương', 'đồng bào', 'non sông'], commentary: 'Tác phẩm có những dấu hiệu hướng về cộng đồng và đất nước. Cần xem tình cảm ấy được thể hiện qua hình tượng, giọng điệu và hoàn cảnh lịch sử nào để tránh bình luận chung chung.' },
+    { id: 'resilience', label: 'nghị lực và hy vọng', terms: ['vượt', 'đường xa', 'bão', 'giông', 'gian nan', 'khó khăn', 'bền chí', 'kiên trì', 'hy vọng', 'niềm tin'], commentary: 'Văn bản gợi ra hành trình đối diện thử thách và khả năng hướng về phía trước. Giá trị của mạch ý này cần được nhìn từ diễn biến và lựa chọn của con người trong tác phẩm.' }
 ];
 
-const FALLBACK_COMMENTARY = 'Tác phẩm cần được đọc từ những chi tiết cụ thể: hình ảnh nổi bật, giọng điệu, cách tổ chức câu chữ và mối liên hệ giữa các phần. Chưa nên kết luận về tư tưởng chủ đạo khi chưa có đủ văn bản.';
-const FALLBACK_ADVICE = 'Hãy chọn một hình ảnh hoặc câu văn gây chú ý, rồi tự hỏi: chi tiết ấy xuất hiện trong hoàn cảnh nào, liên hệ với phần còn lại ra sao và tạo nên sắc thái gì?';
+const FALLBACK_COMMENTARY = 'Tác phẩm cần được đọc từ những chi tiết cụ thể: hình ảnh nổi bật, giọng điệu, cách tổ chức câu chữ và mối liên hệ giữa các phần.';
 
 // ==========================================================
-// PHẦN 3. CÁC HÀM XỬ LÝ
+// PHẦN 3. LỚP VẬN KHÍ (6 BẬC)
+// ==========================================================
+const FORTUNE_LEVELS = [
+    { key: 'dai-cat', weight: 10, name: 'Đại cát', color: '#b89552', advice: 'Chủ động nắm bắt cơ hội, lấy lòng nhân hậu và sự khiêm nhường làm gốc. Tránh kiêu ngạo, tự mãn hoặc xem thuận lợi nhất thời là điều hiển nhiên.' },
+    { key: 'trung-cat', weight: 18, name: 'Trung cát', color: '#8eaa91', advice: 'Kiên trì, làm việc có kế hoạch và giữ chữ tín. Tránh nóng vội, chủ quan hoặc bỏ dở việc đang làm.' },
+    { key: 'tieu-cat', weight: 22, name: 'Tiểu cát', color: '#9baf85', advice: 'Trân trọng điều bình dị, chăm chút việc nhỏ và giữ tâm thế biết ơn. Tránh xem nhẹ những điều nhỏ bé.' },
+    { key: 'binh-hoa', weight: 24, name: 'Bình hòa', color: '#778c85', advice: 'Giữ sự điều độ, suy xét thấu đáo và làm tốt việc trước mắt. Tránh cố cưỡng cầu kết quả.' },
+    { key: 'tieu-hung', weight: 16, name: 'Tiểu hung', color: '#ad876d', advice: 'Kiểm tra lại kế hoạch, lắng nghe ý kiến đáng tin cậy. Tránh quyết định bốc đồng, hấp tấp.' },
+    { key: 'dai-hung', weight: 10, name: 'Đại hung', color: '#9c7777', advice: 'Thận trọng, rà soát những điều quan trọng và ưu tiên sự an toàn. Tránh liều lĩnh, cố chấp khi chưa đủ thông tin.' }
+];
+const FORTUNE_FALLBACK = Object.fromEntries(FORTUNE_LEVELS.map(item => [item.key, item]));
+
+// ==========================================================
+// PHẦN 4. ĐỘNG CƠ TỔNG HỢP NGÔN TỪ LINH HOẠT
 // ==========================================================
 function normalizeText(value = '') {
     return String(value).toLocaleLowerCase('vi').normalize('NFC').replace(/\s+/g, ' ').trim();
 }
 
 function countMatches(text, terms) {
-    let score = 0;
-    const hits = [];
+    let score = 0; const hits = [];
     for (const term of terms) {
         const needle = normalizeText(term);
         if (!needle) continue;
         const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
         const pattern = new RegExp(`(^|[^\\p{L}\\p{N}])${escaped}(?=$|[^\\p{L}\\p{N}])`, 'giu');
         const found = text.match(pattern);
-        if (found?.length) {
-            score += found.length;
-            hits.push(term);
-        }
+        if (found?.length) { score += found.length; hits.push(term); }
     }
     return { score, hits };
 }
 
 function getWorkText(work = {}) {
-    return [work.title, work.author, work.desc, work.description, work.content, work.excerpt]
-        .filter(Boolean).join('\n');
+    return [work.title, work.author, work.desc, work.description, work.content, work.excerpt].filter(Boolean).join('\n');
 }
 
 function selectThemes(text) {
@@ -106,62 +78,23 @@ function selectThemes(text) {
 function getSymbolEvidence(text) {
     try {
         return findSymbols(text).slice(0, 4).map(symbol => ({
-            keyword: symbol.keyword,
-            type: symbol.type,
-            meaning: symbol.mean || '',
-            volume: symbol.vol || '',
-            section: symbol.sec || ''
+            keyword: symbol.keyword, type: symbol.type, meaning: symbol.mean || '', volume: symbol.vol || '', section: symbol.sec || ''
         }));
-    } catch (error) {
-        console.warn('[VĂN ĐẠO AI] Không thể tra cứu biểu tượng:', error);
-        return [];
-    }
-}
-
-function makeCommentary(work, themes, symbols) {
-    const title = work.title ? `“${work.title}”` : 'Văn bản này';
-    const parts = [];
-    if (themes.length) {
-        parts.push(themes[0].rule.commentary);
-        if (themes[1]) parts.push(themes[1].rule.commentary);
-    } else {
-        parts.push(FALLBACK_COMMENTARY);
-    }
-    if (symbols.length) {
-        const names = symbols.slice(0, 2).map(item => `“${item.keyword}”`).join(' và ');
-        parts.push(`Đáng chú ý, văn bản có những hình ảnh hoặc điển tích như ${names}. Ý nghĩa cụ thể của chúng cần được xác định trong ngữ cảnh câu chữ, không nên áp dụng máy móc một nghĩa cố định.`);
-    }
-    return `${title}: ${parts.join(' ')}`;
-}
-
-function makeAdvice(themes, symbols) {
-    if (themes.length) {
-        const advice = themes.map(item => item.rule.advice);
-        if (symbols.length) {
-            advice.push(`Đối chiếu biểu tượng “${symbols[0].keyword}” với câu thơ hoặc đoạn văn chứa nó; một biểu tượng có thể thay đổi sắc thái theo ngữ cảnh.`);
-        }
-        return advice.join(' ');
-    }
-    return FALLBACK_ADVICE;
+    } catch (error) { return []; }
 }
 
 function cacheSet(key, value) {
     if (resultCache.has(key)) resultCache.delete(key);
     resultCache.set(key, value);
-    if (resultCache.size > CACHE_LIMIT) {
-        const oldest = resultCache.keys().next().value;
-        resultCache.delete(oldest);
-    }
+    if (resultCache.size > CACHE_LIMIT) { const oldest = resultCache.keys().next().value; resultCache.delete(oldest); }
 }
 
 function escapeHTML(value = '') {
-    return String(value).replace(/[&<>"']/g, char => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    })[char]);
+    return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 }
 
 // ==========================================================
-// PHẦN 4. API CÔNG KHAI
+// PHẦN 5. API CÔNG KHAI
 // ==========================================================
 export function analyzeWork(work = {}) {
     const sourceText = getWorkText(work);
@@ -171,16 +104,15 @@ export function analyzeWork(work = {}) {
     const themes = selectThemes(sourceText);
     const symbols = getSymbolEvidence(sourceText);
 
+    let commentaryText = themes.length ? themes[0].rule.commentary : FALLBACK_COMMENTARY;
+    if (symbols.length > 0) {
+        commentaryText += ` Đáng chú ý, văn bản xuất hiện hình ảnh "${symbols[0].keyword}", cần được đặt trong ngữ cảnh để hiểu rõ tầng nghĩa sâu kín.`;
+    }
+
     const result = {
-        bridgeText: themes.length
-            ? `Một hướng đọc đáng chú ý của tác phẩm là ${themes.map(item => item.rule.label).join(' và ')}. Hãy bắt đầu từ những chi tiết thực sự hiện diện trong văn bản.`
-            : 'Hãy bắt đầu bằng một chi tiết cụ thể trong tác phẩm; từ chi tiết ấy, lần theo hình ảnh, giọng điệu và mạch ý.',
-        commentaryText: makeCommentary(work, themes, symbols),
-        adviceText: makeAdvice(themes, symbols),
-        evidence: {
-            themes: themes.map(item => ({ id: item.rule.id, label: item.rule.label, hits: item.hits })),
-            symbols
-        },
+        themes: themes.map(t => t.rule.label),
+        commentaryText,
+        evidence: { themes, symbols },
         confidence: themes.length ? 'trung bình' : 'thấp'
     };
 
@@ -188,48 +120,96 @@ export function analyzeWork(work = {}) {
     return result;
 }
 
-export function analyze(text, options = {}) {
-    const tasks = Array.isArray(options.tasks) ? options.tasks : ['commentary', 'advice'];
-    const work = { title: options.title || '', desc: String(text || '') };
-    const base = analyzeWork(work);
-
-    const result = { evidence: base.evidence, confidence: base.confidence };
-
-    if (tasks.includes('commentary')) result.commentary = { text: base.commentaryText, evidence: base.evidence };
-    if (tasks.includes('advice')) result.advice = { text: base.adviceText, evidence: base.evidence };
-    
-    if (tasks.includes('poetics')) {
-        result.poetics = typeof options.poeticsAnalyzer === 'function'
-            ? options.poeticsAnalyzer(String(text || ''))
-            : { available: false, message: 'Chưa được cung cấp bộ phân tích thi pháp cho yêu cầu này.' };
+export function calculateFortune() {
+    const totalWeight = FORTUNE_LEVELS.reduce((sum, item) => sum + item.weight, 0);
+    let draw = Math.random() * totalWeight;
+    for (const item of FORTUNE_LEVELS) {
+        draw -= item.weight;
+        if (draw < 0) return item.key;
     }
-
-    return result;
+    return 'binh-hoa';
 }
 
-export function synthesizeCommentary(work) {
-    const result = analyzeWork(work);
-    const adviceHtml = `
-        <div>
+export function getFortuneInfo(key = 'binh-hoa') {
+    const fallback = FORTUNE_FALLBACK[key] || FORTUNE_FALLBACK['binh-hoa'];
+    const saved = APP_DATA.FORTUNE_CONFIG?.[key] || {};
+    return { ...fallback, ...saved, key, name: saved.name || fallback.name, color: saved.color || fallback.color };
+}
+
+// =====================================================================
+// HÀM TỔNG HỢP LINH HOẠT: KẾT HỢP KHÍ VẬN VÀ TÁC PHẨM
+// =====================================================================
+export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa') {
+    const fortune = getFortuneInfo(fortuneKey);
+    const analysis = analyzeWork(work);
+    
+    const title = work.title || 'trang sách';
+    const author = work.author || 'tác giả';
+    const mainTheme = analysis.themes.length > 0 ? analysis.themes[0] : 'nhân sinh';
+    
+    const mainSymbol = analysis.evidence.symbols.length > 0 ? `"${analysis.evidence.symbols[0].keyword}"` : null;
+
+    // 1. TẠO CÂU DẪN (BRIDGE) LINH HOẠT
+    let bridgeText = `Duyên lành đưa bạn đến với "${title}" của ${author} trong một ngày vận khí ${fortune.name.toLowerCase()}. `;
+    if (fortuneKey === 'dai-cat') bridgeText += `Trang sách mở ra như một lời chúc phúc, hãy đón nhận bằng tâm thế rộng mở.`;
+    else if (fortuneKey === 'trung-cat' || fortuneKey === 'tieu-cat') bridgeText += `Mọi sự đang diễn ra êm đềm, thật hợp để bạn tĩnh tâm chiêm nghiệm.`;
+    else if (fortuneKey === 'binh-hoa') bridgeText += `Ngày hôm nay như mặt hồ phẳng lặng, rất thích hợp để lắng lòng.`;
+    else bridgeText += `Dẫu ngoài kia có chút gợn sóng, nhưng trang sách này sẽ là một chốn bình yên.`;
+
+    // 2. TẠO LỜI KHUYÊN (ADVICE) LINH HOẠT
+    let dynamicAdvice = "";
+    if (fortuneKey === 'dai-cat') {
+        dynamicAdvice = `Vận khí đang rực rỡ, hãy dùng cảm hứng từ chủ đề "${mainTheme}" của tác phẩm để chủ động gieo duyên lành và lan tỏa những điều tốt đẹp.`;
+    } else if (fortuneKey === 'tieu-hung' || fortuneKey === 'dai-hung') {
+        dynamicAdvice = `Khi vận khí có chút trắc trở, hãy mượn sự tĩnh tại và bài học về "${mainTheme}" trong tác phẩm để làm điểm tựa, nhắc mình chậm lại, quan sát sâu hơn và không hấp tấp.`;
+    } else {
+        dynamicAdvice = `Hãy kết hợp sự thong dong của vận khí ${fortune.name.toLowerCase()} với những chiêm nghiệm về "${mainTheme}" trong trang sách để vun đắp những giá trị bền vững.`;
+    }
+
+    if (mainSymbol) {
+        dynamicAdvice += ` Đặc biệt, hãy để hình ảnh ${mainSymbol} đánh thức những suy ngẫm sâu kín trong bạn.`;
+    }
+
+    // Tách Nên / Tránh
+    let nenText = "", tranhText = "";
+    if (fortune.advice) {
+        const matchNen = fortune.advice.match(/Nên:(.*?)(?=Tránh:|$)/i);
+        const matchTranh = fortune.advice.match(/Tránh:(.*)/i);
+        nenText = matchNen ? matchNen[1].trim() : '';
+        tranhText = matchTranh ? matchTranh[1].trim() : '';
+    }
+
+    let adviceHtml = '';
+    if (nenText) adviceHtml += `<div style="margin-bottom:8px;"><strong style="color:var(--accent-text);">Nên:</strong> <span style="color:var(--text-main);">${escapeHTML(nenText)}</span></div>`;
+    if (tranhText) adviceHtml += `<div style="margin-bottom:10px;"><strong style="color:#a36b6b;">Tránh:</strong> <span style="color:var(--text-muted);">${escapeHTML(tranhText)}</span></div>`;
+    
+    adviceHtml += `
+        <div style="border-top:1px dashed rgba(128,128,128,0.2); padding-top:10px; margin-top:10px;">
             <strong style="color:var(--accent-text);">Gợi ý đọc:</strong>
-            <span style="color:var(--text-main);">${escapeHTML(result.adviceText)}</span>
+            <span style="color:var(--text-main);">${escapeHTML(dynamicAdvice)}</span>
         </div>
     `;
+
+    // 3. LỜI CHIÊM NGHIỆM (Từ file JSON hoặc fallback)
+    const commentaryData = APP_DATA.COMMENTARY_DATA?.[fortuneKey] || {};
+    const commentaries = Array.isArray(commentaryData.commentaries) ? commentaryData.commentaries : [];
+    const fortuneReflection = commentaries.length > 0 
+        ? commentaries[Math.floor(Math.random() * commentaries.length)]
+        : `Lời chiêm nghiệm cho vận khí ${fortune.name}: Hãy giữ tâm thế bình thản trước mọi biến động.`;
+
     return {
-        commentaryText: escapeHTML(result.commentaryText),
+        bridgeText,
+        fortuneReflection,
+        literaryCommentary: analysis.commentaryText,
         adviceHtml,
-        bridgeText: escapeHTML(result.bridgeText),
-        evidence: result.evidence,
-        confidence: result.confidence
+        fortuneInfo: fortune,
+        confidence: analysis.confidence,
+        evidence: analysis.evidence
     };
 }
 
 export const VAN_DAO_AI = Object.freeze({
-    analyze,
-    analyzeWork,
-    synthesizeCommentary,
-    clearCache() { resultCache.clear(); },
-    getCacheSize() { return resultCache.size; }
+    analyzeWork, calculateFortune, getFortuneInfo, synthesizeDynamicFortune,
+    clearCache() { resultCache.clear(); }, getCacheSize() { return resultCache.size; }
 });
-
 export default VAN_DAO_AI;
