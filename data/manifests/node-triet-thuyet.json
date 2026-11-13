@@ -1,0 +1,97 @@
+{
+  "$schema": "https://vandao.app/schemas/manifest-node/v1.json",
+  "nodeId": "node-triet-thuyet",
+  "label": "Máy Con — Triết Thuyết",
+  "description": "Chuyên trách 18 quyển lý thuyết nền tảng của Văn Đạo. Từ Tâm Thư, Sáu Nguyên Tắc Học Thuật, đến Thi Pháp Học, Văn Học Sử, và Bách Khoa Triết Học.",
+  "parent": "mother-00",
+  "version": "1.0.0",
+  "schemaVersion": 1,
+  "createdAt": "2026-11-21T00:00:00Z",
+  "lastUpdate": "2026-11-21T00:00:00Z",
+  
+  "endpoint": "../data-ly-thuyet.json",
+  "endpointType": "json-array",
+  "encoding": "utf-8",
+  
+  "capabilities": [
+    "theory",
+    "search",
+    "route",
+    "deep-navigation",
+    "section-anchor",
+    "volume-lookup"
+  ],
+  
+  "recordCount": 18,
+  "recordSchema": {
+    "fields": ["id", "title", "content"],
+    "required": ["id", "title", "content"],
+    "idPattern": "^quyen-(0|[ivxlcdm]+)$"
+  },
+  
+  "samples": [
+    {
+      "id": "quyen-0",
+      "title": "Quyển 0. Tâm Thư – Tuyên Ngôn Nền Tảng",
+      "recordType": "foundation"
+    },
+    {
+      "id": "quyen-i",
+      "title": "Quyển I. Sáu Nguyên Tắc Học Thuật Cốt Lõi",
+      "recordType": "principles"
+    },
+    {
+      "id": "quyen-viii",
+      "title": "Quyển VIII. Từ Điển Hán Việt Trong Thi Ca",
+      "recordType": "dictionary"
+    }
+  ],
+  
+  "volumes": [
+    { "id": "quyen-0",   "roman": "0",    "topic": "Tuyên ngôn nền tảng" },
+    { "id": "quyen-i",   "roman": "I",    "topic": "Sáu nguyên tắc học thuật" },
+    { "id": "quyen-ii",  "roman": "II",   "topic": "Thi pháp học và mỹ học" },
+    { "id": "quyen-iii", "roman": "III",  "topic": "Tam giáo (Nho, Đạo, Phật)" },
+    { "id": "quyen-iv",  "roman": "IV",   "topic": "Văn học sử và thể loại" },
+    { "id": "quyen-v",   "roman": "V",    "topic": "Từ điển biểu tượng" },
+    { "id": "quyen-vi",  "roman": "VI",   "topic": "Thực hành phân tích" },
+    { "id": "quyen-vii", "roman": "VII",  "topic": "Cẩm nang vận dụng" },
+    { "id": "quyen-viii","roman": "VIII", "topic": "Từ điển Hán Việt" },
+    { "id": "quyen-ix",  "roman": "IX",   "topic": "Lịch sử VHVN" },
+    { "id": "quyen-x",   "roman": "X",    "topic": "Lịch sử VH thế giới" },
+    { "id": "quyen-xi",  "roman": "XI",   "topic": "Bách khoa tác giả" },
+    { "id": "quyen-xii", "roman": "XII",  "topic": "Bách khoa tác phẩm" },
+    { "id": "quyen-xiii","roman": "XIII", "topic": "Lý luận văn học" },
+    { "id": "quyen-xiv", "roman": "XIV",  "topic": "Ngôn ngữ và văn bản" },
+    { "id": "quyen-xv",  "roman": "XV",   "topic": "Triết học, tôn giáo, văn hóa" },
+    { "id": "quyen-xvi", "roman": "XVI",  "topic": "Nghệ thuật và mỹ học" },
+    { "id": "quyen-xvii","roman": "XVII", "topic": "Phương pháp khảo cứu" }
+  ],
+  
+  "cacheConfig": {
+    "ttl": 600000,
+    "staleWhileRevalidate": true,
+    "persist": true
+  },
+  
+  "fallbackTo": "mother-00",
+  "fallbackStrategy": "local-app-data",
+  
+  "health": {
+    "endpointCheck": "../data-ly-thuyet.json",
+    "expectedMinSize": 10000
+  },
+  
+  "metadata": {
+    "language": "vi",
+    "script": "Quốc ngữ",
+    "topics": [
+      "triết học",
+      "thi pháp",
+      "văn học sử",
+      "từ điển",
+      "mỹ học",
+      "nghiên cứu"
+    ]
+  }
+}

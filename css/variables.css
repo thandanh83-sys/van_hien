@@ -1,0 +1,90 @@
+/**
+ * ==========================================================
+ * VĂN ĐẠO - VARIABLES CSS (css/variables.css)
+ * Vị trí: css/variables.css
+ * Version: 1.0.0 (Network Edition)
+ * ==========================================================
+ * CHỨC NĂNG:
+ * Chứa toàn bộ biến số thiết kế (Design Tokens).
+ * Đây là "nguồn chân lý duy nhất" (Single Source of Truth) cho
+ * màu sắc, font chữ, kích thước và hiệu ứng chuyển động.
+ * 
+ * TRIẾT LÝ:
+ * "Bạch Ngọc" — Trắng ngà thanh khiết, Ngọc bích dịu dàng,
+ * Vàng cát sang trọng. Tĩnh tại, không phô trương.
+ * ==========================================================
+ */
+
+:root {
+    /* =================================================================
+       1. BẢNG MÀU BẠCH NGỌC & NGỌC THẠCH Á ĐÔNG
+       ================================================================= */
+    /* Nền & Chữ cơ bản */
+    --bg-base: #fdfbf7;           /* Trắng ngà thanh khiết */
+    --text-main: #2c3e38;         /* Xanh rêu đậm (Chữ chính) */
+    --text-muted: #6a7c76;        /* Xanh xám (Chữ phụ, mô tả) */
+    --ink-soft: #3a4e47;          /* Xanh mực nhẹ (Dùng cho các block cần độ tương phản cao) */
+    
+    /* Điểm nhấn (Ngọc Bích, Kim Cổ) */
+    --accent: #8bb8a8;            /* Ngọc bích (Nút, viền, icon) */
+    --accent-hover: #739e8f;      /* Ngọc bích đậm (Hover) */
+    --accent-text: #557a6f;       /* Ngọc bích trầm (Chữ nhấn mạnh) */
+    
+    /* Điểm nhấn vàng (Dành cho Tác giả liên quan & Hỏi Đạo) */
+    --accent-gold: #d4c4a8;       /* Vàng cát (Viền, điểm nhấn) */
+    --gold-soft: #e8dcc4;         /* Vàng nhạt (Nền block) */
+    --gold-deep: #b8a273;         /* Vàng đậm (Hover, Text) */
+    
+    /* Nền & Viền của các khối */
+    --card-bg: rgba(253, 251, 247, 0.95); 
+    --veil: rgba(253, 251, 247, 0.88);    /* Lớp mờ cho Modal/Backdrop */
+    --border-color: rgba(139, 184, 168, 0.2);
+    --line-hairline: 1px solid rgba(139, 184, 168, 0.12); /* Viền siêu mảnh */
+    
+    /* Trạng thái (Dùng cho Network, Lỗi, Cảnh báo) */
+    --color-success: #10b981;
+    --color-error: #a36b6b;
+    --color-warning: #d4c4a8;
+
+    /* Đổ bóng (Box Shadow) */
+    --shadow: 0 10px 30px rgba(139, 184, 168, 0.12);       
+    --shadow-heavy: 0 20px 50px rgba(0, 0, 0, 0.15);       
+    --shadow-glow: 0 0 15px rgba(139, 184, 168, 0.3);      
+
+    /* =================================================================
+       2. HỆ THỐNG FONT CHỮ (TYPOGRAPHY)
+       ================================================================= */
+    /* Font viết tay (Alex Brush) - Tiêu đề lớn, Lời bình */
+    --font-calligraphy: 'Alex Brush', cursive;          
+    
+    /* Font chân phương (Times New Roman) - Nội dung đọc */
+    --font-body: 'Times New Roman', Times, serif;       
+    
+    /* Fallback cho title (Fix bug thiếu biến ở bản cũ) */
+    --font-title: var(--font-calligraphy); 
+    
+    /* Kích thước chữ mặc định */
+    --read-font-size: 1.15rem;    
+    --small-font-size: 0.85rem;
+
+    /* =================================================================
+       3. KÍCH THƯỚC & BO GÓC (SIZES & RADIUS)
+       ================================================================= */
+    --radius-pill: 50px;          /* Bo tròn hoàn toàn */
+    --radius-card: 24px;          /* Bo góc thẻ */
+    --radius-sm: 8px;             /* Bo góc nhỏ (Nút, tag) */
+    --radius-xs: 4px;             /* Bo góc siêu nhỏ */
+
+    /* =================================================================
+       4. HIỆU ỨNG CHUYỂN ĐỘNG (EASING & TRANSITIONS)
+       ================================================================= */
+    /* Hiệu ứng mượt mà như dải lụa */
+    --ease-silk: cubic-bezier(0.25, 0.8, 0.25, 1);
+    /* Hiệu ứng sắc bén, dứt khoát */
+    --ease-silk-sharp: cubic-bezier(0.76, 0, 0.24, 1);
+    
+    /* Thời gian chuyển động */
+    --transition-fast: 0.2s var(--ease-silk);
+    --transition-base: 0.3s var(--ease-silk);
+    --transition-slow: 0.5s var(--ease-silk);
+}

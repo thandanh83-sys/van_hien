@@ -1,0 +1,42 @@
+{
+  "config": {
+    "dai-cat": {
+      "name": "Đại Cát",
+      "color": "#C9A45C",
+      "description": "Vạn sự hanh thông, cát tường như ý"
+    },
+    "trung-cat": {
+      "name": "Trung Cát",
+      "color": "#398875",
+      "description": "Thuận buồm xuôi gió, vững bước tiến lên"
+    },
+    "tieu-cat": {
+      "name": "Tiểu Cát",
+      "color": "#83B9A5",
+      "description": "Bình an hỷ lạc, vạn sự khởi sắc"
+    },
+    "binh-hoa": {
+      "name": "Bình Hòa",
+      "color": "#829B96",
+      "description": "Mây trôi nước chảy, tĩnh tại an nhiên"
+    },
+    "tieu-hung": {
+      "name": "Tiểu Hung",
+      "color": "#B47B68",
+      "description": "Gợn sóng nhỏ, cần tĩnh tâm quan sát"
+    },
+    "dai-hung": {
+      "name": "Đại Hung",
+      "color": "#793F4B",
+      "description": "Bão giông thử thách, ẩn mình chờ thời"
+    }
+  },
+  "advice": {
+    "dai-cat": "Nên: Hành động quyết đoán, nắm bắt cơ duyên. Hãy lấy chữ Nhân và sự bao dung để dẫn dắt thành công. Tránh: Kiêu ngạo, bởi thịnh mãn tất suy; hãy giữ tâm khiêm hạ.",
+    "trung-cat": "Nên: Tiếp tục nỗ lực, vun bồi đức hạnh và mở rộng thiện duyên. Tránh: Nóng vội muốn thấy kết quả ngay. Thành quả tốt đẹp cần thời gian vun đắp.",
+    "tieu-cat": "Nên: Trân trọng những điều giản dị, hoàn thiện việc còn dang dở và biết đủ. Tránh: Kỳ vọng quá cao. Bình yên trong tâm trí chính là điều quý giá.",
+    "binh-hoa": "Nên: Nghỉ ngơi, đọc sách, chiêm nghiệm và lắng nghe nội tâm. Tránh: Quyết định vội vàng khi tâm chưa tĩnh. Hãy thuận theo tự nhiên, vô vi mà hữu thành.",
+    "tieu-hung": "Nên: Cẩn trọng trong lời nói, thực hành nhẫn nhịn và giữ bình tĩnh. Tránh: Tranh cãi, đối đầu và phản ứng nóng vội. Lùi một bước để nhìn sự việc sáng rõ hơn.",
+    "dai-hung": "Nên: Chậm lại, bảo toàn năng lượng, suy xét kỹ lưỡng và tìm sự hỗ trợ khi cần. Tránh: Hành động bốc đồng hoặc mạo hiểm. Hãy xem nghịch cảnh là cơ hội rèn luyện bản lĩnh."
+  }
+}

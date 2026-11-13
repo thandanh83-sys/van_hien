@@ -1,0 +1,99 @@
+{
+  "$schema": "https://vandao.app/schemas/manifest-node/v1.json",
+  "nodeId": "node-the-loai",
+  "label": "Máy Con — Thể Loại",
+  "description": "Chuyên trách Từ điển Thể loại (19 thể loại). Chứa định nghĩa chi tiết, đặc điểm thi pháp, lịch sử hình thành và các tác phẩm tiêu biểu cho từng thể loại. Từ Thơ Lục Bát, Thơ Đường Luật, Truyện Ngắn, đến Truyền Thuyết và Cổ Tích.",
+  "parent": "mother-00",
+  "version": "1.0.0",
+  "schemaVersion": 1,
+  "createdAt": "2026-11-21T00:00:00Z",
+  "lastUpdate": "2026-11-21T00:00:00Z",
+  
+  "endpoint": "../data-tu-dien-the-loai.json",
+  "endpointType": "json-array",
+  "encoding": "utf-8",
+  
+  "capabilities": [
+    "genre-dict",
+    "definition",
+    "search",
+    "route",
+    "related-genres"
+  ],
+  
+  "recordCount": 19,
+  "recordSchema": {
+    "fields": ["id", "name", "name_en", "parent", "classification", "description", "related"],
+    "required": ["id", "name", "description"],
+    "idPattern": "^[a-z0-9-]+$"
+  },
+  
+  "samples": [
+    {
+      "id": "tho-luc-bat",
+      "name": "Thơ Lục Bát",
+      "name_en": "Luc Bat",
+      "parent": "thi-ca",
+      "classification": "the-tho-truyen-thong"
+    },
+    {
+      "id": "tho-duong-luat",
+      "name": "Thơ Đường Luật",
+      "name_en": "Tang Poetry",
+      "parent": "thi-ca",
+      "classification": "the-tho-truyen-thong"
+    },
+    {
+      "id": "truyen-ngan",
+      "name": "Truyện ngắn",
+      "name_en": "Short Story",
+      "parent": "van-xuoi",
+      "classification": "the-loai"
+    }
+  ],
+  
+  "parentGroups": [
+    { "parent": "thi-ca", "count": 6, "label": "Thi ca" },
+    { "parent": "van-xuoi", "count": 3, "label": "Văn xuôi" },
+    { "parent": "van-chinh-luan", "count": 1, "label": "Văn chính luận" },
+    { "parent": "ky-khao-cuu", "count": 2, "label": "Ký & Khảo cứu" },
+    { "parent": "van-hoc-dan-gian", "count": 4, "label": "Văn học dân gian" },
+    { "parent": "kich-san-khau", "count": 1, "label": "Kịch & Sân khấu" }
+  ],
+  
+  "classificationGroups": [
+    { "classification": "the-tho-truyen-thong", "count": 3, "label": "Thể thơ truyền thống" },
+    { "classification": "the-tho-hien-dai", "count": 1, "label": "Thể thơ hiện đại" },
+    { "classification": "the-loai-dan-gian", "count": 4, "label": "Thể loại dân gian" },
+    { "classification": "hinh-thuc-tho-quoc-te", "count": 2, "label": "Thơ quốc tế" },
+    { "classification": "trao-luu-van-hoc", "count": 1, "label": "Trào lưu văn học" },
+    { "classification": "the-loai", "count": 2, "label": "Thể loại chung" }
+  ],
+  
+  "crossReferences": {
+    "toWorks": true,
+    "toAuthors": true,
+    "description": "Mỗi thể loại có trường 'related' chứa danh sách ID tác phẩm mẫu để liên kết chéo."
+  },
+  
+  "cacheConfig": {
+    "ttl": 900000,
+    "staleWhileRevalidate": true,
+    "persist": true
+  },
+  
+  "fallbackTo": "mother-00",
+  "fallbackStrategy": "local-app-data",
+  
+  "health": {
+    "endpointCheck": "../data-tu-dien-the-loai.json",
+    "expectedMinSize": 2000,
+    "checkDetailFiles": false
+  },
+  
+  "metadata": {
+    "language": "vi",
+    "hasEnglishTranslation": true,
+    "lastMaintenanceCheck": "2026-11-21T00:00:00Z"
+  }
+}
