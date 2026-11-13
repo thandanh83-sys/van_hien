@@ -2,13 +2,20 @@
  * ==========================================================
  * VĂN ĐẠO AI - LITERATURE AGENT (js/ai/agents/literature.js)
  * Vị trí: js/ai/agents/literature.js
- * Version: 3.2.0 (Unified Intelligence Network)
+ * Version: 3.3.0 (Special Detector Support)
  * ==========================================================
  * CHỨC NĂNG:
  * - Tìm kiếm, tra cứu Tác phẩm, Tác giả, Thể loại.
  * - Hỗ trợ truy xuất dữ liệu bằng TẤT CẢ ID (qua DataHub).
  * - Tóm tắt thông minh: Ưu tiên đọc nội dung chi tiết, Fallback về desc nếu Offline.
  * 
+ * LỊCH SỬ PHIÊN BẢN:
+ * - v3.2.0: Unified Intelligence Network.
+ * - v3.3.0: Thêm `specialDetector` trong agentInfo để tự nhận diện
+ *           intent `define-genre` (thể loại / thể thơ) từ câu hỏi.
+ *           Trước v3.3.0, logic này nằm hardcode trong input-ai.js.
+ *           Toàn bộ logic nghiệp vụ giữ nguyên 100%.
+ *
  * TRIẾT LÝ:
  * - Không tự ý fetch JSON. Mọi dữ liệu lấy từ DataHub.
  * - ID là ngôn ngữ chung. Dùng ID để liên kết Tác phẩm - Tác giả - Thể loại.
@@ -222,34 +229,37 @@ export const LiteratureAgent = {
 };
 
 // =====================================================================
-// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// AGENT INFO - Tự mô tả metadata cho Auto-Registry (v7.0.0+)
 // =====================================================================
 /**
  * Metadata tự mô tả của LiteratureAgent.
- * Được đọc tự động bởi js/ai/agents/index.js để xây dựng:
- *   - AgentMap (bản đồ key -> class)
- *   - AgentRegistry (sổ đăng ký năng lực)
- *   - DynamicIntentPatterns (bộ từ khóa nhận diện cho InputAI)
  *
- * LƯU Ý KHI SỬA:
- * - `key` phải là duy nhất trên toàn hệ thống (không trùng agent khác).
- * - `capabilities` là map: tên-task -> tên-hàm-trong-Agent.
- * - `intentPatterns` là map: tên-task -> mảng từ khóa (đã normalize, không dấu).
- * - Từ khóa càng cụ thể, nhận diện càng chính xác; tránh từ quá ngắn (1-2 ký tự).
+ * LƯU Ý v3.3.0:
+ * - Thêm trường `specialDetector` để tự nhận diện intent `define-genre`
+ *   từ câu hỏi người dùng. Đây là logic trước đây nằm hardcode trong
+ *   input-ai.js (`detectSpecialQuestion`).
+ * - `specialDetector` được copy vào `AgentRegistry.agents[key].specialDetector`
+ *   bởi index.js v7.0.1, rồi được input-ai.js v8.0.0 gọi.
+ *
+ * THỨ TỰ ƯU TIÊN:
+ * - LiteratureAgent đứng TRƯỚC PoeticsAgent trong AGENT_CLASSES.
+ * - Nếu câu hỏi chứa từ khóa của Poetics ('y nghia', 'bieu tuong', ...),
+ *   LiteratureAgent PHẢI nhường để bảo toàn thứ tự ưu tiên cũ
+ *   (explain-symbol > define-genre). Xem chi tiết trong specialDetector.
  */
 LiteratureAgent.agentInfo = {
     // ---- Định danh ----
-    key: 'literature',                          // Bắt buộc: key duy nhất
-    name: 'Văn Học AI',                         // Tên hiển thị thân thiện
+    key: 'literature',
+    name: 'Văn Học AI',
     description: 'Chuyên trách Tác phẩm, Tác giả, Tóm tắt và Thể loại.',
 
     // ---- Năng lực (task -> method) ----
     capabilities: {
-        'summarize-work': 'summarize',          // "Tóm tắt Truyện Kiều" -> LiteratureAgent.summarize()
-        'find-author-of': 'findAuthor',         // "Ai viết Truyện Kiều?" -> LiteratureAgent.findAuthor()
-        'recommend': 'recommend',               // "Gợi ý đọc gì?" -> LiteratureAgent.recommend()
-        'define-genre': 'defineGenre',          // "Thơ lục bát là gì?" -> LiteratureAgent.defineGenre()
-        'search': 'search'                      // Fallback tìm kiếm tự do
+        'summarize-work': 'summarize',
+        'find-author-of': 'findAuthor',
+        'recommend': 'recommend',
+        'define-genre': 'defineGenre',
+        'search': 'search'
     },
 
     // ---- Loại dữ liệu có thể đọc ----
@@ -258,11 +268,63 @@ LiteratureAgent.agentInfo = {
     // ---- Agent được phép ủy thác ----
     canDelegate: ['poetics', 'knowledge', 'history', 'character'],
 
-    // ---- Từ khóa nhận diện Intent ----
+    // ---- Từ khóa nhận diện Intent (từ khóa chính) ----
     intentPatterns: {
         'summarize-work': ['tom tat', 'noi dung chinh', 'ke lai', 'trinh bay'],
         'find-author-of': ['ai viet', 'tac gia cua', 'ai sang tac', 'nguoi viet', 'cua ai'],
         'recommend': ['goi y', 'de xuat', 'nen doc', 'muon doc', 'tim truyen', 'tim tho'],
         'define-genre': ['the loai', 'the tho', 'dinh nghia the loai']
+    },
+
+    // =================================================================
+    // [v3.3.0 - THÊM MỚI] SPECIAL DETECTOR
+    // =================================================================
+    /**
+     * Nhận diện câu hỏi chuyên môn đặc biệt cần xử lý riêng.
+     *
+     * Đây là logic trước đây nằm hardcode trong input-ai.js. Nay chuyển
+     * về từng Agent tự khai báo — input-ai.js không còn hardcode.
+     *
+     * LOGIC (kế thừa từ input-ai.js v7.0.0):
+     * - Nếu câu chứa 'the', 'loai', 'the', 'tho' → intent 'define-genre'.
+     *
+     * QUAN TRỌNG — NHƯỜNG QUYỀN CHO POETICS:
+     * - Trong Registry, Literature đứng TRƯỚC Poetics. Nếu câu hỏi
+     *   chứa cả từ khóa Poetics lẫn từ khóa thể loại (VD: "ý nghĩa
+     *   của thể loại"), thứ tự cũ ưu tiên `explain-symbol` (Poetics).
+     * - Vì vậy, Literature PHẢI return null khi thấy bất kỳ từ khóa
+     *   Poetics nào, để nhường cho Poetics xử lý ở vòng lặp tiếp theo.
+     * - Nếu không nhường → đảo ngược hành vi cũ, gây sai intent.
+     *
+     * @param {string} text - Câu đã chuẩn hóa (lowercase, không dấu).
+     * @returns {string|null} - Intent hoặc null.
+     */
+    specialDetector: (text) => {
+        // Defensive: text phải là string
+        if (!text || typeof text !== 'string') return null;
+
+        const words = new Set(text.split(' '));
+        const hasAny = (arr) => arr.some(w => words.has(w));
+
+        // ---- BƯỚC 1: Nhường Poetics nếu có từ khóa của họ ----
+        // Danh sách từ khóa Poetics (explain-symbol + explain-allusion + define-term)
+        const poeticsKeywords = [
+            // explain-symbol
+            'bieu', 'tuong', 'hinh', 'anh', 'y', 'nghia',
+            // explain-allusion
+            'dien', 'tich', 'co', 'nguon', 'goc',
+            // define-term
+            'dinh', 'nghia', 'khai', 'niem', 'thuat', 'ngu'
+        ];
+        if (hasAny(poeticsKeywords)) {
+            return null; // Nhường cho Poetics
+        }
+
+        // ---- BƯỚC 2: Match define-genre ----
+        if (hasAny(['the', 'loai', 'the', 'tho'])) {
+            return 'define-genre';
+        }
+
+        return null;
     }
 };
