@@ -1,19 +1,15 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TRIỂN KHAI LÊN GITHUB PAGES
 # Tên file: .github/workflows/deploy.yml
-# Phiên bản: 3.0 (Consolidated & Bulletproof)
-# Tác giả: Văn Đạo
+# Phiên bản: 4.0 (Ultimate Consolidated Edition)
 # 
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
 # - Khai thiên lập địa: Nhận lấy toàn bộ tinh hoa (code, data, assets) 
 #   và hiển thị nó ra thế giới qua GitHub Pages.
-# - Bất khả xâm phạm: Quá trình deploy không bao giờ được phép hủy ngang 
-#   (cancel-in-progress: false). Nếu đang deploy mà có code mới, bot sẽ 
-#   đợi lần cũ xong mới chạy lần mới. Tránh tình trạng web bị "nửa nọ nửa kia".
-# - Toàn vẹn: Gom TẤT CẢ các bước (Checkout -> Setup -> Upload -> Deploy) 
-#   vào CHUNG MỘT JOB. Đây là chìa khóa để tránh lỗi "No artifacts found".
-# - Bảo mật tuyệt đối: Chỉ cấp các quyền tối thiểu cần thiết (đọc code, 
-#   ghi lên Pages, tạo token xác thực).
+# - Bất khả xâm phạm: Quá trình deploy không bao giờ được phép hủy ngang.
+# - Toàn vẹn: Gom TẤT CẢ các bước vào CHUNG MỘT JOB duy nhất để đảm bảo
+#   artifact được tạo ra và sử dụng trong cùng một phiên (khắc phục lỗi No artifacts).
+# - Bảo mật: Chỉ cấp các quyền tối thiểu cần thiết.
 # =====================================================================
 
 name: Deploy to GitHub Pages
@@ -23,10 +19,9 @@ name: Deploy to GitHub Pages
 # =====================================================================
 on:
   push:
-    branches: [ "main" ] # Chỉ chạy khi push lên nhánh main (nhánh chính)
+    branches: [ "main" ] # Chỉ chạy khi push lên nhánh main
   
   # Nút bấm thủ công trên tab Actions để bạn có thể deploy lại bất cứ lúc nào
-  # mà không cần tạo commit mới.
   workflow_dispatch:
 
 # =====================================================================
@@ -34,21 +29,18 @@ on:
 # =====================================================================
 # Tuân thủ nguyên tắc "Đặc quyền tối thiểu" (Principle of Least Privilege).
 permissions:
-  contents: read  # Chỉ được phép đọc code trong kho, không được sửa
+  contents: read  # Chỉ được phép đọc code trong kho
   pages: write    # Được phép ghi (deploy) lên GitHub Pages
-  id-token: write # Cấp quyền tạo token xác thực (OpenID Connect) để GitHub Pages tin tưởng
+  id-token: write # Cấp quyền tạo token xác thực (OIDC) cho Pages
 
 # =====================================================================
 # 3. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
 # =====================================================================
 concurrency:
-  group: "pages" # Gom tất cả các lần deploy vào chung một nhóm tên là "pages"
+  group: "pages"
   
   # TUYỆT ĐỐI KHÔNG HỦY NGANG (cancel-in-progress: false).
-  # Nếu đang deploy mà bạn push thêm code, bot sẽ đợi lần deploy cũ chạy xong 
-  # mới chạy lần mới. 
-  # Việc hủy ngang giữa chừng có thể khiến web bị lỗi "nửa nọ nửa kia" 
-  # hoặc trắng trang do thiếu file.
+  # Đảm bảo không có 2 quá trình deploy chạy song song gây lỗi file.
   cancel-in-progress: false 
 
 # =====================================================================
@@ -57,16 +49,13 @@ concurrency:
 jobs:
   # CHỈ CÓ DUY NHẤT MỘT JOB (Gộp chung mọi thứ để đảm bảo tính toàn vẹn)
   deploy:
-    # Khai báo môi trường là github-pages và lấy đường link URL sau khi deploy thành công
+    # Khai báo môi trường là github-pages và lấy đường link URL sau khi deploy
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
       
-    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
-    
-    # KỶ LUẬT THỜI GIAN: Tự động hủy nếu chạy quá 10 phút.
-    timeout-minutes: 10
+    timeout-minutes: 10 # Tự động hủy nếu chạy quá 10 phút (tránh treo bot)
     
     steps:
       # -----------------------------------------------------------------
@@ -75,24 +64,20 @@ jobs:
       - name: 1. Checkout (Lấy code về)
         uses: actions/checkout@v4
         with:
-          # Chỉ cần lấy code mới nhất (fetch-depth: 1) để deploy.
-          # Không cần lấy toàn bộ lịch sử commit, giúp quá trình checkout nhanh hơn.
-          fetch-depth: 1
+          fetch-depth: 1 # Chỉ lấy commit mới nhất cho nhanh
 
       # -----------------------------------------------------------------
       # BƯỚC 2: CẤU HÌNH GITHUB PAGES
       # -----------------------------------------------------------------
       - name: 2. Setup Pages (Cấu hình Pages)
         uses: actions/configure-pages@v5
-        # Tự động lấy các thông số cấu hình (như tên miền, base path) của GitHub Pages 
-        # để chuẩn bị cho quá trình build. Đảm bảo các file CSS/JS trỏ đúng đường dẫn.
+        # Tự động lấy các thông số cấu hình (base path, tên miền...)
 
       # -----------------------------------------------------------------
-      # BƯỚC 3: (TÙY CHỌN) TẠO FILE .NOJEKYLL TỰ ĐỘNG
+      # BƯỚC 3: TẠO FILE .NOJEKYLL TỰ ĐỘNG
       # -----------------------------------------------------------------
       # GitHub Pages mặc định chạy Jekyll, có thể bỏ qua các file bắt đầu bằng dấu gạch dưới.
-      # Bước này tự động tạo file .nojekyll để báo cho GitHub Pages biết: 
-      # "Đừng can thiệp vào cấu trúc thư mục của tôi".
+      # Bước này tạo file .nojekyll để báo cho GitHub Pages: "Đừng can thiệp vào cấu trúc thư mục".
       - name: 3. Create .nojekyll file (Bảo vệ cấu trúc thư mục)
         run: touch .nojekyll
 
