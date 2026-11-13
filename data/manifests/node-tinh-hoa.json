@@ -1,0 +1,121 @@
+{
+  "$schema": "https://vandao.app/schemas/manifest-node/v1.json",
+  "nodeId": "node-tinh-hoa",
+  "label": "Máy Con — Tinh Hoa",
+  "description": "Chuyên trách 95 tác phẩm văn học tiêu biểu (Tinh Hoa). Từ kiệt tác trung đại (Truyện Kiều, Lục Vân Tiên), văn xuôi hiện thực (Chí Phèo, Số Đỏ, Tắt Đèn), đến thơ kháng chiến (Tây Tiến, Đồng Chí) và các tác phẩm thế giới (Tam Quốc, Hamlet). Node này cũng quản lý dữ liệu tác phẩm liên quan.",
+  "parent": "mother-00",
+  "version": "1.0.0",
+  "schemaVersion": 1,
+  "createdAt": "2026-11-21T00:00:00Z",
+  "lastUpdate": "2026-11-21T00:00:00Z",
+  
+  "endpoint": "../data-tac-pham.json",
+  "endpointType": "json-array",
+  "encoding": "utf-8",
+  
+  "capabilities": [
+    "works-index",
+    "related-works",
+    "search",
+    "route",
+    "deep-navigation",
+    "by-genre",
+    "by-era",
+    "by-author"
+  ],
+  
+  "recordCount": 95,
+  "recordSchema": {
+    "fields": ["id", "title", "author", "desc", "loai_hinh", "the_loai", "era", "script"],
+    "required": ["id", "title", "author"],
+    "idPattern": "^[a-z0-9-]+$"
+  },
+  
+  "detailEndpoint": {
+    "basePath": "../tac-pham/",
+    "urlTemplate": "../tac-pham/{id}.json",
+    "contentField": "content",
+    "fallbackContent": "Nội dung đang được Văn Đạo hiệu đính."
+  },
+  
+  "samples": [
+    {
+      "id": "truyen-kieu",
+      "title": "Truyện Kiều",
+      "author": "Nguyễn Du",
+      "loai_hinh": "thi-ca",
+      "the_loai": ["Truyện thơ Nôm", "Lục bát"],
+      "era": "TK 19"
+    },
+    {
+      "id": "chi-pheo",
+      "title": "Chí Phèo",
+      "author": "Nam Cao",
+      "loai_hinh": "van-xuoi",
+      "the_loai": ["Truyện ngắn"],
+      "era": "1941"
+    },
+    {
+      "id": "tay-tien",
+      "title": "Tây Tiến",
+      "author": "Quang Dũng",
+      "loai_hinh": "thi-ca",
+      "the_loai": ["Thơ tự do"],
+      "era": "1948"
+    }
+  ],
+  
+  "loaiHinhGroups": [
+    { "loaiHinh": "thi-ca", "count": 38, "label": "Thi ca" },
+    { "loaiHinh": "van-xuoi", "count": 32, "label": "Văn xuôi" },
+    { "loaiHinh": "van-hoc-dan-gian", "count": 15, "label": "Văn học dân gian" },
+    { "loaiHinh": "ky-khao-cuu", "count": 4, "label": "Ký & Khảo cứu" },
+    { "loaiHinh": "kich-san-khau", "count": 2, "label": "Kịch & Sân khấu" },
+    { "loaiHinh": "mo-rong", "count": 3, "label": "Sáng tạo mở rộng" },
+    { "loaiHinh": "van-hoc-tre-em", "count": 1, "label": "Thiếu nhi" }
+  ],
+  
+  "eraGroups": [
+    { "era": "Thời Hùng Vương", "count": 8 },
+    { "era": "Nhà Lý - Trần", "count": 3 },
+    { "era": "TK 16-17", "count": 2 },
+    { "era": "TK 18-19", "count": 12 },
+    { "era": "TK 19", "count": 15 },
+    { "era": "TK 20", "count": 40 },
+    { "era": "TK 20-21", "count": 10 },
+    { "era": "Không rõ", "count": 5 }
+  ],
+  
+  "topGenres": [
+    { "genre": "Truyện ngắn", "count": 25 },
+    { "genre": "Thơ Mới", "count": 12 },
+    { "genre": "Thơ Đường luật", "count": 10 },
+    { "genre": "Truyện chương hồi", "count": 5 },
+    { "genre": "Thất ngôn bát cú", "count": 8 },
+    { "genre": "Ca dao", "count": 6 },
+    { "genre": "Cổ tích", "count": 5 }
+  ],
+  
+  "cacheConfig": {
+    "ttl": 600000,
+    "staleWhileRevalidate": true,
+    "persist": true
+  },
+  
+  "fallbackTo": "mother-00",
+  "fallbackStrategy": "local-app-data",
+  
+  "health": {
+    "endpointCheck": "../data-tac-pham.json",
+    "expectedMinSize": 8000,
+    "checkDetailFiles": false
+  },
+  
+  "metadata": {
+    "language": "vi",
+    "totalDetailFiles": 95,
+    "detailFilesDirectory": "../tac-pham/",
+    "avgContentSize": 4200,
+    "lastMaintenanceCheck": "2026-11-21T00:00:00Z"
+  }
+}
