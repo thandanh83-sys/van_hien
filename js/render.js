@@ -1,9 +1,7 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
- * Chức năng: Hiển thị Văn Hiến, Đại Bách Khoa, Accordion,
- * Quản lý nội dung (ContentManager), Symbol Highlighter,
- * Tác phẩm liên quan và Phân trang.
+ * Đã tối ưu: Sắp xếp từ khóa highlight để tránh tô đè.
  * ==========================================================
  */
 
@@ -12,7 +10,7 @@ import { escapeHTML, normalizeRouteId, highlightText, formatContent, removeAccen
 import { VDSearchEngine } from './search.js';
 
 /* =====================================================================
-   MODULE 1: ĐỘNG CƠ HIỆU NĂNG (LAZY LOAD INTERSECTION OBSERVER)
+   MODULE 1: ĐỘNG CƠ HIỆU NĂNG
    ===================================================================== */
 export const PerformanceEngine = (() => {
     const observer = new IntersectionObserver((entries) => {
@@ -136,10 +134,10 @@ export function renderHeritage() {
 }
 
 /* =====================================================================
-   MODULE 5: CONTENT MANAGER (BỘ NHỚ ĐỆM NỘI DUNG)
+   MODULE 5: CONTENT MANAGER & BÁCH KHOA
    ===================================================================== */
 export const ContentManager = (() => {
-    const MAX_CACHE_BYTES = 5 * 1024 * 1024; // Giới hạn 5MB bộ nhớ đệm
+    const MAX_CACHE_BYTES = 5 * 1024 * 1024;
     const cache = new Map();
     const pending = new Map();
     let currentSize = 0;
@@ -147,7 +145,7 @@ export const ContentManager = (() => {
     function getCache(key) {
         if (!cache.has(key)) return null;
         const v = cache.get(key);
-        cache.delete(key); cache.set(key, v); // Đưa lên đầu (LRU)
+        cache.delete(key); cache.set(key, v);
         return v;
     }
 
@@ -285,7 +283,6 @@ export function bindEncyclopediaEvents() {
         if (!(details instanceof HTMLDetailsElement)) return;
         if (!details.matches('details[data-id][data-group]')) return;
         if (details.open) {
-            // Đóng các accordion khác đang mở
             container.querySelectorAll('details[open]').forEach(other => {
                 if (other !== details) { other.open = false; clearAccordionContent(other); }
             });
@@ -297,7 +294,7 @@ export function bindEncyclopediaEvents() {
 }
 
 /* =====================================================================
-   MODULE 5.2: RENDER ENCYCLOPEDIA (BÁCH KHOA)
+   MODULE 5.2: RENDER ENCYCLOPEDIA
    ===================================================================== */
 export function romanToInt(roman) {
     if (roman === '0') return 0;
@@ -451,7 +448,7 @@ export function highlightSymbolsInContent(container) {
     const keywords = Object.keys(APP_DATA.DICTIONARY_DATA.symbols || {}).concat(Object.keys(APP_DATA.DICTIONARY_DATA.dienTich || {}));
     if (!keywords.length) return;
 
-    // Sắp xếp từ dài nhất lên đầu để tránh tô đè (VD: "ánh trăng" trước "trăng")
+    // BẮT BUỘC: Sắp xếp từ dài nhất lên đầu để tránh tô đè (VD: "ánh trăng" trước "trăng")
     keywords.sort((a, b) => b.length - a.length);
 
     const pattern = new RegExp(
