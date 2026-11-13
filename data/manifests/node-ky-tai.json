@@ -1,0 +1,135 @@
+{
+  "$schema": "https://vandao.app/schemas/manifest-node/v1.json",
+  "nodeId": "node-ky-tai",
+  "label": "Máy Con — Kỳ Tài",
+  "description": "Chuyên trách 78 hồ sơ tác giả văn học Việt Nam và thế giới. Từ các nhà thơ trung đại (Nguyễn Du, Hồ Xuân Hương), thời Thơ Mới (Xuân Diệu, Hàn Mặc Tử), đến văn xuôi hiện đại (Nam Cao, Vũ Trọng Phụng) và các tác gia thế giới.",
+  "parent": "mother-00",
+  "version": "1.0.0",
+  "schemaVersion": 1,
+  "createdAt": "2026-11-21T00:00:00Z",
+  "lastUpdate": "2026-11-21T00:00:00Z",
+  
+  "endpoint": "../data-tac-gia.json",
+  "endpointType": "json-array",
+  "encoding": "utf-8",
+  
+  "capabilities": [
+    "author-profile",
+    "biography",
+    "search",
+    "route",
+    "deep-navigation",
+    "related-authors",
+    "by-era",
+    "by-nationality"
+  ],
+  
+  "recordCount": 78,
+  "recordSchema": {
+    "fields": ["id", "title", "content"],
+    "required": ["id", "title"],
+    "idPattern": "^tac-gia-[a-z0-9-]+$",
+    "titlePattern": "^Chân Dung Tác Giả: "
+  },
+  
+  "detailEndpoint": {
+    "basePath": "../tac-gia/",
+    "urlTemplate": "../tac-gia/{id}.json",
+    "contentField": "content"
+  },
+  
+  "samples": [
+    {
+      "id": "tac-gia-nguyen-du",
+      "title": "Chân Dung Tác Giả: Nguyễn Du",
+      "era": "TK 18-19",
+      "nationality": "Việt Nam"
+    },
+    {
+      "id": "tac-gia-ho-xuan-huong",
+      "title": "Chân Dung Tác Giả: Hồ Xuân Hương",
+      "era": "TK 18-19",
+      "nationality": "Việt Nam"
+    },
+    {
+      "id": "tac-gia-nam-cao",
+      "title": "Chân Dung Tác Giả: Nam Cao",
+      "era": "TK 20",
+      "nationality": "Việt Nam"
+    },
+    {
+      "id": "tac-gia-william-shakespeare",
+      "title": "Chân Dung Tác Giả: William Shakespeare",
+      "era": "TK 16-17",
+      "nationality": "Anh"
+    }
+  ],
+  
+  "eraGroups": [
+    { "era": "Thời Hồng Bàng", "count": 0 },
+    { "era": "TK 10-15", "count": 5 },
+    { "era": "TK 16-17", "count": 3 },
+    { "era": "TK 18-19", "count": 12 },
+    { "era": "TK 19", "count": 8 },
+    { "era": "TK 20", "count": 35 },
+    { "era": "TK 20-21", "count": 10 },
+    { "era": "Đương đại", "count": 5 }
+  ],
+  
+  "nationalityGroups": [
+    { "nationality": "Việt Nam", "count": 45 },
+    { "nationality": "Trung Quốc", "count": 8 },
+    { "nationality": "Nga", "count": 5 },
+    { "nationality": "Pháp", "count": 4 },
+    { "nationality": "Anh", "count": 3 },
+    { "nationality": "Mỹ", "count": 2 },
+    { "nationality": "Ấn Độ", "count": 2 },
+    { "nationality": "Đức", "count": 2 },
+    { "nationality": "Đan Mạch", "count": 1 },
+    { "nationality": "Nhật Bản", "count": 1 },
+    { "nationality": "Khác", "count": 5 }
+  ],
+  
+  "genreGroups": [
+    { "genre": "Thơ trung đại", "count": 12 },
+    { "genre": "Thơ Mới", "count": 8 },
+    { "genre": "Thơ kháng chiến", "count": 5 },
+    { "genre": "Văn xuôi hiện thực", "count": 10 },
+    { "genre": "Văn xuôi lãng mạn", "count": 4 },
+    { "genre": "Văn học nước ngoài", "count": 25 },
+    { "genre": "Khác", "count": 14 }
+  ],
+  
+  "recentAdditions": [
+    "tac-gia-dang-tran-con",
+    "tac-gia-tan-da",
+    "tac-gia-hans-christian-andersen",
+    "tac-gia-anh-em-grimm",
+    "tac-gia-hoai-nam-tu",
+    "tac-gia-antoine-de-saint-exupery",
+    "tac-gia-nhieu-tac-gia"
+  ],
+  
+  "cacheConfig": {
+    "ttl": 600000,
+    "staleWhileRevalidate": true,
+    "persist": true
+  },
+  
+  "fallbackTo": "mother-00",
+  "fallbackStrategy": "local-app-data",
+  
+  "health": {
+    "endpointCheck": "../data-tac-gia.json",
+    "expectedMinSize": 5000,
+    "checkDetailFiles": false
+  },
+  
+  "metadata": {
+    "language": "vi",
+    "totalDetailFiles": 78,
+    "detailFilesDirectory": "../tac-gia/",
+    "avgContentSize": 3500,
+    "lastMaintenanceCheck": "2026-11-21T00:00:00Z"
+  }
+}
