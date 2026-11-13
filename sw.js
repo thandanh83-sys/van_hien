@@ -1,23 +1,23 @@
 /* =====================================================================
-   VĂN ĐẠO SERVICE WORKER (VERSION 5.1.0 - MODULAR & AUDIT INTEGRATION)
+   VĂN ĐẠO SERVICE WORKER (VERSION 1.0.0 - NETWORK EDITION)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
    1. Bộ nhớ đệm lai (Hybrid Cache):
       - HTML: Network First (Luôn ưu tiên bản mới để nhận cập nhật cấu trúc).
-      - JSON: Stale-While-Revalidate (Tốc độ là ưu tiên, cập nhật ngầm).
+      - JSON (Data & Manifests): Stale-While-Revalidate (Tốc độ là ưu tiên).
       - CSS/JS/Ảnh/Font: Stale-While-Revalidate.
    2. Sự tĩnh tại (No Auto-Skip): TUYỆT ĐỐI KHÔNG gọi skipWaiting() trong 
       install. SW mới phải chờ người dùng xác nhận (qua banner).
    3. Smart Offline: Hỗ trợ tải theo lô (Batch Download) cho Tủ Sách Offline.
-   4. Audit Ready: Đã bao gồm file audit.js để Bác Sĩ hoạt động Offline.
+   4. Network Ready: Cache toàn bộ Manifests của Máy Mẹ và Máy Con.
    ===================================================================== */
 
 // =====================================================================
 // I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
 // ĐỔI VERSION NÀY MỖI KHI BẠN CẬP NHẬT CODE ĐỂ XÓA CACHE CŨ
-const CACHE_VERSION = 'v5.1.0';
+const CACHE_VERSION = 'v1.0.0';
 
 const STATIC_CACHE  = `vandao-static-${CACHE_VERSION}`;
 const HTML_CACHE    = `vandao-html-${CACHE_VERSION}`;
@@ -29,7 +29,7 @@ const NETWORK_TIMEOUT = 4000;
 
 // =====================================================================
 // II. DANH SÁCH "APP SHELL" - NHỮNG FILE TỐI QUAN TRỌNG
-// Cập nhật chính xác 100% theo cấu trúc thư mục mới
+// Cập nhật chính xác 100% theo cấu trúc thư mục v1.0.0
 // =====================================================================
 const PRECACHE_ASSETS = [
     './',
@@ -43,7 +43,7 @@ const PRECACHE_ASSETS = [
     './css/layouts.css',
     './css/reader.css',
     
-    // --- Toàn bộ JS (Cấu trúc Module) ---
+    // --- Toàn bộ JS Core ---
     './js/config.js',
     './js/utils.js',
     './js/search.js',
@@ -51,8 +51,14 @@ const PRECACHE_ASSETS = [
     './js/router.js',
     './js/offline.js',
     './js/ai.js',
-    './js/audit.js',      // Thêm file Bác Sĩ Audit
+    './js/audit.js',
+    './js/ask-dao.js',
     './js/main.js',
+    
+    // --- Toàn bộ JS Network (Máy Mẹ & Máy Con) ---
+    './js/network/mother.js',
+    './js/network/bus.js',
+    './js/network/index.js',
     
     // --- Hình ảnh Bạch Ngọc & Icons ---
     './assets/nen.jpg',
@@ -75,7 +81,14 @@ const PRECACHE_ASSETS = [
     './data/data-tu-dien.json',
     './data/data-the-loai.json',
     './data/data-van-khi.json',
-    './data/data-tu-dien-the-loai.json'
+    './data/data-tu-dien-the-loai.json',
+
+    // --- Toàn bộ 5 file Manifests (Mạng lưới tri thức) ---
+    './data/manifests/index.json',
+    './data/manifests/node-triet-thuyet.json',
+    './data/manifests/node-ky-tai.json',
+    './data/manifests/node-tinh-hoa.json',
+    './data/manifests/node-the-loai.json'
 ];
 
 // =====================================================================
@@ -86,7 +99,7 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(STATIC_CACHE).then((cache) => {
             // Dùng cache.add cho từng file để tránh lỗi "All or Nothing" 
-            // Nếu 1 file lỗi, các file khác vẫn được cache thành công.
+            // Nếu 1 file lỗi (vd: thiếu ảnh), các file khác vẫn được cache.
             return Promise.all(
                 PRECACHE_ASSETS.map(url => 
                     cache.add(url).catch(err => 
@@ -190,7 +203,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 2. JSON (Data) -> Stale-While-Revalidate
+    // 2. JSON (Data & Manifests) -> Stale-While-Revalidate
     if (url.pathname.includes('/data/') && url.pathname.endsWith('.json')) {
         event.respondWith(staleWhileRevalidate(request, DATA_CACHE));
         return;
@@ -230,7 +243,7 @@ self.addEventListener('message', (event) => {
                 for (const item of message.batch) {
                     try {
                         const res = await fetch(item.url);
-                        // Xác minh JSON hợp lệ trước khi cache để tránh lưu file HTML lỗi
+                        // Xác minh JSON hợp lệ trước khi cache để tránh lưu file HTML lỗi (vd: trang 404)
                         if (res.ok && res.type === 'basic') {
                             await res.clone().json(); 
                             await cache.put(item.url, res);
