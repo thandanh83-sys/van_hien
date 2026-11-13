@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - INPUT AI (js/ai/input-ai.js)
  * Vị trí: js/ai/input-ai.js
- * Version: 6.0.0 (Dynamic Intent Mapping)
+ * Version: 7.0.0 (Full Dynamic Intent)
  * ==========================================================
  * NHIỆM VỤ:
  * 1. Nhận diện câu hỏi, mệnh lệnh, tìm kiếm.
@@ -13,7 +13,7 @@
 
 import { extractEntity } from './core.js';
 import { preprocessText } from './nlp-tools.js';
-import { DynamicIntentPatterns } from './agents/index.js'; // [MỚI] Import bộ từ khóa động
+import { DynamicIntentPatterns } from './agents/index.js';
 
 // =====================================================================
 // PHẦN 1: CÔNG CỤ XỬ LÝ NGÔN NGỮ
@@ -84,12 +84,12 @@ function detectCommand(text) {
     const words = new Set(text.split(' '));
     const hasAny = (arr) => arr.some(w => words.has(w));
 
-    // 1. Ưu tiên các logic đặc biệt (So sánh cần 2 thực thể)
+    // 1. Ưu tiên logic đặc biệt (So sánh cần cấu trúc đặc biệt)
     if (hasAny(['so sanh', 'compare', 'khac', 'tuong dong']) || (hasAny(['giong']) && hasAny(['va', 'voi']))) {
         return 'compare-entities';
     }
 
-    // 2. Tự động nhận diện từ DynamicIntentPatterns
+    // 2. Tự động nhận diện từ DynamicIntentPatterns (Không hardcode)
     for (const [intent, keywords] of Object.entries(DynamicIntentPatterns)) {
         if (keywords.some(kw => words.has(kw))) return intent;
     }
@@ -117,11 +117,11 @@ export const InputAI = {
         const original = String(input || '').trim();
         if (!original) return result('empty', 'empty', '', { confidence: 1, originalInput: original });
 
-        // 1. Chuẩn hóa bằng thư viện NLP
+        // 1. Chuẩn hóa
         let clean = preprocessText(original);
         if (!clean) return result('empty', 'empty', '', { confidence: 1, originalInput: original });
 
-        // 2. Nhận diện Mệnh lệnh (Tự động từ Agent)
+        // 2. Nhận diện Mệnh lệnh (Tự động)
         const command = detectCommand(clean);
         if (command) {
             const query = cleanQuery(clean, command);
@@ -135,7 +135,7 @@ export const InputAI = {
             return result(special, 'question', query, { questionType: special, confidence: 0.9, signals: ['special-question', special], originalInput: original });
         }
 
-        // 4. Fallback: Tìm kiếm thông thường
+        // 4. Fallback
         return result('search', 'search', clean, { questionType: null, confidence: 0.75, signals: ['topic-query'], originalInput: original });
     }
 };
