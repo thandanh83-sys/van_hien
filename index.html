@@ -11,7 +11,7 @@
     <title>VĂN ĐẠO | Đại Bách Khoa Toàn Thư</title>
     
     <!-- ================================================================= -->
-    <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang)             -->
+    <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang - LCP)       -->
     <!-- ================================================================= -->
     <link rel="preload" href="assets/fonts/AlexBrush-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="assets/khung.jpg" as="image">
@@ -44,7 +44,7 @@
 <body>
 
     <!-- ================================================================= -->
-    <!-- 6. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG                                   -->
+    <!-- 6. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG (Dành cho người dùng bàn phím)    -->
     <!-- ================================================================= -->
     <a href="#main-content" class="skip-link">Bỏ qua điều hướng, đến nội dung chính</a>
 
@@ -83,62 +83,60 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 10. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                         -->
+    <!-- 10. THANH ĐIỀU HƯỚNG (HEADER) - ĐÃ ĐƯA RA NGOÀI CONTAINER ĐỂ     -->
+    <!--     SỬA LỖI KHOẢNG TRẮNG ĐẦU TRANG                                -->
+    <!-- ================================================================= -->
+    <header id="app-header">
+        <nav class="navbar" aria-label="Điều hướng chính">
+            <!-- Logo VĂN ĐẠO -->
+            <div class="nav-brand" onclick="window.switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
+            
+            <!-- Các nút điều hướng (Desktop) -->
+            <div class="nav-links" id="navMenu" role="menubar">
+                <button class="nav-btn active" onclick="window.switchView('home')" id="nav-home" role="menuitem" aria-current="page">
+                    <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    Trang Chủ
+                </button>
+                
+                <button class="nav-btn" onclick="window.switchView('heritage')" id="nav-heritage" role="menuitem">
+                    <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                    Văn Hiến
+                </button>
+                
+                <button class="nav-btn" onclick="window.switchView('encyclopedia')" id="nav-encyclopedia" role="menuitem">
+                    <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    Bách Khoa
+                </button>
+                
+                <button class="nav-btn" onclick="window.switchView('analyze')" id="nav-analyze" role="menuitem">
+                    <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                    Thi Pháp
+                </button>
+            </div>
+
+            <!-- Khối nút bên phải: Cài đặt + Hamburger -->
+            <div class="nav-actions">
+                <!-- Nút Cài đặt (Icon Bánh răng) -->
+                <button id="btn-open-settings" class="nav-icon-btn" aria-label="Cài đặt" title="Cài đặt">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+                
+                <!-- Nút Menu Hamburger (Mobile) -->
+                <button class="mobile-menu-btn" id="btn-toggle-menu" onclick="window.toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ================================================================= -->
+    <!-- 11. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG (Đã tách khỏi Header)  -->
     <!-- ================================================================= -->
     <div class="container">
         
-        <!-- ============================================================= -->
-        <!-- 10.1. THANH ĐIỀU HƯỚNG (NAVBAR)                                -->
-        <!-- ============================================================= -->
-        <header id="app-header">
-            <nav class="navbar" aria-label="Điều hướng chính">
-                <!-- Logo VĂN ĐẠO -->
-                <div class="nav-brand" onclick="window.switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
-                
-                <!-- Các nút điều hướng (Desktop) -->
-                <div class="nav-links" id="navMenu" role="menubar">
-                    <button class="nav-btn active" onclick="window.switchView('home')" id="nav-home" role="menuitem" aria-current="page">
-                        <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                        Trang Chủ
-                    </button>
-                    
-                    <button class="nav-btn" onclick="window.switchView('heritage')" id="nav-heritage" role="menuitem">
-                        <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                        Văn Hiến
-                    </button>
-                    
-                    <button class="nav-btn" onclick="window.switchView('encyclopedia')" id="nav-encyclopedia" role="menuitem">
-                        <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                        Bách Khoa
-                    </button>
-                    
-                    <button class="nav-btn" onclick="window.switchView('analyze')" id="nav-analyze" role="menuitem">
-                        <svg aria-hidden="true" focusable="false" class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                        Thi Pháp
-                    </button>
-                </div>
-
-                <!-- Khối nút bên phải: Cài đặt + Hamburger -->
-                <div class="nav-actions">
-                    <!-- Nút Cài đặt (Icon Bánh răng) -->
-                    <button id="btn-open-settings" class="nav-icon-btn" aria-label="Cài đặt" title="Cài đặt">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                    </button>
-                    
-                    <!-- Nút Menu Hamburger (Mobile) -->
-                    <button class="mobile-menu-btn" id="btn-toggle-menu" onclick="window.toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-                    </button>
-                </div>
-            </nav>
-        </header>
-
-        <!-- ============================================================= -->
-        <!-- 10.2. NỘI DUNG CHÍNH (MAIN)                                   -->
-        <!-- ============================================================= -->
         <main id="main-content">
             
             <!-- VIEW 1: TRANG CHỦ (HOME) -->
@@ -240,7 +238,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 11. FATE MODAL: MỘT BÀI THƠ CHO HÔM NAY (BÓI THƠ)                 -->
+    <!-- 12. FATE MODAL: MỘT BÀI THƠ CHO HÔM NAY (BÓI THƠ)                 -->
     <!-- ================================================================= -->
     <div id="fate-modal-overlay" style="display: none;">
         <div id="fate-modal">
@@ -278,7 +276,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 12. SETTINGS DIALOG: TỦ SÁCH OFFLINE (HTML5 Dialog)               -->
+    <!-- 13. SETTINGS DIALOG: TỦ SÁCH OFFLINE (HTML5 Dialog)               -->
     <!-- ================================================================= -->
     <dialog id="settings-dialog">
         <div id="settings-modal">
@@ -327,7 +325,7 @@
     </dialog>
 
     <!-- ================================================================= -->
-    <!-- 13. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
+    <!-- 14. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
     <!-- ================================================================= -->
     <div id="update-banner" aria-live="polite" role="alert">
         <span>Phiên bản mới đã sẵn sàng.</span>
@@ -336,7 +334,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 14. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
+    <!-- 15. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
         window.VD_APP_VERSION = '5.0.0';
@@ -347,7 +345,7 @@
     <script type="module" src="js/main.js"></script>
 
     <!-- ================================================================= -->
-    <!-- 15. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
+    <!-- 16. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
     <!-- ================================================================= -->
     <script>
     (function () {
