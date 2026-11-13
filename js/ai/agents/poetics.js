@@ -106,3 +106,42 @@ export const PoeticsAgent = {
         };
     }
 };
+
+// =====================================================================
+// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// =====================================================================
+/**
+ * Metadata tự mô tả của PoeticsAgent.
+ * Chuyên trách tra cứu từ điển (biểu tượng, điển tích, thuật ngữ thi pháp).
+ *
+ * GHI CHÚ:
+ * - Cả 3 capabilities ('explain-symbol', 'explain-allusion', 'define-term')
+ *   đều trỏ về cùng một method `explainSymbol` vì logic tra từ điển giống nhau.
+ * - Điều này giúp đơn giản hóa code, đồng thời vẫn nhận diện được nhiều intent.
+ */
+PoeticsAgent.agentInfo = {
+    // ---- Định danh ----
+    key: 'poetics',
+    name: 'Thi Pháp AI',
+    description: 'Chuyên trách Từ điển, Biểu tượng, Điển tích, Thuật ngữ.',
+
+    // ---- Năng lực (task -> method) ----
+    capabilities: {
+        'explain-symbol': 'explainSymbol',      // "Ý nghĩa của trăng là gì?"
+        'explain-allusion': 'explainSymbol',    // "Điển tích tái ông thất mã?"
+        'define-term': 'explainSymbol'          // "Thuật ngữ ẩn dụ là gì?"
+    },
+
+    // ---- Loại dữ liệu có thể đọc ----
+    canRead: ['work', 'symbol', 'term', 'genre', 'allusion'],
+
+    // ---- Agent được phép ủy thác ----
+    canDelegate: ['literature', 'knowledge'],
+
+    // ---- Từ khóa nhận diện Intent ----
+    intentPatterns: {
+        'explain-symbol': ['y nghia', 'bieu tuong', 'hinh tuong', 'hinh anh', 'tuong trung'],
+        'explain-allusion': ['dien tich', 'dien co', 'nguon goc dien'],
+        'define-term': ['dinh nghia', 'giai thich', 'khai niem', 'thuat ngu']
+    }
+};

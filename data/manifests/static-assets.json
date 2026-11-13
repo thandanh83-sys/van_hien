@@ -5,11 +5,11 @@
     "./manifest.json"
   ],
   "css": [
-    "./css/variables.css",
     "./css/base.css",
     "./css/components.css",
     "./css/layouts.css",
-    "./css/reader.css"
+    "./css/reader.css",
+    "./css/variables.css"
   ],
   "js_core": [
     "./js/ai.js",
@@ -32,13 +32,13 @@
     "./js/ai/output-ai.js"
   ],
   "js_agents": [
-    "./js/ai/agents/index.js",
     "./js/ai/agents/analysis.js",
     "./js/ai/agents/character.js",
     "./js/ai/agents/comparison.js",
     "./js/ai/agents/critic.js",
     "./js/ai/agents/fortune-ai.js",
     "./js/ai/agents/history.js",
+    "./js/ai/agents/index.js",
     "./js/ai/agents/knowledge.js",
     "./js/ai/agents/literature.js",
     "./js/ai/agents/poetics.js",
