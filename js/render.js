@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
  * Vị trí: js/render.js
- * Version: 1.0.1 (Refined Words & Bug Fixes)
+ * Version: 1.0.8 (Bug Fixes & AI Integration)
  * ==========================================================
  */
 
@@ -10,9 +10,7 @@ import { APP_DATA, STATE, ICONS, ITEMS_PER_PAGE, ENCY_ITEMS_PER_PAGE } from './c
 import { escapeHTML, normalizeRouteId, highlightText, formatContent, removeAccents } from './utils.js';
 import { VDSearchEngine } from './search.js';
 
-/* =====================================================================
-   MODULE 1: ĐỘNG CƠ HIỆU NĂNG (LAZY LOAD)
-   ===================================================================== */
+// MODULE 1: LAZY LOAD
 export const PerformanceEngine = (() => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -22,13 +20,10 @@ export const PerformanceEngine = (() => {
             }
         });
     }, { rootMargin: "0px 0px 400px 0px", threshold: 0.01 });
-    
     return { observe: (sel) => document.querySelectorAll(sel).forEach(el => observer.observe(el)) };
 })();
 
-/* =====================================================================
-   MODULE 2: VĂN HIẾN (TÁC PHẨM)
-   ===================================================================== */
+// MODULE 2: VĂN HIẾN
 export function initMainFilters() {
     const mainBar = document.getElementById('main-filter-bar');
     if (!mainBar || !APP_DATA.WORKS_DATA.length) return;
@@ -40,29 +35,20 @@ export function initMainFilters() {
 }
 
 export function filterMainCategory(category, btnElement) {
-    STATE.currentMainCat = category; 
-    STATE.currentGenre = 'all'; 
-    STATE.currentPage = 1;
-    
+    STATE.currentMainCat = category; STATE.currentGenre = 'all'; STATE.currentPage = 1;
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
 
     const subBar = document.getElementById('sub-filter-bar');
     if (!subBar) return;
 
-    if (category === 'all') { 
-        subBar.style.display = 'none'; 
-        renderHeritage(); 
-        return; 
-    }
-
+    if (category === 'all') { subBar.style.display = 'none'; renderHeritage(); return; }
     const itemsInCat = APP_DATA.WORKS_DATA.filter(i => i.loai_hinh === category);
     const uniqueGenres = new Set();
     itemsInCat.forEach(i => { if (Array.isArray(i.the_loai)) i.the_loai.forEach(g => uniqueGenres.add(g)); });
 
-    if (!uniqueGenres.size) { 
-        subBar.style.display = 'none'; 
-    } else {
+    if (!uniqueGenres.size) { subBar.style.display = 'none'; }
+    else {
         subBar.style.display = 'flex';
         let html = `<button class="filter-btn active" onclick="window.filterSubGenre('all', this)" style="padding:6px 16px;font-size:0.8rem;">Tất cả thể loại</button>`;
         Array.from(uniqueGenres).sort().forEach(g => {
@@ -74,8 +60,7 @@ export function filterMainCategory(category, btnElement) {
 }
 
 export function filterSubGenre(genre, btnElement) {
-    STATE.currentGenre = genre; 
-    STATE.currentPage = 1;
+    STATE.currentGenre = genre; STATE.currentPage = 1;
     document.querySelectorAll('#sub-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
     renderHeritage();
@@ -90,11 +75,7 @@ export function renderHeritage() {
     let data = APP_DATA.WORKS_DATA;
     if (STATE.currentMainCat !== 'all') data = data.filter(i => i.loai_hinh === STATE.currentMainCat);
     if (STATE.currentGenre !== 'all') data = data.filter(i => i.the_loai?.includes(STATE.currentGenre));
-    if (keyword) data = data.filter(i =>
-        i.title.toLowerCase().includes(keyword) ||
-        i.author.toLowerCase().includes(keyword) ||
-        (i.desc && i.desc.toLowerCase().includes(keyword))
-    );
+    if (keyword) data = data.filter(i => i.title.toLowerCase().includes(keyword) || i.author.toLowerCase().includes(keyword) || (i.desc && i.desc.toLowerCase().includes(keyword)));
 
     if (!data.length) {
         grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy mục từ nào phù hợp.</p>`;
@@ -109,9 +90,7 @@ export function renderHeritage() {
 
     grid.innerHTML = paged.map(item => {
         const tags = Array.isArray(item.the_loai) ? item.the_loai.map(g => `<span class="h-tag">${g}</span>`).join(' ') : '';
-        const btn = item.id
-            ? `<button type="button" class="detail-btn" data-route-encyclopedia="true" data-route-id="${escapeHTML(item.id)}" data-route-group="tinh-hoa" data-route-title="${escapeHTML(item.title)}" data-route-author="${escapeHTML(item.author || '')}">Chi tiết ${ICONS.arrowRight}</button>`
-            : '';
+        const btn = item.id ? `<button type="button" class="detail-btn" data-route-encyclopedia="true" data-route-id="${escapeHTML(item.id)}" data-route-group="tinh-hoa" data-route-title="${escapeHTML(item.title)}" data-route-author="${escapeHTML(item.author || '')}">Chi tiết ${ICONS.arrowRight}</button>` : '';
         return `
         <div class="heritage-card" id="heritage-${escapeHTML(normalizeRouteId(item.id))}" data-item-id="${escapeHTML(item.id)}" data-group="tinh-hoa">
             <div style="display:flex;flex-wrap:wrap;margin-bottom:10px;">${tags}</div>
@@ -134,11 +113,9 @@ export function renderHeritage() {
     PerformanceEngine.observe('.heritage-card');
 }
 
-/* =====================================================================
-   MODULE 3: CONTENT MANAGER (BỘ NHỚ ĐỆM)
-   ===================================================================== */
+// MODULE 3: CONTENT MANAGER
 export const ContentManager = (() => {
-    const MAX_CACHE_BYTES = 5 * 1024 * 1024; // 5MB
+    const MAX_CACHE_BYTES = 5 * 1024 * 1024;
     const cache = new Map();
     const pending = new Map();
     let currentSize = 0;
@@ -146,32 +123,24 @@ export const ContentManager = (() => {
     function getCache(key) {
         if (!cache.has(key)) return null;
         const v = cache.get(key);
-        cache.delete(key); cache.set(key, v); // LRU
+        cache.delete(key); cache.set(key, v);
         return v;
     }
-
     function setCache(key, value) {
-        if (cache.has(key)) {
-            currentSize -= JSON.stringify(cache.get(key)).length;
-            cache.delete(key);
-        }
+        if (cache.has(key)) { currentSize -= JSON.stringify(cache.get(key)).length; cache.delete(key); }
         const size = JSON.stringify(value).length;
         if (size > MAX_CACHE_BYTES) return;
-        
         while (currentSize + size > MAX_CACHE_BYTES && cache.size) {
             const oldest = cache.keys().next().value;
             currentSize -= JSON.stringify(cache.get(oldest)).length;
             cache.delete(oldest);
         }
-        cache.set(key, value);
-        currentSize += size;
+        cache.set(key, value); currentSize += size;
     }
-
     async function load(item, group, signal) {
         const key = `${group}:${item.id}`;
         const cached = getCache(key);
         if (cached) return cached;
-        
         const inFlight = pending.get(key);
         if (inFlight && !inFlight.signal?.aborted) return inFlight.promise;
         if (inFlight) pending.delete(key);
@@ -188,7 +157,6 @@ export const ContentManager = (() => {
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
                     result = await res.json();
                 } else {
-                    // [FIX LỖI 7] Dành cho triet-thuyet: Lấy trực tiếp content từ data index
                     result = { content: item.content || item.description || '' };
                 }
                 setCache(key, result);
@@ -198,19 +166,14 @@ export const ContentManager = (() => {
                 throw err;
             }
         })();
-
         pending.set(key, { promise: task, signal });
         try { return await task; }
-        finally {
-            if (pending.get(key)?.promise === task) pending.delete(key);
-        }
+        finally { if (pending.get(key)?.promise === task) pending.delete(key); }
     }
-
     return { load, clearCache: () => { cache.clear(); currentSize = 0; } };
 })();
 
 const accordionAbortControllers = new Map();
-
 export function findEncyclopediaItem(id, group) {
     if (group === 'triet-thuyet') return APP_DATA.THEORY_DATA.find(i => i.id === id);
     if (group === 'ky-tai') return APP_DATA.AUTHOR_DATA.find(i => i.id === id);
@@ -225,19 +188,12 @@ export async function ensureAccordionContent(details) {
     const group = details.dataset.group;
     const cacheKey = `${group}:${itemId}`;
     const contentDiv = details.querySelector('.accordion-content');
-    
-    if (!itemId || !group || !contentDiv) return;
-    if (contentDiv.dataset.contentLoaded === 'true') return;
-    if (contentDiv.dataset.loading === 'true') return;
+    if (!itemId || !group || !contentDiv || contentDiv.dataset.contentLoaded === 'true' || contentDiv.dataset.loading === 'true') return;
 
     const controller = new AbortController();
     accordionAbortControllers.set(cacheKey, controller);
-
     const item = findEncyclopediaItem(itemId, group);
-    if (!item) {
-        if (accordionAbortControllers.get(cacheKey) === controller) accordionAbortControllers.delete(cacheKey);
-        return;
-    }
+    if (!item) { if (accordionAbortControllers.get(cacheKey) === controller) accordionAbortControllers.delete(cacheKey); return; }
 
     contentDiv.dataset.loading = 'true';
     contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic;padding:10px;">${ICONS.clock} Đang tải nội dung...</p>`;
@@ -265,18 +221,12 @@ export async function ensureAccordionContent(details) {
 }
 
 export function clearAccordionContent(details) {
-    const itemId = details.dataset.id;
-    const group = details.dataset.group;
+    const itemId = details.dataset.id; const group = details.dataset.group;
     const cacheKey = `${group}:${itemId}`;
-    if (accordionAbortControllers.has(cacheKey)) {
-        accordionAbortControllers.get(cacheKey).abort();
-        accordionAbortControllers.delete(cacheKey);
-    }
+    if (accordionAbortControllers.has(cacheKey)) { accordionAbortControllers.get(cacheKey).abort(); accordionAbortControllers.delete(cacheKey); }
     const content = details.querySelector('.accordion-content');
     if (!content) return;
-    content.replaceChildren();
-    delete content.dataset.contentLoaded;
-    delete content.dataset.loading;
+    content.replaceChildren(); delete content.dataset.contentLoaded; delete content.dataset.loading;
 }
 
 export function bindEncyclopediaEvents() {
@@ -287,21 +237,14 @@ export function bindEncyclopediaEvents() {
         const details = e.target;
         if (!(details instanceof HTMLDetailsElement)) return;
         if (!details.matches('details[data-id][data-group]')) return;
-        
         if (details.open) {
-            container.querySelectorAll('details[open]').forEach(other => {
-                if (other !== details) { other.open = false; clearAccordionContent(other); }
-            });
+            container.querySelectorAll('details[open]').forEach(other => { if (other !== details) { other.open = false; clearAccordionContent(other); } });
             ensureAccordionContent(details);
-        } else {
-            clearAccordionContent(details);
-        }
+        } else { clearAccordionContent(details); }
     }, true);
 }
 
-/* =====================================================================
-   MODULE 4: RENDER ENCYCLOPEDIA (BÁCH KHOA)
-   ===================================================================== */
+// MODULE 4: BÁCH KHOA
 export function romanToInt(roman) {
     if (roman === '0') return 0;
     const map = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
@@ -316,10 +259,7 @@ export function romanToInt(roman) {
 export function sortEncyData(data, group) {
     return data.sort((a, b) => {
         if (group === 'triet-thuyet') {
-            const getNum = id => {
-                const m = id.match(/quyen-([ivxlcdm0-9]+)/i);
-                return m ? romanToInt(m[1]) : 999;
-            };
+            const getNum = id => { const m = id.match(/quyen-([ivxlcdm0-9]+)/i); return m ? romanToInt(m[1]) : 999; };
             return getNum(a.id) - getNum(b.id);
         }
         const clean = t => t.replace(/^(Quyển [IVXLCDM]+\.|Chân Dung Tác Giả:)\s*/i, '').toLowerCase();
@@ -328,11 +268,8 @@ export function sortEncyData(data, group) {
 }
 
 export function filterEncyclopediaGroup(group, btnElement) {
-    STATE.currentEncyGroup = group;
-    STATE.currentEncyPage = 1;
-    document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => {
-        b.classList.remove('active'); b.setAttribute('aria-pressed', 'false');
-    });
+    STATE.currentEncyGroup = group; STATE.currentEncyPage = 1;
+    document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
     if (btnElement) { btnElement.classList.add('active'); btnElement.setAttribute('aria-pressed', 'true'); }
     const si = document.getElementById('encyclopedia-search');
     if (si) si.value = '';
@@ -343,7 +280,6 @@ export function filterEncyclopediaGroup(group, btnElement) {
 export function renderEncyclopediaList(dataToRender, isSearchMode = false, tokens = []) {
     const container = document.getElementById('encyclopedia-container');
     if (!container) return;
-
     STATE.currentEncyDataForRender = dataToRender;
     container.dataset.searchMode = isSearchMode ? 'true' : 'false';
 
@@ -358,7 +294,6 @@ export function renderEncyclopediaList(dataToRender, isSearchMode = false, token
     const totalPages = Math.ceil(dataToRender.length / ENCY_ITEMS_PER_PAGE);
     if (STATE.currentEncyPage > totalPages) STATE.currentEncyPage = totalPages;
     if (STATE.currentEncyPage < 1) STATE.currentEncyPage = 1;
-
     const pagedData = dataToRender.slice((STATE.currentEncyPage - 1) * ENCY_ITEMS_PER_PAGE, STATE.currentEncyPage * ENCY_ITEMS_PER_PAGE);
 
     container.innerHTML = pagedData.map(item => {
@@ -369,7 +304,6 @@ export function renderEncyclopediaList(dataToRender, isSearchMode = false, token
             displayTitle = highlightText(displayTitle, tokens);
             let bt = group === 'triet-thuyet' ? 'Lý Thuyết' : (group === 'ky-tai' ? 'Tác Giả' : 'Tác Phẩm');
             let bc = group === 'triet-thuyet' ? '#557a6f' : (group === 'ky-tai' ? '#8bb8a8' : '#d4c4a8');
-            
             if (group === 'the-loai') { bt = 'Thể Loại'; bc = '#b89a64'; }
             badge = `<span style="font-size:0.65em;opacity:0.9;color:#fff;background-color:${bc};padding:2px 6px;border-radius:4px;margin-left:8px;white-space:nowrap;font-family:var(--font-body);">${bt}</span>`;
         }
@@ -400,9 +334,6 @@ export function renderEncyclopedia() {
 }
 
 export function searchEncyclopedia() {
-    // [FIX LỖI 3] Nếu đang ở chế độ Hỏi Đạo, không chạy search thường
-    if (STATE.searchMode === 'ask') return;
-
     const input = document.getElementById('encyclopedia-search');
     if (!input) return;
     const kw = input.value.trim();
@@ -437,9 +368,7 @@ export function searchEncyclopedia() {
     document.getElementById('encyclopedia-count').textContent = `Tìm thấy ${results.length} mục`;
 }
 
-/* =====================================================================
-   MODULE 5: TÁC PHẨM & TÁC GIẢ LIÊN QUAN (NÂNG CẤP TỪ NGỮ)
-   ===================================================================== */
+// MODULE 5: TÁC PHẨM & TÁC GIẢ LIÊN QUAN
 export function findSymbols(text) {
     if (!text) return [];
     const source = String(text).toLocaleLowerCase('vi').normalize('NFC');
@@ -449,53 +378,35 @@ export function findSymbols(text) {
         ['Điển tích', dictionary.dienTich || {}],
         ['Hán Việt', dictionary.hanViet || {}]
     ];
-
     const candidates = [];
     for (const [type, entries] of groups) {
         for (const [keyword, info] of Object.entries(entries)) {
             const normalizedKeyword = String(keyword).toLocaleLowerCase('vi').normalize('NFC').trim();
             if (!normalizedKeyword) continue;
-
             const escaped = normalizedKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
             const pattern = new RegExp(`(^|[^\\p{L}\\p{N}])(${escaped})(?=$|[^\\p{L}\\p{N}])`, 'u');
             const match = pattern.exec(source);
-
             if (!match) continue;
-
             const start = match.index + match[1].length;
             const end = start + match[2].length;
-
-            candidates.push({
-                type, keyword, info: info && typeof info === 'object' ? info : { mean: String(info || '') },
-                start, end, length: end - start
-            });
+            candidates.push({ type, keyword, info: info && typeof info === 'object' ? info : { mean: String(info || '') }, start, end, length: end - start });
         }
     }
-
     candidates.sort((a, b) => b.length - a.length || a.start - b.start);
     const accepted = [];
     for (const item of candidates) {
         const overlaps = accepted.some(hit => item.start < hit.end && item.end > hit.start);
         if (!overlaps) accepted.push(item);
     }
-
-    return accepted.sort((a, b) => a.start - b.start).map(({ type, keyword, info }) => ({
-        type, keyword, ...info
-    }));
+    return accepted.sort((a, b) => a.start - b.start).map(({ type, keyword, info }) => ({ type, keyword, ...info }));
 }
 
 export function highlightSymbolsInContent(container) {
     if (!container?.firstChild) return;
     const keywords = Object.keys(APP_DATA.DICTIONARY_DATA.symbols || {}).concat(Object.keys(APP_DATA.DICTIONARY_DATA.dienTich || {}));
     if (!keywords.length) return;
-
     keywords.sort((a, b) => b.length - a.length);
-
-    const pattern = new RegExp(
-        `(?<![\\p{L}\\p{N}])(${keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![\\p{L}\\p{N}])`,
-        'giu'
-    );
-
+    const pattern = new RegExp(`(?<![\\p{L}\\p{N}])(${keywords.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})(?![\\p{L}\\p{N}])`, 'giu');
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
         acceptNode(node) {
             const tag = node.parentElement?.tagName;
@@ -503,10 +414,8 @@ export function highlightSymbolsInContent(container) {
             return NodeFilter.FILTER_ACCEPT;
         }
     });
-
     const textNodes = [];
     let n; while ((n = walker.nextNode())) textNodes.push(n);
-
     textNodes.forEach(tn => {
         const text = tn.nodeValue;
         if (!pattern.test(text)) return;
@@ -516,8 +425,7 @@ export function highlightSymbolsInContent(container) {
         while ((m = pattern.exec(text)) !== null) {
             if (m.index > last) frag.appendChild(document.createTextNode(text.slice(last, m.index)));
             const kw = m[1];
-            const info = (APP_DATA.DICTIONARY_DATA.symbols && APP_DATA.DICTIONARY_DATA.symbols[kw.toLowerCase()]) || 
-                         (APP_DATA.DICTIONARY_DATA.dienTich && APP_DATA.DICTIONARY_DATA.dienTich[kw.toLowerCase()]);
+            const info = (APP_DATA.DICTIONARY_DATA.symbols && APP_DATA.DICTIONARY_DATA.symbols[kw.toLowerCase()]) || (APP_DATA.DICTIONARY_DATA.dienTich && APP_DATA.DICTIONARY_DATA.dienTich[kw.toLowerCase()]);
             const span = document.createElement('span');
             span.className = 'symbol-mark';
             span.dataset.symbol = kw;
@@ -533,7 +441,6 @@ export function highlightSymbolsInContent(container) {
 
 export function findRelatedWorks(current, limit = 5) {
     if (!current) return [];
-    
     const currentAuthor = (current.author || '').toLowerCase().trim();
     const isAnonymous = !currentAuthor || ['dân gian', 'khuyết danh', 'vô danh'].includes(currentAuthor);
     const currentText = current.desc || current.content || '';
@@ -541,36 +448,18 @@ export function findRelatedWorks(current, limit = 5) {
     let scoredWorks = APP_DATA.WORKS_DATA
         .filter(w => w.id !== current.id)
         .map(w => {
-            let score = 0;
-            const reasons = [];
-
-            // [FIX LỖI 2] Đổi từ ngữ văn vẻ hơn
-            if (!isAnonymous && w.author && w.author.toLowerCase().trim() === currentAuthor) {
-                score += 60;
-                reasons.push("Đồng tác giả");
-            }
-            if (current.era && w.era && current.era.toLowerCase().trim() === w.era.toLowerCase().trim()) {
-                score += 40;
-                reasons.push("Đồng thời đại");
-            }
-            if (current.loai_hinh && w.loai_hinh === current.loai_hinh) {
-                score += 30;
-                if (!reasons.length) reasons.push("Chung nguồn cảm hứng");
-            }
+            let score = 0; const reasons = [];
+            if (!isAnonymous && w.author && w.author.toLowerCase().trim() === currentAuthor) { score += 60; reasons.push("Đồng tác giả"); }
+            if (current.era && w.era && current.era.toLowerCase().trim() === w.era.toLowerCase().trim()) { score += 40; reasons.push("Đồng thời đại"); }
+            if (current.loai_hinh && w.loai_hinh === current.loai_hinh) { score += 30; if (!reasons.length) reasons.push("Chung nguồn cảm hứng"); }
             const sharedGenres = (w.the_loai || []).filter(g => (current.the_loai || []).includes(g));
-            if (sharedGenres.length > 0) {
-                score += sharedGenres.length * 25;
-                if (!reasons.length) reasons.push(`Đồng điệu: ${sharedGenres[0]}`);
-            }
+            if (sharedGenres.length > 0) { score += sharedGenres.length * 25; if (!reasons.length) reasons.push(`Đồng điệu: ${sharedGenres[0]}`); }
             if (score > 0) {
                 const curSyms = new Set(findSymbols(currentText).map(s => s.keyword));
                 if (curSyms.size > 0) {
                     const wText = w.desc || w.content || '';
                     const sharedSyms = findSymbols(wText).filter(s => curSyms.has(s.keyword)).length;
-                    if (sharedSyms > 0) {
-                        score += sharedSyms * 5;
-                        if (!reasons.length) reasons.push("Chung chủ đề");
-                    }
+                    if (sharedSyms > 0) { score += sharedSyms * 5; if (!reasons.length) reasons.push("Chung chủ đề"); }
                 }
             }
             return { w, score, reason: reasons[0] || "" };
@@ -592,15 +481,8 @@ export function findRelatedAuthors(current, limit = 4) {
     if (!current || !current.author) return [];
     const currentAuthor = current.author.toLowerCase().trim();
     if (['dân gian', 'khuyết danh', 'vô danh'].includes(currentAuthor)) return [];
-    
-    const currentAuthorObj = APP_DATA.AUTHOR_DATA.find(a => {
-        const t = (a.title || a.name || '').replace(/^Chân Dung Tác Giả:\s*/i, '').toLowerCase().trim();
-        return t === currentAuthor;
-    });
-    
-    const currentWorks = APP_DATA.WORKS_DATA.filter(w => 
-        w.author && w.author.toLowerCase().trim() === currentAuthor
-    );
+    const currentAuthorObj = APP_DATA.AUTHOR_DATA.find(a => { const t = (a.title || a.name || '').replace(/^Chân Dung Tác Giả:\s*/i, '').toLowerCase().trim(); return t === currentAuthor; });
+    const currentWorks = APP_DATA.WORKS_DATA.filter(w => w.author && w.author.toLowerCase().trim() === currentAuthor);
     if (currentWorks.length === 0) return [];
     
     const currentEras = new Set(currentWorks.map(w => (w.era || '').toLowerCase().trim()).filter(Boolean));
@@ -616,27 +498,19 @@ export function findRelatedAuthors(current, limit = 4) {
             const theirWorks = APP_DATA.WORKS_DATA.filter(w => w.author && w.author.toLowerCase().trim() === authorName);
             if (theirWorks.length === 0) return null;
             
-            let score = 0;
-            let reason = "";
-            
+            let score = 0; let reason = "";
             const theirEras = new Set(theirWorks.map(w => (w.era || '').toLowerCase().trim()).filter(Boolean));
             const sharedEras = [...currentEras].filter(e => theirEras.has(e));
             if (sharedEras.length > 0) { score += sharedEras.length * 25; reason = "Đồng thời đại"; }
             
             const theirLoaiHinh = new Set(theirWorks.map(w => w.loai_hinh).filter(Boolean));
             const sharedLoaiHinh = [...currentLoaiHinh].filter(l => theirLoaiHinh.has(l));
-            if (sharedLoaiHinh.length > 0) {
-                score += sharedLoaiHinh.length * 20;
-                if (!reason) reason = "Chung nguồn cảm hứng";
-            }
+            if (sharedLoaiHinh.length > 0) { score += sharedLoaiHinh.length * 20; if (!reason) reason = "Chung nguồn cảm hứng"; }
             
             const theirGenres = new Set();
             theirWorks.forEach(w => (w.the_loai || []).forEach(g => theirGenres.add(g)));
             const sharedGenres = [...currentGenres].filter(g => theirGenres.has(g));
-            if (sharedGenres.length > 0) {
-                score += sharedGenres.length * 15;
-                if (!reason) reason = `Đồng điệu văn chương`;
-            }
+            if (sharedGenres.length > 0) { score += sharedGenres.length * 15; if (!reason) reason = `Đồng điệu văn chương`; }
             
             return { a, score, reason };
         })
@@ -712,21 +586,31 @@ export function appendRelatedSection(container, item, group) {
             </div>
         `;
     }
+
+    // THÊM NÚT HỎI AI TÓM TẮT
+    html += `
+        <div style="margin-top: 30px; text-align: center; border-top: 1px dashed rgba(139,184,168,0.3); padding-top: 20px;">
+            <button type="button" class="btn-ask-ai"
+                data-ai-action="summarize-work"
+                data-work-title="${escapeHTML(item.title)}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>
+                Hỏi AI Tóm Tắt Tác Phẩm Này
+            </button>
+            <div id="ai-inline-result" style="display: none; margin-top: 15px; text-align: left;"></div>
+        </div>
+    `;
     
     section.innerHTML = html;
     container.appendChild(section);
 }
 
-/* =====================================================================
-   MODULE 10: PHÂN TRANG DÙNG CHUNG
-   ===================================================================== */
+// MODULE 10: PHÂN TRANG
 export function renderPagination(totalPages, containerId = 'pagination-container', pageType = 'heritage') {
     const pagContainer = document.getElementById(containerId);
     if (!pagContainer) return;
     if (totalPages <= 1) { pagContainer.innerHTML = ''; return; }
 
     const page = pageType === 'encyclopedia' ? STATE.currentEncyPage : STATE.currentPage;
-
     let html = `<button class="page-btn arrow-btn" onclick="window.changePage(${page - 1}, '${containerId}', '${pageType}')" ${page === 1 ? 'disabled' : ''}>←</button>`;
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
