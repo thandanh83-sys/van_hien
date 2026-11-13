@@ -118,3 +118,48 @@ export const ComparisonAgent = {
         };
     }
 };
+
+// =====================================================================
+// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// =====================================================================
+/**
+ * Metadata tự mô tả của ComparisonAgent.
+ * Chuyên trách so sánh 2 tác giả, 2 tác phẩm, hoặc 1 tác giả + 1 tác phẩm.
+ *
+ * CƠ CHẾ HOẠT ĐỘNG:
+ * - Tách input thành 2 phần dựa trên từ nối "và" / "với".
+ * - Dùng DataHub.resolveIdFromQuery() để dịch tên thành ID.
+ * - So sánh dựa trên group:
+ *     1. Cả 2 là 'ky-tai'  → So sánh 2 tác giả.
+ *     2. Cả 2 là 'tinh-hoa' → So sánh 2 tác phẩm.
+ *     3. Hỗn hợp            → So sánh 1 tác giả & 1 tác phẩm.
+ *
+ * LƯU Ý VỀ INTENT:
+ * - InputAI có logic đặc biệt ưu tiên 'compare-entities' TRƯỚC KHI
+ *   duyệt qua DynamicIntentPatterns, vì intent này cần cấu trúc
+ *   "X và Y" (2 thực thể), không thể nhận diện chỉ bằng 1 từ khóa.
+ * - Vì vậy các từ khóa dưới đây chủ yếu đóng vai trò "dự phòng"
+ *   khi InputAI không match được cấu trúc đặc biệt.
+ */
+ComparisonAgent.agentInfo = {
+    // ---- Định danh ----
+    key: 'comparison',
+    name: 'So Sánh AI',
+    description: 'Chuyên trách so sánh 2 tác giả, 2 tác phẩm.',
+
+    // ---- Năng lực ----
+    capabilities: {
+        'compare-entities': 'compare'           // "So sánh Nguyễn Du và Nam Cao"
+    },
+
+    // ---- Loại dữ liệu có thể đọc ----
+    canRead: ['work', 'author'],
+
+    // ---- Agent được phép ủy thác ----
+    canDelegate: ['literature', 'knowledge'],
+
+    // ---- Từ khóa nhận diện Intent ----
+    intentPatterns: {
+        'compare-entities': ['so sanh', 'compare', 'khac nhau', 'tuong dong', 'giong']
+    }
+};
