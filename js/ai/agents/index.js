@@ -2,22 +2,17 @@
  * ==========================================================
  * VĂN ĐẠO AI - AGENTS INDEX (js/ai/agents/index.js)
  * Vị trí: js/ai/agents/index.js
- * Version: 3.3.0 (Plugin Architecture - Expanded)
+ * Version: 3.3.1 (Plugin Architecture - Full 10 Agents)
  * ==========================================================
  * CHỨC NĂNG:
  * - Là "Bảng điều khiển" trung tâm của toàn bộ hệ thống AI.
  * - Đóng vai trò là Sổ đăng ký (Registry) và Bản đồ (Map) cho các Agent.
  * - Giúp MasterAI điều phối động (Dynamic Routing) mà không cần hardcode.
- * 
- * TRIẾT LÝ "PLUGIN":
- * - Mỗi Agent là một "viên gạch" độc lập.
- * - Khi thêm AI mới, BẠN CHỈ CẦN SỬA FILE NÀY.
- * - Không cần chạm vào master.js hay các file lõi khác.
  * ==========================================================
  */
 
 // =====================================================================
-// 1. IMPORT CÁC AGENT (Viên gạch)
+// 1. IMPORT CÁC AGENT (10 Viên gạch)
 // =====================================================================
 import { LiteratureAgent } from './literature.js';
 import { PoeticsAgent } from './poetics.js';
@@ -25,15 +20,15 @@ import { AnalysisAgent } from './analysis.js';
 import { FortuneAgent } from './fortune-ai.js';
 import { KnowledgeAgent } from './knowledge.js';
 import { HistoryAgent } from './history.js';
-
-// [MỚI] Import 2 Agent vừa được bổ sung
 import { TranslationAgent } from './translation.js';
 import { CharacterAgent } from './character.js';
 
+// [MỚI] Bổ sung 2 Agent Tán thưởng & Phê bình vào Danh bạ
+import { PraiserAgent } from './praiser.js';
+import { CriticAgent } from './critic.js';
+
 // =====================================================================
 // 2. AGENT MAP (Bản đồ thực thể)
-// Ánh xạ key trong Registry sang Object thực tế của Agent.
-// Dùng để MasterAI lấy được instance và gọi hàm.
 // =====================================================================
 export const AgentMap = {
     'literature': LiteratureAgent,
@@ -42,27 +37,25 @@ export const AgentMap = {
     'fortune': FortuneAgent,
     'knowledge': KnowledgeAgent,
     'history': HistoryAgent,
-    // [MỚI]
     'translation': TranslationAgent,
-    'character': CharacterAgent
+    'character': CharacterAgent,
+    // [MỚI]
+    'praiser': PraiserAgent,
+    'critic': CriticAgent
 };
 
 // =====================================================================
 // 3. AGENT REGISTRY (Sổ đăng ký năng lực)
-// Định nghĩa chi tiết: Agent này tên gì, làm được việc gì,
-// và tên hàm thực tế cần gọi là gì.
 // =====================================================================
 export const AgentRegistry = {
     agents: {
-        // =========================================================
-        // 1. VĂN HỌC AI (Literature)
-        // =========================================================
+        // 1. VĂN HỌC AI
         'literature': {
             id: 'agent:literature',
             name: 'Văn Học AI',
             description: 'Chuyên trách Tác phẩm, Tác giả, Tóm tắt và Thể loại.',
             capabilities: {
-                'summarize-work': 'summarize',      // Intent -> Tên hàm
+                'summarize-work': 'summarize',
                 'find-author-of': 'findAuthor',
                 'recommend': 'recommend',
                 'define-genre': 'defineGenre',
@@ -72,25 +65,21 @@ export const AgentRegistry = {
             canDelegate: ['poetics', 'knowledge', 'history', 'character']
         },
 
-        // =========================================================
-        // 2. THI PHÁP AI (Poetics)
-        // =========================================================
+        // 2. THI PHÁP AI
         'poetics': {
             id: 'agent:poetics',
             name: 'Thi Pháp AI',
             description: 'Chuyên trách Từ điển, Biểu tượng, Điển tích, Thuật ngữ.',
             capabilities: {
                 'explain-symbol': 'explainSymbol',
-                'explain-allusion': 'explainSymbol', // Gộp chung xử lý
+                'explain-allusion': 'explainSymbol',
                 'define-term': 'explainSymbol'
             },
             canRead: ['work', 'symbol', 'term', 'genre', 'allusion'],
             canDelegate: ['literature', 'knowledge']
         },
 
-        // =========================================================
-        // 3. TRI THỨC AI (Knowledge)
-        // =========================================================
+        // 3. TRI THỨC AI
         'knowledge': {
             id: 'agent:knowledge',
             name: 'Tri Thức AI',
@@ -105,9 +94,7 @@ export const AgentRegistry = {
             canDelegate: ['literature', 'poetics', 'history']
         },
 
-        // =========================================================
-        // 4. PHÂN TÍCH AI (Analysis)
-        // =========================================================
+        // 4. PHÂN TÍCH AI
         'analysis': {
             id: 'agent:analysis',
             name: 'Phân Tích AI',
@@ -119,9 +106,7 @@ export const AgentRegistry = {
             canDelegate: ['poetics', 'literature']
         },
 
-        // =========================================================
-        // 5. VẬN KHÍ AI (Fortune)
-        // =========================================================
+        // 5. VẬN KHÍ AI
         'fortune': {
             id: 'agent:fortune',
             name: 'Vận Khí AI',
@@ -133,9 +118,7 @@ export const AgentRegistry = {
             canDelegate: []
         },
 
-        // =========================================================
-        // 6. LỊCH SỬ AI (History)
-        // =========================================================
+        // 6. LỊCH SỬ AI
         'history': {
             id: 'agent:history',
             name: 'Lịch Sử AI',
@@ -149,9 +132,7 @@ export const AgentRegistry = {
             canDelegate: ['literature', 'knowledge']
         },
 
-        // =========================================================
-        // 7. DỊCH THUẬT AI (Translation) - [MỚI]
-        // =========================================================
+        // 7. DỊCH THUẬT AI
         'translation': {
             id: 'agent:translation',
             name: 'Dịch Thuật AI',
@@ -163,9 +144,7 @@ export const AgentRegistry = {
             canDelegate: ['literature']
         },
 
-        // =========================================================
-        // 8. NHÂN VẬT AI (Character) - [MỚI]
-        // =========================================================
+        // 8. NHÂN VẬT AI
         'character': {
             id: 'agent:character',
             name: 'Nhân Vật AI',
@@ -175,18 +154,36 @@ export const AgentRegistry = {
             },
             canRead: ['work', 'author'],
             canDelegate: ['literature', 'knowledge']
+        },
+
+        // 9. TÁN THƯỞNG AI (MỚI)
+        'praiser': {
+            id: 'agent:praiser',
+            name: 'Tán Thưởng AI',
+            description: 'Chuyên trách tìm vẻ đẹp, ca ngợi tác phẩm.',
+            capabilities: {
+                'praise-work': 'analyze' // Hàm analyze của PraiserAgent nhận text
+            },
+            canRead: ['work', 'symbol'],
+            canDelegate: ['poetics']
+        },
+
+        // 10. PHÊ BÌNH AI (MỚI)
+        'critic': {
+            id: 'agent:critic',
+            name: 'Phê Bình AI',
+            description: 'Chuyên trách chỉ ra hạn chế, thiếu sót của tác phẩm.',
+            capabilities: {
+                'criticize-work': 'analyze' // Hàm analyze của CriticAgent nhận text
+            },
+            canRead: ['work', 'symbol'],
+            canDelegate: ['poetics']
         }
     },
 
     // =================================================================
-    // 4. CÁC HÀM TIỆN ÍCH (Helper Methods)
+    // 4. CÁC HÀM TIỆN ÍCH
     // =================================================================
-
-    /**
-     * Tìm Agent có khả năng thực hiện một task cụ thể.
-     * @param {string} task - Intent type (VD: 'summarize-work')
-     * @returns {string|null} - Key của Agent (VD: 'literature')
-     */
     findAgentForTask(task) {
         if (!task) return null;
         for (const [key, agent] of Object.entries(this.agents)) {
@@ -197,43 +194,22 @@ export const AgentRegistry = {
         return null;
     },
 
-    /**
-     * Lấy tên hàm thực tế cần gọi trong Agent.
-     * @param {string} agentKey - Key của Agent (VD: 'literature')
-     * @param {string} task - Intent type (VD: 'summarize-work')
-     * @returns {string|null} - Tên hàm (VD: 'summarize')
-     */
     getMethodName(agentKey, task) {
         const agent = this.agents[agentKey];
         if (!agent || !agent.capabilities) return null;
         return agent.capabilities[task] || null;
     },
 
-    /**
-     * Kiểm tra xem Agent A có quyền nhờ Agent B giúp không.
-     * @param {string} fromAgent - Key của Agent yêu cầu
-     * @param {string} toAgent - Key của Agent được nhờ
-     * @returns {boolean}
-     */
     canDelegate(fromAgent, toAgent) {
         const agent = this.agents[fromAgent];
         if (!agent || !agent.canDelegate) return false;
         return agent.canDelegate.includes(toAgent);
     },
 
-    /**
-     * Lấy thông tin chi tiết của một Agent.
-     * @param {string} agentKey 
-     * @returns {Object|null}
-     */
     getAgentInfo(agentKey) {
         return this.agents[agentKey] || null;
     },
 
-    /**
-     * Lấy danh sách tất cả các Agent hiện có.
-     * @returns {Array<string>}
-     */
     getAllAgentKeys() {
         return Object.keys(this.agents);
     }
