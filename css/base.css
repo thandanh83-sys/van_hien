@@ -2,18 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - BASE CSS (css/base.css)
  * Vị trí: css/base.css
- * Version: 1.0.0 (Network Edition)
+ * Version: 1.1.0 (Nền tảng & Hiệu ứng)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khai báo Font chữ cục bộ.
  * - Reset CSS (Normalize).
  * - Thiết lập nền tảng (Background, Scrollbar, Selection).
- * - Hiệu ứng nước & sương (Canvas/Dewdrops).
+ * - Hiệu ứng nước & sương (Canvas/Dewdrops) tinh tế.
  * - Trợ năng (A11y).
- * 
- * ĐÃ FIX (P3.10):
- * - Xóa bỏ hoàn toàn khối code bị duplicate ở bản v5.1.0.
- * - Đảm bảo z-index của Canvas và Dewdrops đúng chuẩn.
  * ==========================================================
  */
 
@@ -22,11 +18,10 @@
    ===================================================================== */
 @font-face {
     font-family: 'Alex Brush';
-    /* Đường dẫn lùi 1 cấp (../) để ra khỏi thư mục css/ vào thư mục assets/ */
     src: url('../assets/fonts/AlexBrush-Regular.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
-    font-display: swap; /* Đảm bảo chữ hiển thị ngay lập tức bằng font dự phòng */
+    font-display: swap;
 }
 
 /* =====================================================================
@@ -36,50 +31,38 @@
     margin: 0; 
     padding: 0; 
     box-sizing: border-box; 
-    /* Xóa viền xanh/xám khi chạm vào các nút trên điện thoại */
     -webkit-tap-highlight-color: transparent; 
 }
 
 html { 
     background-color: var(--bg-base); 
-    /* Chặn hiệu ứng kéo giãn trang (Pull-to-refresh) thừa thãi trên Mobile */
     overscroll-behavior-y: none; 
     scroll-behavior: smooth; 
 }
 
 body {
     background-color: var(--bg-base);
-    /* Sử dụng ảnh nền nen.jpg kết hợp lớp gradient để chữ dễ đọc */
-    background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.95) 0%, rgba(235, 243, 240, 0.98) 100%), url('../assets/nen.jpg');
+    /* Làm trong suốt lớp gradient để nhìn rõ ảnh nền nen.jpg */
+    background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.75) 0%, rgba(235, 243, 240, 0.85) 100%), url('../assets/nen.jpg');
     background-size: cover; 
     background-position: center; 
     background-attachment: fixed; 
     background-repeat: no-repeat;
     
     color: var(--text-main); 
-    font-family: var(--font-body);
+    font-family: var(--font-body); 
     line-height: 1.6;
     min-height: 100vh; 
-    overflow-x: hidden; /* Chặn tuyệt đối cuộn ngang */
-    
+    overflow-x: hidden; 
     -webkit-font-smoothing: antialiased; 
     text-rendering: optimizeLegibility;
 }
 
-/* Tùy chỉnh thanh cuộn (Scrollbar) */
-::-webkit-scrollbar { 
-    width: 6px; 
-}
-::-webkit-scrollbar-track { 
-    background: var(--bg-base); 
-}
-::-webkit-scrollbar-thumb { 
-    background: var(--accent); 
-    border-radius: 4px; 
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-hover);
-}
+/* Tùy chỉnh thanh cuộn */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
 
 /* Màu nền khi bôi đen văn bản */
 ::selection { 
@@ -90,14 +73,10 @@ body {
 
 /* =====================================================================
    3. HIỆU ỨNG NỀN: SÓNG NƯỚC & HẠT SƯƠNG
-   Bắt buộc: position fixed + z-index: 1 + pointer-events: none
    ===================================================================== */
 #water-canvas {
     position: fixed !important; 
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0; left: 0; width: 100vw; height: 100vh;
     pointer-events: none; 
     z-index: 1; 
     display: block;
@@ -105,21 +84,24 @@ body {
 
 .dewdrop-container { 
     position: fixed !important; 
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    top: 0; left: 0; width: 100vw; height: 100vh;
     pointer-events: none; 
     z-index: 1; 
     overflow: hidden; 
 }
 
+/* Hạt sương: Trắng trong, phát sáng nhẹ, tinh tế */
 .dewdrop {
     position: absolute; 
     border-radius: 50%;
     will-change: transform, opacity; 
     transform: translate3d(0, 0, 0); 
     animation: floatUp linear infinite; 
+    
+    background: radial-gradient(circle at 30% 30%, #ffffff, rgba(255, 255, 255, 0.2));
+    box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.6), inset 0 0 2px rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(1px);
 }
 
 @keyframes floatUp {
@@ -133,64 +115,38 @@ body {
    4. TRỢ NĂNG (ACCESSIBILITY - A11Y)
    ===================================================================== */
 .sr-only { 
-    position: absolute; 
-    width: 1px; 
-    height: 1px; 
-    padding: 0; 
-    margin: -1px; 
-    overflow: hidden; 
-    clip: rect(0, 0, 0, 0); 
-    white-space: nowrap; 
-    border: 0; 
+    position: absolute; width: 1px; height: 1px; 
+    padding: 0; margin: -1px; overflow: hidden; 
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; 
 }
 
 .skip-link { 
-    position: absolute; 
-    left: -9999px; 
-    top: .5rem; 
-    z-index: 10001; 
-    background: var(--accent); 
-    color: #fff; 
-    padding: .6rem 1rem; 
-    border-radius: 8px; 
-    font-family: var(--font-body); 
-    text-decoration: none; 
-    font-weight: 700; 
+    position: absolute; left: -9999px; top: .5rem; z-index: 10001; 
+    background: var(--accent); color: #fff; 
+    padding: .6rem 1rem; border-radius: 8px; 
+    font-family: var(--font-body); text-decoration: none; font-weight: 700; 
 }
-.skip-link:focus { 
-    left: .5rem; 
-}
+.skip-link:focus { left: .5rem; }
 
 :focus-visible { 
     outline: 2px solid var(--accent); 
     outline-offset: 3px; 
-    border-radius: var(--radius-xs); 
+    border-radius: 4px; 
 }
 
 /* =====================================================================
    5. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG
    ===================================================================== */
-/* Cảm giác nút bị "lún xuống" khi bấm */
-button:active, 
-.btn:active, 
-.filter-btn:active, 
-.page-btn:active, 
-.nav-btn:active {
+button:active, .btn:active, .filter-btn:active, .page-btn:active, .nav-btn:active {
     transform: scale(0.95) !important;
     transition: transform 0.1s ease !important;
 }
 
-/* Tôn trọng cài đặt hệ thống: Tắt animation nếu người dùng muốn */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { 
         animation-duration: 0.01ms !important; 
         transition-duration: 0.01ms !important; 
     }
-    .heritage-card, .accordion-item { 
-        opacity: 1 !important; 
-        transform: none !important; 
-    }
-    #jade-splash, .silk-transition-overlay, #water-canvas, .dewdrop-container { 
-        display: none !important; 
-    }
+    .heritage-card, .accordion-item { opacity: 1 !important; transform: none !important; }
+    #jade-splash, .silk-transition-overlay, #water-canvas, .dewdrop-container { display: none !important; }
 }
