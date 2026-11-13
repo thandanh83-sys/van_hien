@@ -1,7 +1,7 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
- * Đã sửa: Xóa import thừa, tối ưu sự kiện Offline.
+ * Đã sửa: Giao diện Fate Modal (Bói thơ) theo yêu cầu.
  * ==========================================================
  */
 
@@ -339,7 +339,7 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// PHẦN 4: BÓI THƠ (TÍCH HỢP AI NỘI BỘ - 0MS)
+// PHẦN 4: BÓI THƠ (ĐÃ SỬA THEO YÊU CẦU)
 // =====================================================================
 function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(w => w.desc && w.desc.trim() !== '');
@@ -372,13 +372,13 @@ function randomPoem() {
     badge.style.borderColor = fortuneInfo.color;
     
     document.getElementById('fate-title').textContent = randomWork.title;
-    document.getElementById('fate-author').textContent = `— ${randomWork.author} —`;
     document.getElementById('fate-excerpt').innerHTML = `"${randomWork.desc}"`;
 
     let adviceWrapper = '';
     if (adviceHtml) {
         adviceWrapper = `
-            <div style="background: rgba(139, 184, 168, 0.05); padding: 12px 16px; border-radius: 8px; border-left: 2px solid ${fortuneInfo.color}; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+            <div style="background: rgba(139, 184, 168, 0.08); padding: 15px; border-radius: 8px; border-left: 3px solid ${fortuneInfo.color}; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
+                <div style="font-weight: 700; color: var(--accent-text); margin-bottom: 8px; text-transform: uppercase; font-size: 0.8rem;">Lời khuyên</div>
                 ${adviceHtml}
             </div>
         `;
@@ -386,7 +386,10 @@ function randomPoem() {
 
     document.getElementById('fate-commentary').innerHTML = `
         <p style="margin-bottom: 15px; color: var(--accent-text); font-style: italic;">${bridgeText}</p>
-        <p style="margin-bottom: 15px;">${commentaryText}</p>
+        <div style="margin-bottom: 15px;">
+            <div style="font-weight: 700; color: var(--accent-text); margin-bottom: 5px; text-transform: uppercase; font-size: 0.8rem;">Lời bình</div>
+            <p style="margin: 0;">${commentaryText}</p>
+        </div>
         ${adviceWrapper}
     `;
 
@@ -401,7 +404,11 @@ function randomPoem() {
         `;
     }
 
-    document.getElementById('fate-goto-btn').onclick = () => {
+    // SỬA LỖI: Gộp tên tác phẩm & tác giả vào nút Đọc toàn bộ
+    const gotoBtn = document.getElementById('fate-goto-btn');
+    gotoBtn.innerHTML = `Đọc toàn bộ: <span style="color: var(--text-main); text-transform: none; font-size: 0.85rem;">${randomWork.title} — ${randomWork.author}</span> &rarr;`;
+    
+    gotoBtn.onclick = () => {
         overlay.classList.remove('show');
         setTimeout(() => { overlay.style.display = 'none'; }, 300);
         gotoEncyclopediaById({
@@ -449,7 +456,6 @@ window.clearSearch = function() {
 // PHẦN 6: KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
 // =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // 6.1. Gắn sự kiện cho các nút Bói Thơ
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
     document.getElementById('fate-close-btn')?.addEventListener('click', () => {
         const o = document.getElementById('fate-modal-overlay');
@@ -463,7 +469,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 6.2. Splash Screen & Load Data
     const splash = document.getElementById('jade-splash');
     const status = document.getElementById('bootStatusText');
     const qc = document.querySelector('.boot-quote');
@@ -562,7 +567,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnOpenSettings.addEventListener('click', () => {
             if (typeof settingsDialog.showModal === 'function') settingsDialog.showModal();
             else settingsDialog.setAttribute('open', '');
-            checkStorageSize(); // Cập nhật dung lượng khi mở
+            checkStorageSize(); 
         });
         btnCloseSettings.addEventListener('click', () => {
             if (typeof settingsDialog.close === 'function') settingsDialog.close();
