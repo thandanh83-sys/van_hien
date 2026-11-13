@@ -7,9 +7,7 @@ export const PoeticsAgent = {
         const q = normalizeRouteText(keyword);
         const found = allEntries.find(item => item.normalizedKeyword.includes(q));
         
-        if (found) {
-            return { answer: found.mean, detail: `[${found.type}] ${found.keyword}`, source: 'dictionary', meta: [] };
-        }
+        if (found) return { answer: found.mean, detail: `[${found.type}] ${found.keyword}`, source: 'dictionary' };
         return { answer: `Không tìm thấy giải nghĩa cho "${keyword}".`, source: 'dictionary' };
     }
 };
