@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - LAYOUTS CSS (css/layouts.css)
  * Vị trí: css/layouts.css
- * Version: 1.0.10 (Custom Modal & Banner Fix)
+ * Version: 1.1.0 (Custom Modal & Banner Fix)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khung xương: Splash, Silk Transition, Navbar, Container.
@@ -13,7 +13,7 @@
  */
 
 /* =====================================================================
-   1. MÀN HÌNH CHỜ: BOOT EXPERIENCE (DẢI LỤA + TEXT)
+   1. MÀN HÌNH CHỜ: BOOT EXPERIENCE
    ===================================================================== */
 #jade-splash { 
     position: fixed; inset: 0; z-index: 999999; 
@@ -65,7 +65,11 @@
 /* =====================================================================
    3. NAVBAR & CONTAINER CHÍNH
    ===================================================================== */
-.container { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: calc(85px + env(safe-area-inset-top)) 20px 40px 20px; }
+.container { 
+    position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; 
+    /* Tăng padding-top lên 110px để tiêu đề không dính vào Header */
+    padding: calc(110px + env(safe-area-inset-top)) 20px 40px 20px; 
+}
 
 .navbar {
     display: flex; justify-content: space-between; align-items: center;
@@ -189,7 +193,7 @@ dialog::backdrop { background-color: var(--veil); backdrop-filter: blur(8px); -w
    7. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
-    .container { padding: calc(70px + env(safe-area-inset-top)) 16px 40px 16px; }
+    .container { padding: calc(95px + env(safe-area-inset-top)) 16px 40px 16px; }
     .navbar { padding: 10px 16px; top: calc(10px + env(safe-area-inset-top)); border-radius: var(--radius-pill); }
     .nav-brand { font-size: 1.3rem; letter-spacing: 3px; }
     .mobile-menu-btn { display: block; }
