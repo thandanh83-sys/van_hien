@@ -2,14 +2,8 @@
  * ==========================================================
  * VĂN ĐẠO - AUDIT MODULE (js/audit.js)
  * Vị trí: js/audit.js
- * Version: 4.0.4 (Modular Testing & Path Resolved)
+ * Version: 4.0.5 (Ultimate Diagnostic Tool)
  * ==========================================================
- * CHỨC NĂNG:
- * - Chẩn đoán File Tĩnh (JS, CSS, JSON) -> Phát hiện 404, lỗi cú pháp.
- * - Chẩn đoán Mạng lưới (DataHub, AgentRegistry, VDBus) -> Phát hiện đứt gãy.
- * - Chẩn đoán Dữ liệu (Index vs Detail) -> Phát hiện mồ côi, thiếu file.
- * - Chẩn đoán AI (Toàn bộ Pipeline) -> Test tất cả các Intent.
- * 
  * HƯỚNG DẪN SỬ DỤNG (Mở Console F12, gõ):
  * ---------------------------------------------------------
  * 1. Khám TỔNG QUÁT toàn bộ hệ thống:
@@ -35,15 +29,12 @@
 import { APP_DATA, STATE } from './config.js';
 import { DataHub, AgentRegistry, VDBus } from './network/index.js';
 
-// =====================================================================
-// TÍNH TOÁN ĐƯỜNG DẪN GỐC (BASE URL)
-// File audit.js nằm trong thư mục /js/, nên lùi 1 cấp (../) là gốc dự án.
-// =====================================================================
+// Tính toán đường dẫn gốc (Từ thư mục js/ lùi ra ngoài 1 cấp)
 const BASE_URL = new URL('../', import.meta.url).href;
 
-// =====================================================================
+// ==========================================================
 // PHẦN 1: DANH SÁCH FILE TĨNH
-// =====================================================================
+// ==========================================================
 const STATIC_ASSETS = {
     css: [
         'css/variables.css', 'css/base.css', 'css/components.css', 
@@ -69,9 +60,9 @@ const STATIC_ASSETS = {
     ]
 };
 
-// =====================================================================
+// ==========================================================
 // PHẦN 2: UTILITIES & LOGGING
-// =====================================================================
+// ==========================================================
 async function checkFile(relativePath) {
     const absoluteUrl = new URL(relativePath, BASE_URL).href;
     try {
@@ -110,9 +101,9 @@ function logAdvice(msg) {
     console.log(`%c[GỢI Ý] %c${msg}`, 'color: #3498db; font-weight: bold;', 'color: #7f8c8d; font-style: italic;');
 }
 
-// =====================================================================
-// PHẦN 3: CÁC HÀM KHÁM CHUYÊN KHOA (Gọi riêng lẻ)
-// =====================================================================
+// ==========================================================
+// PHẦN 3: CÁC HÀM KHÁM CHUYÊN KHOA
+// ==========================================================
 
 // 3.1 Khám File Tĩnh (CSS, JS, JSON)
 export async function auditStaticFiles() {
@@ -334,13 +325,13 @@ export async function auditSingleQuery(query) {
     }
 }
 
-// =====================================================================
-// PHẦN 4: KHÁM TỔNG QUÁT (Gọi tất cả)
-// =====================================================================
+// ==========================================================
+// PHẦN 4: KHÁM TỔNG QUÁT
+// ==========================================================
 export async function runFullDiagnosis() {
     console.clear();
     console.log(
-        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.0.4 ===",
+        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.0.5 ===",
         "background: linear-gradient(135deg, #2c3e38, #557a6f); color: #d4c4a8; font-size: 16px; font-weight: bold; padding: 10px 20px; border-radius: 8px;"
     );
 
@@ -385,9 +376,9 @@ export async function runFullDiagnosis() {
     return { static: staticResult, network: networkResult, works: worksResult, authors: authorsResult, ai: aiResult, duration };
 }
 
-// =====================================================================
-// PHẦN 5: XUẤT RA WINDOW TOÀN CỤC (Để gõ trong Console)
-// =====================================================================
+// ==========================================================
+// PHẦN 5: XUẤT RA WINDOW (CỰC KỲ QUAN TRỌNG)
+// ==========================================================
 window.audit = runFullDiagnosis;
 window.auditStaticFiles = auditStaticFiles;
 window.auditNetwork = auditNetwork;
