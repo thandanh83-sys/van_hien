@@ -17,7 +17,7 @@
 // I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
 // ĐỔI VERSION NÀY MỖI KHI BẠN CẬP NHẬT CODE ĐỂ XÓA CACHE CŨ
-const CACHE_VERSION = 'v3.2.1';
+const CACHE_VERSION = 'v3.2.2';
 
 const STATIC_CACHE  = `vandao-static-${CACHE_VERSION}`;
 const HTML_CACHE    = `vandao-html-${CACHE_VERSION}`;
