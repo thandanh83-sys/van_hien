@@ -1,27 +1,47 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - AI ENGINE (js/ai.js)
+ * Đã sửa: Logic tách Nên/Tránh bằng Regex chính xác 100%.
  * ==========================================================
  */
 
 import { APP_DATA } from './config.js';
 import { findSymbols } from './render.js';
 
+// 1. TÍNH TOÁN VẬN KHÍ DỰA TRÊN MẠNG LƯỚI TRI THỨC
 export function calculateFortune(work) {
     const author = (work.author || '').toLowerCase();
     const era = (work.era || '').toLowerCase();
     const genres = (work.the_loai || []).join(' ').toLowerCase();
 
-    if (author.includes('hồ chí minh') || author.includes('tố hữu') || author.includes('chính hữu') || author.includes('phạm tiến duật')) return 'dai-cat';
-    if (author.includes('nguyễn trãi') || author.includes('lý thường kiệt') || author.includes('trần quốc tuấn')) return 'dai-cat';
-    if (author.includes('hồ xuân hương') || author.includes('nguyễn du') || author.includes('nam cao') || author.includes('vũ trọng phụng')) return Math.random() > 0.3 ? 'tieu-hung' : 'binh-hoa';
+    // Luật 1: Tác giả (Ưu tiên cao nhất)
+    if (author.includes('hồ chí minh') || author.includes('tố hữu') || author.includes('chính hữu') || author.includes('phạm tiến duật')) {
+        return 'dai-cat'; 
+    }
+    if (author.includes('nguyễn trãi') || author.includes('lý thường kiệt') || author.includes('trần quốc tuấn')) {
+        return 'dai-cat'; 
+    }
+    if (author.includes('hồ xuân hương') || author.includes('nguyễn du') || author.includes('nam cao') || author.includes('vũ trọng phụng')) {
+        return Math.random() > 0.3 ? 'tieu-hung' : 'binh-hoa'; 
+    }
 
-    if (era.includes('kháng chiến') || era.includes('194') || era.includes('195') || era.includes('196') || era.includes('197')) return Math.random() > 0.4 ? 'trung-cat' : 'tieu-hung';
-    if (era.includes('tk 19') || era.includes('tk 18') || era.includes('trung đại') || era.includes('nhà')) return Math.random() > 0.5 ? 'binh-hoa' : 'trung-cat';
+    // Luật 2: Thời đại
+    if (era.includes('kháng chiến') || era.includes('194') || era.includes('195') || era.includes('196') || era.includes('197')) {
+        return Math.random() > 0.4 ? 'trung-cat' : 'tieu-hung';
+    }
+    if (era.includes('tk 19') || era.includes('tk 18') || era.includes('trung đại') || era.includes('nhà')) {
+        return Math.random() > 0.5 ? 'binh-hoa' : 'trung-cat';
+    }
 
-    if (genres.includes('truyện ngắn') || genres.includes('tiểu thuyết') || genres.includes('bi kịch')) return Math.random() > 0.5 ? 'tieu-cat' : 'binh-hoa';
-    if (genres.includes('thơ đường luật') || genres.includes('thơ mới') || genres.includes('lục bát')) return Math.random() > 0.4 ? 'trung-cat' : 'binh-hoa';
+    // Luật 3: Thể loại
+    if (genres.includes('truyện ngắn') || genres.includes('tiểu thuyết') || genres.includes('bi kịch')) {
+        return Math.random() > 0.5 ? 'tieu-cat' : 'binh-hoa';
+    }
+    if (genres.includes('thơ đường luật') || genres.includes('thơ mới') || genres.includes('lục bát')) {
+        return Math.random() > 0.4 ? 'trung-cat' : 'binh-hoa';
+    }
 
+    // Luật 4: Random cho các trường hợp còn lại
     const random = Math.random();
     if (random < 0.15) return 'dai-cat';
     if (random < 0.4) return 'trung-cat';
@@ -30,9 +50,11 @@ export function calculateFortune(work) {
     return 'tieu-hung';
 }
 
+// 2. PHÂN TÍCH BIỂU TƯỢNG ĐỂ TẠO CÂU DẪN
 export function generateBridgeText(work, fortuneKey) {
     const title = work.title;
     const author = work.author;
+    
     const textToScan = `${work.title} ${work.desc || ''}`;
     const symbols = findSymbols(textToScan); 
     const mainSymbol = symbols.length > 0 ? symbols[0].keyword : null;
@@ -47,11 +69,15 @@ export function generateBridgeText(work, fortuneKey) {
     };
 
     let baseText = bridgeTemplates[fortuneKey] || bridgeTemplates['binh-hoa'];
-    if (mainSymbol) baseText += ` Hình ảnh "${mainSymbol}" xuất hiện như một nốt trầm, gợi mở những tầng nghĩa sâu kín về nhân sinh.`;
+
+    if (mainSymbol) {
+        baseText += ` Hình ảnh "${mainSymbol}" xuất hiện như một nốt trầm, gợi mở những tầng nghĩa sâu kín về nhân sinh.`;
+    }
 
     return baseText;
 }
 
+// 3. TỔNG HỢP LỜI BÌNH & LỜI KHUYÊN (ĐÃ SỬA LỖI REGEX)
 export function synthesizeCommentary(work, fortuneKey) {
     const fortuneData = APP_DATA.COMMENTARY_DATA[fortuneKey] || {};
     
@@ -62,9 +88,12 @@ export function synthesizeCommentary(work, fortuneKey) {
     let adviceHtml = '';
     
     if (adviceText) {
-        const parts = adviceText.split('Tránh:');
-        const nenText = parts[0] ? parts[0].replace('Nên:', '').trim() : '';
-        const tranhText = parts[1] ? parts[1].trim() : '';
+        // SỬA LỖI: Dùng Regex để tách chính xác Nên/Tránh kể cả khi thiếu dấu cách
+        const matchNen = adviceText.match(/Nên:(.*?)(?=Tránh:|$)/i);
+        const matchTranh = adviceText.match(/Tránh:(.*)/i);
+        
+        const nenText = matchNen ? matchNen[1].trim() : '';
+        const tranhText = matchTranh ? matchTranh[1].trim() : '';
 
         if (tranhText) {
             adviceHtml = `
