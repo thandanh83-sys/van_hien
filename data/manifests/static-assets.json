@@ -28,17 +28,17 @@
   ],
   "js_agents": [
     "js/ai/agents/index.js",
-    "js/ai/agents/literature.js",
-    "js/ai/agents/poetics.js",
     "js/ai/agents/analysis.js",
-    "js/ai/agents/fortune-ai.js",
-    "js/ai/agents/knowledge.js",
-    "js/ai/agents/history.js",
-    "js/ai/agents/translation.js",
     "js/ai/agents/character.js",
     "js/ai/agents/comparison.js",
+    "js/ai/agents/critic.js",
+    "js/ai/agents/fortune-ai.js",
+    "js/ai/agents/history.js",
+    "js/ai/agents/knowledge.js",
+    "js/ai/agents/literature.js",
+    "js/ai/agents/poetics.js",
     "js/ai/agents/praiser.js",
-    "js/ai/agents/critic.js"
+    "js/ai/agents/translation.js"
   ],
   "js_network": [
     "js/network/data-hub.js",
