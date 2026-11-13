@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - CORE MODULE (js/ai/core.js)
  * Vị trí: js/ai/core.js
- * Version: 3.1.0 (Unified Intelligence Network)
+ * Version: 3.2.0 (Plugin Architecture)
  * ==========================================================
  * CHỨC NĂNG:
  * - Quản lý bộ nhớ đệm kết quả AI (CoreCache).
@@ -54,7 +54,7 @@ export const FORTUNE_MAP = Object.freeze(
 // =====================================================================
 const CACHE_LIMIT = 200;
 const resultCache = new Map();
-export const CACHE_VERSION = 'v3.1.0';
+export const CACHE_VERSION = 'v3.2.0';
 
 export const CoreCache = {
     set(key, value) {
