@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
  * Vị trí: js/ai/master.js
- * Version: 3.1.0 (Unified Intelligence Network Orchestrator)
+ * Version: 3.2.0 (Plugin Architecture)
  * ==========================================================
  * CHỨC NĂNG:
  * - Điều phối (Orchestrate) dựa trên Intent (type + mode).
@@ -19,122 +19,47 @@
 
 import { InputAI } from './input-ai.js';
 import { OutputAI } from './output-ai.js';
-import { AgentRegistry } from './agent-registry.js'; // Sổ đăng ký Agent
-
-// Import tất cả các Agent chuyên môn
-import { LiteratureAgent } from './agents/literature.js';
-import { PoeticsAgent } from './agents/poetics.js';
-import { AnalysisAgent } from './agents/analysis.js';
-import { FortuneAgent } from './agents/fortune-ai.js';
-import { KnowledgeAgent } from './agents/knowledge.js';
-import { HistoryAgent } from './agents/history.js'; // [MỚI] Agent Lịch sử
+// [QUAN TRỌNG] Import từ file index.js duy nhất của thư mục agents
+import { AgentMap, AgentRegistry } from './agents/index.js';
 
 // =====================================================================
-// 1. BẢN ĐỒ AGENT (AGENT MAP) - Ánh xạ key từ Registry sang Object thực tế
-// =====================================================================
-const AGENT_MAP = {
-    'literature': LiteratureAgent,
-    'poetics': PoeticsAgent,
-    'analysis': AnalysisAgent,
-    'fortune': FortuneAgent,
-    'knowledge': KnowledgeAgent,
-    'history': HistoryAgent // [MỚI]
-};
-
-// =====================================================================
-// 2. HÀM ĐIỀU PHỐI NỘI BỘ (Internal Dispatcher)
+// 1. HÀM ĐIỀU PHỐI NỘI BỘ (Internal Dispatcher)
 // =====================================================================
 async function internalDispatch(intent) {
     try {
         // -----------------------------------------------------------------
         // BƯỚC 1: TRA CỨU AGENT REGISTRY
+        // Tìm xem Agent nào có khả năng thực hiện task này.
         // -----------------------------------------------------------------
         const agentKey = AgentRegistry.findAgentForTask(intent.type);
         
         if (!agentKey) {
             // Fallback: Nếu không có Agent nào đăng ký task này, chuyển cho LiteratureAgent tìm kiếm
             console.warn(`[MASTER] Không tìm thấy Agent cho task: "${intent.type}". Fallback về LiteratureAgent.`);
-            return await LiteratureAgent.search(intent.query);
-        }
-
-        const agent = AGENT_MAP[agentKey];
-        if (!agent) {
-            throw new Error(`Agent "${agentKey}" được đăng ký nhưng không tìm thấy trong AGENT_MAP.`);
+            return await AgentMap['literature'].search(intent.query);
         }
 
         // -----------------------------------------------------------------
-        // BƯỚC 2: GỌI HÀM TƯƠNG ỨNG CỦA AGENT
+        // BƯỚC 2: LẤY INSTANCE VÀ TÊN HÀM
         // -----------------------------------------------------------------
-        switch (intent.type) {
-            // ================= NHÓM TÁC PHẨM & TÁC GIẢ (LITERATURE) =================
-            case 'summarize-work':
-                return await agent.summarize(intent.query);
+        const agentInstance = AgentMap[agentKey];
+        const methodName = AgentRegistry.getMethodName(agentKey, intent.type);
 
-            case 'find-author-of':
-                return await agent.findAuthor(intent.query);
-
-            case 'recommend':
-                return await agent.recommend(intent.query);
-            
-            case 'define-genre':
-                return await agent.defineGenre(intent.query);
-
-            // ================= NHÓM MẠNG LƯỚI (KNOWLEDGE) =================
-            case 'find-related':
-                return await agent.findRelated(intent.query);
-
-            case 'find-author-info':
-                return await agent.getAuthorInfo(intent.query);
-
-            case 'list-author-works':
-                return await agent.listAuthorWorks(intent.query);
-
-            case 'explore':
-                const exploreRes = await agent.exploreEntity(intent.query);
-                if (exploreRes) return exploreRes;
-                // Nếu không tìm thấy, rơi xuống case search
-                break;
-
-            // ================= NHÓM LỊCH SỬ (HISTORY) - [MỚI] =================
-            case 'find-works-by-era':
-                return await agent.findWorksByEra(intent.query);
-
-            case 'find-authors-by-era':
-                return await agent.findAuthorsByEra(intent.query);
-
-            case 'get-historical-context':
-                return await agent.getHistoricalContext(intent.query);
-
-            // ================= NHÓM THI PHÁP & TỪ ĐIỂN (POETICS) =================
-            case 'explain-symbol':
-            case 'explain-allusion':
-            case 'define-term':
-                return await agent.explainSymbol(intent.query);
-
-            // ================= NHÓM PHÂN TÍCH (ANALYSIS) =================
-            case 'analyze-work':
-                const workInfo = await LiteratureAgent.getWorkInfo(intent.query);
-                if (workInfo.ok) {
-                    const analysis = await agent.analyze(workInfo.record);
-                    return { ...analysis, meta: [workInfo.record] };
-                }
-                return { 
-                    answer: `Không tìm thấy tác phẩm "${intent.query}" để phân tích.`, 
-                    source: 'master' 
-                };
-
-            // ================= NHÓM BÓI TOÁN (FORTUNE) =================
-            case 'fortune':
-                return { 
-                    answer: 'Vui lòng sử dụng nút "Một bài thơ cho hôm nay" ở Trang Chủ để gieo quẻ vận khí.', 
-                    source: 'master' 
-                };
-
-            // ================= NHÓM MẶC ĐỊNH (SEARCH) =================
-            case 'search':
-            default:
-                return await agent.search(intent.query);
+        if (!agentInstance) {
+            throw new Error(`Agent "${agentKey}" được đăng ký nhưng không tìm thấy trong AgentMap.`);
         }
+
+        if (!methodName || typeof agentInstance[methodName] !== 'function') {
+            throw new Error(`Agent "${agentKey}" không có hàm "${methodName}".`);
+        }
+
+        // -----------------------------------------------------------------
+        // BƯỚC 3: GỌI HÀM ĐỘNG (Dynamic Method Call)
+        // Không cần switch/case. Gọi thẳng hàm dựa trên tên.
+        // -----------------------------------------------------------------
+        console.log(`[MASTER] Điều phối "${intent.type}" đến ${agentKey}.${methodName}()`);
+        return await agentInstance[methodName](intent.query);
+
     } catch (err) {
         console.error('[MASTER AI] Lỗi trong quá trình điều phối:', err);
         return { 
@@ -146,33 +71,48 @@ async function internalDispatch(intent) {
 }
 
 // =====================================================================
-// 3. PUBLIC API (Dành cho UI & Audit)
+// 2. PUBLIC API (Dành cho UI & Audit)
 // =====================================================================
 export const MasterAI = {
+    /**
+     * Phân tích câu hỏi (Dùng cho Audit hoặc Debug)
+     */
     parseIntent(input) {
         return InputAI.parseIntent(input);
     },
 
+    /**
+     * Thực thi một Intent (Dùng cho Audit hoặc gọi trực tiếp)
+     */
     async dispatch(intent) {
         return await internalDispatch(intent);
     },
 
+    /**
+     * [API CHÍNH] Xử lý câu hỏi từ người dùng (Dùng cho UI ask-dao.js)
+     * Tự động phân tích, hiển thị loading, gọi Agent và render kết quả.
+     */
     async processQuery(inputElement, container) {
         const text = inputElement.value.trim();
         if (!text) return { type: 'empty' };
 
+        // 1. Phân tích ý định
         const intent = InputAI.parseIntent(text);
 
-        // Nếu chỉ là tìm kiếm thông thường, trả quyền lại cho UI
+        // [ĐIỀU KIỆN QUAN TRỌNG]
+        // Nếu Type là 'search' VÀ Mode là 'search' (Người dùng chỉ gõ từ khóa)
+        // -> Trả quyền lại cho UI để chạy hàm searchEncyclopedia bình thường
         if (intent.type === 'search' && intent.mode === 'search') {
             return { type: 'search', query: intent.query };
         }
 
-        // Hiển thị Loading và gọi Agent
+        // 2. Nếu là câu hỏi (mode = question) hoặc lệnh (mode = command)
+        // -> Hiển thị Loading và gọi Agent
         OutputAI.renderLoading(container);
+
         const result = await internalDispatch(intent);
         
-        // Render kết quả ra HTML
+        // 3. Render kết quả ra HTML
         OutputAI.render(container, result, text);
         
         return { type: 'answered' };
