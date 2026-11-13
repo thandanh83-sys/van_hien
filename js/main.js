@@ -2,10 +2,10 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 3.0.0 (Unified Intelligence Network)
+ * Version: 3.2.0 (Plugin Architecture & Unified Network)
  * ==========================================================
  * CHỨC NĂNG:
- * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền (Canvas/Sương).
+ * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
  * - Nạp dữ liệu vào APP_DATA và xây dựng STATE.GLOBAL_INDEX.
  * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI).
  * - Gắn sự kiện Tìm kiếm Hỏi Đạo (Master AI).
@@ -483,12 +483,10 @@ async function refreshNetworkStatus(forceRefresh = false) {
     if (dotsEl) dotsEl.innerHTML = '';
 
     try {
-        // [MỚI] Kiểm tra trạng thái DataHub thay vì MotherNode
         const totalRecords = STATE.GLOBAL_RECORDS.length;
         const totalWorks = APP_DATA.WORKS_DATA.length;
         const totalAuthors = APP_DATA.AUTHOR_DATA.length;
         
-        // Giả lập trạng thái "online" cho 4 phân khu
         const nodes = [
             { id: 'triet-thuyet', label: 'Triết Thuyết', status: 'online' },
             { id: 'ky-tai', label: 'Kỳ Tài', status: 'online' },
