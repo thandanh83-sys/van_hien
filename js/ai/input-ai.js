@@ -62,7 +62,7 @@ function result(type, mode, query, extra = {}) {
 // =====================================================================
 
 const EXTRACTION_PATTERNS = {
-    // ... (Giữ nguyên các pattern cũ cho Văn học, Thi pháp, Tri thức)
+    // ... (Các pattern cũ cho Văn học, Thi pháp, Tri thức)
     'find-related': [/\b(tác phẩm|bài thơ|liên quan|tương tự|giống|cùng)\b/gi, /\b(nào|gì|với|đến|như)\b/gi, /\b(có|tìm|liệt kê)\b/gi],
     'list-author-works': [/\b(liệt kê|kể tên|tác phẩm|sáng tác|của|viết)\b/gi, /\b(nào|gì)\b/gi],
     'find-author-info': [/\b(tiểu sử|cuộc đời|sự nghiệp|thông tin|tác giả)\b/gi, /\b(của|về|cho|nói về)\b/gi],
@@ -140,7 +140,7 @@ function detectQuestionForm(text) {
 // =====================================================================
 
 function detectCommand(text) {
-    // 1. NHÓM LỊCH SỬ (Ưu tiên cao nhất vì dễ nhầm với tìm kiếm)
+    // 1. NHÓM LỊCH SỬ (Ưu tiên cao nhất)
     if (has(text, [/\btac pham thoi\b/, /\btac pham thuoc thoi\b/, /\bvan hoc thoi\b/, /\btac pham trieu dai\b/])) 
         return 'find-works-by-era';
     
