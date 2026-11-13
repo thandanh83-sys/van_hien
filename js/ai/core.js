@@ -2,19 +2,21 @@
  * ==========================================================
  * VĂN ĐẠO AI - CORE MODULE (js/ai/core.js)
  * Vị trí: js/ai/core.js
- * Version: 1.3.0 (Multi-Agent Foundation)
+ * Version: 1.5.0 (Offline-First Foundation)
  * ==========================================================
  * CHỨC NĂNG:
  * - Quản lý bộ nhớ đệm (Cache Manager).
  * - Xây dựng chỉ mục từ điển (Dictionary Index).
  * - Xử lý văn bản có trọng số (Weighted Matching).
  * - Cung cấp hằng số dùng chung (Fortune Levels, Dictionary Groups).
- * - Cung cấp các hàm an toàn (Safe Data Access, Text Normalize).
+ * - [QUAN TRỌNG] Cung cấp hàm resolveAndFetch() để AI lấy dữ liệu
+ *   theo ID (kết nối với Máy Mẹ - mother.js).
  * ==========================================================
  */
 
 import { APP_DATA } from '../config.js';
 import { normalizeRouteText } from '../utils.js';
+import { MotherNode } from '../network/mother.js'; // Import Máy Mẹ để định tuyến ID
 
 // ==========================================================
 // PHẦN 1: HẰNG SỐ DÙNG CHUNG
@@ -60,7 +62,7 @@ export const FORTUNE_LEVELS = Object.freeze([
     { 
         key: 'tieu-hung', weight: 16, name: 'Tiểu hung', color: '#ad876d', 
         advice: 'Kiểm tra lại kế hoạch, lắng nghe ý kiến đáng tin cậy. Tránh quyết định bốc đồng, hấp tấp.' 
-    },
+    }, 
     { 
         key: 'dai-hung', weight: 10, name: 'Đại hung', color: '#9c7777', 
         advice: 'Thận trọng, rà soát những điều quan trọng và ưu tiên sự an toàn. Tránh liều lĩnh, cố chấp khi chưa đủ thông tin.' 
@@ -79,7 +81,7 @@ export const FORTUNE_MAP = Object.freeze(
 // ==========================================================
 const CACHE_LIMIT = 200;
 const resultCache = new Map();
-export const CACHE_VERSION = 'v1.3.0';
+export const CACHE_VERSION = 'v1.5.0';
 
 export const CoreCache = {
     set(key, value) {
@@ -175,7 +177,41 @@ export function extractEntity(input, patternsToRemove = []) {
 }
 
 // ==========================================================
-// PHẦN 5: SAFE DATA ACCESS (Truy xuất dữ liệu an toàn)
+// PHẦN 5: ID RESOLVER (Cầu nối giữa AI và Máy Mẹ)
+// ==========================================================
+
+/**
+ * [CỰC KỲ QUAN TRỌNG] Lấy dữ liệu chi tiết của một ID bất kỳ.
+ * Hàm này sẽ hỏi Máy Mẹ (MotherNode) để tìm xem ID nằm ở đâu,
+ * sau đó lấy toàn bộ nội dung chi tiết (Offline-Friendly).
+ * 
+ * @param {string} id - ID của tác phẩm, tác giả, quyển, thể loại...
+ * @returns {Promise<Object|null>} Object chứa { group, record, detail }
+ */
+export async function resolveAndFetch(id) {
+    if (!id) return null;
+    
+    try {
+        // 1. Hỏi Máy Mẹ xem ID này nằm ở đâu và lấy record cơ bản
+        const location = await MotherNode.locateById(id);
+        if (!location) return null;
+
+        // 2. Lấy dữ liệu chi tiết (Nội dung bài thơ/tác giả) từ Máy Mẹ
+        const detailData = await MotherNode.getDetailData(id);
+
+        return {
+            group: location.group,
+            record: location.record,
+            detail: detailData || {}
+        };
+    } catch (err) {
+        console.warn(`[CORE] Lỗi khi resolve ID "${id}":`, err);
+        return null;
+    }
+}
+
+// ==========================================================
+// PHẦN 6: SAFE DATA ACCESS (Truy xuất dữ liệu an toàn)
 // ==========================================================
 export function safeGetArray(key) {
     const data = APP_DATA[key];
@@ -188,7 +224,7 @@ export function safeGetObject(key) {
 }
 
 // ==========================================================
-// PHẦN 6: DEBUG HELPERS
+// PHẦN 7: DEBUG HELPERS
 // ==========================================================
 export function debugCore() {
     const dictIndex = getDictionaryIndex();
