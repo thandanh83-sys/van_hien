@@ -2,17 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - LAYOUTS CSS (css/layouts.css)
  * Vị trí: css/layouts.css
- * Version: 1.0.0 (Network Edition)
+ * Version: 1.0.10 (Custom Modal & Banner Fix)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khung xương: Splash, Silk Transition, Navbar, Container.
- * - Settings Dialog (Đã tích hợp Mạng Lưới Tri Thức).
- * - Update Banner.
- * 
- * ĐÃ FIX:
- * - Xóa toàn bộ #bottom-nav (dead code P3.2).
- * - Căn giữa Settings Dialog hoàn hảo trên PC & Mobile.
- * - Thêm CSS cho khối Network trong Settings.
+ * - Settings Dialog (Offline & Network).
+ * - Custom Modal (Thay thế alert/confirm).
+ * - Update Banner (Đã sửa lỗi chật chội).
  * ==========================================================
  */
 
@@ -20,61 +16,22 @@
    1. MÀN HÌNH CHỜ: BOOT EXPERIENCE (DẢI LỤA + TEXT)
    ===================================================================== */
 #jade-splash { 
-    position: fixed; 
-    inset: 0; 
-    z-index: 999999; 
-    pointer-events: none; 
-    overflow: hidden; 
-    background: var(--bg-base); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    flex-direction: column;
+    position: fixed; inset: 0; z-index: 999999; 
+    pointer-events: none; overflow: hidden; background: var(--bg-base); 
+    display: flex; justify-content: center; align-items: center; flex-direction: column;
 }
 
-.silk-layer { 
-    position: absolute; 
-    width: 40vw; 
-    height: 150vh; 
-    border-radius: 50% 50% 50% 50% / 20% 20% 20% 20%; 
-    will-change: transform, opacity; 
-    transform-origin: center center; 
-    filter: blur(20px);
-}
+.silk-layer { position: absolute; width: 40vw; height: 150vh; border-radius: 50% 50% 50% 50% / 20% 20% 20% 20%; will-change: transform, opacity; transform-origin: center center; filter: blur(20px); }
 
-.silk-layer-1 { 
-    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 20%, #8bb8a8 50%, rgba(255,255,255,0.9) 80%, rgba(255,255,255,0) 100%);
-    transform: rotate(-30deg) translateX(-20vw);
-    animation: silkRibbon1 16s ease-in-out infinite alternate;
-    opacity: 0.9;
-}
-.silk-layer-2 { 
-    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(220,235,230,0.8) 30%, #739e8f 50%, rgba(220,235,230,0.8) 70%, rgba(255,255,255,0) 100%);
-    transform: rotate(45deg) translateX(20vw);
-    animation: silkRibbon2 20s ease-in-out infinite alternate-reverse;
-    opacity: 0.7;
-}
-.silk-layer-3 { 
-    background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(212,196,168,0.6) 40%, rgba(255,255,255,0.9) 50%, rgba(212,196,168,0.6) 60%, rgba(255,255,255,0) 100%);
-    transform: rotate(10deg) scale(1.2);
-    animation: silkRibbon3 24s ease-in-out infinite alternate;
-    opacity: 0.6; 
-    filter: blur(30px);
-}
+.silk-layer-1 { background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 20%, #8bb8a8 50%, rgba(255,255,255,0.9) 80%, rgba(255,255,255,0) 100%); transform: rotate(-30deg) translateX(-20vw); animation: silkRibbon1 16s ease-in-out infinite alternate; opacity: 0.9; }
+.silk-layer-2 { background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(220,235,230,0.8) 30%, #739e8f 50%, rgba(220,235,230,0.8) 70%, rgba(255,255,255,0) 100%); transform: rotate(45deg) translateX(20vw); animation: silkRibbon2 20s ease-in-out infinite alternate-reverse; opacity: 0.7; }
+.silk-layer-3 { background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(212,196,168,0.6) 40%, rgba(255,255,255,0.9) 50%, rgba(212,196,168,0.6) 60%, rgba(255,255,255,0) 100%); transform: rotate(10deg) scale(1.2); animation: silkRibbon3 24s ease-in-out infinite alternate; opacity: 0.6; filter: blur(30px); }
 
 @keyframes silkRibbon1 { 0% { transform: rotate(-30deg) translateX(-20vw) translateY(-10vh) scaleY(1); } 100% { transform: rotate(-25deg) translateX(-10vw) translateY(10vh) scaleY(1.1); } }
 @keyframes silkRibbon2 { 0% { transform: rotate(45deg) translateX(20vw) translateY(10vh) scaleY(1.1); } 100% { transform: rotate(50deg) translateX(10vw) translateY(-10vh) scaleY(1); } }
 @keyframes silkRibbon3 { 0% { transform: rotate(10deg) scale(1.2) translateY(-5vh); opacity: 0.4; } 100% { transform: rotate(15deg) scale(1.4) translateY(5vh); opacity: 0.8; } }
 
-.boot-content { 
-    position: relative; 
-    z-index: 10; 
-    text-align: center;
-    opacity: 0; 
-    transform: translateY(15px);
-    animation: bootFadeIn 1.5s var(--ease-silk) forwards; 
-    animation-delay: 1s; 
-}
+.boot-content { position: relative; z-index: 10; text-align: center; opacity: 0; transform: translateY(15px); animation: bootFadeIn 1.5s var(--ease-silk) forwards; animation-delay: 1s; }
 .boot-brand { font-family: var(--font-body); font-size: 2rem; letter-spacing: 8px; color: var(--text-main); font-weight: 700; margin-bottom: 5px; }
 .boot-subtitle { font-family: var(--font-body); font-size: 0.8rem; letter-spacing: 4px; color: var(--accent-text); text-transform: uppercase; margin-bottom: 40px; }
 .boot-status { font-family: var(--font-body); font-size: 1rem; color: var(--text-muted); font-style: italic; margin-bottom: 20px; height: 24px; }
@@ -96,37 +53,10 @@
 /* =====================================================================
    2. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC
    ===================================================================== */
-.silk-transition-overlay {
-    position: fixed; 
-    inset: 0; 
-    z-index: 999998; 
-    pointer-events: none; 
-    overflow: hidden;
-    will-change: transform, opacity; 
-    transform: translateZ(0); 
-    backface-visibility: hidden;
-    opacity: 0; 
-    visibility: hidden;
-}
+.silk-transition-overlay { position: fixed; inset: 0; z-index: 999998; pointer-events: none; overflow: hidden; will-change: transform, opacity; transform: translateZ(0); backface-visibility: hidden; opacity: 0; visibility: hidden; }
 .silk-transition-overlay.active { visibility: visible; }
-.silk-sweep {
-    position: absolute; 
-    top: -50%; 
-    left: -100%; 
-    width: 150%; 
-    height: 200%;
-    background: linear-gradient(115deg, rgba(255, 255, 255, 0) 0%, rgba(220, 235, 230, 0.6) 30%, rgba(139, 184, 168, 0.8) 50%, rgba(255, 255, 255, 0.7) 70%, rgba(255, 255, 255, 0) 100%);
-    transform: skewX(-15deg) translateZ(0); 
-    will-change: transform;
-}
-.silk-glow {
-    position: absolute; 
-    inset: 0; 
-    background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 60%);
-    mix-blend-mode: overlay; 
-    will-change: opacity; 
-    transform: translateZ(0);
-}
+.silk-sweep { position: absolute; top: -50%; left: -100%; width: 150%; height: 200%; background: linear-gradient(115deg, rgba(255, 255, 255, 0) 0%, rgba(220, 235, 230, 0.6) 30%, rgba(139, 184, 168, 0.8) 50%, rgba(255, 255, 255, 0.7) 70%, rgba(255, 255, 255, 0) 100%); transform: skewX(-15deg) translateZ(0); will-change: transform; }
+.silk-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 60%); mix-blend-mode: overlay; will-change: opacity; transform: translateZ(0); }
 .silk-transition-overlay.entering { animation: silkOverlayFadeInOut 1s ease-in-out forwards; }
 .silk-transition-overlay.entering .silk-sweep { animation: silkSweepIn 1s var(--ease-silk-sharp) forwards; }
 @keyframes silkSweepIn { 0% { transform: translateX(0) skewX(-15deg) translateZ(0); } 100% { transform: translateX(200%) skewX(-15deg) translateZ(0); } }
@@ -135,52 +65,21 @@
 /* =====================================================================
    3. NAVBAR & CONTAINER CHÍNH
    ===================================================================== */
-.container { 
-    position: relative; 
-    z-index: 10; 
-    max-width: 1100px; 
-    margin: 0 auto; 
-    padding: calc(85px + env(safe-area-inset-top)) 20px 40px 20px; 
-}
+.container { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: calc(85px + env(safe-area-inset-top)) 20px 40px 20px; }
 
 .navbar {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    padding: 12px 24px; 
-    background: var(--card-bg); 
-    border: 1px solid var(--border-color); 
-    border-radius: var(--radius-pill); 
-    box-shadow: var(--shadow);
-    position: fixed; 
-    top: calc(15px + env(safe-area-inset-top)); 
-    left: 50%; 
-    transform: translateX(-50%);
-    width: calc(100% - 32px); 
-    max-width: 1050px; 
-    z-index: 999; 
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 24px; background: var(--card-bg); border: 1px solid var(--border-color); 
+    border-radius: var(--radius-pill); box-shadow: var(--shadow);
+    position: fixed; top: calc(15px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+    width: calc(100% - 32px); max-width: 1050px; z-index: 999; 
 }
 
-.nav-brand { 
-    font-family: var(--font-body) !important; 
-    font-size: 1.6rem; 
-    font-weight: 700; 
-    letter-spacing: 5px; 
-    text-transform: uppercase; 
-    line-height: 1; 
-    cursor: pointer; 
-    color: var(--text-main); 
-    margin-right: auto; 
-}
-
+.nav-brand { font-family: var(--font-body) !important; font-size: 1.6rem; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; line-height: 1; cursor: pointer; color: var(--text-main); margin-right: auto; }
 .nav-links { display: flex; align-items: center; gap: 24px; }
 .nav-actions { display: flex; align-items: center; gap: 8px; margin-left: 15px; }
 
-.nav-icon-btn {
-    background: transparent; border: none; color: var(--text-muted);
-    cursor: pointer; padding: 6px; border-radius: 50%;
-    transition: all 0.3s; display: flex; align-items: center; justify-content: center;
-}
+.nav-icon-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 50%; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
 .nav-icon-btn:hover { color: var(--accent); background: rgba(139, 184, 168, 0.1); }
 
 .mobile-menu-btn { display: none; background: transparent; border: none; color: var(--text-main); cursor: pointer; padding: 4px; }
@@ -189,256 +88,121 @@
 /* =====================================================================
    4. SETTINGS DIALOG (CÀI ĐẶT & MẠNG LƯỚI)
    ===================================================================== */
-dialog {
-    border: none;
-    padding: 0;
-    background: transparent;
-    outline: none;
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 99999;
-}
-
+dialog { border: none; padding: 0; background: transparent; outline: none; position: fixed; inset: 0; width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 99999; }
 dialog:not([open]) { display: none; }
+dialog::backdrop { background-color: var(--veil); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
 
-dialog::backdrop {
-    background-color: var(--veil);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-}
+#settings-modal { position: relative; width: 90vw; max-width: 450px; max-height: 90vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); box-shadow: var(--shadow-heavy); padding: 30px; scrollbar-width: thin; animation: dialogFadeIn 0.3s ease forwards; }
 
-#settings-modal { 
-    position: relative; 
-    width: 90vw; 
-    max-width: 450px; 
-    max-height: 90vh; 
-    overflow-y: auto; 
-    background: var(--card-bg); 
-    border: 1px solid var(--border-color); 
-    border-radius: var(--radius-card); 
-    box-shadow: var(--shadow-heavy); 
-    padding: 30px; 
-    scrollbar-width: thin;
-    animation: dialogFadeIn 0.3s ease forwards;
-}
+@keyframes dialogFadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
-@keyframes dialogFadeIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* --- CSS CHO MẠNG LƯỚI TRONG SETTINGS --- */
-.network-section {
-    background: rgba(139, 184, 168, 0.05);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 16px;
-}
-
-.network-summary {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    padding-bottom: 12px;
-    border-bottom: 1px dashed rgba(139, 184, 168, 0.2);
-}
-
-.network-dots {
-    display: flex;
-    gap: 4px;
-}
-.network-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-}
-.network-dot.online {
-    background: var(--color-success);
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-}
-.network-dot.offline {
-    background: var(--color-error);
-    box-shadow: 0 0 0 2px rgba(163, 107, 107, 0.2);
-}
-.network-dot.error {
-    background: var(--color-warning);
-    box-shadow: 0 0 0 2px rgba(212, 196, 168, 0.2);
-}
-
-.network-summary-text {
-    flex: 1;
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--accent-text);
-}
-
-.network-refresh {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: var(--text-muted);
-    transition: all 0.3s;
-}
-.network-refresh:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
-.network-nodes {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 10px;
-}
-
-.network-node-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 4px;
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-}
-
-.network-node-label {
-    flex: 1;
-    color: var(--text-main);
-}
-
-.network-node-status {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 700;
-}
+/* CSS MẠNG LƯỚI TRONG SETTINGS */
+.network-section { background: rgba(139, 184, 168, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+.network-summary { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed rgba(139, 184, 168, 0.2); }
+.network-dots { display: flex; gap: 4px; }
+.network-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.network-dot.online { background: var(--color-success); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+.network-dot.offline { background: var(--color-error); box-shadow: 0 0 0 2px rgba(163, 107, 107, 0.2); }
+.network-dot.error { background: var(--color-warning); box-shadow: 0 0 0 2px rgba(212, 196, 168, 0.2); }
+.network-summary-text { flex: 1; font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; color: var(--accent-text); }
+.network-refresh { background: transparent; border: 1px solid var(--border-color); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.3s; }
+.network-refresh:hover { border-color: var(--accent); color: var(--accent); }
+.network-nodes { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.network-node-row { display: flex; align-items: center; gap: 10px; padding: 6px 4px; font-family: var(--font-body); font-size: 0.85rem; }
+.network-node-label { flex: 1; color: var(--text-main); }
+.network-node-status { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
 .network-node-status.online { color: var(--color-success); }
 .network-node-status.offline { color: var(--color-error); }
 .network-node-status.error { color: var(--color-warning); }
-
-.network-timestamp {
-    font-family: var(--font-body);
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    font-style: italic;
-    text-align: right;
-    padding-top: 8px;
-    border-top: 1px dashed rgba(139, 184, 168, 0.15);
-}
+.network-timestamp { font-family: var(--font-body); font-size: 0.72rem; color: var(--text-muted); font-style: italic; text-align: right; padding-top: 8px; border-top: 1px dashed rgba(139, 184, 168, 0.15); }
 
 /* =====================================================================
-   5. UPDATE BANNER (THÔNG BÁO CẬP NHẬT SERVICE WORKER)
+   5. CUSTOM MODAL (THAY THẾ ALERT/CONFIRM - MÀU THANH NGỌC)
+   ===================================================================== */
+#custom-modal-overlay {
+    position: fixed; inset: 0; background: rgba(253, 251, 247, 0.7);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index: 999999; display: flex; justify-content: center; align-items: center;
+    opacity: 0; transition: opacity 0.3s;
+}
+
+#custom-modal {
+    background: var(--card-bg); border: 1px solid var(--border-color);
+    border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    width: 90%; max-width: 380px; padding: 24px; text-align: center;
+    transform: scale(0.95); transition: transform 0.3s;
+}
+
+#custom-modal-title {
+    font-family: var(--font-calligraphy); font-size: 2rem; color: var(--accent-text); margin: 0 0 15px;
+}
+
+#custom-modal-message {
+    font-family: var(--font-body); font-size: 1rem; color: var(--text-main); line-height: 1.6; margin-bottom: 25px;
+}
+
+#custom-modal-cancel {
+    flex: 1; padding: 10px; border: 1px solid var(--border-color); background: transparent;
+    border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 0.9rem;
+    color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+}
+#custom-modal-cancel:hover { background: rgba(0,0,0,0.05); }
+
+#custom-modal-confirm {
+    flex: 1; padding: 10px; border: none; background: var(--accent-text); color: #fff;
+    border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 0.9rem;
+    cursor: pointer; transition: all 0.2s;
+}
+#custom-modal-confirm:hover { background: var(--accent-hover); }
+
+/* =====================================================================
+   6. UPDATE BANNER (ĐÃ FIX LỖI CHẬT CHỘI TRÊN MOBILE)
    ===================================================================== */
 #update-banner {
-    position: fixed; 
-    bottom: 20px; 
-    left: 50%;
-    transform: translateX(-50%) translateY(120px);
-    background: linear-gradient(135deg, #1a3a2a, #0f2a1f); 
-    color: #d4c4a8; 
-    padding: 14px 20px; 
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    border: 1px solid rgba(139,184,168,0.3); 
-    font-family: var(--font-body);
-    font-size: 14px; 
-    z-index: 999999;
-    display: flex; 
-    align-items: center; 
-    gap: 12px;
-    transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.35s;
-    opacity: 0; 
-    pointer-events: none; 
-    max-width: 92vw;
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(120px);
+    background: linear-gradient(135deg, #1a3a2a, #0f2a1f); color: #d4c4a8; 
+    padding: 12px 20px; border-radius: var(--radius-pill);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4); border: 1px solid rgba(139,184,168,0.3); 
+    font-family: var(--font-body); font-size: 14px; z-index: 999999;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    transition: transform 0.4s cubic-bezier(.2,.8,.2,1), opacity 0.4s;
+    opacity: 0; pointer-events: none; width: max-content; max-width: 92vw;
 }
+
+#update-banner span { white-space: nowrap; font-weight: 700; }
 
 #update-btn {
-    background: #8bb8a8; 
-    color: #0a1a12; 
-    border: none;
-    padding: 8px 14px; 
-    border-radius: 6px; 
-    cursor: pointer;
-    font-weight: 700; 
-    font-size: 13px;
-    font-family: var(--font-body);
+    background: #8bb8a8; color: #0a1a12; border: none; padding: 8px 16px;
+    border-radius: 20px; cursor: pointer; font-weight: 700; font-size: 13px;
+    font-family: var(--font-body); white-space: nowrap; transition: all 0.3s;
 }
-#update-btn:hover { background: #a3d0c0 !important; }
+#update-btn:hover { background: #a3d0c0 !important; transform: scale(1.05); }
 
 #dismiss-btn {
-    background: transparent; 
-    color: #8bb8a8; 
-    border: none;
-    padding: 8px; 
-    cursor: pointer; 
-    font-size: 18px; 
-    line-height: 1;
+    background: transparent; color: #8bb8a8; border: none; padding: 0; cursor: pointer;
+    font-size: 24px; line-height: 1; display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s;
 }
-#dismiss-btn:hover { background: rgba(139, 184, 168, 0.15); border-radius: 50%; }
+#dismiss-btn:hover { color: #fff; transform: rotate(90deg); }
 
 /* =====================================================================
-   6. RESPONSIVE (MOBILE)
+   7. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
-    .container { 
-        padding: calc(70px + env(safe-area-inset-top)) 16px 40px 16px; 
-    }
-    
-    .navbar { 
-        padding: 10px 16px; 
-        top: calc(10px + env(safe-area-inset-top)); 
-        border-radius: var(--radius-pill); 
-    }
-    
+    .container { padding: calc(70px + env(safe-area-inset-top)) 16px 40px 16px; }
+    .navbar { padding: 10px 16px; top: calc(10px + env(safe-area-inset-top)); border-radius: var(--radius-pill); }
     .nav-brand { font-size: 1.3rem; letter-spacing: 3px; }
     .mobile-menu-btn { display: block; }
     
-    /* Biến Navbar thành menu sổ xuống trên Mobile */
-    .nav-links { 
-        display: flex; 
-        position: absolute; 
-        top: calc(100% + 10px); 
-        right: 0; 
-        width: 240px; 
-        background: var(--bg-base); 
-        flex-direction: column; 
-        align-items: stretch; 
-        padding: 10px; 
-        gap: 5px; 
-        border-radius: var(--radius-card); 
-        border: 1px solid var(--border-color); 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-        z-index: 999; 
-        opacity: 0; 
-        transform: translateY(-10px); 
-        pointer-events: none; 
-        transition: 0.2s; 
-    }
-    
-    .nav-links.show { 
-        opacity: 1; 
-        transform: translateY(0); 
-        pointer-events: auto; 
-    }
-    
+    .nav-links { display: flex; position: absolute; top: calc(100% + 10px); right: 0; width: 240px; background: var(--bg-base); flex-direction: column; align-items: stretch; padding: 10px; gap: 5px; border-radius: var(--radius-card); border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 999; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: 0.2s; }
+    .nav-links.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
     .nav-btn { padding: 10px 12px; border-radius: 8px; width: 100%; text-align: left; }
     .nav-btn:hover, .nav-btn.active { background: rgba(139, 184, 168, 0.1); }
     .nav-icon { display: block; }
     .nav-btn::after { display: none; }
+
+    /* Banner Mobile */
+    #update-banner { padding: 10px 16px; gap: 10px; font-size: 13px; }
+    #update-btn { padding: 6px 12px; font-size: 12px; }
+    #dismiss-btn { font-size: 20px; }
 }
