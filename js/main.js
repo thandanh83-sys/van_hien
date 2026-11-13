@@ -1,11 +1,21 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
- * Chức năng: Khởi chạy App, Load Data, Bói Thơ (AI Động),
- * Thi Pháp, Canvas, và gắn toàn bộ sự kiện giao diện.
+ * Vị trí: js/main.js
+ * Version: 1.0.0 (Network Edition)
+ * ==========================================================
+ * Chức năng:
+ * - Khởi chạy App, quản lý Splash Screen.
+ * - Load dữ liệu từ JSON.
+ * - Chứa Logic Thi Pháp Học (POETRY_ANALYZER).
+ * - Xử lý Bói Thơ (Fate Modal) với AI.
+ * - Gắn sự kiện toàn cục (Search, Hỏi Đạo, Settings, Network).
  * ==========================================================
  */
 
+// =====================================================================
+// 1. IMPORTS
+// =====================================================================
 import { APP_DATA, STATE, ICONS } from './config.js';
 import { debounce, escapeHTML } from './utils.js';
 import { switchView, toggleMobileMenu, gotoEncyclopediaById, setCancelSearch } from './router.js';
@@ -17,11 +27,13 @@ import {
 } from './render.js';
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
-import { calculateFortune, synthesizeDynamicFortune } from './ai.js';
-import { runFullDiagnosis } from './audit.js'; // Import Bác Sĩ
+import { calculateFortune, synthesizeDynamicFortune, AIDispatcher } from './ai.js';
+import { runFullDiagnosis } from './audit.js';
+import { MotherNode, bootstrapNetwork } from './network/index.js';
+import { askDao } from './ask-dao.js';
 
 // =====================================================================
-// PHẦN 1: HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
+// 2. HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
 // =====================================================================
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
@@ -59,34 +71,29 @@ function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     
-    // Chỉ tạo đúng 6 hạt sương để nhẹ nhàng, không tốn data
     for (let i = 0; i < 6; i++) {
         const d = document.createElement('div');
         d.className = 'dewdrop';
-        
-        // Kích thước siêu nhỏ, thanh mảnh (4px - 7px)
         const size = Math.random() * 3 + 4; 
-        const dur = Math.random() * 15 + 20; // Bay cực chậm (20-35s) cho tinh tế
+        const dur = Math.random() * 15 + 20; 
         const delay = -(Math.random() * dur);
         
         d.style.cssText = `
-            width: ${size}px; 
-            height: ${size}px;
+            width: ${size}px; height: ${size}px;
             left: ${Math.random() * 100}vw;
             animation-duration: ${dur}s;
             animation-delay: ${delay}s;
-            background: rgba(255, 255, 255, 0.6); /* Trắng trong suốt */
-            box-shadow: 0 0 8px 2px rgba(139, 184, 168, 0.4); /* Quầng sáng ngọc bích nhẹ */
-            backdrop-filter: blur(1px); /* Hiệu ứng thủy tinh */
-            opacity: ${Math.random() * 0.3 + 0.3}; /* Độ mờ ảo (0.3 - 0.6) */
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 8px 2px rgba(139, 184, 168, 0.4);
+            backdrop-filter: blur(1px);
+            opacity: ${Math.random() * 0.3 + 0.3};
         `;
-        
         container.appendChild(d);
     }
 }
 
 // =====================================================================
-// PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER) - BẢN ĐÃ SỬA LỖI
+// 3. THI PHÁP HỌC (POETRY ANALYZER)
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
@@ -94,7 +101,6 @@ const POETRY_ANALYZER = (() => {
         return (nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) ? 'T' : 'B';
     }
     
-    // SỬA LỖI: Giữ nguyên âm tiếng Việt (ă, â, ê, ô, ơ, ư), chỉ bỏ dấu thanh
     function getRhymePart(word) {
         if (!word) return '';
         const decomposed = word.toLowerCase().normalize('NFD');
@@ -113,7 +119,6 @@ const POETRY_ANALYZER = (() => {
         });
     }
 
-    // SỬA LỖI: Chỉ kết luận "có dạng", độ tin cậy trung bình khi mới dựa vào số tiếng
     function detectForm(lines) {
         const counts = lines.map(line => line.count);
         const n = counts.length;
@@ -164,14 +169,11 @@ const POETRY_ANALYZER = (() => {
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
 
-    // SỬA LỖI: Dùng .some() thay vì kiểm tra độ dài mảng
     function buildQuestions(form, rhymes, symbols) {
         const questions = [];
         if (form.confidence !== 'cao') questions.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay ngẫu nhiên?`);
-        
         const hasChanRhyme = rhymes.details.chan.some(item => item.isMatch);
         if (!hasChanRhyme) questions.push('Phép dò gần đúng chưa nhận diện được vần chân rõ ràng; cần nghe nhịp đọc và kiểm tra thêm ngữ âm trước khi kết luận.');
-        
         if (symbols.length) questions.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này gợi nghĩa nào?`);
         questions.push('Điều gì ở bài thơ này là "của riêng" tác giả — khác với bài cùng thể?');
         return questions.slice(0, 5);
@@ -260,7 +262,7 @@ function executePipeline() {
 }
 
 // =====================================================================
-// PHẦN 3: LOAD DATA & DANH NGÔN
+// 4. LOAD DATA & NETWORK
 // =====================================================================
 async function loadAllData() {
     try {
@@ -275,6 +277,7 @@ async function loadAllData() {
             }
         };
 
+        // 1. Fetch 9 file JSON song song
         const results = await Promise.all([
             safeFetch('./data/data-ly-thuyet.json', []),
             safeFetch('./data/data-tac-gia.json', []),
@@ -287,6 +290,7 @@ async function loadAllData() {
             safeFetch('./data/data-tu-dien-the-loai.json', [])
         ]);
 
+        // 2. Gán vào APP_DATA
         APP_DATA.THEORY_DATA = results[0];
         APP_DATA.AUTHOR_DATA = results[1];
         APP_DATA.WORKS_DATA  = results[2];
@@ -298,6 +302,7 @@ async function loadAllData() {
         APP_DATA.FORTUNE_ADVICE = results[7].advice || {};
         APP_DATA.THE_LOAI_DATA = results[8];
 
+        // 3. Xây dựng Global Index
         STATE.GLOBAL_INDEX.clear(); 
         STATE.GLOBAL_INDEX_BY_KEY.clear(); 
         STATE.GLOBAL_RECORDS.length = 0;
@@ -321,6 +326,10 @@ async function loadAllData() {
         addToIndex(APP_DATA.WORKS_DATA, 'tinh-hoa');
         addToIndex(APP_DATA.THE_LOAI_DATA, 'the-loai');
 
+        // 4. Khởi động Mạng Lưới (Network Layer)
+        await bootstrapNetwork();
+
+        // 5. Khởi tạo UI
         initMainFilters();
         
         if (APP_DATA.QUOTES_DATA && APP_DATA.QUOTES_DATA.length > 0) {
@@ -332,6 +341,7 @@ async function loadAllData() {
             if (qContainer) qContainer.innerHTML = `<p style="text-align:center; font-style:italic; color:var(--text-muted); padding: 20px;">Không có dữ liệu danh ngôn.</p>`;
         }
 
+        // 6. Build Search Index (Ngầm)
         triggerAsyncSearchIndex();
 
     } catch (err) {
@@ -358,7 +368,7 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// PHẦN 4: GỢI Ý ĐỌC (BÓI THƠ) - ĐÃ XÓA NÚT TÁC GIẢ THEO YÊU CẦU
+// 5. BÓI THƠ (FATE MODAL)
 // =====================================================================
 function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && (work.desc || work.description || work.content));
@@ -381,11 +391,15 @@ function randomPoem() {
     loadingEl?.classList.add('hidden');
     resultEl.classList.add('show');
 
+    // Chọn bài ngẫu nhiên
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
+    
+    // AI tính toán
     const fortuneKey = calculateFortune();
     const aiResult = synthesizeDynamicFortune(randomWork, fortuneKey);
     const fortuneInfo = aiResult.fortuneInfo;
 
+    // Cập nhật UI
     if (badge) {
         badge.textContent = `Vận khí: ${fortuneInfo.name}`;
         badge.style.color = fortuneInfo.color;
@@ -422,7 +436,6 @@ function randomPoem() {
         `;
     }
 
-    // Nút đọc toàn bộ tinh gọn (Không còn link tác giả ở đây)
     if (gotoBtn) {
         gotoBtn.innerHTML = `Đọc toàn bộ tác phẩm &rarr;`;
         gotoBtn.onclick = () => {
@@ -439,7 +452,58 @@ function randomPoem() {
 }
 
 // =====================================================================
-// PHẦN 5: XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
+// 6. MẠNG LƯỚI TRI THỨC (NETWORK STATUS)
+// =====================================================================
+async function refreshNetworkStatus(forceRefresh = false) {
+    const dotsEl = document.getElementById('network-dots');
+    const summaryEl = document.getElementById('network-summary-text');
+    const nodesEl = document.getElementById('network-nodes');
+    const timestampEl = document.getElementById('network-timestamp');
+    if (!nodesEl) return;
+
+    if (summaryEl) summaryEl.textContent = 'Đang kiểm tra...';
+    if (dotsEl) dotsEl.innerHTML = '';
+
+    try {
+        const health = await MotherNode.healthCheck(forceRefresh);
+        const online = health.filter(h => h.status === 'online').length;
+        const total = health.length;
+
+        if (dotsEl) {
+            dotsEl.innerHTML = health.map(n => 
+                `<span class="network-dot ${n.status}" title="${escapeHTML(n.label)}"></span>`
+            ).join('');
+        }
+        if (summaryEl) summaryEl.textContent = `${online}/${total} node đang hoạt động`;
+
+        if (nodesEl) {
+            nodesEl.innerHTML = health.map(n => {
+                const label = n.label
+                    .replace('triet-thuyet', 'Triết Thuyết')
+                    .replace('ky-tai', 'Kỳ Tài')
+                    .replace('tinh-hoa', 'Tinh Hoa')
+                    .replace('the-loai', 'Thể Loại');
+                return `
+                    <div class="network-node-row">
+                        <span class="network-dot ${n.status}"></span>
+                        <span class="network-node-label">${escapeHTML(label)}</span>
+                        <span class="network-node-status ${n.status}">${n.status === 'online' ? 'Online' : (n.status === 'offline' ? 'Offline' : 'Lỗi')}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        if (timestampEl) {
+            timestampEl.textContent = `Kiểm tra lần cuối: ${new Date().toLocaleTimeString('vi-VN')}`;
+        }
+    } catch (err) {
+        if (summaryEl) summaryEl.textContent = 'Lỗi kiểm tra mạng';
+        if (nodesEl) nodesEl.innerHTML = `<p style="color:#a36b6b;font-size:0.85rem;">Không thể kết nối mạng lưới.</p>`;
+    }
+}
+
+// =====================================================================
+// 7. XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
 // =====================================================================
 window.executePipeline = executePipeline;
 window.randomPoem = randomPoem;
@@ -451,8 +515,6 @@ window.filterSubGenre = filterSubGenre;
 window.filterEncyclopediaGroup = filterEncyclopediaGroup;
 window.searchEncyclopedia = searchEncyclopedia;
 window.changePage = changePage;
-
-// Bác Sĩ Audit
 window.audit = runFullDiagnosis;
 
 window.handleSearchInput = function() {
@@ -470,14 +532,19 @@ window.clearSearch = function() {
     input.value = ''; 
     if (clearBtn) clearBtn.classList.remove('show'); 
     input.focus(); 
-    searchEncyclopedia(); 
+    if (STATE.searchMode === 'lookup') {
+        searchEncyclopedia(); 
+    } else {
+        const container = document.getElementById('encyclopedia-container');
+        if (container) container.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Nhập câu hỏi vào ô tìm kiếm phía trên để Hỏi Đạo.</p>`;
+    }
 };
 
 // =====================================================================
-// PHẦN 6: KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
+// 8. KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
 // =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // 6.1. Sự kiện Bói Thơ
+    // 8.1. Sự kiện Bói Thơ
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
     document.getElementById('fate-close-btn')?.addEventListener('click', () => {
         const o = document.getElementById('fate-modal-overlay');
@@ -491,7 +558,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 6.2. Splash Screen & Load Data
+    // 8.2. Splash Screen & Load Data
     const splash = document.getElementById('jade-splash');
     const status = document.getElementById('bootStatusText');
     const qc = document.querySelector('.boot-quote');
@@ -530,7 +597,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     }
 
-    // 6.3. Khôi phục bản nháp
+    // 8.3. Khôi phục bản nháp
     const draft = localStorage.getItem('vandao_draft_poem');
     if (draft) {
         const pi = document.getElementById('poemInput');
@@ -538,17 +605,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // 6.4. Sự kiện Tìm kiếm
+    // 8.4. Sự kiện Tìm kiếm & Hỏi Đạo
     document.getElementById('search-input')?.addEventListener('input', debounce(() => { STATE.currentPage = 1; renderHeritage(); }, 300));
     
     const encyclopediaSearchInput = document.getElementById('encyclopedia-search');
     if (encyclopediaSearchInput) {
-        const debouncedSearch = debounce(searchEncyclopedia, 300);
+        const debouncedSearch = debounce(() => {
+            if (STATE.searchMode === 'lookup') {
+                searchEncyclopedia();
+            }
+        }, 300);
         setCancelSearch(debouncedSearch.cancel);
         encyclopediaSearchInput.addEventListener('input', debouncedSearch);
+        
+        encyclopediaSearchInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (STATE.searchMode === 'ask') {
+                    askDao();
+                } else {
+                    searchEncyclopedia();
+                }
+            }
+        });
     }
 
-    // 6.5. Xử lý URL params
+    // Toggle Search Mode
+    document.querySelectorAll('.search-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mode = btn.dataset.mode;
+            STATE.searchMode = mode;
+            document.querySelectorAll('.search-mode-btn').forEach(b => {
+                const active = b === btn;
+                b.classList.toggle('active', active);
+                b.setAttribute('aria-selected', String(active));
+            });
+            
+            const input = document.getElementById('encyclopedia-search');
+            const container = document.getElementById('encyclopedia-container');
+            const filterBar = document.getElementById('encyclopedia-filter-bar');
+            
+            if (input) {
+                input.value = '';
+                input.placeholder = mode === 'ask'
+                    ? 'Hỏi: Ai viết bài Sóng? / Tác phẩm nào của Nam Cao? / Lục bát là gì?'
+                    : 'Tìm tên Quyển, tác giả hoặc nội dung...';
+            }
+            
+            if (mode === 'ask') {
+                if (filterBar) filterBar.style.display = 'none';
+                if (container) container.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Nhập câu hỏi vào ô tìm kiếm phía trên để Hỏi Đạo.</p>`;
+            } else {
+                if (filterBar) filterBar.style.display = 'flex';
+                renderEncyclopedia();
+            }
+        });
+    });
+
+    // 8.5. Xử lý URL params
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
     if (initialTab && ['heritage', 'encyclopedia', 'analyze'].includes(initialTab)) {
@@ -556,7 +670,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // 6.6. Sự kiện click toàn cục (Routing, đóng menu)
+    // 8.6. Sự kiện click toàn cục (Routing, đóng menu)
     document.addEventListener('click', e => {
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
@@ -586,7 +700,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 6.7. Logic cho Settings Dialog
+    // 8.7. Settings Dialog & Network
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
@@ -596,11 +710,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof settingsDialog.showModal === 'function') settingsDialog.showModal();
             else settingsDialog.setAttribute('open', '');
             checkStorageSize(); 
+            setTimeout(() => refreshNetworkStatus(true), 200);
         });
+        
         btnCloseSettings.addEventListener('click', () => {
             if (typeof settingsDialog.close === 'function') settingsDialog.close();
             else settingsDialog.removeAttribute('open');
         });
+        
         settingsDialog.addEventListener('click', (e) => {
             const dialogDimensions = settingsDialog.getBoundingClientRect();
             if (e.clientX < dialogDimensions.left || e.clientX > dialogDimensions.right || e.clientY < dialogDimensions.top || e.clientY > dialogDimensions.bottom) {
@@ -610,7 +727,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 6.8. NÚT TẢI OFFLINE
+    document.getElementById('network-refresh-btn')?.addEventListener('click', () => {
+        const btn = document.getElementById('network-refresh-btn');
+        if (btn) {
+            btn.style.transform = 'rotate(180deg)';
+            setTimeout(() => btn.style.transform = '', 300);
+        }
+        refreshNetworkStatus(true);
+    });
+
+    // 8.8. NÚT TẢI OFFLINE
     const btnOfflineStart = document.getElementById('offline-btn-start');
     const btnOfflineCancel = document.getElementById('offline-btn-cancel');
     const btnOfflineClear = document.getElementById('offline-btn-clear');
@@ -665,6 +791,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 6.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
+    // 8.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
     bindEncyclopediaEvents();
 });
