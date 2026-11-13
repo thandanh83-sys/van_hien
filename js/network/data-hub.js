@@ -11,6 +11,11 @@
  *   2. Source Manager (Quản lý nguồn, Cache, Fallback)
  *   3. Graph Engine (Xử lý đồ thị tri thức)
  *   4. Validator (Kiểm tra dữ liệu)
+ * 
+ * TRIẾT LÝ:
+ * - Mọi AI chỉ giao tiếp qua ID.
+ * - Không AI nào tự ý fetch JSON.
+ * - Offline-First: Ưu tiên RAM -> Cache -> GitHub.
  * ==========================================================
  */
 
