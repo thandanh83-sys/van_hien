@@ -2,74 +2,68 @@
  * ==========================================================
  * VĂN ĐẠO AI - AGENTS INDEX (js/ai/agents/index.js)
  * Vị trí: js/ai/agents/index.js
- * Version: 7.0.0 (Distributed AgentInfo Architecture)
+ * Version: 7.0.1 (Renamed Import & Special Detector Support)
  * ==========================================================
  *
  * TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
  *
  * 1. PHÂN TÁN METADATA (Distributed Metadata):
- *    Mỗi Agent TỰ MÔ TẢ metadata của chính nó qua thuộc tính
- *    `AgentName.agentInfo = {...}` ở cuối file Agent.
- *    File index.js này KHÔNG chứa bất kỳ metadata nào — chỉ import
- *    và đăng ký tự động. Đây là "Single Source of Truth" thực sự:
- *    metadata nằm ngay cạnh code xử lý.
+ *    Mỗi Agent TỰ MÔ TẢ metadata qua `AgentName.agentInfo = {...}`
+ *    ở cuối file Agent. File index.js KHÔNG chứa metadata.
  *
  * 2. ĐĂNG KÝ TỰ ĐỘNG (Auto-Registry):
- *    Vòng lặp duy nhất đọc `Agent.agentInfo` của từng Agent, validate,
- *    rồi xây dựng 3 cấu trúc:
+ *    Vòng lặp đọc `Agent.agentInfo`, validate, rồi xây dựng 3 cấu trúc:
  *      - AgentMap              : { key -> AgentClass }
- *      - AgentRegistry.agents  : { key -> { id, name, capabilities, ... } }
- *      - DynamicIntentPatterns : { intent -> [keywords] }  (gộp từ 11 Agent)
+ *      - AgentRegistry.agents  : { key -> { capabilities, specialDetector, ... } }
+ *      - DynamicIntentPatterns : { intent -> [keywords] }
  *
- * 3. KIỂM TRA AN TOÀN (Defensive Registration):
- *    - Bỏ qua Agent thiếu `agentInfo` (log cảnh báo, không crash).
- *    - Bỏ qua Agent thiếu `key` (log cảnh báo, không crash).
- *    - Cảnh báo nếu 2 Agent trùng key (Agent sau ghi đè Agent trước).
- *    - Gộp keywords khi 2 Agent cùng khai báo 1 intent (tránh mất dữ liệu).
+ * 3. HỖ TRỢ SPECIAL DETECTOR (v7.0.1):
+ *    Mỗi Agent có thể khai báo `specialDetector(text) => intent | null`
+ *    trong `agentInfo`. Hàm này được copy vào `AgentRegistry.agents[key]`
+ *    để `input-ai.js` gọi khi cần logic nhận diện đặc biệt (VD: cần
+ *    cấu trúc "X và Y" cho compare, hoặc pattern phức tạp cho poetics).
  *
- * 4. TƯƠNG THÍCH NGƯỢC (Backward Compatible):
- *    Giữ nguyên toàn bộ API công khai mà các module khác đang dùng:
+ * 4. LOG CHÍNH XÁC TÊN AGENT (v7.0.1):
+ *    Trước v7.0.1, log warning hiển thị "Object" vì Agent là object
+ *    literal (constructor.name = 'Object'). v7.0.1 ưu tiên dùng
+ *    `info.key` để log tên thật (VD: "Agent[literature]").
+ *
+ * 5. TƯƠNG THÍCH NGƯỢC (Backward Compatible):
+ *    Giữ nguyên toàn bộ API công khai từ v7.0.0:
  *      - AgentMap, AgentRegistry, DynamicIntentPatterns
- *      - AgentRegistry.findAgentForTask(task)
- *      - AgentRegistry.getMethodName(agentKey, task)
- *      - AgentRegistry.canDelegate(fromAgent, toAgent)
- *      - AgentRegistry.getAgentInfo(agentKey)
- *      - AgentRegistry.getAllAgentKeys()
- *    Thêm mới: AgentRegistry.validate() để audit toàn vẹn.
+ *      - findAgentForTask, getMethodName, canDelegate
+ *      - getAgentInfo, getAllAgentKeys, validate
  *
  * CÁCH THÊM AGENT MỚI (chỉ 3 bước):
- *   1. Tạo file `js/ai/agents/new-agent.js` với cấu trúc:
+ *   1. Tạo file `js/ai/agents/new-agent.js`:
  *        export const NewAgent = { async doSomething(query) {...} };
  *        NewAgent.agentInfo = {
- *            key: 'new',                    // BẮT BUỘC: unique key
- *            name: 'Tên Hiển Thị',
- *            description: 'Mô tả ngắn',
+ *            key: 'new',
+ *            name: '...',
+ *            description: '...',
  *            capabilities: { 'new-task': 'doSomething' },
- *            canRead: ['work', 'author'],
- *            canDelegate: ['literature'],
- *            intentPatterns: { 'new-task': ['tu khoa 1', 'tu khoa 2'] }
+ *            canRead: [...],
+ *            canDelegate: [...],
+ *            intentPatterns: { 'new-task': ['kw1', 'kw2'] },
+ *            specialDetector: (text) => text.includes('xyz') ? 'new-task' : null
  *        };
- *   2. Trong file NÀY, thêm 1 dòng import:
- *        import { NewAgent } from './new-agent.js';
- *   3. Trong mảng AGENT_CLASSES bên dưới, thêm NewAgent:
- *        const AGENT_CLASSES = [ ..., NewAgent ];
- *   → Push code, GitHub Action sẽ tự cập nhật manifest + SW cache.
+ *   2. Trong file NÀY, thêm import: import { NewAgent } from './new-agent.js';
+ *   3. Thêm NewAgent vào mảng AGENT_CLASSES.
+ *   → Push code, GitHub Action tự cập nhật manifest + SW cache.
  * ==========================================================
  */
 
 // =====================================================================
-// PHẦN 1: IMPORT 11 AGENT HIỆN CÓ
+// PHẦN 1: IMPORT 11 AGENT
 // =====================================================================
-// ES Module yêu cầu import tĩnh (static import) — không thể quét thư mục
-// như Node.js. Đây là giới hạn của nền tảng trình duyệt, không phải
-// lỗi thiết kế. Khi có bundler (Vite/Webpack) thì có thể dùng
-// import.meta.glob, nhưng dự án hiện tại chạy ES Module thuần.
+// LƯU Ý v7.0.1: Import FortuneAgent từ './fortune.js' (KHÔNG còn
+// './fortune-ai.js' — file đã được đổi tên ở đợt 1).
 // =====================================================================
 
 import { LiteratureAgent }  from './literature.js';
 import { PoeticsAgent }     from './poetics.js';
 import { AnalysisAgent }    from './analysis.js';
-import { FortuneAgent }     from './fortune-ai.js';
+import { FortuneAgent }     from './fortune.js';        // [ĐÃ ĐỔI] từ './fortune-ai.js'
 import { KnowledgeAgent }   from './knowledge.js';
 import { HistoryAgent }     from './history.js';
 import { TranslationAgent } from './translation.js';
@@ -82,73 +76,61 @@ import { CriticAgent }      from './critic.js';
 // PHẦN 2: DANH SÁCH CLASS (CHỈ REFERENCE, KHÔNG METADATA)
 // =====================================================================
 // Đây là nơi DUY NHẤT cần sửa khi thêm Agent mới (sau khi đã import).
-// Mỗi phần tử là một Class (Agent Object), KHÔNG phải config.
-// Metadata thực sự nằm trong `AgentName.agentInfo` ở cuối file Agent.
 // =====================================================================
 
 const AGENT_CLASSES = [
-    LiteratureAgent,   // key: 'literature'   - Văn Học AI
-    PoeticsAgent,      // key: 'poetics'      - Thi Pháp AI
-    AnalysisAgent,     // key: 'analysis'     - Phân Tích AI
-    FortuneAgent,      // key: 'fortune'      - Vận Khí AI (file: fortune-ai.js)
-    KnowledgeAgent,    // key: 'knowledge'    - Tri Thức AI
-    HistoryAgent,      // key: 'history'      - Lịch Sử AI
-    TranslationAgent,  // key: 'translation'  - Dịch Thuật AI
-    CharacterAgent,    // key: 'character'    - Nhân Vật AI
-    ComparisonAgent,   // key: 'comparison'   - So Sánh AI
-    PraiserAgent,      // key: 'praiser'      - Tán Thưởng AI
-    CriticAgent        // key: 'critic'       - Phê Bình AI
+    LiteratureAgent,   // key: 'literature'
+    PoeticsAgent,      // key: 'poetics'
+    AnalysisAgent,     // key: 'analysis'
+    FortuneAgent,      // key: 'fortune'   (file: fortune.js)
+    KnowledgeAgent,    // key: 'knowledge'
+    HistoryAgent,      // key: 'history'
+    TranslationAgent,  // key: 'translation'
+    CharacterAgent,    // key: 'character'
+    ComparisonAgent,   // key: 'comparison'
+    PraiserAgent,      // key: 'praiser'
+    CriticAgent        // key: 'critic'
 ];
 
 // =====================================================================
 // PHẦN 3: KHO CHỨA CÔNG KHAI (PUBLIC STORES)
 // =====================================================================
-// 3 cấu trúc này được export ra ngoài, các module khác import trực tiếp:
-//   - input-ai.js  dùng DynamicIntentPatterns
-//   - master.js    dùng AgentMap, AgentRegistry
-//   - audit.js     dùng AgentRegistry.validate(), getAllAgentKeys()
-//   - network/index.js dùng AgentRegistry
-// =====================================================================
 
 /**
  * Bản đồ key -> Agent Class.
- * Ví dụ: AgentMap['literature'] === LiteratureAgent
- * Dùng để lấy instance Agent ra gọi method.
+ * Ví dụ: AgentMap['fortune'] === FortuneAgent
  */
 export const AgentMap = {};
 
 /**
- * Sổ đăng ký năng lực (capabilities) của từng Agent.
- * Cấu trúc: { [key]: { id, name, description, capabilities, canRead, canDelegate } }
- * Dùng để tra cứu Agent nào làm được task gì mà KHÔNG cần import class.
+ * Sổ đăng ký năng lực của từng Agent.
+ * Cấu trúc: { [key]: { id, key, name, description, capabilities,
+ *                       canRead, canDelegate, specialDetector } }
+ * [v7.0.1] Thêm trường specialDetector (có thể null).
  */
 export const AgentRegistry = { agents: {} };
 
 /**
  * Bộ từ khóa nhận diện Intent, gộp từ 11 Agent.
  * Cấu trúc: { [intent]: [keyword1, keyword2, ...] }
- * Dùng bởi InputAI.detectCommand() để nhận diện câu hỏi người dùng.
  */
 export const DynamicIntentPatterns = {};
 
 // =====================================================================
-// PHẦN 4: VÒNG LẶP ĐĂNG KÝ TỰ ĐỘNG (TRÁI TIM CỦA FILE NÀY)
-// =====================================================================
-// Duyệt qua từng Class trong AGENT_CLASSES, đọc `Class.agentInfo`,
-// validate, rồi đăng ký vào 3 kho công khai ở trên.
+// PHẦN 4: VÒNG LẶP ĐĂNG KÝ TỰ ĐỘNG
 // =====================================================================
 
 // Bộ đếm để log tổng kết cuối vòng lặp
 let registeredCount = 0;
 let skippedCount = 0;
 
-// Mảng ghi nhận lỗi để log cảnh báo tập trung (không spam giữa chừng)
+// Mảng ghi nhận cảnh báo (log tập trung, không spam giữa chừng)
 const registrationWarnings = [];
 
 for (const AgentClass of AGENT_CLASSES) {
 
     // -----------------------------------------------------------------
-    // BƯỚC 4.1: Kiểm tra Class có tồn tại (defensive — phòng import lỗi)
+    // BƯỚC 4.1: Defensive — Class phải là object
     // -----------------------------------------------------------------
     if (!AgentClass || typeof AgentClass !== 'object') {
         registrationWarnings.push(
@@ -159,29 +141,31 @@ for (const AgentClass of AGENT_CLASSES) {
     }
 
     // -----------------------------------------------------------------
-    // BƯỚC 4.2: Lấy tên Class để log (dùng .name của function/class)
+    // BƯỚC 4.2: Đọc metadata tự mô tả TRƯỚC (để log đúng tên)
     // -----------------------------------------------------------------
-    // Lưu ý: AgentClass là object literal (const X = {...}), không phải
-    // class ES6. Nên .name thường là '' hoặc tên biến gốc. Ta dùng
-    // fallback về 'UnknownAgent' nếu không xác định được.
-    const className = AgentClass.constructor?.name || AgentClass.name || 'UnknownAgent';
-
-    // -----------------------------------------------------------------
-    // BƯỚC 4.3: Đọc metadata tự mô tả
-    // -----------------------------------------------------------------
+    // [v7.0.1 — FIX] Đọc `info` TRƯỚC khi khai báo `className`.
+    // Trước v7.0.1, `className` được khai báo từ `AgentClass.constructor.name`
+    // → luôn là 'Object' vì Agent là object literal.
+    // Sau v7.0.1, ưu tiên `info.key` để log tên thật.
     const info = AgentClass.agentInfo;
 
-    // 4.3.1 — Thiếu agentInfo hoàn toàn
+    // Bây giờ mới khai báo className (đã có info để ưu tiên)
+    const className = (info && info.key)
+        ? `Agent[${info.key}]`
+        : (AgentClass?.name || 'UnknownAgent');
+
+    // -----------------------------------------------------------------
+    // BƯỚC 4.3: Validate metadata
+    // -----------------------------------------------------------------
     if (!info || typeof info !== 'object') {
         registrationWarnings.push(
             `BỎ QUA "${className}": thiếu thuộc tính "agentInfo". ` +
-            `Hãy thêm "AgentName.agentInfo = { ... }" vào cuối file Agent tương ứng.`
+            `Hãy thêm "AgentName.agentInfo = { ... }" vào cuối file Agent.`
         );
         skippedCount++;
         continue;
     }
 
-    // 4.3.2 — Thiếu key (không thể đăng ký nếu không có key)
     if (!info.key || typeof info.key !== 'string' || !info.key.trim()) {
         registrationWarnings.push(
             `BỎ QUA "${className}": thiếu trường "key" (string không rỗng) trong agentInfo.`
@@ -195,11 +179,9 @@ for (const AgentClass of AGENT_CLASSES) {
     // -----------------------------------------------------------------
     // BƯỚC 4.4: Đăng ký vào AgentMap
     // -----------------------------------------------------------------
-    // Nếu trùng key → ghi đè (nhưng log cảnh báo để dev biết)
     if (AgentMap[agentKey]) {
         registrationWarnings.push(
-            `TRÙNG KEY "${agentKey}": "${className}" sẽ ghi đè Agent đã đăng ký trước đó. ` +
-            `Hãy kiểm tra lại key của 2 Agent để đảm bảo duy nhất.`
+            `TRÙNG KEY "${agentKey}": "${className}" sẽ ghi đè Agent đã đăng ký trước đó.`
         );
     }
     AgentMap[agentKey] = AgentClass;
@@ -207,37 +189,42 @@ for (const AgentClass of AGENT_CLASSES) {
     // -----------------------------------------------------------------
     // BƯỚC 4.5: Đăng ký vào AgentRegistry
     // -----------------------------------------------------------------
-    // Cấu trúc được chuẩn hóa — kể cả khi Agent không khai báo đủ trường,
-    // ta vẫn tạo object với giá trị mặc định an toàn (mảng rỗng).
+    // [v7.0.1] Thêm trường `specialDetector` (copy từ agentInfo).
+    // Trường này được `input-ai.js` dùng để gọi logic nhận diện đặc biệt
+    // của từng Agent (VD: compare cần cấu trúc "X và Y").
     AgentRegistry.agents[agentKey] = {
         // ---- Định danh ----
         id: `agent:${agentKey}`,
-        key: agentKey,                                 // tiện tra cứu ngược
-        name: info.name || agentKey,                   // fallback = key
+        key: agentKey,
+        name: info.name || agentKey,
         description: info.description || '',
 
-        // ---- Năng lực (map: task -> method) ----
+        // ---- Năng lực ----
         capabilities: (info.capabilities && typeof info.capabilities === 'object')
-            ? { ...info.capabilities }                 // clone nông để tránh mutate
+            ? { ...info.capabilities }
             : {},
 
         // ---- Loại dữ liệu có thể đọc ----
         canRead: Array.isArray(info.canRead) ? [...info.canRead] : [],
 
         // ---- Agent được phép ủy thác ----
-        canDelegate: Array.isArray(info.canDelegate) ? [...info.canDelegate] : []
+        canDelegate: Array.isArray(info.canDelegate) ? [...info.canDelegate] : [],
+
+        // ---- [v7.0.1] Special Detector ----
+        // Nếu Agent khai báo `specialDetector` là hàm trong agentInfo,
+        // copy tham chiếu vào Registry để input-ai.js gọi được.
+        // Nếu không khai báo hoặc không phải hàm → null.
+        specialDetector: (typeof info.specialDetector === 'function')
+            ? info.specialDetector
+            : null
     };
 
     // -----------------------------------------------------------------
     // BƯỚC 4.6: Gộp Intent Patterns vào DynamicIntentPatterns
     // -----------------------------------------------------------------
-    // Nếu 2 Agent cùng khai báo 1 intent (VD: cả 'knowledge' và 'literature'
-    // đều có 'find-author-of'), ta GỘP keywords thay vì ghi đè, để không
-    // mất bất kỳ từ khóa nào.
     if (info.intentPatterns && typeof info.intentPatterns === 'object') {
         for (const [intent, keywords] of Object.entries(info.intentPatterns)) {
 
-            // 4.6.1 — Keywords phải là mảng (defensive)
             if (!Array.isArray(keywords)) {
                 registrationWarnings.push(
                     `Agent "${agentKey}": intent "${intent}" có keywords KHÔNG phải mảng. Bỏ qua.`
@@ -245,18 +232,14 @@ for (const AgentClass of AGENT_CLASSES) {
                 continue;
             }
 
-            // 4.6.2 — Lọc keywords hợp lệ (chuỗi không rỗng)
             const validKeywords = keywords
                 .filter(kw => typeof kw === 'string' && kw.trim().length > 0)
                 .map(kw => kw.trim());
 
-            if (validKeywords.length === 0) {
-                continue; // Toàn bộ keywords rỗng — bỏ qua intent này
-            }
+            if (validKeywords.length === 0) continue;
 
-            // 4.6.3 — Gộp với keywords cũ (nếu có) và loại trùng
+            // Gộp với keywords cũ (nếu có) và loại trùng
             if (DynamicIntentPatterns[intent]) {
-                // Dùng Set để loại trùng O(n) thay vì O(n²)
                 DynamicIntentPatterns[intent] = Array.from(
                     new Set([...DynamicIntentPatterns[intent], ...validKeywords])
                 );
@@ -270,24 +253,23 @@ for (const AgentClass of AGENT_CLASSES) {
 }
 
 // =====================================================================
-// PHẦN 5: LOG TỔNG KẾT (Chỉ trong môi trường dev có console)
-// =====================================================================
-// Mục đích: Dev mở Console thấy ngay "11 agents, 22 intents" để xác nhận
-// hệ thống đăng ký đủ. Nếu thiếu, sẽ thấy ngay danh sách warning.
+// PHẦN 5: LOG TỔNG KẾT
 // =====================================================================
 
 if (typeof console !== 'undefined' && console.log) {
     const totalIntents = Object.keys(DynamicIntentPatterns).length;
+    const totalSpecialDetectors = Object.values(AgentRegistry.agents)
+        .filter(a => typeof a.specialDetector === 'function').length;
     const summaryColor = skippedCount === 0 ? '#8bb8a8' : '#d4a373';
 
     console.log(
-        `%c[AGENT-REGISTRY] Đã đăng ký ${registeredCount} agent` +
+        `%c[AGENT-REGISTRY v7.0.1] Đã đăng ký ${registeredCount} agent` +
         (skippedCount > 0 ? ` (bỏ qua ${skippedCount})` : '') +
-        `. Tổng intent patterns: ${totalIntents}.`,
+        `. Intent patterns: ${totalIntents}. ` +
+        `Special detectors: ${totalSpecialDetectors}.`,
         `color: ${summaryColor}; font-weight: bold;`
     );
 
-    // In từng cảnh báo (nếu có) để dev dễ sửa
     if (registrationWarnings.length > 0) {
         console.group('%c[AGENT-REGISTRY] Cảnh báo đăng ký:', 'color: #d4a373; font-weight: bold;');
         registrationWarnings.forEach(w => console.warn('  -', w));
@@ -298,25 +280,12 @@ if (typeof console !== 'undefined' && console.log) {
 // =====================================================================
 // PHẦN 6: CÁC HÀM TIỆN ÍCH CỦA REGISTRY
 // =====================================================================
-// Đây là API công khai mà master.js, audit.js, network/index.js đang dùng.
-// KHÔNG được đổi tên hay xóa — chỉ được thêm mới.
-// =====================================================================
 
 /**
- * Tìm key của Agent có khả năng thực thi task cụ thể.
- *
- * Cách hoạt động:
- *   Duyệt qua tất cả Agent đã đăng ký. Agent nào có
- *   `capabilities[task]` là một tên hàm (truthy) thì trả về key của nó.
- *   Trả về null nếu không Agent nào làm được.
- *
- * Ví dụ:
- *   AgentRegistry.findAgentForTask('summarize-work')  → 'literature'
- *   AgentRegistry.findAgentForTask('get-historical-context') → 'history'
- *   AgentRegistry.findAgentForTask('khong-ton-tai')   → null
+ * Tìm key Agent có khả năng thực thi task cụ thể.
  *
  * @param {string} task - Tên task (VD: 'summarize-work').
- * @returns {string|null} - Key Agent hoặc null.
+ * @returns {string|null}
  */
 AgentRegistry.findAgentForTask = function (task) {
     if (!task || typeof task !== 'string') return null;
@@ -332,13 +301,9 @@ AgentRegistry.findAgentForTask = function (task) {
 /**
  * Lấy tên method cụ thể trong Agent để thực thi task.
  *
- * Ví dụ:
- *   AgentRegistry.getMethodName('literature', 'summarize-work') → 'summarize'
- *   AgentRegistry.getMethodName('literature', 'khong-ton-tai')  → null
- *
- * @param {string} agentKey - Key của Agent (VD: 'literature').
- * @param {string} task - Tên task (VD: 'summarize-work').
- * @returns {string|null} - Tên method hoặc null.
+ * @param {string} agentKey
+ * @param {string} task
+ * @returns {string|null}
  */
 AgentRegistry.getMethodName = function (agentKey, task) {
     if (!agentKey || !task) return null;
@@ -350,18 +315,10 @@ AgentRegistry.getMethodName = function (agentKey, task) {
 };
 
 /**
- * Kiểm tra Agent A có được phép ủy thác (delegate) cho Agent B không.
+ * Kiểm tra Agent A có được phép ủy thác cho Agent B không.
  *
- * Ủy thác là cơ chế để một Agent có thể nhờ Agent khác xử lý khi
- * task nằm ngoài khả năng của mình (VD: LiteratureAgent nhờ
- * PoeticsAgent giải thích biểu tượng).
- *
- * Ví dụ:
- *   AgentRegistry.canDelegate('literature', 'poetics')    → true
- *   AgentRegistry.canDelegate('poetics', 'fortune')       → false
- *
- * @param {string} fromAgent - Key Agent nguồn.
- * @param {string} toAgent - Key Agent đích.
+ * @param {string} fromAgent
+ * @param {string} toAgent
  * @returns {boolean}
  */
 AgentRegistry.canDelegate = function (fromAgent, toAgent) {
@@ -376,8 +333,8 @@ AgentRegistry.canDelegate = function (fromAgent, toAgent) {
 /**
  * Lấy thông tin đầy đủ của một Agent.
  *
- * @param {string} agentKey - Key Agent.
- * @returns {Object|null} - Object info hoặc null nếu không tồn tại.
+ * @param {string} agentKey
+ * @returns {Object|null}
  */
 AgentRegistry.getAgentInfo = function (agentKey) {
     if (!agentKey) return null;
@@ -387,23 +344,16 @@ AgentRegistry.getAgentInfo = function (agentKey) {
 /**
  * Lấy danh sách tất cả key Agent đã đăng ký.
  *
- * @returns {string[]} - Mảng các key (VD: ['literature', 'poetics', ...]).
+ * @returns {string[]}
  */
 AgentRegistry.getAllAgentKeys = function () {
     return Object.keys(this.agents);
 };
 
 /**
- * Kiểm tra tính toàn vẹn của Registry (dùng cho audit.js).
+ * Kiểm tra tính toàn vẹn của Registry.
  *
- * Kiểm tra 2 điều kiện:
- *   1. Mỗi key trong AgentRegistry.agents phải có Class tương ứng trong AgentMap.
- *   2. Mỗi Agent phải có ít nhất 1 capability (không được rỗng).
- *
- * @returns {{ total: number, invalid: string[], reasons: Object }}
- *   - total: tổng số Agent đã đăng ký
- *   - invalid: mảng key các Agent không hợp lệ
- *   - reasons: map key -> lý do không hợp lệ (để debug)
+ * @returns {{ total, invalid, reasons }}
  */
 AgentRegistry.validate = function () {
     const invalid = [];
@@ -420,11 +370,11 @@ AgentRegistry.validate = function () {
         // 6.2 — Phải có ít nhất 1 capability
         if (!info.capabilities || Object.keys(info.capabilities).length === 0) {
             invalid.push(key);
-            reasons[key] = 'Không có capability nào (Agent không làm được gì).';
+            reasons[key] = 'Không có capability nào.';
             continue;
         }
 
-        // 6.3 — Mỗi method trong capabilities phải là hàm tồn tại trên Class
+        // 6.3 — Mỗi method phải tồn tại trên Class
         const agentClass = AgentMap[key];
         for (const [task, methodName] of Object.entries(info.capabilities)) {
             if (typeof methodName !== 'string' || !methodName) {
@@ -442,7 +392,7 @@ AgentRegistry.validate = function () {
 
     return {
         total: Object.keys(this.agents).length,
-        invalid: [...new Set(invalid)], // loại trùng (một Agent có thể fail nhiều lý do)
+        invalid: [...new Set(invalid)],
         reasons
     };
 };
