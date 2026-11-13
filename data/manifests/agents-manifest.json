@@ -1,0 +1,15 @@
+{
+  "agents": [
+    "analysis",
+    "character",
+    "comparison",
+    "critic",
+    "fortune-ai",
+    "history",
+    "knowledge",
+    "literature",
+    "poetics",
+    "praiser",
+    "translation"
+  ]
+}
