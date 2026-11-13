@@ -2,19 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 1.0.0 (Network Edition)
+ * Version: 1.0.2 (Refined UI & Pagination)
  * ==========================================================
  * CHỨC NĂNG:
  * - Định dạng các thành phần nhỏ lẻ (Nút, Thanh tìm kiếm, Toggle).
  * - Khối kết quả Hỏi Đạo (Ask Result).
  * - Highlight & Tooltip (Biểu tượng, Từ khóa).
- * - Skeleton Loading.
- * 
- * ĐÃ FIX / NÂNG CẤP:
- * - Xóa dead code (.vd-progress-*).
- * - Thêm Toggle Tra Cứu / Hỏi Đạo.
- * - Thêm CSS cho khối trả lời của AI (Ask Result).
- * - Nâng cấp .filter-btn với hiệu ứng Gradient Hover.
+ * - Phân trang (Pagination).
  * ==========================================================
  */
 
@@ -69,7 +63,7 @@
     display: none; 
 } 
 
-/* Nút Bộ lọc (Văn Hiến, Bách Khoa) - Nâng cấp Gradient Hover (P6.3) */
+/* Nút Bộ lọc (Văn Hiến, Bách Khoa) - Nâng cấp Gradient Hover */
 .filter-btn { 
     background: transparent;
     border: 1px solid var(--border-color); 
@@ -125,16 +119,71 @@
     color: var(--accent-hover); 
 }
 
-/* Nút mũi tên phân trang */
+/* =====================================================================
+   2. PHÂN TRANG (PAGINATION) - ĐÃ FIX LỖI THÔ KỆCH
+   ===================================================================== */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 30px;
+    padding: 20px 0;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.page-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(139, 184, 168, 0.05);
+    transform: translateY(-2px);
+}
+
+.page-btn.active {
+    background: var(--accent-text);
+    color: #fff;
+    border-color: var(--accent-text);
+    box-shadow: 0 4px 12px rgba(85, 122, 111, 0.3);
+}
+
+.page-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
 .page-btn.arrow-btn {
-    font-size: 1.1rem; 
-    font-weight: 400; 
-    padding: 0 12px;
-    font-family: Arial, sans-serif !important; 
+    font-size: 1.1rem;
+    font-weight: 400;
+    padding-bottom: 2px;
+}
+
+.page-ellipsis {
+    color: var(--text-muted);
+    font-weight: bold;
+    letter-spacing: 2px;
 }
 
 /* =====================================================================
-   2. THANH TÌM KIẾM & Ô NHẬP LIỆU (SEARCH & INPUT)
+   3. THANH TÌM KIẾM & TOGGLE (SEARCH & INPUT)
    ===================================================================== */
 .search-container { 
     display: flex; 
@@ -145,6 +194,49 @@
     width: 100%; 
     margin-bottom: 25px; 
 }
+
+/* Nút chuyển đổi Tra Cứu / Hỏi Đạo */
+.search-mode-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px;
+    background: rgba(139, 184, 168, 0.06);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-color);
+    align-self: center;
+}
+
+.search-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-pill);
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-silk);
+}
+.search-mode-btn:hover { 
+    color: var(--text-main); 
+}
+.search-mode-btn.active {
+    background: var(--card-bg);
+    color: var(--accent-text);
+    box-shadow: 0 2px 8px rgba(139, 184, 168, 0.2);
+}
+.search-mode-btn svg { 
+    opacity: 0.85; 
+}
+
+/* Ô nhập liệu */
 .search-wrap { 
     position: relative; 
     width: 100%; 
@@ -187,7 +279,7 @@
     padding-right: 45px !important; 
 }
 
-/* Nút Xóa nhanh chữ trong ô tìm kiếm */
+/* Nút Xóa nhanh */
 .clear-btn {
     position: absolute; 
     right: 15px; 
@@ -215,49 +307,6 @@
     width: 20px; 
     height: 20px; 
     stroke: currentColor; 
-}
-
-/* =====================================================================
-   3. SEARCH MODE TOGGLE (BÁCH KHOA - 2 CHẾ ĐỘ)
-   ===================================================================== */
-.search-mode-toggle {
-    display: flex;
-    justify-content: center;
-    gap: 4px;
-    padding: 4px;
-    background: rgba(139, 184, 168, 0.06);
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-color);
-    align-self: center;
-}
-
-.search-mode-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 18px;
-    background: transparent;
-    border: none;
-    border-radius: var(--radius-pill);
-    color: var(--text-muted);
-    font-family: var(--font-body);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s var(--ease-silk);
-}
-.search-mode-btn:hover { 
-    color: var(--text-main); 
-}
-.search-mode-btn.active {
-    background: var(--card-bg);
-    color: var(--accent-text);
-    box-shadow: 0 2px 8px rgba(139, 184, 168, 0.2);
-}
-.search-mode-btn svg { 
-    opacity: 0.85; 
 }
 
 /* =====================================================================
@@ -363,32 +412,28 @@
 }
 
 /* =====================================================================
-   5. HIGHLIGHT VÀ TOOLTIP (SỬA LỖI TÔ LỆCH VÀ ĐÈ CHỮ)
+   5. HIGHLIGHT VÀ TOOLTIP
    ===================================================================== */
-
-/* 5.1. Thẻ <mark> khi tìm kiếm từ khóa */
 mark {
-    background-color: #f0ead6; /* Be ấm */
-    color: var(--text-main);            /* Chữ đậm */
+    background-color: #f0ead6;
+    color: var(--text-main);
     padding: 0 4px;
     border-radius: 4px; 
     font-weight: 700; 
 }
 
-/* 5.2. Highlight Biểu tượng trong bài đọc (Chỉ gạch chân, không bôi nền) */
+/* Highlight Biểu tượng (Chỉ gạch chân mờ, không đè chữ) */
 .symbol-mark {
     background: linear-gradient(transparent 70%, rgba(139, 184, 168, 0.4) 70%);
     cursor: help; 
     padding: 0 1px; 
     position: relative;
-    /* Cực kỳ quan trọng: Giúp nền không bị vỡ khi chữ rớt dòng */
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
-    /* Tuyệt đối KHÔNG DÙNG display: inline-block ở đây để tránh lỗi lệch dòng */
     color: inherit; 
 }
 
-/* 5.3. Tooltip hiển thị nghĩa của Biểu tượng */
+/* Tooltip hiển thị nghĩa */
 .symbol-mark::after {
     content: attr(data-tooltip);
     position: absolute; 
@@ -403,7 +448,6 @@ mark {
     font-family: var(--font-body);
     white-space: nowrap; 
     opacity: 0; 
-    /* Tuyệt đối không chặn click chuột, tránh việc tooltip che mất chữ */
     pointer-events: none;
     transition: opacity 0.25s ease, transform 0.25s ease;
     z-index: 1000; 
@@ -416,46 +460,7 @@ mark {
 }
 
 /* =====================================================================
-   6. CÀI ĐẶT & TIỆN ÍCH (SETTINGS & OFFLINE)
-   ===================================================================== */
-.offline-option-btn {
-    width: 100%; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    background: transparent; 
-    border: 1px solid var(--border-color); 
-    border-radius: 12px;
-    padding: 12px 16px; 
-    cursor: pointer; 
-    transition: all 0.2s;
-    text-align: left;
-}
-.offline-option-btn:hover { 
-    border-color: var(--accent); 
-    background: rgba(139, 184, 168, 0.05); 
-}
-
-.offline-text-btn {
-    background: transparent; 
-    border: none; 
-    cursor: pointer;
-    display: flex; 
-    align-items: center; 
-    gap: 8px;
-    font-family: var(--font-body); 
-    font-size: 0.85rem; 
-    color: var(--accent-text);
-    padding: 5px 0; 
-    transition: opacity 0.2s; 
-    text-align: left;
-}
-.offline-text-btn:hover { 
-    opacity: 0.7; 
-}
-
-/* =====================================================================
-   7. SKELETON LOADING (Hiệu ứng chờ tải dữ liệu)
+   6. SKELETON LOADING
    ===================================================================== */
 .skeleton { 
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
