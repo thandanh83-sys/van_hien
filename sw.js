@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO SERVICE WORKER (VERSION 1.3.3 - MULTI-AGENT AI)
+   VĂN ĐẠO SERVICE WORKER (VERSION 3.2.0 - UNIFIED INTELLIGENCE NETWORK)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -10,14 +10,14 @@
    2. Sự tĩnh tại (No Auto-Skip): TUYỆT ĐỐI KHÔNG gọi skipWaiting() trong 
       install. SW mới phải chờ người dùng xác nhận (qua banner).
    3. Smart Offline: Hỗ trợ tải theo lô (Batch Download) cho Tủ Sách Offline.
-   4. AI Ready: Cache toàn bộ hệ thống Multi-Agent (bao gồm cả Praiser và Critic).
+   4. AI Ready: Cache toàn bộ hệ thống Multi-Agent (bao gồm History và Knowledge).
    ===================================================================== */
 
 // =====================================================================
 // I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
 // ĐỔI VERSION NÀY MỖI KHI BẠN CẬP NHẬT CODE ĐỂ XÓA CACHE CŨ
-const CACHE_VERSION = 'v1.3.3';
+const CACHE_VERSION = 'v3.2.0';
 
 const STATIC_CACHE  = `vandao-static-${CACHE_VERSION}`;
 const HTML_CACHE    = `vandao-html-${CACHE_VERSION}`;
@@ -29,7 +29,7 @@ const NETWORK_TIMEOUT = 4000;
 
 // =====================================================================
 // II. DANH SÁCH "APP SHELL" - NHỮNG FILE TỐI QUAN TRỌNG
-// Cập nhật chính xác 100% theo cấu trúc thư mục v1.3.3
+// Cập nhật chính xác 100% theo cấu trúc thư mục v3.2.0
 // =====================================================================
 const PRECACHE_ASSETS = [
     './',
@@ -57,20 +57,25 @@ const PRECACHE_ASSETS = [
     // --- JS Multi-Agent AI (Hệ thống AI) ---
     './js/ai.js',                   // File Facade (Cổng giao tiếp)
     './js/ai/core.js',              // Hạ tầng dùng chung
-    './js/ai/input-ai.js',          // Nhận diện câu hỏi (Input AI 2.0)
+    './js/ai/input-ai.js',          // Nhận diện câu hỏi (Input AI)
     './js/ai/master.js',            // Điều phối trung tâm
     './js/ai/output-ai.js',         // Định dạng câu trả lời
     
-    // Các Agents chuyên môn
+    // --- Sổ đăng ký Agent (Plugin Architecture) ---
+    './js/ai/agents/index.js',      // [MỚI] Bảng điều khiển trung tâm
+    
+    // --- Các Agents chuyên môn ---
     './js/ai/agents/literature.js', // Agent Văn học
     './js/ai/agents/poetics.js',    // Agent Thi pháp
     './js/ai/agents/analysis.js',   // Agent Phân tích
     './js/ai/agents/fortune-ai.js', // Agent Bói thơ
-    './js/ai/agents/praiser.js',    // [MỚI] Agent Tán thưởng
-    './js/ai/agents/critic.js',     // [MỚI] Agent Phê bình
+    './js/ai/agents/knowledge.js',  // [MỚI] Agent Tri thức (Mạng lưới)
+    './js/ai/agents/history.js',    // [MỚI] Agent Lịch sử
+    './js/ai/agents/praiser.js',    // Agent Tán thưởng
+    './js/ai/agents/critic.js',     // Agent Phê bình
     
     // --- JS Network ---
-    './js/network/mother.js',
+    './js/network/data-hub.js',     // [MỚI] Trái tim dữ liệu (Thay thế mother.js)
     './js/network/bus.js',
     './js/network/index.js',
     
