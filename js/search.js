@@ -2,12 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - SEARCH MODULE (js/search.js)
  * Vị trí: js/search.js
- * Version: 1.0.0
- * ==========================================================
- * Chức năng: 
- * - Xây dựng Inverted Index từ GLOBAL_RECORDS.
- * - Tìm kiếm thông minh (TF-IDF + Fuzzy Match).
- * - Không phân biệt dấu, hỗ trợ tiếng Việt.
+ * Version: 1.0.8 (Weighted Multi-token Match)
  * ==========================================================
  */
 
@@ -20,25 +15,18 @@ export const VDSearchEngine = (() => {
     let totalDocs = 0;
     let isIndexed = false;
 
-    // Danh sách Stopwords (Từ dừng - Quá phổ biến, bỏ qua để tăng tốc)
     const STOPWORDS = new Set([
         "cua", "va", "la", "co", "trong", "cho", "nhung", "cac", "mot", 
         "duoc", "voi", "da", "de", "khi", "ra", "ve", "tu", "nhu", "nguoi", 
         "tai", "thi", "ma", "nay", "do"
     ]);
 
-    /**
-     * Tách từ (Tokenize) và làm sạch văn bản
-     */
     function tokenize(text) {
         if (!text) return [];
         const clean = normalizeRouteText(String(text).replace(/<[^>]*>/g, ' '));
         return (clean.match(/[\p{L}\p{N}]+/gu) || []).filter(w => w.length > 1 && !STOPWORDS.has(w));
     }
 
-    /**
-     * Xây dựng chỉ mục (Chạy 1 lần khi khởi động)
-     */
     async function buildIndexAsync() {
         invertedIndex = Object.create(null);
         docLengths = Object.create(null);
@@ -47,7 +35,7 @@ export const VDSearchEngine = (() => {
         totalDocs = entries.length;
         if (totalDocs === 0) return;
 
-        const CHUNK_SIZE = 50; // Xử lý theo lô để không đơ UI
+        const CHUNK_SIZE = 50;
         
         for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
             const chunk = entries.slice(i, i + CHUNK_SIZE);
@@ -57,14 +45,7 @@ export const VDSearchEngine = (() => {
                 const key = record.key;
                 
                 const titleText = item.title || item.name || '';
-                // Nối các trường quan trọng để tìm kiếm
-                const words = tokenize([
-                    titleText, 
-                    item.author, 
-                    item.desc, 
-                    item.description, 
-                    item.content
-                ].join(' '));
+                const words = tokenize([titleText, item.author, item.desc, item.description, item.content].join(' '));
                 
                 docLengths[key] = Math.max(words.length, 1);
                 
@@ -74,7 +55,6 @@ export const VDSearchEngine = (() => {
                 });
             });
             
-            // Nhường luồng cho UI
             await new Promise(r => setTimeout(r, 0));
         }
         
@@ -82,11 +62,6 @@ export const VDSearchEngine = (() => {
         console.log(`[SEARCH] Đã xây dựng xong Inverted Index cho ${totalDocs} tài liệu.`);
     }
 
-    /**
-     * Hàm Tìm kiếm chính
-     * @param {string} query - Từ khóa
-     * @returns {Array} Danh sách { key, id, group, score }
-     */
     function search(query) {
         const qNorm = normalizeRouteText(query);
         const tokens = tokenize(qNorm);
@@ -94,7 +69,7 @@ export const VDSearchEngine = (() => {
         
         const scores = new Map();
 
-        // BƯỚC 1: Exact Match & Substring Match (Ưu tiên Tiêu đề & Tác giả)
+        // BƯỚC 1: Exact Match & Multi-token Match (Ưu tiên khớp chính xác cả câu)
         for (const record of STATE.GLOBAL_RECORDS) {
             const item = record.data;
             const titleText = item.title || item.name || '';
@@ -104,13 +79,29 @@ export const VDSearchEngine = (() => {
             
             let score = 0;
             
-            // Khớp tiêu đề
-            if (title === qNorm || titleAlias === qNorm) score += 700;
-            else if (title.includes(qNorm) || titleAlias.includes(qNorm)) score += 360;
+            // Khớp chính xác toàn bộ câu (Rất cao)
+            if (title === qNorm || titleAlias === qNorm) score += 2000;
+            else if (title.includes(qNorm) || titleAlias.includes(qNorm)) score += 800;
             
             // Khớp tác giả
-            if (author && author === qNorm) score += (record.group === 'ky-tai' ? 620 : 260);
-            else if (author && author.includes(qNorm)) score += 120;
+            if (author && author === qNorm) score += (record.group === 'ky-tai' ? 700 : 300);
+            else if (author && author.includes(qNorm)) score += 150;
+
+            // [FIX XẾP HẠNG] Khớp nhiều từ khóa cùng lúc (VD: "khúc vọng thanh xuân")
+            if (tokens.length > 0) {
+                let matchCount = 0;
+                tokens.forEach(t => {
+                    if (title.includes(t) || titleAlias.includes(t)) matchCount++;
+                });
+                
+                if (matchCount === tokens.length) {
+                    // Nếu chứa TẤT CẢ các từ khóa -> Cộng điểm cực cao
+                    score += 1500 + (tokens.length * 200);
+                } else if (matchCount > 0) {
+                    // Nếu chỉ chứa 1 phần
+                    score += matchCount * 150;
+                }
+            }
             
             if (score > 0) scores.set(record.key, score);
         }
@@ -122,18 +113,15 @@ export const VDSearchEngine = (() => {
                 if (!docs) return;
                 
                 const docCount = Object.keys(docs).length;
-                // IDF: Từ xuất hiện ở ít tài liệu thì điểm càng cao
                 const idf = Math.log((totalDocs || 1) / Math.max(docCount, 1)) + 1;
                 
                 for (const [key, count] of Object.entries(docs)) {
                     const record = STATE.GLOBAL_INDEX_BY_KEY.get(key);
                     if (!record) continue;
                     
-                    // TF: Tần suất xuất hiện trong tài liệu
                     const tf = count / (docLengths[key] || 1);
                     let score = tf * idf;
                     
-                    // Boost điểm nếu từ khóa nằm trong Tiêu đề / Tác giả
                     const titleText = record.data.title || record.data.name || '';
                     const title = normalizeRouteText(titleText);
                     const author = normalizeRouteText(record.data.author);
@@ -146,7 +134,6 @@ export const VDSearchEngine = (() => {
             });
         }
 
-        // BƯỚC 3: Sắp xếp và trả về
         return Array.from(scores, ([key, score]) => {
             const record = STATE.GLOBAL_INDEX_BY_KEY.get(key);
             return record ? { key, id: record.id, group: record.group, score } : null;
@@ -160,9 +147,6 @@ export const VDSearchEngine = (() => {
     };
 })();
 
-/**
- * Kích hoạt xây dựng Index (Ngầm)
- */
 export function triggerAsyncSearchIndex() {
     if (!VDSearchEngine.getIndexStatus()) {
         VDSearchEngine.buildIndexAsync();
