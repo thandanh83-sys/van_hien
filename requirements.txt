@@ -1,7 +1,7 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - TỆP KHAI BÁO MÔI TRƯỜNG PYTHON & CẨM NANG BẢO TRÌ
 # Tác giả: Văn Đạo
-# Phiên bản: 5.0.0 (Modular Architecture)
+# Phiên bản: 1.0.0 (Network Edition)
 # 
 # MỤC ĐÍCH:
 # 1. Quản lý các thư viện Python phụ thuộc cho thư mục tools/.
@@ -52,7 +52,7 @@
 # =====================================================================
 # PHẦN 3: ⚠️ CẨM NANG BẢO TRÌ (MAINTENANCE NOTES) - ĐỌC KỸ TRƯỚC KHI SỬA
 # =====================================================================
-# Dưới đây là 6 "Nguyên tắc vàng" được đúc kết từ những lần sửa code bị lỗi.
+# Dưới đây là 8 "Nguyên tắc vàng" được đúc kết từ những lần sửa code bị lỗi.
 # Tuân thủ nghiêm ngặt để không bao giờ gặp lại cảnh "trắng trang" hay mất hiệu ứng.
 
 # ---------------------------------------------------------------------
@@ -60,8 +60,8 @@
 # ---------------------------------------------------------------------
 # Vấn đề: Service Worker giữ file cũ trong ổ cứng người dùng. Sửa code mà không 
 # đổi version thì họ không thấy code mới (gây lỗi trắng trang, mất layout).
-# Cách làm: Mở file sw.js, tìm dòng: `const CACHE_VERSION = 'v5.0.2';`
-# Đổi thành: `const CACHE_VERSION = 'v5.0.3';` (hoặc bất kỳ số nào mới hơn).
+# Cách làm: Mở file sw.js, tìm dòng: `const CACHE_VERSION = 'v1.0.0';`
+# Đổi thành: `const CACHE_VERSION = 'v1.0.1';` (hoặc bất kỳ số nào mới hơn).
 # Khi Test: F12 -> Application -> Service Workers -> Tích "Update on reload" -> Unregister -> Ctrl + F5.
 
 # ---------------------------------------------------------------------
@@ -78,7 +78,7 @@
 # Vấn đề: Thẻ <canvas> và <div class="dewdrop-container"> nếu không set position
 # sẽ chiếm một khoảng trống khổng lồ (768x1024px), đẩy toàn bộ nội dung xuống dưới.
 # Nếu set z-index: -1, chúng sẽ bị chìm dưới nền và biến mất.
-# Cách làm: Trong css/base.css (hoặc inline HTML), luôn đảm bảo:
+# Cách làm: Trong css/base.css, luôn đảm bảo:
 #   #water-canvas, .dewdrop-container { position: fixed; z-index: 1; pointer-events: none; }
 
 # ---------------------------------------------------------------------
@@ -87,8 +87,8 @@
 # Vấn đề: Lỗi "does not provide an export named..." hoặc "Failed to fetch dynamically imported module".
 # Cách làm: 
 # - Đảm bảo mọi hàm cần dùng ở file khác đều có chữ `export` ở file gốc.
-# - Tên hàm khi import phải viết HOA/thường giống hệt file gốc (VD: renderEncyclopedia, không phải renderencyclopedia).
-# - File gốc phải gọi đúng đường dẫn tương đối (./utils.js, ./config.js).
+# - Tên hàm khi import phải viết HOA/thường giống hệt file gốc.
+# - File gốc phải gọi đúng đường dẫn tương đối (./utils.js, ./network/mother.js).
 
 # ---------------------------------------------------------------------
 # [QUY TẮC 5] LỖI LAYOUT KHOẢNG TRẮNG ĐẦU TRANG (MIN-HEIGHT)
@@ -101,8 +101,7 @@
 # [QUY TẮC 6] SỬA TỪ ĐIỂN (data-tu-dien.json) -> TRÁNH BẮT NHẦM TỪ
 # ---------------------------------------------------------------------
 # Vấn đề: Tooltip bắt nhầm từ trong câu (VD: "nước" trong "yêu nước").
-# Cách làm: Không thêm các từ quá phổ biến (nước, gió, mây) vào mục "symbols".
-# Chỉ thêm các từ mang tính biểu tượng đặc thù (trăng, liễu, bến đò...).
+# Cách làm: Không thêm các từ quá phổ biến vào mục "symbols".
 # Nếu thêm, phải kiểm tra lại hàm `findSymbols()` trong `js/render.js` 
 # để đảm bảo Regex ranh giới từ (word boundary) hoạt động chính xác.
 
@@ -112,6 +111,14 @@
 # Vấn đề: Logic tải offline nằm ở 2 nơi, nếu sửa bên này quên bên kia sẽ lỗi.
 # Cách làm: Nếu sửa logic tải trong `js/offline.js`, phải kiểm tra lại 
 # sự kiện `DOWNLOAD_BATCH` trong file `sw.js` để chúng khớp lệnh (postMessage).
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 8] MẠNG LƯỚI TRI THỨC (NETWORK LAYER) - ĐỒNG BỘ MANIFEST
+# ---------------------------------------------------------------------
+# Vấn đề: Máy Mẹ (mother.js) đọc file `data/manifests/index.json` để tìm đường.
+# Nếu bạn thêm/xóa Node (Máy Con) mà không sửa file index này, hệ thống sẽ báo lỗi Fallback.
+# Cách làm: Mỗi khi thêm một file `node-xxx.json` mới, BẮT BUỘC phải khai báo
+# ID của nó vào mảng `nodes` và bảng `routing` trong file `data/manifests/index.json`.
 
 # =====================================================================
 # HƯỚNG DẪN CHẠY CÁC TOOL (Dành cho lập trình viên)
@@ -127,8 +134,5 @@
 #
 # LƯU Ý QUAN TRỌNG:
 # - KHÔNG chạy các tool này trực tiếp trên GitHub Pages.
-# - Chúng được thiết kế để chạy tự động thông qua GitHub Actions 
-#   (mỗi khi bạn push file master lên).
-# - Nếu bạn chạy trên máy cá nhân, hãy chắc chắn đã commit và push 
-#   các file kết quả lên GitHub.
+# - Chúng được thiết kế để chạy tự động thông qua GitHub Actions.
 # =====================================================================
