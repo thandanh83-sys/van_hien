@@ -2,21 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - HỎI ĐẠO UI (js/ask-dao.js)
  * Vị trí: js/ask-dao.js
- * Version: 1.0.0 (Network Edition)
- * ==========================================================
- * Chức năng:
- * - Giao diện đối thoại với mạng lưới tri thức (AI).
- * - Được gọi khi người dùng gõ câu hỏi và nhấn Enter
- *   ở chế độ "Hỏi Đạo" trong Bách Khoa.
+ * Version: 1.0.1 (Refined Words)
  * ==========================================================
  */
 
 import { AIDispatcher } from './ai.js';
 import { escapeHTML } from './utils.js';
 
-/**
- * Hàm chính: Xử lý câu hỏi từ người dùng
- */
 export async function askDao() {
     const input = document.getElementById('encyclopedia-search');
     const container = document.getElementById('encyclopedia-container');
@@ -25,11 +17,12 @@ export async function askDao() {
     const text = input.value.trim();
     if (!text) return;
 
-    // Ẩn thanh bộ lọc (filter bar)
+    // Ẩn thanh bộ lọc (filter bar) và phân trang (pagination)
     const filterBar = document.getElementById('encyclopedia-filter-bar');
+    const pagination = document.getElementById('encyclopedia-pagination');
     if (filterBar) filterBar.style.display = 'none';
+    if (pagination) pagination.style.display = 'none';
 
-    // Hiển thị trạng thái đang tải
     container.innerHTML = `
         <div class="ask-loading">
             <div class="spinner"></div>
@@ -38,15 +31,9 @@ export async function askDao() {
     `;
 
     try {
-        // 1. Phân tích ý định (Intent)
         const intent = AIDispatcher.parseIntent(text);
-        
-        // 2. Gửi yêu cầu đến AI Dispatcher
         const result = await AIDispatcher.dispatch(intent);
-        
-        // 3. Hiển thị kết quả
         renderAnswer(container, result, text);
-
     } catch (err) {
         console.error('[ASK DAO] Lỗi:', err);
         container.innerHTML = `
@@ -57,13 +44,9 @@ export async function askDao() {
     }
 }
 
-/**
- * Render câu trả lời ra giao diện
- */
 function renderAnswer(container, result, query) {
     let metaList = '';
 
-    // 1. Tạo danh sách các nút liên kết (Meta items)
     if (result.meta && Array.isArray(result.meta)) {
         const validMetas = result.meta.filter(m => m.id && (m.title || m.name));
 
@@ -72,8 +55,6 @@ function renderAnswer(container, result, query) {
                 <div class="ask-meta-list">
                     ${validMetas.map(m => {
                         const title = m.title || m.name || m.id;
-                        
-                        // Xác định group cho Router (để link đúng)
                         let group = m._group;
                         if (!group) {
                             if (m.id.startsWith('tac-gia')) group = 'ky-tai';
@@ -97,19 +78,18 @@ function renderAnswer(container, result, query) {
         }
     }
 
-    // 2. Map tên nguồn dữ liệu
+    // [FIX LỖI 4 & 6] Đổi từ ngữ hiển thị
     const sourceLabels = {
-        'node-triet-thuyet': 'Máy Con · Triết Thuyết',
-        'node-ky-tai':       'Máy Con · Kỳ Tài',
-        'node-tinh-hoa':     'Máy Con · Tinh Hoa',
-        'node-the-loai':     'Máy Con · Thể Loại',
-        'search-engine':     'Cỗ Máy Tìm Kiếm',
-        'mother-local':      'Máy Mẹ (cục bộ)',
+        'node-triet-thuyet': 'Phân khu Triết Thuyết',
+        'node-ky-tai':       'Phân khu Kỳ Tài',
+        'node-tinh-hoa':     'Phân khu Tinh Hoa',
+        'node-the-loai':     'Phân khu Thể Loại',
+        'search-engine':     'Đang tìm kiếm',
+        'mother-local':      'Máy Mẹ (Cục bộ)',
         'mother-00':         'Máy Mẹ'
     };
     const sourceLabel = sourceLabels[result.source] || result.source || 'Không rõ';
 
-    // 3. Render HTML
     container.innerHTML = `
         <div class="ask-result">
             <div class="ask-source">
