@@ -2,15 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 1.2.0 (Multi-Agent Integration)
+ * Version: 1.3.3 (Multi-Agent Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
  * - Load dữ liệu từ JSON vào APP_DATA.
- * - Xử lý Thi Pháp Học (Tích hợp Tầng 4: AI Analysis).
- * - Xử lý Bói Thơ (Tích hợp Fortune Agent + Analysis Agent).
+ * - Xử lý Thi Pháp Học (Tích hợp Tầng 4: Tán thưởng & Phê bình).
+ * - Xử lý Bói Thơ (Tích hợp Fortune + Praise + Critic).
  * - Gắn sự kiện Tìm kiếm (Master AI), Cài đặt (Network/Offline).
- * - Sử dụng Custom Modal (showAlert, showConfirm) thay thế alert/confirm.
  * ==========================================================
  */
 
@@ -29,7 +28,10 @@ import {
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
 // [MULTI-AGENT] Import từ Facade AI (js/ai.js)
-import { AIDispatcher, analyzeWork, calculateFortune, synthesizeDynamicFortune } from './ai.js';
+import { 
+    AIDispatcher, analyzeWork, calculateFortune, synthesizeDynamicFortune, 
+    PraiserAgent, CriticAgent 
+} from './ai.js';
 import { runFullDiagnosis } from './audit.js';
 import { MotherNode, bootstrapNetwork } from './network/index.js';
 import { handleSmartSearch, resetSearchState } from './ask-dao.js';
@@ -245,28 +247,46 @@ function executePipeline() {
         <div class="result-step tier-2"><div class="tier-label">TẦNG 2</div><div class="step-title">Biểu tượng · Điển tích</div>${tier2}</div>
         <div class="result-step tier-3"><div class="tier-label">TẦNG 3</div><div class="step-title">Câu hỏi mở</div>${tier3}</div>
         
-        <!-- TẦNG 4: AI BÌNH LUẬN -->
-        <div class="result-step tier-4">
-            <div class="tier-label">TẦNG 4</div>
-            <div class="step-title">Cảm nhận từ AI</div>
-            <div id="ai-poetry-analysis" style="font-style: italic; color: var(--accent-text); padding: 10px;">
-                <div class="spinner" style="width: 20px; height: 20px; border-width: 2px; margin: 0 10px 0 0; display: inline-block; vertical-align: middle;"></div> Đang cảm nhận...
+        <!-- TẦNG 4: AI BÌNH LUẬN (2 GÓC NHÌN) -->
+        <div class="result-step tier-4" style="border-left-color: var(--accent-gold);">
+            <div class="tier-label" style="color: var(--accent-text); border-color: var(--accent-text);">TẦNG 4</div>
+            <div class="step-title">Hai Góc Nhìn Từ AI</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+                <!-- Khối Tán Dương -->
+                <div style="background: rgba(139, 184, 168, 0.05); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700; color: var(--accent-text); text-transform:uppercase; font-size:0.8rem;">
+                        ✦ Góc Nhìn Tán Thưởng
+                    </div>
+                    ${(() => {
+                        const praise = PraiserAgent.analyze(raw);
+                        return `
+                            <p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 8px;">${praise.commentary}</p>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); font-style: normal;">
+                                <strong>Điểm sáng:</strong> ${praise.theme} | ${praise.symbol}
+                            </div>
+                        `;
+                    })()}
+                </div>
+
+                <!-- Khối Phê Bình -->
+                <div style="background: rgba(163, 107, 107, 0.05); padding: 15px; border-radius: 8px; border-left: 3px solid #a36b6b;">
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700; color: #a36b6b; text-transform:uppercase; font-size:0.8rem;">
+                        ✦ Góc Nhìn Phê Bình
+                    </div>
+                    ${(() => {
+                        const critique = CriticAgent.analyze(raw);
+                        return `
+                            <p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 8px;">${critique.commentary}</p>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); font-style: normal;">
+                                <strong>Điểm cần lưu ý:</strong> ${critique.theme} | ${critique.symbol}
+                            </div>
+                        `;
+                    })()}
+                </div>
             </div>
         </div>
     `;
-
-    // Gọi Analysis Agent phân tích (Thông qua Facade ai.js)
-    analyzeWork({ content: raw, title: 'Bài thơ chưa đặt tên', author: 'Khuyết danh' }).then(analysis => {
-        const aiDiv = document.getElementById('ai-poetry-analysis');
-        if (aiDiv) {
-            aiDiv.innerHTML = `
-                <p style="margin-bottom: 10px;">${escapeHTML(analysis.commentaryText)}</p>
-                <div style="font-size: 0.85rem; color: var(--text-muted); font-style: normal;">
-                    <strong>Chủ đề:</strong> ${analysis.themes.length ? analysis.themes.join(', ') : 'Chưa rõ'}
-                </div>
-            `;
-        }
-    });
 }
 
 // =====================================================================
@@ -370,7 +390,7 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// 5. BÓI THƠ (FATE MODAL)
+// 5. BÓI THƠ (FATE MODAL) - 4 KHỐI ĐÁNH GIÁ
 // =====================================================================
 function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && (work.desc || work.description || work.content));
@@ -416,19 +436,35 @@ function randomPoem() {
 
     if (commentaryEl) {
         commentaryEl.innerHTML = `
+            <!-- 1. CÂU DẪN -->
             <div style="margin-bottom:18px; color:var(--accent-text); font-style:italic; line-height:1.8;">
                 ${aiResult.bridgeText}
             </div>
+
+            <!-- 2. LỜI CHIÊM NGHIỆM (Từ Vận Khí) -->
             <div style="margin-bottom:18px; padding:15px; border-radius:10px; background:rgba(139,184,168,0.07);">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-weight:700; color:${fortuneInfo.color}; text-transform:uppercase; font-size:0.8rem;">✦ Lời chiêm nghiệm</div>
                 <p style="margin:0; line-height:1.8;">${aiResult.fortuneReflection}</p>
             </div>
-            <div style="margin-bottom:15px;">
-                <div style="font-weight:700; color:var(--accent-text); margin-bottom:7px; text-transform:uppercase; font-size:0.8rem;">Lời bình văn học</div>
-                <p style="margin:0; line-height:1.8;">${aiResult.literaryCommentary}</p>
+
+            <!-- 3. TÁN THƯỞNG & PHÊ BÌNH (Từ Praiser & Critic) -->
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <!-- Khối Tán Thưởng -->
+                <div style="background: rgba(139, 184, 168, 0.05); padding: 12px 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
+                    <div style="font-weight:700; color: var(--accent-text); margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">✦ Góc Nhìn Tán Thưởng</div>
+                    <p style="margin:0; line-height:1.6; font-size:0.95rem;">${aiResult.praiseCommentary}</p>
+                </div>
+
+                <!-- Khối Phê Bình -->
+                <div style="background: rgba(163, 107, 107, 0.05); padding: 12px 15px; border-radius: 8px; border-left: 3px solid #a36b6b;">
+                    <div style="font-weight:700; color: #a36b6b; margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">✦ Góc Nhìn Phê Bình</div>
+                    <p style="margin:0; line-height:1.6; font-size:0.95rem;">${aiResult.criticCommentary}</p>
+                </div>
             </div>
-            <div style="background:rgba(139,184,168,0.05); padding:15px; border-radius:8px; border-left:3px solid ${fortuneInfo.color}; font-size:0.95rem; line-height:1.7; margin-top:20px;">
-                <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên</div>
+
+            <!-- 4. LỜI KHUYÊN (Nên / Tránh) -->
+            <div style="background:rgba(139,184,168,0.05); padding:15px; border-radius:8px; border-left:3px solid ${fortuneInfo.color}; font-size:0.95rem; line-height:1.7;">
+                <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên (Nên / Tránh)</div>
                 ${aiResult.adviceHtml}
             </div>
         `;
