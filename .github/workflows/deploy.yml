@@ -1,6 +1,7 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TRIỂN KHAI LÊN GITHUB PAGES
 # Tên file: .github/workflows/deploy.yml
+# Phiên bản: 3.0 (Consolidated & Bulletproof)
 # Tác giả: Văn Đạo
 # 
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -9,10 +10,10 @@
 # - Bất khả xâm phạm: Quá trình deploy không bao giờ được phép hủy ngang 
 #   (cancel-in-progress: false). Nếu đang deploy mà có code mới, bot sẽ 
 #   đợi lần cũ xong mới chạy lần mới. Tránh tình trạng web bị "nửa nọ nửa kia".
-# - Bảo mật tuyệt đối: Chỉ cấp các quyền tối thiểu cần thiết để đọc code 
-#   và ghi lên Pages.
-# - Toàn vẹn: Đóng gói toàn bộ thư mục gốc (dấu chấm `.`) để không bỏ sót 
-#   bất kỳ file JSON hay asset nào. Tự động nhận diện file .nojekyll.
+# - Toàn vẹn: Gom TẤT CẢ các bước (Checkout -> Setup -> Upload -> Deploy) 
+#   vào CHUNG MỘT JOB. Đây là chìa khóa để tránh lỗi "No artifacts found".
+# - Bảo mật tuyệt đối: Chỉ cấp các quyền tối thiểu cần thiết (đọc code, 
+#   ghi lên Pages, tạo token xác thực).
 # =====================================================================
 
 name: Deploy to GitHub Pages
@@ -31,7 +32,6 @@ on:
 # =====================================================================
 # 2. QUYỀN HẠN CỦA BOT (PERMISSIONS)
 # =====================================================================
-# Bot cần các quyền này để có thể tương tác với GitHub Pages một cách bảo mật.
 # Tuân thủ nguyên tắc "Đặc quyền tối thiểu" (Principle of Least Privilege).
 permissions:
   contents: read  # Chỉ được phép đọc code trong kho, không được sửa
@@ -48,13 +48,14 @@ concurrency:
   # Nếu đang deploy mà bạn push thêm code, bot sẽ đợi lần deploy cũ chạy xong 
   # mới chạy lần mới. 
   # Việc hủy ngang giữa chừng có thể khiến web bị lỗi "nửa nọ nửa kia" 
-  # hoặc trắng trang (White Screen of Death) do thiếu file.
+  # hoặc trắng trang do thiếu file.
   cancel-in-progress: false 
 
 # =====================================================================
 # 4. CÁC BƯỚC THỰC THI (JOBS)
 # =====================================================================
 jobs:
+  # CHỈ CÓ DUY NHẤT MỘT JOB (Gộp chung mọi thứ để đảm bảo tính toàn vẹn)
   deploy:
     # Khai báo môi trường là github-pages và lấy đường link URL sau khi deploy thành công
     environment:
@@ -65,8 +66,6 @@ jobs:
     runs-on: ubuntu-latest
     
     # KỶ LUẬT THỜI GIAN: Tự động hủy nếu chạy quá 10 phút.
-    # Deploy thường chỉ mất 1-2 phút. Nếu quá 10 phút, chắc chắn GitHub Pages 
-    # đang gặp sự cố, không cần phải chờ đợi vô ích.
     timeout-minutes: 10
     
     steps:
@@ -75,10 +74,9 @@ jobs:
       # -----------------------------------------------------------------
       - name: 1. Checkout (Lấy code về)
         uses: actions/checkout@v4
-        # Chỉ cần lấy code mới nhất (fetch-depth: 1 mặc định) để deploy.
-        # Không cần lấy toàn bộ lịch sử commit như các bot tách dữ liệu,
-        # giúp quá trình checkout diễn ra nhanh hơn.
         with:
+          # Chỉ cần lấy code mới nhất (fetch-depth: 1) để deploy.
+          # Không cần lấy toàn bộ lịch sử commit, giúp quá trình checkout nhanh hơn.
           fetch-depth: 1
 
       # -----------------------------------------------------------------
@@ -90,25 +88,32 @@ jobs:
         # để chuẩn bị cho quá trình build. Đảm bảo các file CSS/JS trỏ đúng đường dẫn.
 
       # -----------------------------------------------------------------
-      # BƯỚC 3: ĐÓNG GÓI DỰ ÁN (UPLOAD ARTIFACT)
+      # BƯỚC 3: (TÙY CHỌN) TẠO FILE .NOJEKYLL TỰ ĐỘNG
       # -----------------------------------------------------------------
-      - name: 3. Upload artifact (Đóng gói dự án)
+      # GitHub Pages mặc định chạy Jekyll, có thể bỏ qua các file bắt đầu bằng dấu gạch dưới.
+      # Bước này tự động tạo file .nojekyll để báo cho GitHub Pages biết: 
+      # "Đừng can thiệp vào cấu trúc thư mục của tôi".
+      - name: 3. Create .nojekyll file (Bảo vệ cấu trúc thư mục)
+        run: touch .nojekyll
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: ĐÓNG GÓI DỰ ÁN (UPLOAD ARTIFACT) - BƯỚC SỐNG CÒN
+      # -----------------------------------------------------------------
+      - name: 4. Upload artifact (Đóng gói dự án)
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.' 
           # Dấu chấm ('.') có nghĩa là lấy TOÀN BỘ file ở thư mục gốc 
-          # (index.html, style.css, script.js, sw.js, thư mục data/, assets/...)
-          # và nén chúng lại thành một gói (artifact) để chuyển sang bước deploy.
-          # Kể cả thư mục data/tac-pham/ có hàng ngàn file JSON cũng sẽ được nén gọn gàng.
-          # Lưu ý: Action này tự động nhận diện và tôn trọng file .nojekyll ở thư mục gốc,
-          # đảm bảo GitHub Pages không can thiệp vào cấu trúc thư mục của bạn.
+          # (index.html, css/, js/, data/, assets/...)
+          # Action này sẽ nén chúng lại thành một gói (artifact) tên là "github-pages"
+          # và lưu tạm trên máy chủ GitHub.
 
       # -----------------------------------------------------------------
-      # BƯỚC 4: XUẤT BẢN LÊN WEB (DEPLOY)
+      # BƯỚC 5: XUẤT BẢN LÊN WEB (DEPLOY)
       # -----------------------------------------------------------------
-      - name: 4. Deploy to GitHub Pages (Xuất bản lên web)
+      - name: 5. Deploy to GitHub Pages (Xuất bản lên web)
         id: deployment # Đặt ID để lấy được cái URL ở phần 'environment' phía trên
         uses: actions/deploy-pages@v4
-        # Bung gói artifact vừa nén ở Bước 3 ra và đưa lên máy chủ GitHub Pages.
-        # Sau bước này, người dùng có thể truy cập web với tốc độ cao nhất.
-        # Service Worker (sw.js) sẽ tự động cập nhật dữ liệu mới cho người dùng.
+        # Bung gói artifact vừa nén ở Bước 4 ra và đưa lên máy chủ GitHub Pages.
+        # Nhờ việc gộp chung vào 1 Job, bot `deploy-pages` sẽ tìm thấy artifact 
+        # ngay lập tức, khắc phục hoàn toàn lỗi "No artifacts named...".
