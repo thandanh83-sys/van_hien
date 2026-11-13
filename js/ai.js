@@ -2,12 +2,18 @@
  * ==========================================================
  * VĂN ĐẠO AI - MAIN ENTRY POINT (js/ai.js)
  * Vị trí: js/ai.js
- * Version: 4.0.0 (Ultimate Plugin Architecture & NLP Integration)
+ * Version: 4.1.0 (Renamed fortune-ai.js -> fortune.js)
  * ==========================================================
  * CHỨC NĂNG:
  * - Đóng vai trò là "Cổng giao tiếp" (Facade) duy nhất cho toàn bộ AI.
  * - Gom tất cả các module AI và Network xuất ra ngoài.
  * - main.js và ask-dao.js chỉ cần import từ file này.
+ * 
+ * LỊCH SỬ PHIÊN BẢN:
+ * - v4.0.0: Ultimate Plugin Architecture & NLP Integration.
+ * - v4.1.0: Đổi đường dẫn import FortuneAgent từ `./ai/agents/fortune-ai.js`
+ *           sang `./ai/agents/fortune.js` (đồng bộ với việc đổi tên file).
+ *           Toàn bộ API công khai giữ nguyên 100%.
  * 
  * TRIẾT LÝ:
  * - Một cửa ngõ, một đầu mối.
@@ -53,12 +59,13 @@ export { PoeticsAgent } from './ai/agents/poetics.js';
 export { AnalysisAgent, analyzeWork } from './ai/agents/analysis.js';
 
 // 4. Chuyên gia Bói thơ (Vận khí, Nên/Tránh, Tổng hợp 4 góc nhìn)
+// [ĐÃ ĐỔI] từ './ai/agents/fortune-ai.js' -> './ai/agents/fortune.js'
 export { 
     FortuneAgent, 
     calculateFortune, 
     getFortuneInfo, 
     synthesizeDynamicFortune 
-} from './ai/agents/fortune-ai.js';
+} from './ai/agents/fortune.js';
 
 // 5. Chuyên gia Tri thức (Mạng lưới liên kết, Tiểu sử tác giả)
 export { KnowledgeAgent } from './ai/agents/knowledge.js';
@@ -119,7 +126,7 @@ export { DataHub } from './network/data-hub.js';
 // 7. PHIÊN BẢN & METADATA (Dùng cho Audit/Debug)
 // =====================================================================
 
-export const AI_VERSION = '4.0.0';
+export const AI_VERSION = '4.1.0';
 export const AI_ARCHITECTURE = 'Unified Intelligence Network (11 Agents)';
 
 /**
