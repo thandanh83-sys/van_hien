@@ -1,8 +1,7 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
- * Đã sửa: Hàm findSymbols dùng Regex ranh giới từ.
- * Đã khôi phục: Các hàm render cho Bách Khoa và Văn Hiến.
+ * Đã cập nhật: Hàm findSymbols dùng Regex ranh giới từ.
  * ==========================================================
  */
 
@@ -135,7 +134,7 @@ export function renderHeritage() {
 }
 
 /* =====================================================================
-   MODULE 5: CONTENT MANAGER & BÁCH KHOA (FIX LỖI TẠI ĐÂY)
+   MODULE 5: CONTENT MANAGER & BÁCH KHOA
    ===================================================================== */
 export const ContentManager = (() => {
     const MAX_CACHE_BYTES = 5 * 1024 * 1024;
@@ -295,7 +294,7 @@ export function bindEncyclopediaEvents() {
 }
 
 /* =====================================================================
-   MODULE 5.2: RENDER ENCYCLOPEDIA (HÀM BỊ THIẾU GÂY LỖI)
+   MODULE 5.2: RENDER ENCYCLOPEDIA
    ===================================================================== */
 export function romanToInt(roman) {
     if (roman === '0') return 0;
@@ -385,7 +384,6 @@ export function renderEncyclopediaList(dataToRender, isSearchMode = false, token
     PerformanceEngine.observe('.accordion-item');
 }
 
-// ĐÂY LÀ HÀM BỊ THIẾU KHIẾN TRANG BỊ TRẮNG
 export function renderEncyclopedia() {
     let data = [];
     if (STATE.currentEncyGroup === 'triet-thuyet') data = APP_DATA.THEORY_DATA.map(i => ({ ...i, _group: 'triet-thuyet' }));
@@ -433,7 +431,6 @@ export function searchEncyclopedia() {
 /* =====================================================================
    MODULE 5.3: TÁC PHẨM LIÊN QUAN & SYMBOL HIGHLIGHTER
    ===================================================================== */
-// ĐÂY LÀ HÀM findSymbols ĐÃ ĐƯỢC NÂNG CẤP REGEX CHỐNG NHẬN NHẦM
 export function findSymbols(text) {
     if (!text) return [];
 
