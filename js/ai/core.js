@@ -8,7 +8,6 @@
  * - Chuẩn hóa ngôn ngữ, xử lý tiếng Việt.
  * - Cung cấp bộ nhớ đệm (Cache).
  * - Xây dựng chỉ mục từ điển (Dictionary Index).
- * - Cung cấp thuật toán chấm điểm văn bản (Weighted Matching).
  * ==========================================================
  */
 
@@ -16,7 +15,7 @@ import { APP_DATA } from '../config.js';
 import { normalizeRouteText } from '../utils.js';
 
 // ==========================================================
-// 1. CACHE MANAGER
+// 1. CACHE MANAGER (Quản lý bộ nhớ đệm)
 // ==========================================================
 const CACHE_LIMIT = 200;
 const resultCache = new Map();
@@ -35,7 +34,7 @@ export const CoreCache = {
     get(key) {
         const fullKey = `${CACHE_VERSION}:${key}`;
         if (!resultCache.has(fullKey)) return null;
-        // Trả về bản sao để tránh bên ngoài sửa đổi cache gốc
+        // Trả về bản sao (Deep clone) để tránh bên ngoài sửa đổi cache gốc
         return JSON.parse(JSON.stringify(resultCache.get(fullKey)));
     },
     clear() {
@@ -44,7 +43,7 @@ export const CoreCache = {
 };
 
 // ==========================================================
-// 2. DICTIONARY INDEX (Tối ưu tra cứu)
+// 2. DICTIONARY INDEX (Tối ưu tra cứu từ điển)
 // ==========================================================
 let dictionaryIndexCache = null;
 
@@ -103,7 +102,7 @@ export function countWeightedMatches(text, terms) {
         if (found.length > 0) { 
             score += found.length * item.w; 
             hits.push(item.t); 
-            // Xóa vùng đã đếm
+            // Xóa vùng đã đếm để cụm ngắn hơn không đếm lại
             remaining = remaining.replace(pattern, ' ');
         }
     }
