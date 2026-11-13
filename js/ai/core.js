@@ -2,19 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO AI - CORE MODULE (js/ai/core.js)
  * Vị trí: js/ai/core.js
- * Version: 1.2.0 (Multi-Agent Foundation)
+ * Version: 1.3.0 (Multi-Agent Foundation)
  * ==========================================================
- * TRIẾT LÝ THIẾT KẾ:
- * Đây là "Hạ tầng dùng chung" của toàn bộ hệ thống Multi-Agent.
- * Mọi Agent (Literature, Poetics, Analysis, Fortune) đều phải
- * import từ file này thay vì tự viết lại logic.
- * 
  * CHỨC NĂNG:
  * - Quản lý bộ nhớ đệm (Cache Manager).
  * - Xây dựng chỉ mục từ điển (Dictionary Index).
  * - Xử lý văn bản có trọng số (Weighted Matching).
  * - Cung cấp hằng số dùng chung (Fortune Levels, Dictionary Groups).
- * - Cung cấp các hàm an toàn (Safe Data Access).
+ * - Cung cấp các hàm an toàn (Safe Data Access, Text Normalize).
  * ==========================================================
  */
 
@@ -27,7 +22,6 @@ import { normalizeRouteText } from '../utils.js';
 
 /**
  * Danh sách 11 nhóm từ điển có sẵn trong hệ thống.
- * Được khai báo ở đây để tất cả Agent dùng chung.
  */
 export const DICTIONARY_GROUPS = Object.freeze({
     symbols:      'Biểu tượng',
@@ -45,7 +39,6 @@ export const DICTIONARY_GROUPS = Object.freeze({
 
 /**
  * 6 bậc vận khí với trọng số và lời khuyên.
- * Được tách ra khỏi Fortune Agent để Analysis Agent cũng có thể đọc.
  */
 export const FORTUNE_LEVELS = Object.freeze([
     { 
@@ -75,7 +68,7 @@ export const FORTUNE_LEVELS = Object.freeze([
 ]);
 
 /**
- * Map tra cứu nhanh Fortune theo key (O(1) thay vì O(n))
+ * Map tra cứu nhanh Fortune theo key (O(1))
  */
 export const FORTUNE_MAP = Object.freeze(
     Object.fromEntries(FORTUNE_LEVELS.map(item => [item.key, item]))
@@ -84,73 +77,35 @@ export const FORTUNE_MAP = Object.freeze(
 // ==========================================================
 // PHẦN 2: CACHE MANAGER (Quản lý bộ nhớ đệm)
 // ==========================================================
-
 const CACHE_LIMIT = 200;
 const resultCache = new Map();
-export const CACHE_VERSION = 'v1.2.0';
+export const CACHE_VERSION = 'v1.3.0';
 
-/**
- * Cache Manager: LRU Cache đơn giản cho kết quả phân tích.
- * Dùng để tránh tính toán lại những bài thơ đã phân tích.
- */
 export const CoreCache = {
-    /**
-     * Lưu kết quả vào cache.
-     * @param {string} key - Khóa (nên bao gồm version + text hash)
-     * @param {*} value - Giá trị cần lưu
-     */
     set(key, value) {
         const fullKey = `${CACHE_VERSION}:${key}`;
         if (resultCache.has(fullKey)) resultCache.delete(fullKey);
         resultCache.set(fullKey, value);
-        
-        // LRU: Xóa phần tử cũ nhất nếu vượt limit
         if (resultCache.size > CACHE_LIMIT) {
             const oldest = resultCache.keys().next().value;
             resultCache.delete(oldest);
         }
     },
-
-    /**
-     * Lấy kết quả từ cache (Deep Clone để tránh bên ngoài sửa).
-     * @param {string} key
-     * @returns {*} Bản sao dữ liệu hoặc null
-     */
     get(key) {
         const fullKey = `${CACHE_VERSION}:${key}`;
         if (!resultCache.has(fullKey)) return null;
-        try {
-            return JSON.parse(JSON.stringify(resultCache.get(fullKey)));
-        } catch {
-            return null;
-        }
+        try { return JSON.parse(JSON.stringify(resultCache.get(fullKey))); } 
+        catch { return null; }
     },
-
-    /**
-     * Xóa toàn bộ cache (dùng khi dữ liệu thay đổi).
-     */
-    clear() {
-        resultCache.clear();
-    },
-
-    /**
-     * Xem thống kê cache (debug).
-     */
-    stats() {
-        return { size: resultCache.size, limit: CACHE_LIMIT, version: CACHE_VERSION };
-    }
+    clear() { resultCache.clear(); },
+    stats() { return { size: resultCache.size, limit: CACHE_LIMIT, version: CACHE_VERSION }; }
 };
 
 // ==========================================================
 // PHẦN 3: DICTIONARY INDEX (Tối ưu tra cứu từ điển)
 // ==========================================================
-
 let dictionaryIndexCache = null;
 
-/**
- * Xây dựng chỉ mục từ điển 1 lần duy nhất (lazy loading).
- * @returns {Array<Object>} Mảng các entry đã chuẩn hóa
- */
 export function getDictionaryIndex() {
     if (dictionaryIndexCache) return dictionaryIndexCache;
     
@@ -163,22 +118,18 @@ export function getDictionaryIndex() {
 
         for (const [keyword, value] of Object.entries(group)) {
             if (!value || typeof value !== 'object') continue;
-            
             dictionaryIndexCache.push({
                 ...value,
                 keyword,
                 normalizedKeyword: normalizeRouteText(keyword),
                 type: label,
-                groupKey: key // Giữ lại key gốc (symbols, dienTich...)
+                groupKey: key
             });
         }
     }
     return dictionaryIndexCache;
 }
 
-/**
- * Xóa chỉ mục từ điển (dùng khi nạp lại dữ liệu).
- */
 export function invalidateDictionaryIndex() {
     dictionaryIndexCache = null;
 }
@@ -189,97 +140,56 @@ export function invalidateDictionaryIndex() {
 
 /**
  * Đếm từ khóa có trọng số, xóa vùng đã đếm để tránh trùng lặp.
- * 
- * Ưu điểm: Cụm dài được đếm trước, xóa khỏi văn bản, sau đó mới xét cụm ngắn.
- * Ví dụ: "quê hương" (w=2) được đếm trước, sau đó "quê" (w=1) sẽ không đếm lại vùng đó.
- * 
- * @param {string} text - Văn bản đã chuẩn hóa (chữ thường, bỏ dấu)
- * @param {Array<{t: string, w: number}>} terms - Mảng {text, weight}
- * @returns {{score: number, hits: string[]}}
  */
 export function countWeightedMatches(text, terms) {
     let remaining = text;
     let score = 0;
     const hits = [];
     
-    // Sắp xếp từ khóa dài trước (quan trọng!)
     const sortedTerms = [...terms].sort((a, b) => b.t.length - a.t.length);
 
     for (const item of sortedTerms) {
         const needle = normalizeRouteText(item.t);
         if (!needle) continue;
 
-        // Escape các ký tự đặc biệt trong regex + xử lý khoảng trắng
-        const escaped = needle
-            .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-            .replace(/\s+/g, '\\s+');
-        
-        // Word boundary: Không khớp nếu nằm trong từ khác
-        const pattern = new RegExp(
-            `(^|[^\\p{L}\\p{N}])${escaped}(?=$|[^\\p{L}\\p{N}])`, 
-            'giu'
-        );
+        const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+        const pattern = new RegExp(`(^|[^\\p{L}\\p{N}])${escaped}(?=$|[^\\p{L}\\p{N}])`, 'giu');
 
         const found = [...remaining.matchAll(pattern)];
         if (found.length > 0) {
             score += found.length * item.w;
             hits.push(item.t);
-            // Xóa vùng đã đếm để cụm ngắn không đếm lại
             remaining = remaining.replace(pattern, ' ');
         }
     }
-
     return { score, hits };
 }
 
 /**
  * Trích xuất entity (từ khóa chính) từ câu hỏi.
- * Loại bỏ các từ đệm để tìm kiếm chính xác hơn.
- * 
- * @param {string} input - Câu người dùng gõ
- * @param {RegExp[]} patternsToRemove - Mảng regex cần xóa
- * @returns {string}
  */
 export function extractEntity(input, patternsToRemove = []) {
     let clean = input;
-    patternsToRemove.forEach(p => {
-        clean = clean.replace(p, '');
-    });
+    patternsToRemove.forEach(p => { clean = clean.replace(p, ''); });
     return clean.replace(/[?!.]/g, '').trim();
 }
 
 // ==========================================================
 // PHẦN 5: SAFE DATA ACCESS (Truy xuất dữ liệu an toàn)
 // ==========================================================
-
-/**
- * Lấy mảng từ APP_DATA một cách an toàn (chống crash nếu undefined).
- * @param {string} key - Tên field trong APP_DATA
- * @returns {Array}
- */
 export function safeGetArray(key) {
     const data = APP_DATA[key];
     return Array.isArray(data) ? data : [];
 }
 
-/**
- * Lấy object từ APP_DATA một cách an toàn.
- * @param {string} key
- * @returns {Object}
- */
 export function safeGetObject(key) {
     const data = APP_DATA[key];
     return (data && typeof data === 'object' && !Array.isArray(data)) ? data : {};
 }
 
 // ==========================================================
-// PHẦN 6: DEBUG HELPERS (Dành cho lập trình viên)
+// PHẦN 6: DEBUG HELPERS
 // ==========================================================
-
-/**
- * In báo cáo trạng thái Core ra Console.
- * Dùng khi cần debug xem cache có bao nhiêu item, từ điển có bao nhiêu entry.
- */
 export function debugCore() {
     const dictIndex = getDictionaryIndex();
     console.log('%c[CORE AI] Trạng thái hiện tại:', 'color: #8bb8a8; font-weight: bold;');
