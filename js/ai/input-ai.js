@@ -2,22 +2,21 @@
  * ==========================================================
  * VĂN ĐẠO AI - INPUT AI (js/ai/input-ai.js)
  * Vị trí: js/ai/input-ai.js
- * Version: 5.2.0 (Semantic Parser & Expanded Agents)
+ * Version: 5.3.0 (Semantic Parser & Full 11 Agents Support)
  * ==========================================================
  * NHIỆM VỤ:
  * 1. Nhận diện câu hỏi, mệnh lệnh, tìm kiếm.
  * 2. Trích xuất thực thể.
- * 3. Hỗ trợ các câu hỏi về Lịch sử, Dịch thuật, Nhân vật.
+ * 3. Hỗ trợ các câu hỏi về Lịch sử, Dịch thuật, Nhân vật, So sánh, Khen/Chê.
  * ==========================================================
  */
 
 import { extractEntity } from './core.js';
-import { preprocessText } from './nlp-tools.js'; // [MỚI] Gọi thư viện NLP
+import { preprocessText } from './nlp-tools.js';
 
 // =====================================================================
-// PHẦN 1: CÔNG CỤ XỬ LÝ NGÔN NGỮ (Đã chuyển sang nlp-tools.js)
+// PHẦN 1: CÔNG CỤ XỬ LÝ NGÔN NGỮ
 // =====================================================================
-// Các hàm basicNormalize, removeTrailingParticles, ... đã được dọn dẹp.
 
 function result(type, mode, query, extra = {}) {
     return {
@@ -67,6 +66,25 @@ const EXTRACTION_PATTERNS = {
         /\b(la ai|la gi|the nao)\b/gi,
         /\b(khong|a|nhi|vay)\b/gi
     ],
+    // [MỚI] Pattern cho So sánh
+    'compare-entities': [
+        /\b(so sanh|compare|giua|khac nhau|tuong dong|giong)\b/gi,
+        /\b(va|voi|cung)\b/gi,
+        /\b(tac gia|tac pham|truyen|bai tho)\b/gi,
+        /\b(khong|a|nhi|vay)\b/gi
+    ],
+    // [MỚI] Pattern cho Khen
+    'praise-work': [
+        /\b(khen|ca ngoi|praise|dep|hay|tuyet voi)\b/gi,
+        /\b(bai tho|tac pham|truyen)\b/gi,
+        /\b(khong|a|nhi|vay)\b/gi
+    ],
+    // [MỚI] Pattern cho Chê
+    'criticize-work': [
+        /\b(che|phe binh|criticize|han che|do|te|kem)\b/gi,
+        /\b(bai tho|tac pham|truyen)\b/gi,
+        /\b(khong|a|nhi|vay)\b/gi
+    ],
 
     'default': [/\b(tim|kiem|tra cuu|cho toi|cho minh)\b/gi, /\b(khong|a|nhi|vay)\b/gi]
 };
@@ -97,31 +115,40 @@ function detectCommand(text) {
     const hasAny = (arr) => arr.some(w => words.has(w));
     const hasAll = (arr) => arr.every(w => words.has(w));
 
-    // 1. NHÓM LỊCH SỬ
+    // 1. NHÓM SO SÁNH (Ưu tiên cao nhất vì dễ nhầm với tìm kiếm)
+    if (hasAny(['so sanh', 'compare', 'khac', 'tuong dong']) || (hasAny(['giong']) && hasAny(['va', 'voi']))) {
+        return 'compare-entities';
+    }
+
+    // 2. NHÓM KHEN / CHÊ
+    if (hasAny(['khen', 'ca ngoi', 'praise', 'tuyet'])) return 'praise-work';
+    if (hasAny(['che', 'phe binh', 'criticize', 'han che', 'te'])) return 'criticize-work';
+
+    // 3. NHÓM LỊCH SỬ
     if (hasAny(['thoi', 'ky', 'trieu', 'nha']) && hasAny(['tac', 'pham', 'bai'])) return 'find-works-by-era';
     if (hasAny(['thoi', 'ky', 'trieu', 'nha']) && hasAny(['tac', 'gia', 'nha', 'tho', 'van'])) return 'find-authors-by-era';
     if (hasAny(['viet', 'sang', 'tac', 'thuoc', 'hoat']) && hasAny(['thoi', 'ky', 'nao', 'bao'])) return 'get-historical-context';
 
-    // 2. NHÓM DỊCH THUẬT [MỚI]
+    // 4. NHÓM DỊCH THUẬT
     if (hasAny(['dich', 'translate', 'chuyen', 'ngu', 'dich thuat'])) return 'translate-work';
 
-    // 3. NHÓM NHÂN VẬT [MỚI]
+    // 5. NHÓM NHÂN VẬT
     if (hasAny(['nhan vat', 'character'])) return 'get-character-info';
     // Phân biệt "Ai là tác giả" vs "Thúy Kiều là ai"
     if (hasAny(['ai la']) && !hasAny(['tac gia', 'viet', 'sang tac'])) {
         return 'get-character-info';
     }
 
-    // 4. NHÓM MẠNG LƯỚI TRI THỨC
+    // 6. NHÓM MẠNG LƯỚI TRI THỨC
     if (hasAny(['giong', 'tuong', 'lien', 'quan']) && hasAny(['tac', 'pham', 'bai', 'truyen'])) return 'find-related';
     if (hasAll(['tac', 'pham']) && hasAny(['cua', 'gi', 'nao'])) return 'list-author-works';
 
-    // 5. NHÓM HÀNH ĐỘNG VĂN HỌC
+    // 7. NHÓM HÀNH ĐỘNG VĂN HỌC
     if (hasAny(['phan', 'tich', 'binh', 'giang', 'danh', 'gia', 'cam', 'nhan'])) return 'analyze-work';
     if (hasAny(['tom', 'tat', 'noi', 'dung', 'ke', 'lai'])) return 'summarize-work';
     if (hasAny(['goi', 'y', 'de', 'xuat', 'nen', 'doc', 'muon'])) return 'recommend';
 
-    // 6. NHÓM TÁC GIẢ
+    // 8. NHÓM TÁC GIẢ
     if (hasAny(['ai', 'viet', 'sang', 'tac', 'cua'])) {
         if (hasAny(['tac', 'pham', 'truyen', 'bai', 'tho'])) return 'find-author-of';
         if (hasAny(['tieu', 'su', 'cuoc', 'doi', 'thong', 'tin'])) return 'find-author-info';
@@ -149,7 +176,7 @@ export const InputAI = {
         const original = String(input || '').trim();
         if (!original) return result('empty', 'empty', '', { confidence: 1, originalInput: original });
 
-        // 1. Chuẩn hóa bằng thư viện NLP (Bỏ dấu, teencode, sửa lỗi...)
+        // 1. Chuẩn hóa bằng thư viện NLP
         let clean = preprocessText(original);
         if (!clean) return result('empty', 'empty', '', { confidence: 1, originalInput: original });
 
