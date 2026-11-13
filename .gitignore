@@ -1,12 +1,11 @@
 # =====================================================================
-# VĂN ĐẠO ENGINE - TỆP CẤU HÌNH GITIGNORE (CHUẨN MỰC & SIÊU CHI TIẾT)
+# VĂN ĐẠO ENGINE - TỆP CẤU HÌNH GITIGNORE (v2.0 - Knowledge Network)
 # Mục đích: Ngăn chặn các tệp rác, tệp tạm, và thông tin nhạy cảm
 # bị đẩy lên GitHub. Giữ cho kho lưu trữ luôn nhẹ, sạch và thanh tịnh.
 # =====================================================================
 
 # ---------------------------------------------------------------------
 # 1. HỆ ĐIỀU HÀNH (OS FILES)
-# Bỏ qua các file hệ thống tự sinh ra khi duyệt thư mục
 # ---------------------------------------------------------------------
 # macOS
 .DS_Store
@@ -34,7 +33,6 @@ $RECYCLE.BIN/
 
 # ---------------------------------------------------------------------
 # 2. TRÌNH SOẠN THẢO & IDE (EDITORS / IDEs)
-# Bỏ qua cấu hình cá nhân của Editor, tránh xung đột khi làm việc nhóm
 # ---------------------------------------------------------------------
 # Visual Studio Code
 .vscode/*
@@ -60,9 +58,14 @@ out/
 *~
 .netrwhist
 
+# Cursor / Windsurf (AI Code Editors thế hệ mới)
+.cursor/
+.windsurf/
+*.cursorrules
+
 # ---------------------------------------------------------------------
 # 3. MÔI TRƯỜNG PYTHON (PYTHON ARTIFACTS)
-# Cực kỳ quan trọng vì bạn dùng Python tools để xử lý dữ liệu
+# Rất quan trọng vì dự án dùng Python tools (tools/*.py)
 # ---------------------------------------------------------------------
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -133,15 +136,13 @@ ipython_config.py
 # pyenv
 .python-version
 
-# pipenv
+# pipenv / poetry
 Pipfile.lock
-
-# poetry
 poetry.lock
 
 # ---------------------------------------------------------------------
-# 4. MÔI TRƯỜNG NODE.JS (NODE ARTIFACTS)
-# Dự phòng cho việc chạy local server (npx http-server) hoặc build tools
+# 4. MÔI TRƯỜNG NODE.JS & BUILD TOOLS (NODE ARTIFACTS)
+# Dự phòng cho việc chạy local server (npx http-server)
 # ---------------------------------------------------------------------
 node_modules/
 npm-debug.log*
@@ -162,7 +163,6 @@ build/
 
 # ---------------------------------------------------------------------
 # 5. NHẬT KÝ & TỆP TẠM (LOGS & TEMP FILES)
-# Bỏ qua các file log sinh ra trong quá trình chạy thử hoặc debug
 # ---------------------------------------------------------------------
 *.log
 *.log.*
@@ -192,15 +192,45 @@ config.secret.json
 config.prod.json
 
 # ---------------------------------------------------------------------
-# 7. DỰ ÁN VĂN ĐẠO - LƯU Ý ĐẶC BIỆT (PROJECT SPECIFIC)
+# 7. NỀN TẢNG DEPLOY HIỆN ĐẠI (MODERN DEPLOYMENT PLATFORMS)
+# Dự phòng nếu sau này deploy lên Vercel/Netlify thay vì GitHub Pages
 # ---------------------------------------------------------------------
-# KHÔNG IGNORE các file sau (để hệ thống hoạt động):
-# - data/data-tac-pham-master.json (Cần push lên để kích hoạt bot auto-split)
-# - data/data-tac-gia-master.json (Cần push lên để kích hoạt bot auto-split)
-# - .nojekyll (Bắt buộc cho GitHub Pages)
-# - sw.js, manifest.json, index.html, script.js, style.css (Lõi ứng dụng)
-# - data/tac-pham/*.json, data/tac-gia/*.json (Dữ liệu tri thức)
-# - tools/*.py (Script xử lý)
+.vercel/
+.netlify/
+.wrangler/
+.deploy/
+*.deploy.log
+
+# ---------------------------------------------------------------------
+# 8. CƠ SỞ DỮ LIỆU CỤC BỘ (LOCAL DATABASES)
+# Phòng trường hợp phát triển tính năng tìm kiếm nâng cao với SQLite
+# ---------------------------------------------------------------------
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# ---------------------------------------------------------------------
+# 9. DỰ ÁN VĂN ĐẠO - LƯU Ý ĐẶC BIỆT (PROJECT SPECIFIC)
+# ⚠️ KHÔNG IGNORE các file sau (để hệ thống hoạt động):
+# ---------------------------------------------------------------------
+# 1. Dữ liệu gốc (Phải push lên để kích hoạt bot auto-split):
+#    - data/data-tac-pham-master.json
+#    - data/data-tac-gia-master.json
+#
+# 2. Cấu hình PWA & GitHub Pages:
+#    - .nojekyll (Bắt buộc để giữ cấu trúc thư mục)
+#    - manifest.json, index.html, sw.js
+#
+# 3. Trái tim hệ thống v2.0 (Knowledge Network):
+#    - js/network/data-hub.js  (Trung tâm dữ liệu)
+#    - js/ai.js                (Facade AI)
+#    - js/ai/agents/*.js       (Các Agent chuyên môn)
+#
+# 4. Dữ liệu tri thức:
+#    - data/tac-pham/*.json, data/tac-gia/*.json
+#    - data/manifests/*.json (Bản đồ mạng lưới)
+#    - tools/*.py (Script Python xử lý)
 
 # Bỏ qua các file test/dữ liệu nháp do bạn tự tạo trong lúc phát triển
 test_*.json
