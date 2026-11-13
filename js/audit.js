@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - AUDIT MODULE (js/audit.js)
  * Vị trí: js/audit.js
- * Version: 4.0.5 (Ultimate Diagnostic Tool)
+ * Version: 4.0.6 (Ultimate Diagnostic Tool)
  * ==========================================================
  * HƯỚNG DẪN SỬ DỤNG (Mở Console F12, gõ):
  * ---------------------------------------------------------
@@ -29,7 +29,10 @@
 import { APP_DATA, STATE } from './config.js';
 import { DataHub, AgentRegistry, VDBus } from './network/index.js';
 
-// Tính toán đường dẫn gốc (Từ thư mục js/ lùi ra ngoài 1 cấp)
+// =====================================================================
+// TÍNH TOÁN ĐƯỜNG DẪN GỐC (BASE URL)
+// File audit.js nằm trong thư mục /js/, nên lùi 1 cấp (../) là gốc dự án.
+// =====================================================================
 const BASE_URL = new URL('../', import.meta.url).href;
 
 // ==========================================================
@@ -331,7 +334,7 @@ export async function auditSingleQuery(query) {
 export async function runFullDiagnosis() {
     console.clear();
     console.log(
-        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.0.5 ===",
+        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.0.6 ===",
         "background: linear-gradient(135deg, #2c3e38, #557a6f); color: #d4c4a8; font-size: 16px; font-weight: bold; padding: 10px 20px; border-radius: 8px;"
     );
 
