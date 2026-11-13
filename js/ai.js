@@ -2,20 +2,19 @@
  * ==========================================================
  * VĂN ĐẠO AI ENGINE (js/ai.js)
  * Vị trí: js/ai.js
- * Version: 1.0.10 (Smart Intent Detection)
+ * Version: 1.1.0 (Offline-First, Weighted Themes, Smart Intent)
  * ==========================================================
  * CHỨC NĂNG:
- * - Phân tích văn bản, chấm điểm chủ đề.
- * - Tính vận khí, tổng hợp lời bình (Bói thơ).
- * - AIDispatcher: Nhận diện câu hỏi tự nhiên (Hỏi Đạo).
+ * - Phân tích văn bản dựa trên trọng số từ khóa (Không đếm thô).
+ * - AIDispatcher: Nhận diện câu hỏi tự nhiên, chạy 100% Offline.
+ * - Không phụ thuộc MotherNode, không gọi API ngoài.
  * ==========================================================
  */
 
 import { APP_DATA } from './config.js';
 import { findSymbols } from './render.js';
-import { MotherNode } from './network/mother.js';
 import { VDSearchEngine } from './search.js';
-import { escapeHTML } from './utils.js';
+import { escapeHTML, normalizeRouteText } from './utils.js';
 
 // ==========================================================
 // PHẦN 1: CACHE
@@ -33,16 +32,56 @@ function cacheSet(key, value) {
 }
 
 // ==========================================================
-// PHẦN 2: THEME RULES (Quy tắc phân tích chủ đề)
+// PHẦN 2: THEME RULES (Có trọng số)
 // ==========================================================
 const THEME_RULES = [
-    { id: 'nature', label: 'thiên nhiên', terms: ['trăng', 'nguyệt', 'sông', 'núi', 'mây', 'gió', 'mưa', 'nắng', 'hoa', 'lá', 'chim', 'đò', 'biển', 'suối', 'thu', 'xuân', 'hạ', 'đông'], commentary: 'Hệ thống hình ảnh thiên nhiên tạo nên lớp cảnh sắc cho tác phẩm. Khi đọc, cần đặt cảnh vật trong quan hệ với điểm nhìn và cảm xúc của chủ thể trữ tình, thay vì chỉ xem đó là phông nền.' },
-    { id: 'homesickness', label: 'quê hương và ký ức', terms: ['quê', 'nhà', 'làng', 'xóm', 'đất nước', 'non sông', 'cố hương', 'xa quê', 'nhớ nhà', 'quê hương'], commentary: 'Tác phẩm gợi mở mối liên hệ giữa con người với quê hương và không gian nguồn cội. Ý nghĩa của nỗi nhớ sẽ rõ hơn khi đối chiếu hình ảnh quê nhà với hoàn cảnh và giọng điệu của văn bản.' },
-    { id: 'love', label: 'tình cảm', terms: ['yêu', 'thương', 'tình', 'duyên', 'người thương', 'đôi', 'nhớ em', 'nhớ anh', 'lứa đôi'], commentary: 'Tình cảm là một mạch đáng chú ý trong văn bản. Sắc thái của nó không chỉ nằm ở lời bộc bạch trực tiếp mà còn có thể hiện ra qua cách lựa chọn hình ảnh, nhịp điệu và khoảng lặng.' },
-    { id: 'time', label: 'thời gian và hồi tưởng', terms: ['thời gian', 'năm tháng', 'tuổi trẻ', 'tuổi xuân', 'ngày xưa', 'hoàng hôn', 'chiều', 'bóng xế', 'phai', 'tàn'], commentary: 'Dấu hiệu thời gian góp phần tạo nên chiều sâu suy tưởng. Sự đối chiếu giữa hiện tại và quá khứ, hoặc giữa cái đang có và cái đã qua, có thể là chìa khóa để đọc mạch cảm xúc.' },
-    { id: 'humanity', label: 'thân phận con người', terms: ['người', 'đời', 'phận', 'kiếp', 'nhân sinh', 'đau', 'khổ', 'nước mắt', 'công bằng', 'bất công', 'nghèo', 'khổ đau'], commentary: 'Văn bản hướng sự chú ý đến thân phận và trải nghiệm con người. Khi bình giảng, nên gắn suy tưởng nhân sinh với chi tiết cụ thể, tránh tách thông điệp khỏi hoàn cảnh được miêu tả.' },
-    { id: 'patriotism', label: 'quê hương và cộng đồng', terms: ['tổ quốc', 'đất nước', 'giang sơn', 'độc lập', 'tự do', 'chiến sĩ', 'quê hương', 'đồng bào', 'non sông'], commentary: 'Tác phẩm có những dấu hiệu hướng về cộng đồng và đất nước. Cần xem tình cảm ấy được thể hiện qua hình tượng, giọng điệu và hoàn cảnh lịch sử nào để tránh bình luận chung chung.' },
-    { id: 'resilience', label: 'nghị lực và hy vọng', terms: ['vượt', 'đường xa', 'bão', 'giông', 'gian nan', 'khó khăn', 'bền chí', 'kiên trì', 'hy vọng', 'niềm tin'], commentary: 'Văn bản gợi ra hành trình đối diện thử thách và khả năng hướng về phía trước. Giá trị của mạch ý này cần được nhìn từ diễn biến và lựa chọn của con người trong tác phẩm.' }
+    { 
+        id: 'nature', label: 'thiên nhiên', 
+        terms: [
+            { t: 'trăng', w: 2 }, { t: 'nguyệt', w: 2 }, { t: 'sông', w: 1.5 }, 
+            { t: 'núi', w: 1.5 }, { t: 'mây', w: 1 }, { t: 'gió', w: 1 }, 
+            { t: 'mưa', w: 0.8 }, { t: 'nắng', w: 0.8 }, { t: 'hoa', w: 0.5 }, 
+            { t: 'lá', w: 0.5 }, { t: 'chim', w: 1 }, { t: 'đò', w: 1.5 }, 
+            { t: 'biển', w: 1.5 }, { t: 'suối', w: 1 }
+        ], 
+        commentary: 'Hệ thống hình ảnh thiên nhiên tạo nên lớp cảnh sắc cho tác phẩm. Khi đọc, cần đặt cảnh vật trong quan hệ với điểm nhìn và cảm xúc của chủ thể trữ tình, thay vì chỉ xem đó là phông nền.' 
+    },
+    { 
+        id: 'homesickness', label: 'quê hương và ký ức', 
+        terms: [
+            { t: 'cố hương', w: 3 }, { t: 'tha hương', w: 3 }, { t: 'nhớ nhà', w: 2.5 }, 
+            { t: 'quê hương', w: 2 }, { t: 'quê', w: 1 }, { t: 'làng', w: 1 }, 
+            { t: 'xóm', w: 1 }, { t: 'nhà', w: 0.5 }
+        ], 
+        commentary: 'Tác phẩm gợi mở mối liên hệ giữa con người với quê hương và không gian nguồn cội. Ý nghĩa của nỗi nhớ sẽ rõ hơn khi đối chiếu hình ảnh quê nhà với hoàn cảnh và giọng điệu của văn bản.' 
+    },
+    { 
+        id: 'patriotism', label: 'tình yêu nước', 
+        terms: [
+            { t: 'tổ quốc', w: 3 }, { t: 'non sông', w: 2.5 }, { t: 'giang sơn', w: 2.5 }, 
+            { t: 'đất nước', w: 2 }, { t: 'độc lập', w: 2 }, { t: 'tự do', w: 2 }, 
+            { t: 'chiến sĩ', w: 1.5 }, { t: 'đồng bào', w: 1.5 }
+        ], 
+        commentary: 'Tác phẩm có những dấu hiệu hướng về cộng đồng và đất nước. Cần xem tình cảm ấy được thể hiện qua hình tượng, giọng điệu và hoàn cảnh lịch sử nào để tránh bình luận chung chung.' 
+    },
+    { 
+        id: 'love', label: 'tình cảm đôi lứa', 
+        terms: [
+            { t: 'yêu', w: 1 }, { t: 'thương', w: 1 }, { t: 'duyên', w: 1.5 }, 
+            { t: 'người thương', w: 2 }, { t: 'lứa đôi', w: 2 }, { t: 'nhớ em', w: 2 }, 
+            { t: 'nhớ anh', w: 2 }
+        ], 
+        commentary: 'Tình cảm là một mạch đáng chú ý trong văn bản. Sắc thái của nó không chỉ nằm ở lời bộc bạch trực tiếp mà còn có thể hiện ra qua cách lựa chọn hình ảnh, nhịp điệu và khoảng lặng.' 
+    },
+    { 
+        id: 'humanity', label: 'thân phận con người', 
+        terms: [
+            { t: 'nhân sinh', w: 2 }, { t: 'phận', w: 2 }, { t: 'kiếp', w: 2 }, 
+            { t: 'bất công', w: 2 }, { t: 'khổ đau', w: 2 }, { t: 'nước mắt', w: 1.5 }, 
+            { t: 'nghèo', w: 1.5 }, { t: 'người', w: 0.3 }, { t: 'đời', w: 0.5 }
+        ], 
+        commentary: 'Văn bản hướng sự chú ý đến thân phận và trải nghiệm con người. Khi bình giảng, nên gắn suy tưởng nhân sinh với chi tiết cụ thể, tránh tách thông điệp khỏi hoàn cảnh được miêu tả.' 
+    }
 ];
 
 const FALLBACK_COMMENTARY = 'Tác phẩm cần được đọc từ những chi tiết cụ thể: hình ảnh nổi bật, giọng điệu, cách tổ chức câu chữ và mối liên hệ giữa các phần.';
@@ -67,16 +106,26 @@ function normalizeText(value = '') {
     return String(value).toLocaleLowerCase('vi').normalize('NFC').replace(/\s+/g, ' ').trim();
 }
 
-function countMatches(text, terms) {
+// Đếm từ khóa có trọng số, xử lý cụm từ dài trước
+function countWeightedMatches(text, terms) {
     let score = 0;
     const hits = [];
-    for (const term of terms) {
-        const needle = normalizeText(term);
+    
+    // Sắp xếp từ khóa dài trước để tránh đè từ ngắn (VD: "quê hương" trước "quê")
+    const sortedTerms = [...terms].sort((a, b) => b.t.length - a.t.length);
+
+    for (const item of sortedTerms) {
+        const needle = normalizeText(item.t);
         if (!needle) continue;
         const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+        // Dùng ranh giới từ (word boundary) để không bắt nhầm
         const pattern = new RegExp(`(^|[^\\p{L}\\p{N}])${escaped}(?=$|[^\\p{L}\\p{N}])`, 'giu');
         const found = text.match(pattern);
-        if (found?.length) { score += found.length; hits.push(term); }
+        
+        if (found?.length) { 
+            score += found.length * item.w; 
+            hits.push(item.t); 
+        }
     }
     return { score, hits };
 }
@@ -87,10 +136,13 @@ function getWorkText(work = {}) {
 
 function selectThemes(text) {
     const normalized = normalizeText(text);
-    return THEME_RULES.map(rule => ({ rule, ...countMatches(normalized, rule.terms) }))
-        .filter(item => item.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 2);
+    const results = THEME_RULES.map(rule => {
+        const { score, hits } = countWeightedMatches(normalized, rule.terms);
+        return { rule, score, hits };
+    }).filter(item => item.score > 0);
+
+    results.sort((a, b) => b.score - a.score);
+    return results.slice(0, 2);
 }
 
 function getSymbolEvidence(text) {
@@ -117,11 +169,19 @@ export function analyzeWork(work = {}) {
         commentaryText += ` Đáng chú ý, văn bản xuất hiện hình ảnh "${symbols[0].keyword}", cần được đặt trong ngữ cảnh để hiểu rõ tầng nghĩa sâu kín.`;
     }
 
+    // Tính độ tin cậy thực tế dựa trên điểm số
+    let confidence = 'thấp';
+    if (themes.length > 0) {
+        const topScore = themes[0].score;
+        if (topScore >= 6) confidence = 'cao';
+        else if (topScore >= 3) confidence = 'trung bình';
+    }
+
     const result = {
         themes: themes.map(t => t.rule.label),
         commentaryText,
         evidence: { themes, symbols },
-        confidence: themes.length ? 'trung bình' : 'thấp'
+        confidence
     };
 
     cacheSet(cacheKey, result);
@@ -142,9 +202,11 @@ export function calculateFortune() {
 }
 
 export function getFortuneInfo(key = 'binh-hoa') {
-    const fallback = FORTUNE_FALLBACK[key] || FORTUNE_FALLBACK['binh-hoa'];
-    const saved = APP_DATA.FORTUNE_CONFIG?.[key] || {};
-    return { ...fallback, ...saved, key, name: saved.name || fallback.name, color: saved.color || fallback.color };
+    // Chuẩn hóa key nếu không hợp lệ
+    const validKey = FORTUNE_FALLBACK[key] ? key : 'binh-hoa';
+    const fallback = FORTUNE_FALLBACK[validKey];
+    const saved = APP_DATA.FORTUNE_CONFIG?.[validKey] || {};
+    return { ...fallback, ...saved, key: validKey, name: saved.name || fallback.name, color: saved.color || fallback.color };
 }
 
 // ==========================================================
@@ -191,12 +253,35 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa') {
     const commentaries = Array.isArray(commentaryData.commentaries) ? commentaryData.commentaries : [];
     const fortuneReflection = commentaries.length > 0 ? commentaries[Math.floor(Math.random() * commentaries.length)] : `Lời chiêm nghiệm cho vận khí ${fortune.name}: Hãy giữ tâm thế bình thản trước mọi biến động.`;
 
-    return { bridgeText, fortuneReflection, literaryCommentary: analysis.commentaryText, adviceHtml, fortuneInfo: fortune, confidence: analysis.confidence, evidence: analysis.evidence };
+    return { 
+        bridgeText: escapeHTML(bridgeText), 
+        fortuneReflection: escapeHTML(fortuneReflection), 
+        literaryCommentary: escapeHTML(analysis.commentaryText), 
+        adviceHtml, 
+        fortuneInfo: fortune, 
+        confidence: analysis.confidence, 
+        evidence: analysis.evidence 
+    };
 }
 
 // ==========================================================
-// PHẦN 8: AI DISPATCHER (NÂNG CẤP TOÀN DIỆN)
+// PHẦN 8: AI DISPATCHER (OFFLINE-FIRST, KHÔNG PHỤ THUỘC MOTHERNODE)
 // ==========================================================
+
+const DICTIONARY_GROUPS = {
+    symbols: 'Biểu tượng',
+    dienTich: 'Điển tích',
+    hanViet: 'Hán Việt',
+    tuGoiHinh: 'Từ gợi hình',
+    tuGoiAm: 'Từ gợi âm',
+    tuBieuCam: 'Từ biểu cảm',
+    anDu: 'Ẩn dụ',
+    soSanh: 'So sánh',
+    tuTaoCanh: 'Từ tạo cảnh',
+    thanhNgu: 'Thành ngữ',
+    thuatNguThiPhap: 'Thuật ngữ thi pháp'
+};
+
 export const AIDispatcher = (() => {
 
     function parseIntent(input) {
@@ -205,36 +290,33 @@ export const AIDispatcher = (() => {
 
         // 1. Tóm tắt
         if (/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì)/i.test(t)) {
-            return { type: 'summarize-work', query: extractTitle(t.replace(/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì)/gi, '')) };
+            const q = t.replace(/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì|tác phẩm|bài thơ|bài)/gi, '').replace(/[?!.]/g, '').trim();
+            return { type: 'summarize-work', query: q };
         }
 
         // 2. Biểu tượng / Điển tích
         if (/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của)/i.test(t)) {
-            const keyword = t.replace(/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của|là gì|có ý nghĩa gì|trong thơ)/gi, '').trim();
+            const keyword = t.replace(/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của|là gì|có ý nghĩa gì|trong thơ)/gi, '').replace(/[?!.]/g, '').trim();
+            if (!keyword) return { type: 'search', query: t }; // Nếu rỗng thì fallback về search
             return { type: 'explain-symbol', query: keyword };
         }
 
         // 3. Gợi ý đọc
         if (/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc)/i.test(t)) {
-            const genre = t.replace(/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc|cho tôi|về)/gi, '').trim();
+            const genre = t.replace(/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc|cho tôi|về)/gi, '').replace(/[?!.]/g, '').trim();
             return { type: 'recommend', query: genre };
         }
 
         // 4. Thể loại là gì
         if (/(thể loại|định nghĩa|khái niệm).*(là gì|như thế nào)/i.test(t)) {
-            return { type: 'define-genre', query: extractGenre(t) };
+            const genre = t.replace(/thể loại|là gì|như thế nào|định nghĩa|khái niệm/gi, '').replace(/[?!.]/g, '').trim();
+            return { type: 'define-genre', query: genre };
         }
 
-        // 5. Tác giả (Đã nâng cấp Regex bắt câu hỏi tự nhiên)
+        // 5. Tác giả
         if (/(ai|tác giả|người nào)\s+(là|viết|sáng tác|đặt tên|tạo ra|của bài|của tác phẩm)/i.test(t)) {
-            // Cắt bỏ các từ để hỏi để lấy lại từ khóa tìm kiếm (VD: "đặt tên cho dòng sông")
-            const q = extractTitle(t.replace(/(ai là|ai viết|tác giả|người nào|đặt tên cho|viết|sáng tác|là người)/gi, ''));
+            const q = t.replace(/(ai là|ai viết|tác giả|người nào|đặt tên cho|viết|sáng tác|là người|của bài|của tác phẩm)/gi, '').replace(/[?!.]/g, '').trim();
             return { type: 'find-author-of', query: q };
-        }
-
-        // 6. Trạng thái mạng
-        if (/(trạng thái|mạng|node|máy con|máy mẹ)/i.test(t)) {
-            return { type: 'network-info', query: t };
         }
 
         return { type: 'search', query: input.trim() };
@@ -242,69 +324,82 @@ export const AIDispatcher = (() => {
 
     async function dispatch(intent) {
         try {
+            // Lấy dữ liệu trực tiếp từ APP_DATA (Đảm bảo Offline)
+            const works = APP_DATA.WORKS_DATA || [];
+            const authors = APP_DATA.AUTHOR_DATA || [];
+            const genres = APP_DATA.THE_LOAI_DATA || [];
+
             switch (intent.type) {
                 case 'summarize-work': {
-                    const resp = await MotherNode.request({ group: 'tinh-hoa' });
-                    const work = (resp.records || []).find(w => w.title && w.title.toLowerCase().includes(intent.query.toLowerCase()));
-                    if (work) return { answer: work.desc || work.description || 'Tác phẩm này chưa có tóm tắt.', detail: `Tác phẩm: "${work.title}" của ${work.author}`, source: resp.source, meta: [work] };
-                    return { answer: `Không tìm thấy tác phẩm "${intent.query}".`, source: resp.source };
+                    const results = VDSearchEngine.search(intent.query);
+                    const topResult = results.find(r => r.group === 'tinh-hoa');
+                    if (topResult) {
+                        const work = works.find(w => w.id === topResult.id);
+                        if (work) return { answer: work.desc || 'Chưa có tóm tắt.', detail: `Tác phẩm: "${work.title}" của ${work.author}`, source: 'local-data', meta: [work] };
+                    }
+                    return { answer: `Không tìm thấy tác phẩm "${intent.query}".`, source: 'local-data' };
                 }
 
                 case 'explain-symbol': {
-                    const dict = APP_DATA.DICTIONARY_DATA;
-                    const allGroups = [
-                        ...Object.entries(dict.symbols || {}).map(([k,v]) => ({...v, keyword: k, type: 'Biểu tượng'})),
-                        ...Object.entries(dict.dienTich || {}).map(([k,v]) => ({...v, keyword: k, type: 'Điển tích'})),
-                        ...Object.entries(dict.hanViet || {}).map(([k,v]) => ({...v, keyword: k, type: 'Hán Việt'}))
-                    ];
-                    const found = allGroups.find(item => item.keyword.toLowerCase().includes(intent.query.toLowerCase()));
-                    if (found) return { answer: found.mean, detail: `[${found.type}] ${found.keyword}`, source: 'dictionary', meta: [] };
-                    return { answer: `Không tìm thấy giải nghĩa cho "${intent.query}" trong từ điển.`, source: 'dictionary' };
+                    const dict = APP_DATA.DICTIONARY_DATA || {};
+                    const allEntries = [];
+                    
+                    // Duyệt qua tất cả các nhóm từ điển
+                    for (const [key, label] of Object.entries(DICTIONARY_GROUPS)) {
+                        if (dict[key] && typeof dict[key] === 'object') {
+                            for (const [k, v] of Object.entries(dict[key])) {
+                                allEntries.push({ ...v, keyword: k, type: label });
+                            }
+                        }
+                    }
+
+                    const q = normalizeText(intent.query);
+                    const found = allEntries.find(item => normalizeText(item.keyword).includes(q));
+                    
+                    if (found) {
+                        return { answer: found.mean, detail: `[${found.type}] ${found.keyword}`, source: 'dictionary', meta: [] };
+                    }
+                    return { answer: `Không tìm thấy giải nghĩa cho "${intent.query}".`, source: 'dictionary' };
                 }
 
                 case 'recommend': {
-                    const resp = await MotherNode.request({ group: 'tinh-hoa' });
-                    let works = resp.records || [];
-                    const q = intent.query.toLowerCase();
+                    let filteredWorks = [...works];
+                    const q = normalizeText(intent.query);
+                    
                     if (q) {
-                        works = works.filter(w => (w.title && w.title.toLowerCase().includes(q)) || (w.the_loai && w.the_loai.join(' ').toLowerCase().includes(q)) || (w.loai_hinh && w.loai_hinh.toLowerCase().includes(q)));
+                        filteredWorks = filteredWorks.filter(w => {
+                            const title = normalizeText(w.title || '');
+                            const genre = Array.isArray(w.the_loai) ? normalizeText(w.the_loai.join(' ')) : '';
+                            const type = normalizeText(typeof w.loai_hinh === 'string' ? w.loai_hinh : '');
+                            return title.includes(q) || genre.includes(q) || type.includes(q);
+                        });
                     }
-                    works.sort(() => 0.5 - Math.random());
-                    const selected = works.slice(0, 4);
-                    if (selected.length > 0) return { answer: `Gợi ý cho bạn: ${selected.map(w => w.title).join(' · ')}`, detail: 'Dựa trên sở thích của bạn', source: resp.source, meta: selected };
-                    return { answer: 'Rất tiếc, chưa có tác phẩm nào phù hợp.', source: resp.source };
+                    
+                    // Thuật toán xáo trộn Fisher-Yates chuẩn
+                    for (let i = filteredWorks.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [filteredWorks[i], filteredWorks[j]] = [filteredWorks[j], filteredWorks[i]];
+                    }
+                    
+                    const selected = filteredWorks.slice(0, 4);
+                    if (selected.length > 0) return { answer: `Gợi ý cho bạn: ${selected.map(w => w.title).join(' · ')}`, detail: 'Dựa trên sở thích của bạn', source: 'local-data', meta: selected };
+                    return { answer: 'Rất tiếc, chưa có tác phẩm nào phù hợp.', source: 'local-data' };
                 }
 
                 case 'find-author-of': {
-                    // Dùng VDSearchEngine để tìm kiếm mờ (Fuzzy Search) thay vì tìm chính xác tuyệt đối
                     const results = VDSearchEngine.search(intent.query);
                     const topResult = results.find(r => r.group === 'tinh-hoa');
-                    
                     if (topResult) {
-                        const work = APP_DATA.WORKS_DATA.find(w => w.id === topResult.id);
-                        if (work) {
-                            return { 
-                                answer: `Tác giả là: ${work.author || 'Không rõ'}`, 
-                                detail: `Tác phẩm: "${work.title}"`, 
-                                source: 'search-engine', 
-                                meta: [work] 
-                            };
-                        }
+                        const work = works.find(w => w.id === topResult.id);
+                        if (work) return { answer: `Tác giả là: ${work.author || 'Không rõ'}`, detail: `Tác phẩm: "${work.title}"`, source: 'search-engine', meta: [work] };
                     }
                     return { answer: `Không tìm thấy tác phẩm nào khớp với "${intent.query}".`, source: 'search-engine' };
                 }
 
                 case 'define-genre': {
-                    const resp = await MotherNode.request({ group: 'the-loai' });
-                    const genre = (resp.records || []).find(g => (g.name || '').toLowerCase().includes(intent.query.toLowerCase()));
-                    if (genre) return { answer: genre.description || 'Không có mô tả.', detail: `Thể loại: ${genre.name}`, source: resp.source, meta: [genre] };
-                    return { answer: 'Thể loại không có trong từ điển.', source: resp.source };
-                }
-
-                case 'network-info': {
-                    const health = await MotherNode.healthCheck();
-                    const online = health.filter(n => n.status === 'online').length;
-                    return { answer: `${online}/${health.length} phân khu đang online`, detail: health.map(n => `${n.label}: ${n.status}`).join(' · '), source: 'mother-00', meta: health };
+                    const genre = genres.find(g => normalizeText(g.name || '').includes(normalizeText(intent.query)));
+                    if (genre) return { answer: genre.description || 'Không có mô tả.', detail: `Thể loại: ${genre.name}`, source: 'local-data', meta: [genre] };
+                    return { answer: 'Thể loại không có trong từ điển.', source: 'local-data' };
                 }
 
                 case 'empty': return { answer: 'Vui lòng nhập câu hỏi.', source: 'system' };
@@ -315,7 +410,7 @@ export const AIDispatcher = (() => {
                     if (results.length > 0) {
                         const topResults = results.slice(0, 5).map(r => {
                             const record = { id: r.id, _group: r.group };
-                            const idx = APP_DATA.WORKS_DATA.find(w => w.id === r.id) || APP_DATA.AUTHOR_DATA.find(a => a.id === r.id) || APP_DATA.THEORY_DATA.find(t => t.id === r.id);
+                            const idx = works.find(w => w.id === r.id) || authors.find(a => a.id === r.id) || APP_DATA.THEORY_DATA.find(t => t.id === r.id);
                             if (idx) record.title = idx.title || idx.name;
                             return record;
                         });
@@ -325,26 +420,13 @@ export const AIDispatcher = (() => {
                 }
             }
         } catch (err) {
-            return { answer: `Lỗi kết nối tri thức: ${err.message}`, source: 'error', detail: 'Có thể mạng lưới đang bận.' };
+            return { answer: `Đã xảy ra lỗi khi xử lý câu hỏi.`, source: 'error' };
         }
-    }
-
-    function extractTitle(t) {
-        const m = t.match(/["“]([^"”]+)["”]/);
-        if (m) return m[1];
-        // Cắt bỏ các từ để hỏi thông dụng để lấy lại từ khóa chính
-        return t.replace(/^(của bài|của tác phẩm|của|viết về|bài)\s+/gi, '').trim();
-    }
-    function extractGenre(t) {
-        return t.replace(/thể loại|là gì|như thế nào|định nghĩa|khái niệm/gi, '').trim();
     }
 
     return { parseIntent, dispatch };
 })();
 
-// ==========================================================
-// PHẦN 9: EXPORT DEFAULT
-// ==========================================================
 export const VAN_DAO_AI = Object.freeze({
     analyzeWork, calculateFortune, getFortuneInfo, synthesizeDynamicFortune,
     clearCache() { resultCache.clear(); }, getCacheSize() { return resultCache.size; }
