@@ -1,7 +1,7 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - LAYOUTS CSS (css/layouts.css)
- * Đã sửa: Ép buộc khoảng cách Header và nội dung chuẩn xác.
+ * Đã sửa: Banner cập nhật thanh thoát, Navbar & Splash chuẩn.
  * ==========================================================
  */
 
@@ -43,16 +43,8 @@
 @keyframes silkSweepIn { 0% { transform: translateX(0) skewX(-15deg) translateZ(0); } 100% { transform: translateX(200%) skewX(-15deg) translateZ(0); } }
 @keyframes silkOverlayFadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
 
-/* 3. NAVBAR & CONTAINER (ÉP BUỘC KHOẢNG CÁCH CHUẨN) */
-.container { 
-    position: relative; 
-    z-index: 10; 
-    max-width: 1100px; 
-    margin: 0 auto; 
-    /* Ép buộc padding top để nội dung không bị lọt lên header, nhưng cũng không bị hụt xuống quá sâu */
-    padding: calc(85px + env(safe-area-inset-top)) 20px 40px 20px !important; 
-}
-
+/* 3. NAVBAR & CONTAINER */
+.container { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: calc(85px + env(safe-area-inset-top)) 20px 40px 20px !important; }
 .navbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-pill); box-shadow: var(--shadow); position: fixed; top: calc(15px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 1050px; z-index: 999; }
 .nav-brand { font-family: var(--font-body) !important; font-size: 1.6rem; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; line-height: 1; cursor: pointer; color: var(--text-main); margin-right: auto; }
 .nav-links { display: flex; align-items: center; gap: 24px; }
@@ -69,16 +61,55 @@ dialog[open] { animation: dialogFadeIn 0.3s ease forwards; }
 #settings-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90vw; max-width: 450px; max-height: 90vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); box-shadow: 0 20px 50px rgba(0,0,0,0.2); padding: 30px; scrollbar-width: thin; }
 @keyframes dialogFadeIn { from { opacity: 0; transform: translate(-50%, -45%) scale(0.98); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 
-/* 5. UPDATE BANNER */
-#update-banner { font-family: var(--font-body); }
+/* 5. UPDATE BANNER (ĐÃ LÀM ĐẸP LẠI THEO TONE BẠCH NGỌC) */
+#update-banner {
+    position: fixed; 
+    bottom: 20px; 
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: linear-gradient(135deg, #1a3a2a, #0f2a1f); 
+    color: #d4c4a8; 
+    padding: 14px 20px; 
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    border: 1px solid rgba(139,184,168,0.3); 
+    font-family: var(--font-body);
+    font-size: 14px; 
+    z-index: 999999;
+    display: flex; 
+    align-items: center; 
+    gap: 12px;
+    transition: transform 0.35s cubic-bezier(.2,.8,.2,1), opacity 0.35s;
+    opacity: 0; 
+    pointer-events: none; 
+    max-width: 92vw;
+}
+#update-btn {
+    background: #8bb8a8; 
+    color: #0a1a12; 
+    border: none;
+    padding: 8px 14px; 
+    border-radius: 6px; 
+    cursor: pointer;
+    font-weight: 700; 
+    font-size: 13px;
+    font-family: var(--font-body);
+}
 #update-btn:hover { background: #a3d0c0 !important; }
+#dismiss-btn {
+    background: transparent; 
+    color: #8bb8a8; 
+    border: none;
+    padding: 8px; 
+    cursor: pointer; 
+    font-size: 18px; 
+    line-height: 1;
+}
 #dismiss-btn:hover { background: rgba(139, 184, 168, 0.15); border-radius: 50%; }
 
 /* 6. RESPONSIVE (MOBILE) */
 @media (max-width: 850px) {
-    .container { 
-        padding: calc(70px + env(safe-area-inset-top)) 16px 40px 16px !important; 
-    }
+    .container { padding: calc(70px + env(safe-area-inset-top)) 16px 40px 16px !important; }
     .navbar { padding: 10px 16px; top: calc(10px + env(safe-area-inset-top)); border-radius: var(--radius-pill); }
     .nav-brand { font-size: 1.3rem; letter-spacing: 3px; }
     .mobile-menu-btn { display: block; }
