@@ -1,7 +1,9 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
- * Đã cập nhật: Hàm findSymbols dùng Regex ranh giới từ.
+ * Chức năng: Hiển thị Văn Hiến, Đại Bách Khoa, Accordion,
+ * Quản lý nội dung, Symbol Highlighter, Tác phẩm liên quan.
+ * Đã sửa: Logic gợi ý tác phẩm chặt chẽ, tách link tác giả.
  * ==========================================================
  */
 
@@ -134,7 +136,7 @@ export function renderHeritage() {
 }
 
 /* =====================================================================
-   MODULE 5: CONTENT MANAGER & BÁCH KHOA
+   MODULE 5: CONTENT MANAGER (BỘ NHỚ ĐỆM NỘI DUNG)
    ===================================================================== */
 export const ContentManager = (() => {
     const MAX_CACHE_BYTES = 5 * 1024 * 1024;
@@ -294,7 +296,7 @@ export function bindEncyclopediaEvents() {
 }
 
 /* =====================================================================
-   MODULE 5.2: RENDER ENCYCLOPEDIA
+   MODULE 5.2: RENDER ENCYCLOPEDIA (BÁCH KHOA)
    ===================================================================== */
 export function romanToInt(roman) {
     if (roman === '0') return 0;
@@ -525,40 +527,101 @@ export function highlightSymbolsInContent(container) {
     });
 }
 
+// =====================================================================
+// HÀM TÌM TÁC PHẨM LIÊN QUAN (ĐÃ SIẾT CHẶT LOGIC)
+// =====================================================================
 export function findRelatedWorks(current, limit = 5) {
     if (!current) return [];
-    const curSyms = new Set(findSymbols(current.content || '').map(s => s.keyword));
+    
     return APP_DATA.WORKS_DATA
         .filter(w => w.id !== current.id)
         .map(w => {
             let score = 0;
-            if (w.author === current.author) score += 10;
-            const sharedG = (w.the_loai || []).filter(g => (current.the_loai || []).includes(g)).length;
-            score += sharedG * 3;
-            if (curSyms.size) {
-                const sharedS = findSymbols(w.content || '').filter(s => curSyms.has(s.keyword)).length;
-                score += sharedS * 2;
+            let reason = "";
+
+            // 1. Ưu tiên tuyệt đối: Cùng tác giả
+            if (w.author && current.author && w.author.trim() === current.author.trim()) {
+                score += 50;
+                reason = "Cùng tác giả";
             }
-            return { w, score };
+
+            // 2. Cùng thể loại (Phải trùng khớp ít nhất 1 thể loại)
+            const sharedGenres = (w.the_loai || []).filter(g => (current.the_loai || []).includes(g));
+            if (sharedGenres.length > 0) {
+                score += sharedGenres.length * 10;
+                if (!reason) reason = `Cùng thể loại: ${sharedGenres[0]}`;
+            }
+
+            // 3. Cùng chủ đề (chỉ xét nếu đã có điểm từ tác giả/thể loại, tránh gợi ý rác)
+            if (score > 0) {
+                const curSyms = new Set(findSymbols(current.content || '').map(s => s.keyword));
+                if (curSyms.size > 0) {
+                    const sharedSyms = findSymbols(w.content || '').filter(s => curSyms.has(s.keyword)).length;
+                    if (sharedSyms > 0) {
+                        score += sharedSyms * 2;
+                        if (!reason) reason = "Cùng chủ đề";
+                    }
+                }
+            }
+
+            return { w, score, reason };
         })
-        .filter(x => x.score > 0)
+        .filter(x => x.score > 0) // Chỉ lấy những bài thực sự có điểm
         .sort((a, b) => b.score - a.score)
         .slice(0, limit)
-        .map(x => x.w);
+        .map(x => ({ ...x.w, _reason: x.reason })); // Đính kèm lý do
 }
 
+// =====================================================================
+// HÀM HIỂN THỊ TÁC PHẨM LIÊN QUAN (CÓ LINK TÁC GIẢ RIÊNG)
+// =====================================================================
 export function appendRelatedSection(container, item, group) {
     if (group !== 'tinh-hoa') return;
     if (container.querySelector('.related-section')) return; 
+    
     const related = findRelatedWorks(item, 5);
     if (!related.length) return;
 
     const section = document.createElement('div');
     section.className = 'related-section';
+    
     section.innerHTML = `
         <div class="related-title">Tác phẩm liên quan</div>
         <div class="related-grid">
-            ${related.map(w => `<button type="button" class="related-card" data-route-encyclopedia="true" data-route-id="${escapeHTML(w.id)}" data-route-group="tinh-hoa" data-route-title="${escapeHTML(w.title)}" data-route-author="${escapeHTML(w.author || '')}">${escapeHTML(w.title)}<small>${escapeHTML(w.author || '')}</small></button>`).join('')}
+            ${related.map(w => `
+                <div class="related-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 12px 14px;">
+                    
+                    <!-- VÙNG 1: BẤM VÀO ĐỂ ĐỌC BÀI (Chiếm 80% diện tích) -->
+                    <div 
+                        data-route-encyclopedia="true" 
+                        data-route-id="${escapeHTML(w.id)}" 
+                        data-route-group="tinh-hoa" 
+                        data-route-title="${escapeHTML(w.title)}" 
+                        data-route-author="${escapeHTML(w.author || '')}"
+                        style="flex: 1; cursor: pointer;"
+                    >
+                        <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px; line-height: 1.3;">
+                            ${escapeHTML(w.title)}
+                        </div>
+                    </div>
+
+                    <!-- VÙNG 2: BẤM VÀO TÊN TÁC GIẢ ĐỂ MỞ HỒ SƠ (Nhỏ hơn, ở dưới cùng) -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px dashed rgba(139,184,168,0.2); padding-top: 6px;">
+                        <span 
+                            data-route-encyclopedia="true" 
+                            data-route-group="ky-tai" 
+                            data-route-title="${escapeHTML(w.author || '')}"
+                            style="font-size: 0.75rem; color: var(--accent-text); cursor: pointer; text-decoration: underline;"
+                            title="Xem hồ sơ tác giả"
+                        >
+                            ${escapeHTML(w.author || 'Vô danh')}
+                        </span>
+                        <span style="font-size: 0.65rem; color: var(--text-muted); font-style: italic;">
+                            ${escapeHTML(w._reason || '')}
+                        </span>
+                    </div>
+                </div>
+            `).join('')}
         </div>
     `;
     container.appendChild(section);
