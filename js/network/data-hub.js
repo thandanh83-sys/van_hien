@@ -24,25 +24,18 @@ import { normalizeRouteText } from '../utils.js';
 
 // =====================================================================
 // I. CÁC MODULE NỘI BỘ (PRIVATE MODULES)
-// (Sẵn sàng tách ra file riêng nếu dự án phình to)
 // =====================================================================
 
 /**
  * 1. ID ROUTER: Chịu trách nhiệm tìm kiếm và định tuyến ID.
  */
 const IDRouter = {
-    /**
-     * Tìm thông tin thực thể (Metadata) từ ID.
-     */
     getMetadata(id) {
         if (!id) return null;
         const record = STATE.GLOBAL_INDEX.get(id);
         return record ? { id: record.id, group: record.group, data: record.data } : null;
     },
 
-    /**
-     * Tìm ID từ một chuỗi (Tên tác phẩm, tác giả).
-     */
     resolveIdFromQuery(query) {
         if (!query) return null;
         
@@ -66,13 +59,10 @@ const IDRouter = {
         return null;
     },
 
-    /**
-     * Xác định đường dẫn file JSON dựa vào group.
-     */
     getDetailUrl(id, group) {
         if (group === 'tinh-hoa') return `./data/tac-pham/${encodeURIComponent(id)}.json`;
         if (group === 'ky-tai') return `./data/tac-gia/${encodeURIComponent(id)}.json`;
-        return null; // Các group khác không cần fetch file
+        return null;
     }
 };
 
@@ -80,13 +70,9 @@ const IDRouter = {
  * 2. SOURCE MANAGER: Chịu trách nhiệm lấy dữ liệu (Cache, Fetch, Fallback).
  */
 const SourceManager = {
-    // RAM Cache
     metadataCache: new Map(),
     detailCache: new Map(),
 
-    /**
-     * Lấy Metadata (Ưu tiên RAM Cache -> Global Index)
-     */
     getMetadata(id) {
         if (this.metadataCache.has(id)) return this.metadataCache.get(id);
         const meta = IDRouter.getMetadata(id);
@@ -94,25 +80,19 @@ const SourceManager = {
         return meta;
     },
 
-    /**
-     * Lấy Detail (Ưu tiên RAM Cache -> Fetch -> Fallback)
-     */
     async getDetail(id) {
         const meta = this.getMetadata(id);
         if (!meta) return { content: 'Không tìm thấy dữ liệu.' };
 
-        // 1. Kiểm tra RAM Cache
         if (this.detailCache.has(id)) return this.detailCache.get(id);
 
-        // 2. Nếu là Lý thuyết/Thể loại, trả về luôn metadata
         if (meta.group === 'triet-thuyet' || meta.group === 'the-loai') {
             this.detailCache.set(id, meta.data);
             return meta.data;
         }
 
-        // 3. Fetch từ GitHub (Service Worker sẽ lo phần Cache)
         const url = IDRouter.getDetailUrl(id, meta.group);
-        if (!url) return meta.data; // Fallback nếu không có URL
+        if (!url) return meta.data;
 
         try {
             const res = await fetch(url);
@@ -122,7 +102,6 @@ const SourceManager = {
             return detail;
         } catch (err) {
             console.warn(`[SOURCE] Offline: Không tải được "${id}". Dùng tạm Metadata.`);
-            // 4. Fallback về Metadata (Offline)
             const fallback = {
                 ...meta.data,
                 content: meta.data.desc || meta.data.description || 'Nội dung đang được cập nhật (Offline).'
@@ -132,13 +111,9 @@ const SourceManager = {
         }
     },
 
-    /**
-     * Lấy dữ liệu theo trường yêu cầu (Field Selection).
-     */
     async getEntity(id, fields = []) {
         const meta = this.getMetadata(id);
         if (!meta) return null;
-
         if (fields.length === 0) return meta.data;
 
         const result = {};
@@ -174,7 +149,6 @@ const GraphEngine = {
         const edges = [];
         const item = meta.data;
 
-        // Xử lý Tác phẩm
         if (meta.group === 'tinh-hoa') {
             const authorName = (item.author || '').trim();
             if (authorName) {
@@ -191,7 +165,6 @@ const GraphEngine = {
                 edges.push({ from: `work:${id}`, relation: 'has_genre', to: `genre:${normalizeRouteText(g)}`, source: 'local-data', confidence: 1.0 });
             });
         }
-        // Xử lý Tác giả
         else if (meta.group === 'ky-tai') {
             const authorName = item.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
             const works = APP_DATA.WORKS_DATA.filter(w => w.author && w.author.toLowerCase().trim() === authorName.toLowerCase());
@@ -239,7 +212,7 @@ const GraphEngine = {
 };
 
 /**
- * 4. VALIDATOR: Chịu trách nhiệm kiểm tra tính toàn vẹn cơ bản.
+ * 4. VALIDATOR: Kiểm tra tính toàn vẹn cơ bản.
  */
 const Validator = {
     isValidId(id) {
@@ -250,17 +223,13 @@ const Validator = {
     }
 };
 
-
 // =====================================================================
 // II. FACADE CÔNG KHAI (PUBLIC API)
-// Đây là cửa ngõ duy nhất mà AI và UI được phép gọi.
 // =====================================================================
 
 export const DataHub = {
-    // --- 1. ID Routing (Định tuyến) ---
     resolveIdFromQuery: (query) => IDRouter.resolveIdFromQuery(query),
 
-    // --- 2. Truy xuất Metadata & Detail (Lấy dữ liệu) ---
     getMetadata: (id) => {
         if (!Validator.isValidId(id)) return null;
         return SourceManager.getMetadata(id);
@@ -271,13 +240,11 @@ export const DataHub = {
         return await SourceManager.getDetail(id);
     },
 
-    // --- 3. Truy xuất theo trường (Field Selection) ---
     getEntity: async (id, fields = []) => {
         if (!Validator.isValidId(id)) return null;
         return await SourceManager.getEntity(id, fields);
     },
 
-    // --- 4. Mạng lưới Tri thức (Knowledge Graph) ---
     getStructuredGraph: (id) => {
         if (!Validator.isValidId(id)) return [];
         return GraphEngine.getStructuredGraph(id);
@@ -288,7 +255,6 @@ export const DataHub = {
         return GraphEngine.getGraph(id);
     },
 
-    // --- 5. Tiện ích khác ---
     getWorksByGenre: (genreName) => {
         return APP_DATA.WORKS_DATA.filter(w => {
             const wGenres = Array.isArray(w.the_loai) ? w.the_loai : (w.the_loai ? [w.the_loai] : []);
