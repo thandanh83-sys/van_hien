@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - HISTORY AGENT (js/ai/agents/history.js)
  * Vị trí: js/ai/agents/history.js
- * Version: 1.0.0 (Unified Intelligence Network)
+ * Version: 1.1.0 (Unified Intelligence Network)
  * ==========================================================
  * CHỨC NĂNG:
  * - Truy vấn bối cảnh lịch sử, thời đại văn học.
@@ -45,6 +45,7 @@ export const HistoryAgent = {
         const works = APP_DATA.WORKS_DATA.filter(w => {
             if (!w.era) return false;
             const wEra = normalizeRouteText(w.era);
+            // Khớp chính xác hoặc chứa từ khóa (VD: "Lê" khớp với "Nhà Lê sơ")
             return wEra.includes(normalizedQuery) || normalizedQuery.includes(wEra);
         });
 
@@ -55,10 +56,10 @@ export const HistoryAgent = {
             };
         }
 
-        // Sắp xếp theo tên
+        // Sắp xếp theo tên A-Z
         works.sort((a, b) => a.title.localeCompare(b.title));
         
-        // Lấy tối đa 10 tác phẩm để hiển thị
+        // Lấy tối đa 10 tác phẩm để hiển thị lên UI
         const topWorks = works.slice(0, 10);
         const titles = topWorks.map(w => w.title).join(' · ');
 
@@ -132,8 +133,17 @@ export const HistoryAgent = {
      * @returns {Promise<Object>}
      */
     async getHistoricalContext(idOrName) {
-        // Dùng resolveAndFetch để lấy dữ liệu (DataHub sẽ tự tìm file)
-        const resolved = await resolveAndFetch(idOrName);
+        if (!idOrName) {
+            return { answer: 'Vui lòng cung cấp tên tác phẩm hoặc tác giả.', source: 'history' };
+        }
+
+        // [SỬA LỖI] Dùng DataHub để dịch Tên thành ID (VD: "Truyện Kiều" -> "truyen-kieu")
+        // Điều này giải quyết lỗi "Không tìm thấy ID Truyện Kiều nào"
+        const target = DataHub.resolveIdFromQuery(idOrName);
+        let idToFetch = target ? target.id : idOrName;
+
+        // Dùng ID (đã được dịch) để lấy dữ liệu
+        const resolved = await resolveAndFetch(idToFetch);
         
         if (!resolved) {
             return { 
@@ -163,14 +173,14 @@ export const HistoryAgent = {
             }
         }
 
-        // Tìm các tác phẩm cùng thời kỳ
+        // Tìm các tác phẩm cùng thời kỳ (Liên kết ID - ID)
         let contemporaryWorks = [];
         if (era && era !== 'Không rõ' && era !== 'Chưa xác định') {
             contemporaryWorks = APP_DATA.WORKS_DATA.filter(w => 
                 w.id !== record.id && 
                 w.era && 
                 normalizeRouteText(w.era).includes(normalizeRouteText(era))
-            ).slice(0, 5);
+            ).slice(0, 5); // Lấy tối đa 5 tác phẩm cùng thời để gợi ý
         }
 
         const title = record.title || record.name;
