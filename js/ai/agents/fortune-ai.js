@@ -1,78 +1,20 @@
 /**
  * ==========================================================
- * VĂN ĐẠO AI - FORTUNE AGENT (js/ai/agents/fortune.js)
- * Vị trí: js/ai/agents/fortune.js
- * Version: 1.2.0 (Multi-Agent Specialist)
- * ==========================================================
- * CHỨC NĂNG:
- * - Quản lý 6 bậc vận khí (Đại Cát -> Đại Hung).
- * - Rút quẻ ngẫu nhiên có trọng số (Weighted Random).
- * - Tổng hợp câu dẫn (Bridge), Lời chiêm nghiệm, Lời khuyên.
- * - Kết nối với kết quả Phân tích (Analysis) để làm điểm tựa.
+ * VĂN ĐẠO AI - FORTUNE AGENT (js/ai/agents/fortune-ai.js)
+ * Chức năng: Quản lý 6 bậc vận khí và tổng hợp Bói Thơ
  * ==========================================================
  */
 
 import { APP_DATA } from '../../config.js';
 import { escapeHTML } from '../../utils.js';
+import { FORTUNE_LEVELS, FORTUNE_MAP } from '../core.js';
 
 // ==========================================================
-// 1. KHAI BÁO 6 BẬC VẬN KHÍ (Tĩnh)
-// ==========================================================
-const FORTUNE_LEVELS = [
-    { 
-        key: 'dai-cat', 
-        weight: 10, 
-        name: 'Đại cát', 
-        color: '#b89552', 
-        advice: 'Chủ động nắm bắt cơ hội, lấy lòng nhân hậu và sự khiêm nhường làm gốc. Tránh kiêu ngạo, tự mãn hoặc xem thuận lợi nhất thời là điều hiển nhiên.' 
-    },
-    { 
-        key: 'trung-cat', 
-        weight: 18, 
-        name: 'Trung cát', 
-        color: '#8eaa91', 
-        advice: 'Kiên trì, làm việc có kế hoạch và giữ chữ tín. Tránh nóng vội, chủ quan hoặc bỏ dở việc đang làm.' 
-    },
-    { 
-        key: 'tieu-cat', 
-        weight: 22, 
-        name: 'Tiểu cát', 
-        color: '#9baf85', 
-        advice: 'Trân trọng điều bình dị, chăm chút việc nhỏ và giữ tâm thế biết ơn. Tránh xem nhẹ những điều nhỏ bé.' 
-    },
-    { 
-        key: 'binh-hoa', 
-        weight: 24, 
-        name: 'Bình hòa', 
-        color: '#778c85', 
-        advice: 'Giữ sự điều độ, suy xét thấu đáo và làm tốt việc trước mắt. Tránh cố cưỡng cầu kết quả.' 
-    },
-    { 
-        key: 'tieu-hung', 
-        weight: 16, 
-        name: 'Tiểu hung', 
-        color: '#ad876d', 
-        advice: 'Kiểm tra lại kế hoạch, lắng nghe ý kiến đáng tin cậy. Tránh quyết định bốc đồng, hấp tấp.' 
-    },
-    { 
-        key: 'dai-hung', 
-        weight: 10, 
-        name: 'Đại hung', 
-        color: '#9c7777', 
-        advice: 'Thận trọng, rà soát những điều quan trọng và ưu tiên sự an toàn. Tránh liều lĩnh, cố chấp khi chưa đủ thông tin.' 
-    }
-];
-
-// Tạo Map tra cứu nhanh (O(1))
-const FORTUNE_MAP = Object.fromEntries(FORTUNE_LEVELS.map(item => [item.key, item]));
-
-// ==========================================================
-// 2. CÁC HÀM XỬ LÝ VẬN KHÍ
+// 1. HÀM TÍNH TOÁN VẬN KHÍ
 // ==========================================================
 
 /**
  * Rút ngẫu nhiên 1 quẻ dựa trên trọng số (Weighted Random)
- * @returns {string} Mã quẻ (VD: 'dai-cat', 'binh-hoa')
  */
 export function calculateFortune() {
     const totalWeight = FORTUNE_LEVELS.reduce((sum, item) => sum + item.weight, 0);
@@ -87,15 +29,10 @@ export function calculateFortune() {
 
 /**
  * Lấy thông tin chi tiết của một quẻ (ưu tiên dữ liệu từ JSON nếu có)
- * @param {string} key - Mã quẻ
- * @returns {Object} Thông tin quẻ (tên, màu sắc, lời khuyên tĩnh)
  */
 export function getFortuneInfo(key = 'binh-hoa') {
-    // Chuẩn hóa key: Nếu key không hợp lệ, tự động trả về Bình Hòa
     const validKey = FORTUNE_MAP[key] ? key : 'binh-hoa';
     const fallback = FORTUNE_MAP[validKey];
-    
-    // Lấy dữ liệu cấu hình từ file data-van-khi.json (nếu có để ghi đè)
     const saved = APP_DATA.FORTUNE_CONFIG?.[validKey] || {};
     
     return { 
@@ -108,12 +45,9 @@ export function getFortuneInfo(key = 'binh-hoa') {
 }
 
 // ==========================================================
-// 3. CÁC HÀM TẠO VĂN BẢN ĐỘNG (Linh hoạt theo tác phẩm)
+// 2. HÀM TỔNG HỢP BÓI THƠ (SYNTHESIS)
 // ==========================================================
 
-/**
- * Tạo câu dẫn (Bridge) kết nối Vận Khí với Tác Phẩm
- */
 function generateBridgeText(work, fortune, mainTheme) {
     const title = work.title || 'trang sách';
     const author = work.author || 'tác giả';
@@ -133,9 +67,6 @@ function generateBridgeText(work, fortune, mainTheme) {
     return bridgeText;
 }
 
-/**
- * Tạo Lời Khuyên động (Dynamic Advice) dựa trên Vận Khí + Chủ Đề
- */
 function generateDynamicAdvice(work, fortune, mainTheme, mainSymbol) {
     let advice = "";
     
@@ -153,40 +84,26 @@ function generateDynamicAdvice(work, fortune, mainTheme, mainSymbol) {
     return advice;
 }
 
-// ==========================================================
-// 4. HÀM TỔNG HỢP CHÍNH (SYNTHESIS)
-// ==========================================================
-
-/**
- * Tổng hợp Bói Thơ: Lấy quẻ + Tác phẩm + Phân tích -> Trả về dữ liệu hoàn chỉnh
- * @param {Object} work - Tác phẩm (từ APP_DATA.WORKS_DATA)
- * @param {String} fortuneKey - Mã quẻ (dai-cat, binh-hoa...)
- * @param {Object} analysisResult - Kết quả từ AnalysisAgent
- * @returns {Object} Dữ liệu đã được format để UI hiển thị
- */
 export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa', analysisResult = null) {
     const fortune = getFortuneInfo(fortuneKey);
     
-    // Trích xuất dữ liệu từ AnalysisAgent (nếu có)
     const mainTheme = (analysisResult && analysisResult.themes && analysisResult.themes.length > 0) 
-        ? analysisResult.themes[0] 
-        : 'nhân sinh';
+        ? analysisResult.themes[0] : 'nhân sinh';
         
     const mainSymbol = (analysisResult && analysisResult.evidence && analysisResult.evidence.symbols && analysisResult.evidence.symbols.length > 0) 
-        ? analysisResult.evidence.symbols[0].keyword 
-        : null;
+        ? analysisResult.evidence.symbols[0].keyword : null;
 
-    // 1. Tạo câu dẫn (Bridge)
+    // 1. Tạo câu dẫn
     const bridgeText = generateBridgeText(work, fortune, mainTheme);
 
-    // 2. Tạo lời chiêm nghiệm (Lấy ngẫu nhiên từ JSON)
+    // 2. Tạo lời chiêm nghiệm
     const commentaryData = APP_DATA.COMMENTARY_DATA?.[fortune.key] || {};
     const commentaries = Array.isArray(commentaryData.commentaries) ? commentaryData.commentaries : [];
     const fortuneReflection = commentaries.length > 0 
         ? commentaries[Math.floor(Math.random() * commentaries.length)] 
         : `Lời chiêm nghiệm cho vận khí ${fortune.name}: Hãy giữ tâm thế bình thản trước mọi biến động.`;
 
-    // 3. Xử lý Lời khuyên (Tách Nên / Tránh)
+    // 3. Tạo lời khuyên
     const dynamicAdvice = generateDynamicAdvice(work, fortune, mainTheme, mainSymbol);
     
     let nenText = "", tranhText = "";
@@ -209,7 +126,6 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa', ana
         </div>
     `;
 
-    // 4. Trả về object hoàn chỉnh
     return {
         fortuneInfo: fortune,
         bridgeText: escapeHTML(bridgeText),
@@ -222,7 +138,7 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa', ana
 }
 
 // ==========================================================
-// 5. EXPORT AGENT OBJECT (Dành cho Master AI)
+// 3. EXPORT AGENT OBJECT
 // ==========================================================
 export const FortuneAgent = {
     calculateFortune,
