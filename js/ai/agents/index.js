@@ -2,17 +2,17 @@
  * ==========================================================
  * VĂN ĐẠO AI - AGENTS INDEX (js/ai/agents/index.js)
  * Vị trí: js/ai/agents/index.js
- * Version: 5.0.0 (Auto-Registry Architecture)
+ * Version: 6.0.0 (Full Automation Architecture)
  * ==========================================================
  * CHỨC NĂNG:
  * - Tự động xây dựng Sổ đăng ký (Registry) và Bản đồ (Map).
- * - Chỉ cần khai báo Agent trong mảng AGENT_CONFIGS.
  * - Tự động gom nhóm intentPatterns cho InputAI.
+ * - Chỉ cần khai báo Agent trong mảng AGENT_CONFIGS.
  * ==========================================================
  */
 
 // =====================================================================
-// 1. IMPORT CÁC AGENT
+// 1. IMPORT CÁC AGENT (Dựa trên cấu trúc thư mục thực tế)
 // =====================================================================
 import { LiteratureAgent } from './literature.js';
 import { PoeticsAgent } from './poetics.js';
@@ -27,7 +27,7 @@ import { PraiserAgent } from './praiser.js';
 import { CriticAgent } from './critic.js';
 
 // =====================================================================
-// 2. CẤU HÌNH AGENT (Chỉ cần sửa ở đây khi thêm/bớt)
+// 2. CẤU HÌNH AGENT (Nơi duy nhất cần sửa khi thêm/bớt AI)
 // =====================================================================
 const AGENT_CONFIGS = [
     {
@@ -214,10 +214,10 @@ export const AgentRegistry = { agents: {} };
 export const DynamicIntentPatterns = {}; // Tự động gom intent cho InputAI
 
 for (const config of AGENT_CONFIGS) {
-    // 1. Xây dựng AgentMap
+    // Xây dựng AgentMap
     AgentMap[config.key] = config.instance;
 
-    // 2. Xây dựng AgentRegistry
+    // Xây dựng AgentRegistry
     AgentRegistry.agents[config.key] = {
         id: `agent:${config.key}`,
         name: config.name,
@@ -227,7 +227,7 @@ for (const config of AGENT_CONFIGS) {
         canDelegate: config.canDelegate
     };
 
-    // 3. Gom Intent Patterns
+    // Gom Intent Patterns
     if (config.intentPatterns) {
         Object.entries(config.intentPatterns).forEach(([intent, keywords]) => {
             DynamicIntentPatterns[intent] = keywords;
