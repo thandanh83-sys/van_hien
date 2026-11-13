@@ -1,8 +1,13 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - SEARCH MODULE (js/search.js)
- * Chức năng: Cỗ máy tìm kiếm VDSearchEngine.
- * Áp dụng thuật toán Inverted Index + TF-IDF, không phân biệt dấu.
+ * Vị trí: js/search.js
+ * Version: 1.0.0
+ * ==========================================================
+ * Chức năng: 
+ * - Xây dựng Inverted Index từ GLOBAL_RECORDS.
+ * - Tìm kiếm thông minh (TF-IDF + Fuzzy Match).
+ * - Không phân biệt dấu, hỗ trợ tiếng Việt.
  * ==========================================================
  */
 
@@ -15,7 +20,7 @@ export const VDSearchEngine = (() => {
     let totalDocs = 0;
     let isIndexed = false;
 
-    // Danh sách các từ dừng (Stopwords) - Những từ quá phổ biến, không cần đưa vào Index
+    // Danh sách Stopwords (Từ dừng - Quá phổ biến, bỏ qua để tăng tốc)
     const STOPWORDS = new Set([
         "cua", "va", "la", "co", "trong", "cho", "nhung", "cac", "mot", 
         "duoc", "voi", "da", "de", "khi", "ra", "ve", "tu", "nhu", "nguoi", 
@@ -23,28 +28,26 @@ export const VDSearchEngine = (() => {
     ]);
 
     /**
-     * Hàm tách từ (Tokenizer): Làm sạch text và chia thành mảng các từ đơn
+     * Tách từ (Tokenize) và làm sạch văn bản
      */
     function tokenize(text) {
         if (!text) return [];
-        // Xóa các thẻ HTML (nếu có) và chuẩn hóa text (bỏ dấu, viết thường)
         const clean = normalizeRouteText(String(text).replace(/<[^>]*>/g, ' '));
-        // Tách theo khoảng trắng, giữ lại các từ dài hơn 1 ký tự và không nằm trong STOPWORDS
         return (clean.match(/[\p{L}\p{N}]+/gu) || []).filter(w => w.length > 1 && !STOPWORDS.has(w));
     }
 
     /**
-     * Hàm xây dựng chỉ mục (Index Builder): Chạy 1 lần khi khởi động App
+     * Xây dựng chỉ mục (Chạy 1 lần khi khởi động)
      */
     async function buildIndexAsync() {
         invertedIndex = Object.create(null);
         docLengths = Object.create(null);
         
-        // Lấy toàn bộ dữ liệu từ State
         const entries = STATE.GLOBAL_RECORDS.slice();
         totalDocs = entries.length;
-        
-        const CHUNK_SIZE = 50; // Chia lô 50 tài liệu để không chặn UI
+        if (totalDocs === 0) return;
+
+        const CHUNK_SIZE = 50; // Xử lý theo lô để không đơ UI
         
         for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
             const chunk = entries.slice(i, i + CHUNK_SIZE);
@@ -53,32 +56,36 @@ export const VDSearchEngine = (() => {
                 const item = record.data;
                 const key = record.key;
                 
-                // Gom Tên tác phẩm, Tác giả, Mô tả, Nội dung để đưa vào bộ lọc tìm kiếm
                 const titleText = item.title || item.name || '';
-                const words = tokenize([titleText, item.author, item.desc, item.description, item.content].join(' '));
+                // Nối các trường quan trọng để tìm kiếm
+                const words = tokenize([
+                    titleText, 
+                    item.author, 
+                    item.desc, 
+                    item.description, 
+                    item.content
+                ].join(' '));
                 
-                // Lưu độ dài tài liệu (dùng cho thuật toán TF-IDF)
                 docLengths[key] = Math.max(words.length, 1);
                 
-                // Đưa từng từ vào Inverted Index
                 words.forEach(w => {
                     if (!invertedIndex[w]) invertedIndex[w] = Object.create(null);
                     invertedIndex[w][key] = (invertedIndex[w][key] || 0) + 1;
                 });
             });
             
-            // Nhường luồng (Yield) để trình duyệt kịp vẽ UI, tránh bị đơ
+            // Nhường luồng cho UI
             await new Promise(r => setTimeout(r, 0));
         }
         
         isIndexed = true;
-        console.log(`[SEARCH ENGINE] Đã xây dựng xong Inverted Index cho ${totalDocs} tài liệu.`);
+        console.log(`[SEARCH] Đã xây dựng xong Inverted Index cho ${totalDocs} tài liệu.`);
     }
 
     /**
-     * Hàm Tìm kiếm chính (Search)
-     * @param {string} query - Từ khóa người dùng nhập
-     * @returns {Array} Danh sách kết quả đã sắp xếp theo điểm số
+     * Hàm Tìm kiếm chính
+     * @param {string} query - Từ khóa
+     * @returns {Array} Danh sách { key, id, group, score }
      */
     function search(query) {
         const qNorm = normalizeRouteText(query);
@@ -87,7 +94,7 @@ export const VDSearchEngine = (() => {
         
         const scores = new Map();
 
-        // BƯỚC 1: Tìm kiếm chính xác (Exact Match) dựa trên Tiêu đề và Tác giả
+        // BƯỚC 1: Exact Match & Substring Match (Ưu tiên Tiêu đề & Tác giả)
         for (const record of STATE.GLOBAL_RECORDS) {
             const item = record.data;
             const titleText = item.title || item.name || '';
@@ -96,39 +103,41 @@ export const VDSearchEngine = (() => {
             const author = normalizeRouteText(item.author);
             
             let score = 0;
-            // Ưu tiên khớp chính xác tiêu đề
+            
+            // Khớp tiêu đề
             if (title === qNorm || titleAlias === qNorm) score += 700;
             else if (title.includes(qNorm) || titleAlias.includes(qNorm)) score += 360;
             
-            // Ưu tiên khớp tên tác giả (điểm cao hơn nếu tìm ở nhóm Tác giả 'ky-tai')
-            if (author && author === qNorm) score += record.group === 'ky-tai' ? 620 : 260;
+            // Khớp tác giả
+            if (author && author === qNorm) score += (record.group === 'ky-tai' ? 620 : 260);
             else if (author && author.includes(qNorm)) score += 120;
             
-            if (score) scores.set(record.key, score);
+            if (score > 0) scores.set(record.key, score);
         }
 
-        // BƯỚC 2: Tìm kiếm mờ (Fuzzy Match) dựa trên Inverted Index và TF-IDF
+        // BƯỚC 2: Fuzzy Match (Inverted Index + TF-IDF)
         if (isIndexed && tokens.length) {
             tokens.forEach(w => {
                 const docs = invertedIndex[w];
                 if (!docs) return;
                 
                 const docCount = Object.keys(docs).length;
-                // Công thức IDF (Inverse Document Frequency): Từ nào xuất hiện ở ít tài liệu thì điểm càng cao
+                // IDF: Từ xuất hiện ở ít tài liệu thì điểm càng cao
                 const idf = Math.log((totalDocs || 1) / Math.max(docCount, 1)) + 1;
                 
                 for (const [key, count] of Object.entries(docs)) {
                     const record = STATE.GLOBAL_INDEX_BY_KEY.get(key);
                     if (!record) continue;
                     
-                    // Công thức TF (Term Frequency)
+                    // TF: Tần suất xuất hiện trong tài liệu
                     const tf = count / (docLengths[key] || 1);
                     let score = tf * idf;
                     
-                    // Nhân hệ số ưu tiên nếu từ khóa nằm trong Tiêu đề hoặc Tác giả
+                    // Boost điểm nếu từ khóa nằm trong Tiêu đề / Tác giả
                     const titleText = record.data.title || record.data.name || '';
                     const title = normalizeRouteText(titleText);
                     const author = normalizeRouteText(record.data.author);
+                    
                     if (title.includes(w)) score *= 5;
                     else if (author.includes(w)) score *= 3;
                     
@@ -137,7 +146,7 @@ export const VDSearchEngine = (() => {
             });
         }
 
-        // BƯỚC 3: Chuyển Map thành Mảng và Sắp xếp giảm dần theo điểm
+        // BƯỚC 3: Sắp xếp và trả về
         return Array.from(scores, ([key, score]) => {
             const record = STATE.GLOBAL_INDEX_BY_KEY.get(key);
             return record ? { key, id: record.id, group: record.group, score } : null;
@@ -152,8 +161,7 @@ export const VDSearchEngine = (() => {
 })();
 
 /**
- * Hàm kích hoạt chạy ngầm việc xây dựng Index (được gọi từ main.js)
- * Ngăn việc gọi hàm buildIndexAsync nhiều lần không cần thiết.
+ * Kích hoạt xây dựng Index (Ngầm)
  */
 export function triggerAsyncSearchIndex() {
     if (!VDSearchEngine.getIndexStatus()) {
