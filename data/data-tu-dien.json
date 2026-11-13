@@ -14,25 +14,10 @@
     "cúc": { "vol": "V", "sec": "5.2", "mean": "thanh tao, ẩn dật" },
     "tuyết": { "vol": "V", "sec": "5.2", "mean": "lạnh lẽo, trong trắng" },
     "sương": { "vol": "V", "sec": "5.2", "mean": "phù du, ngắn ngủi" },
-    
     "thuyền": { "vol": "V", "sec": "5.2", "mean": "hành trình, thân phận con người" },
     "bến": { "vol": "V", "sec": "5.2", "mean": "gặp gỡ, chia ly, điểm tựa" },
-    "đò": { "vol": "V", "sec": "5.2", "mean": "chuyên chở, gắn bó quê hương" },
-    "sông": { "vol": "V", "sec": "5.2", "mean": "dòng chảy thời gian, chia cách" },
-    "núi": { "vol": "V", "sec": "5.2", "mean": "vĩnh cửu, vững chãi, thử thách" },
-    "biển": { "vol": "V", "sec": "5.2", "mean": "bao la, lòng người, khát vọng" },
-    "suối": { "vol": "V", "sec": "5.2", "mean": "thanh khiết, cội nguồn" },
-    "mưa": { "vol": "V", "sec": "5.2", "mean": "buồn bã, gột rửa, tâm sự" },
-    "nắng": { "vol": "V", "sec": "5.2", "mean": "hy vọng, sức sống, kỷ niệm" },
-    "hoa": { "vol": "V", "sec": "5.2", "mean": "vẻ đẹp phù du, tuổi trẻ" },
-    "lá": { "vol": "V", "sec": "5.2", "mean": "thân phận trôi nổi, mùa màng" },
-    "chim": { "vol": "V", "sec": "5.2", "mean": "tự do, tin tức, lữ thứ" },
-    "thu": { "vol": "V", "sec": "5.2", "mean": "chiêm nghiệm, hoài niệm, tàn phai" },
-    "xuân": { "vol": "V", "sec": "5.2", "mean": "sức sống, hy vọng, khởi đầu" },
-    "hạ": { "vol": "V", "sec": "5.2", "mean": "nhiệt huyết, chia ly mùa thi" },
-    "đông": { "vol": "V", "sec": "5.2", "mean": "khắc nghiệt, tĩnh lặng, chờ đợi" }
+    "đò": { "vol": "V", "sec": "5.2", "mean": "chuyên chở, gắn bó quê hương" }
   },
-  
   "dienTich": {
     "sân lai": { "vol": "V", "sec": "5.2", "mean": "lòng hiếu thảo" },
     "ngưu lang": { "vol": "V", "sec": "5.2", "mean": "tình yêu bị ngăn cách" },
@@ -43,7 +28,6 @@
     "vu sơn": { "vol": "V", "sec": "5.2", "mean": "tình yêu, giấc mộng" },
     "tái ông": { "vol": "V", "sec": "5.2", "mean": "họa phúc khôn lường" }
   },
-  
   "hanViet": {
     "vọng": { "vol": "VIII", "sec": "8.5", "mean": "望 — trông về, ngóng đợi." },
     "khúc": { "vol": "VIII", "sec": "8.5", "mean": "曲 — khúc nhạc, đoạn nhạc." },
