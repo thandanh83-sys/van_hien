@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
  * Vị trí: js/ai/master.js
- * Version: 3.0.0 (Unified Intelligence Network Orchestrator)
+ * Version: 3.1.0 (Unified Intelligence Network Orchestrator)
  * ==========================================================
  * CHỨC NĂNG:
  * - Điều phối (Orchestrate) dựa trên Intent (type + mode).
@@ -19,7 +19,7 @@
 
 import { InputAI } from './input-ai.js';
 import { OutputAI } from './output-ai.js';
-import { AgentRegistry } from './agent-registry.js'; // [MỚI] Sổ đăng ký Agent
+import { AgentRegistry } from './agent-registry.js'; // Sổ đăng ký Agent
 
 // Import tất cả các Agent chuyên môn
 import { LiteratureAgent } from './agents/literature.js';
@@ -27,6 +27,7 @@ import { PoeticsAgent } from './agents/poetics.js';
 import { AnalysisAgent } from './agents/analysis.js';
 import { FortuneAgent } from './agents/fortune-ai.js';
 import { KnowledgeAgent } from './agents/knowledge.js';
+import { HistoryAgent } from './agents/history.js'; // [MỚI] Agent Lịch sử
 
 // =====================================================================
 // 1. BẢN ĐỒ AGENT (AGENT MAP) - Ánh xạ key từ Registry sang Object thực tế
@@ -36,7 +37,8 @@ const AGENT_MAP = {
     'poetics': PoeticsAgent,
     'analysis': AnalysisAgent,
     'fortune': FortuneAgent,
-    'knowledge': KnowledgeAgent
+    'knowledge': KnowledgeAgent,
+    'history': HistoryAgent // [MỚI]
 };
 
 // =====================================================================
@@ -63,8 +65,6 @@ async function internalDispatch(intent) {
         // -----------------------------------------------------------------
         // BƯỚC 2: GỌI HÀM TƯƠNG ỨNG CỦA AGENT
         // -----------------------------------------------------------------
-        // Sử dụng switch để gọi đúng phương thức của Agent.
-        // (Có thể dùng dynamic method call nếu đặt tên hàm thống nhất, nhưng switch an toàn hơn).
         switch (intent.type) {
             // ================= NHÓM TÁC PHẨM & TÁC GIẢ (LITERATURE) =================
             case 'summarize-work':
@@ -94,6 +94,16 @@ async function internalDispatch(intent) {
                 if (exploreRes) return exploreRes;
                 // Nếu không tìm thấy, rơi xuống case search
                 break;
+
+            // ================= NHÓM LỊCH SỬ (HISTORY) - [MỚI] =================
+            case 'find-works-by-era':
+                return await agent.findWorksByEra(intent.query);
+
+            case 'find-authors-by-era':
+                return await agent.findAuthorsByEra(intent.query);
+
+            case 'get-historical-context':
+                return await agent.getHistoricalContext(intent.query);
 
             // ================= NHÓM THI PHÁP & TỪ ĐIỂN (POETICS) =================
             case 'explain-symbol':
@@ -139,53 +149,30 @@ async function internalDispatch(intent) {
 // 3. PUBLIC API (Dành cho UI & Audit)
 // =====================================================================
 export const MasterAI = {
-    /**
-     * Phân tích câu hỏi (Dùng cho Audit hoặc Debug)
-     * @param {string} input 
-     * @returns {Object} Intent object
-     */
     parseIntent(input) {
         return InputAI.parseIntent(input);
     },
 
-    /**
-     * Thực thi một Intent (Dùng cho Audit hoặc gọi trực tiếp từ code khác)
-     * @param {Object} intent 
-     * @returns {Promise<Object>} Kết quả từ Agent
-     */
     async dispatch(intent) {
         return await internalDispatch(intent);
     },
 
-    /**
-     * [API CHÍNH] Xử lý câu hỏi từ người dùng (Dùng cho UI ask-dao.js)
-     * Tự động phân tích, hiển thị loading, gọi Agent và render kết quả.
-     * 
-     * @param {HTMLInputElement} inputElement - Ô input chứa câu hỏi
-     * @param {HTMLElement} container - Khung chứa kết quả
-     * @returns {Promise<Object>} { type: 'search' | 'answered' | 'empty' }
-     */
     async processQuery(inputElement, container) {
         const text = inputElement.value.trim();
         if (!text) return { type: 'empty' };
 
-        // 1. Phân tích ý định
         const intent = InputAI.parseIntent(text);
 
-        // [ĐIỀU KIỆN QUAN TRỌNG]
-        // Nếu Type là 'search' VÀ Mode là 'search' (Người dùng chỉ gõ từ khóa)
-        // -> Trả quyền lại cho UI để chạy hàm searchEncyclopedia bình thường
+        // Nếu chỉ là tìm kiếm thông thường, trả quyền lại cho UI
         if (intent.type === 'search' && intent.mode === 'search') {
             return { type: 'search', query: intent.query };
         }
 
-        // 2. Nếu là câu hỏi (mode = question) hoặc lệnh (mode = command)
-        // -> Hiển thị Loading và gọi Agent
+        // Hiển thị Loading và gọi Agent
         OutputAI.renderLoading(container);
-
         const result = await internalDispatch(intent);
         
-        // 3. Render kết quả ra HTML
+        // Render kết quả ra HTML
         OutputAI.render(container, result, text);
         
         return { type: 'answered' };
