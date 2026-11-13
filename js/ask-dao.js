@@ -2,13 +2,17 @@
  * ==========================================================
  * VĂN ĐẠO - HỎI ĐẠO UI CONTROLLER (js/ask-dao.js)
  * Vị trí: js/ask-dao.js
- * Version: 1.2.0 (Multi-Agent Interface)
+ * Version: 2.0.0 (Master AI & DataHub Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Lắng nghe sự kiện từ người dùng (Enter hoặc Click).
  * - Chuyển giao câu hỏi cho Master AI xử lý.
  * - Điều khiển trạng thái UI (Ẩn/Hiện thanh Filter, Phân trang)
  *   tùy thuộc vào việc Master AI trả về kết quả Tìm kiếm hay Câu trả lời.
+ * 
+ * TRIẾT LÝ:
+ * - Không xử lý dữ liệu ở đây. Mọi thứ giao phó cho MasterAI.
+ * - UI chỉ phản ứng với kết quả trả về (type: 'search' hoặc 'answered').
  * ==========================================================
  */
 
@@ -49,14 +53,16 @@ export async function handleSmartSearch(options) {
 
         // ĐIỀU KHIỂN UI DỰA TRÊN KẾT QUẢ
         if (resultType && resultType.type === 'search') {
-            // Nếu là Tìm kiếm thông thường -> Hiện lại bộ lọc và phân trang
+            // Nếu là Tìm kiếm thông thường (gõ từ khóa, không phải câu hỏi)
+            // -> Hiện lại bộ lọc và phân trang
             if (filterBar) filterBar.style.display = 'flex';
             if (pagination) pagination.style.display = 'flex';
             
             // Gọi hàm render danh sách (từ render.js)
             if (fallbackRenderFn) fallbackRenderFn();
         } else {
-            // Nếu là câu hỏi (Hỏi Đạo) -> Ẩn bộ lọc và phân trang để có không gian rộng rãi
+            // Nếu là câu hỏi (Hỏi Đạo AI đã trả lời)
+            // -> Ẩn bộ lọc và phân trang để có không gian rộng rãi cho câu trả lời
             if (filterBar) filterBar.style.display = 'none';
             if (pagination) pagination.style.display = 'none';
         }
@@ -69,6 +75,9 @@ export async function handleSmartSearch(options) {
                 <div class="ask-answer">Đã xảy ra lỗi giao diện: ${err.message}</div>
             </div>
         `;
+        // Ẩn filter/pagination để thông báo lỗi hiển thị rõ ràng
+        if (filterBar) filterBar.style.display = 'none';
+        if (pagination) pagination.style.display = 'none';
     }
 }
 
