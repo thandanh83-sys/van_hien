@@ -1,33 +1,204 @@
+# =====================================================================
+# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG CẬP NHẬT MANIFESTS
+# Tên file: .github/workflows/auto-update-manifests.yml
+# Version: 2.0.0
+# =====================================================================
+# Tác giả: Văn Đạo
+#
+# TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+#
+# 1. TỰ ĐỘNG HÓA THÔNG MINH (Smart Automation):
+#    Bot này tự động phát hiện khi cấu trúc dự án thay đổi (thêm file
+#    Agent mới, thêm CSS, thêm JS, v.v.) và sinh lại 2 file manifest:
+#      - data/manifests/agents-manifest.json
+#      - data/manifests/static-assets.json
+#    Nhờ đó Service Worker (sw.js) luôn có danh sách precache chính
+#    xác mà con người không phải sửa tay mảng PRECACHE_ASSETS.
+#
+# 2. CHỐNG VÒNG LẶP (Anti-Loop):
+#    Tuyệt đối KHÔNG trigger trên chính 2 file manifest được sinh ra.
+#    Nếu không, mỗi lần bot commit -> lại trigger -> vòng lặp vô tận.
+#    Do đó `paths` chỉ liệt kê các thư mục nguồn, không có
+#    `data/manifests/static-assets.json` và `agents-manifest.json`.
+#
+# 3. XẾP HÀNG KỶ LUẬT (Concurrency):
+#    Dùng chung group "git-push-group" với các bot tách dữ liệu
+#    (auto-split-works, auto-split-authors) để tránh xung đột Git.
+#    Mọi bot phải chạy tuần tự, không dẫm đạp lên nhau.
+#
+# 4. KIỂM TRA CÚ PHÁP TRƯỚC KHI CHẠY (Syntax Guard):
+#    Luôn chạy `python -m py_compile` trước khi thực thi script.
+#    Nếu script Python bị lỗi cú pháp, bot dừng ngay thay vì
+#    chạy nửa chừng rồi crash.
+#
+# 5. TRUNG THỰC (Honest Reporting):
+#    - Chạy script với `--verbose` để log chi tiết từng file.
+#    - Kiểm tra `git diff` để tránh commit rỗng.
+#    - Push thử lại 5 lần nếu mạng lag.
+#
+# 6. AN TOÀN (Safety):
+#    - `timeout-minutes: 10` để tránh treo máy ảo.
+#    - `fetch-depth: 0` để lấy đủ lịch sử commit.
+#    - `permissions: contents: write` để có quyền commit.
+# =====================================================================
+
 name: Auto Update Manifests
 
+# =====================================================================
+# 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
+# =====================================================================
 on:
+  # Kích hoạt khi có thay đổi trong các thư mục nguồn có thể sinh
+  # ra file mới trong manifest (JS, CSS, Assets, Data, Tools).
   push:
     paths:
-      - 'js/ai/agents/**'
+      # --- Thư mục JS: Có thể thêm file Agent mới hoặc file JS mới ---
+      - 'js/**'
+
+      # --- Thư mục CSS: Có thể thêm file stylesheet mới ---
+      - 'css/**'
+
+      # --- Thư mục Assets: Ảnh, font, icon PWA ---
+      - 'assets/**'
+
+      # --- Data JSON chính (9 file index: data/data-*.json) ---
+      # Chỉ khớp với các file bắt đầu bằng "data-", tránh khớp
+      # vào các file trong data/tac-pham/ hay data/tac-gia/
+      - 'data/data-*.json'
+
+      # --- Manifests node đồ thị tri thức (không phải static-assets) ---
+      # Dùng pattern chính xác để không bao gồm:
+      #   - static-assets.json (file được sinh ra bởi bot này)
+      #   - agents-manifest.json (file được sinh ra bởi bot này)
+      - 'data/manifests/index.json'
+      - 'data/manifests/node-*.json'
+
+      # --- Bản thân script cập nhật manifest (khi logic thay đổi) ---
+      - 'tools/update_manifests.py'
+
+  # Cho phép bấm nút chạy thủ công trên GitHub (Tab Actions)
+  # để test bất cứ lúc nào mà không cần tạo commit mới.
   workflow_dispatch:
 
+# =====================================================================
+# 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# =====================================================================
+# Dùng chung group với các bot tách dữ liệu để đảm bảo chạy tuần tự.
+# Lý do: các bot này đều commit vào cùng nhánh, nếu chạy song song
+# sẽ xảy ra lỗi Git Push.
+concurrency:
+  group: git-push-group
+
+  # KHÔNG hủy ngang khi có push mới, vì bot này rất nhanh (vài giây).
+  # Nếu hủy giữa chừng có thể để lại trạng thái không nhất quán.
+  cancel-in-progress: false
+
+# =====================================================================
+# 3. CÁC BƯỚC THỰC THI (JOBS)
+# =====================================================================
 jobs:
   update-manifests:
+    # Chạy trên máy ảo Ubuntu mới nhất của GitHub
     runs-on: ubuntu-latest
+
+    # KỶ LUẬT THỜI GIAN: Tự động hủy nếu chạy quá 10 phút.
+    # Script Python chỉ mất vài giây. Nếu quá 10 phút, chắc chắn có
+    # lỗi (vòng lặp vô hạn hoặc file quá lớn).
+    timeout-minutes: 10
+
+    # Cấp quyền cho bot được phép ghi (commit) vào kho code
     permissions:
       contents: write
+
     steps:
-      - uses: actions/checkout@v4
+      # -----------------------------------------------------------------
+      # BƯỚC 1: LẤY CODE MỚI NHẤT TỪ KHO VỀ MÁY ẢO
+      # -----------------------------------------------------------------
+      - name: 1. Checkout code (Lấy code về)
+        uses: actions/checkout@v4
         with:
+          # Lấy toàn bộ lịch sử commit (tránh lỗi shallow clone).
+          # Nếu không có fetch-depth: 0, bot có thể gặp lỗi
+          # "fatal: shallow update not allowed" khi commit.
           fetch-depth: 0
-      - uses: actions/setup-python@v5
+
+      # -----------------------------------------------------------------
+      # BƯỚC 2: CÀI ĐẶT MÔI TRƯỜNG PYTHON
+      # -----------------------------------------------------------------
+      - name: 2. Set up Python (Cài đặt Python)
+        uses: actions/setup-python@v5
         with:
+          # Python 3.10 ổn định và tương thích tốt nhất với
+          # tất cả các script trong tools/
           python-version: '3.10'
-      - name: Run update script
-        run: python tools/update_manifests.py
-      - name: Check for changes
+
+      # -----------------------------------------------------------------
+      # BƯỚC 3: KIỂM TRA CÚ PHÁP PYTHON (LÁ CHẮN AN TOÀN)
+      # -----------------------------------------------------------------
+      # "Ai gác cổng cũng phải biết võ". Đảm bảo bản thân script
+      # update_manifests.py không bị lỗi cú pháp trước khi chạy thật.
+      # Nếu bị lỗi, bước này sẽ báo đỏ và các bước sau không chạy.
+      - name: 3. Check Python syntax (Kiểm tra cú pháp)
+        run: python -m py_compile tools/update_manifests.py
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: CHẠY SCRIPT CẬP NHẬT MANIFEST (TRÁI TIM CỦA BOT)
+      # -----------------------------------------------------------------
+      # Script sẽ:
+      #   - Quét toàn bộ thư mục dự án (js, css, assets, data)
+      #   - Xây dựng 9 nhóm file trong static-assets.json
+      #   - Sinh agents-manifest.json từ thư mục js/ai/agents/
+      #   - In chi tiết từng bước và từng nhóm file (--verbose)
+      #
+      # Output: ghi đè 2 file:
+      #   - data/manifests/static-assets.json
+      #   - data/manifests/agents-manifest.json
+      - name: 4. Run Update Manifests Script (Chạy script)
+        run: python tools/update_manifests.py --verbose
+
+      # -----------------------------------------------------------------
+      # BƯỚC 5: KIỂM TRA XEM CÓ SỰ THAY ĐỔI NÀO KHÔNG
+      # -----------------------------------------------------------------
+      # git diff --exit-code sẽ trả về mã lỗi nếu có thay đổi.
+      # Nếu có thay đổi -> ghi "changes=true" vào biến output của bước.
+      # Điều này tránh việc bot tạo ra commit rỗng.
+      - name: 5. Check for changes (Kiểm tra thay đổi)
         id: git-check
         run: |
           git diff --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
-      - name: Commit and Push
+
+      # -----------------------------------------------------------------
+      # BƯỚC 6: IN DIFF ĐỂ DEBUG (LOG CHI TIẾT)
+      # -----------------------------------------------------------------
+      # In ra những file thay đổi và nội dung tóm tắt để con người
+      # có thể review trên giao diện Actions.
+      - name: 6. Print diff for debugging (In diff)
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          echo "===== Các file đã thay đổi ====="
+          git diff --stat
+          echo ""
+          echo "===== Nội dung thay đổi trong manifests ====="
+          git diff data/manifests/static-assets.json data/manifests/agents-manifest.json | head -n 100
+
+      # -----------------------------------------------------------------
+      # BƯỚC 7: TỰ ĐỘNG COMMIT VÀ PUSH (CÓ CƠ CHẾ THỬ LẠI)
+      # -----------------------------------------------------------------
+      # Chỉ chạy nếu bước 5 báo có sự thay đổi (changes == 'true').
+      - name: 7. Commit and Push (Commit & Push)
         if: steps.git-check.outputs.changes == 'true'
         uses: EndBug/add-and-commit@v11
         with:
-          message: "chore: auto-update manifests for agents"
+          # Tin nhắn commit chuẩn, dễ đọc trong git log.
+          message: "chore: auto-update manifests for agents and static assets"
+
+          # Tự động thử lại 5 lần nếu Push gặp sự cố mạng
           push_attempts: 5
+
+          # Tác giả commit là GitHub Actions
           default_author: github_actions
+
+          # Chỉ add 2 file manifest, không add các file khác
+          add: |
+            data/manifests/static-assets.json
+            data/manifests/agents-manifest.json
