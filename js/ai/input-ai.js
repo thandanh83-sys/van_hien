@@ -2,18 +2,34 @@
  * ==========================================================
  * VĂN ĐẠO AI - INPUT AI (js/ai/input-ai.js)
  * Vị trí: js/ai/input-ai.js
- * Version: 7.0.0 (Full Dynamic Intent)
+ * Version: 8.0.0 (Special Detector Plugin Architecture)
  * ==========================================================
+ *
  * NHIỆM VỤ:
  * 1. Nhận diện câu hỏi, mệnh lệnh, tìm kiếm.
  * 2. Tự động lấy từ khóa từ AgentRegistry (không hardcode).
- * 3. Hỗ trợ các câu hỏi đặc biệt (So sánh, Khen/Chê).
+ * 3. Hỗ trợ Special Detector: mỗi Agent có thể tự khai báo logic
+ *    nhận diện đặc biệt (VD: compare cần cấu trúc "X và Y").
+ *
+ * LỊCH SỬ PHIÊN BẢN:
+ * - v7.0.0: Full Dynamic Intent (đọc DynamicIntentPatterns).
+ * - v8.0.0: Special Detector Plugin — thay hardcode
+ *           `detectSpecialQuestion` bằng vòng lặp gọi
+ *           `AgentRegistry.agents[key].specialDetector(text)`.
+ *           Khi thêm Agent mới có logic đặc biệt, CHỈ CẦN khai báo
+ *           `specialDetector` trong agentInfo — KHÔNG cần sửa file này.
+ *
+ * CƠ CHẾ NHẬN DIỆN (4 tầng ưu tiên):
+ *   Tầng 1: detectCommand()        — từ khóa Intent (DynamicIntentPatterns)
+ *   Tầng 2: detectSpecialQuestion() — specialDetector của từng Agent
+ *   Tầng 3: Fallback 'search'      — tìm kiếm thông thường
+ *   Tầng 4: Empty                  — input rỗng
  * ==========================================================
  */
 
 import { extractEntity } from './core.js';
 import { preprocessText } from './nlp-tools.js';
-import { DynamicIntentPatterns } from './agents/index.js';
+import { DynamicIntentPatterns, AgentRegistry } from './agents/index.js';
 
 // =====================================================================
 // PHẦN 1: CÔNG CỤ XỬ LÝ NGÔN NGỮ
@@ -35,6 +51,8 @@ function result(type, mode, query, extra = {}) {
 
 // =====================================================================
 // PHẦN 2: BỘ PATTERN TRÍCH XUẤT THỰC THỂ (ENTITY EXTRACTION)
+// =====================================================================
+// Giữ nguyên từ v7.0.0 — không thay đổi.
 // =====================================================================
 const EXTRACTION_PATTERNS = {
     'find-related': [/\b(tac pham|bai tho|bai viet|tieu thuyet|truyen ngan|truyen dai)\b/gi, /\b(nao|gi|chi)\b/gi, /\b(lien quan den|lien quan|tuong tu|giong nhu|giong|tuong dong|cung|gan giong)\b/gi, /\b(voi|den|nhu|toi)\b/gi, /\b(co|cho toi|cho minh|tim|liet ke|ke ten)\b/gi, /\b(the loai|tac gia|chu de)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
@@ -80,16 +98,28 @@ function cleanQuery(text, intentType = 'default') {
 // PHẦN 3: NHẬN DIỆN Ý ĐỊNH (TỰ ĐỘNG TỪ AGENTS)
 // =====================================================================
 
+/**
+ * Tầng 1: Nhận diện Intent qua DynamicIntentPatterns (từ khóa).
+ *
+ * Ưu tiên đặc biệt:
+ *   1. 'compare-entities' — cần cấu trúc "X và Y" HOẶC có từ khóa
+ *      'so sanh', 'compare', 'khac', 'tuong dong'.
+ *   2. Duyệt DynamicIntentPatterns — match keyword đầu tiên.
+ *
+ * @param {string} text - Câu đã chuẩn hóa (không dấu, lowercase).
+ * @returns {string|null} - Intent type hoặc null.
+ */
 function detectCommand(text) {
     const words = new Set(text.split(' '));
     const hasAny = (arr) => arr.some(w => words.has(w));
 
     // 1. Ưu tiên logic đặc biệt (So sánh cần cấu trúc đặc biệt)
-    if (hasAny(['so sanh', 'compare', 'khac', 'tuong dong']) || (hasAny(['giong']) && hasAny(['va', 'voi']))) {
+    if (hasAny(['so sanh', 'compare', 'khac', 'tuong dong']) ||
+        (hasAny(['giong']) && hasAny(['va', 'voi']))) {
         return 'compare-entities';
     }
 
-    // 2. Tự động nhận diện từ DynamicIntentPatterns (Không hardcode)
+    // 2. Tự động nhận diện từ DynamicIntentPatterns
     for (const [intent, keywords] of Object.entries(DynamicIntentPatterns)) {
         if (keywords.some(kw => words.has(kw))) return intent;
     }
@@ -97,14 +127,49 @@ function detectCommand(text) {
     return null;
 }
 
+/**
+ * Tầng 2: Nhận diện Câu hỏi Chuyên môn qua `specialDetector` của Agent.
+ *
+ * [v8.0.0 — THAY ĐỔI CỐT LÕI]
+ * Trước v8.0.0, hàm này hardcode 4 case:
+ *   - if (hasAny(['bieu', 'tuong', ...])) return 'explain-symbol';
+ *   - if (hasAny(['dien', 'tich', ...])) return 'explain-allusion';
+ *   - if (hasAny(['dinh', 'nghia', ...])) return 'define-term';
+ *   - if (hasAny(['the', 'loai', ...])) return 'define-genre';
+ *
+ * Sau v8.0.0, duyệt qua Registry và gọi `specialDetector(text)` của
+ * từng Agent. Agent nào trả về intent → dừng và trả intent đó.
+ *
+ * Khi thêm Agent mới có logic đặc biệt, CHỈ CẦN khai báo
+ * `specialDetector` trong `agentInfo` — KHÔNG cần sửa file này.
+ *
+ * @param {string} text - Câu đã chuẩn hóa.
+ * @returns {string|null} - Intent type hoặc null.
+ */
 function detectSpecialQuestion(text) {
-    const words = new Set(text.split(' '));
-    const hasAny = (arr) => arr.some(w => words.has(w));
+    // Duyệt qua tất cả Agent đã đăng ký
+    for (const [agentKey, agent] of Object.entries(AgentRegistry.agents)) {
+        // Bỏ qua Agent không có specialDetector
+        if (typeof agent.specialDetector !== 'function') continue;
 
-    if (hasAny(['bieu', 'tuong', 'hinh', 'anh', 'y', 'nghia'])) return 'explain-symbol';
-    if (hasAny(['dien', 'tich', 'co', 'nguon', 'goc'])) return 'explain-allusion';
-    if (hasAny(['dinh', 'nghia', 'khai', 'niem', 'thuat', 'ngu'])) return 'define-term';
-    if (hasAny(['the', 'loai', 'the', 'tho'])) return 'define-genre';
+        try {
+            const detected = agent.specialDetector(text);
+            if (detected && typeof detected === 'string') {
+                // Log debug để dev biết Agent nào đã nhận diện
+                if (typeof window !== 'undefined' && window.VD_MASTER_DEBUG) {
+                    console.log(`[InputAI] Agent "${agentKey}" specialDetector → "${detected}"`);
+                }
+                return detected;
+            }
+        } catch (err) {
+            // specialDetector lỗi → log warning, tiếp tục thử Agent khác
+            console.warn(
+                `[InputAI] specialDetector của Agent "${agentKey}" báo lỗi:`,
+                err.message || err
+            );
+        }
+    }
+
     return null;
 }
 
@@ -113,29 +178,71 @@ function detectSpecialQuestion(text) {
 // =====================================================================
 
 export const InputAI = {
+    /**
+     * Phiên bản module — dùng cho audit/debug.
+     */
+    version: '8.0.0',
+
+    /**
+     * Phân tích câu hỏi thô thành intent object.
+     *
+     * LUỒNG XỬ LÝ:
+     *   1. Validate input.
+     *   2. Chuẩn hóa qua preprocessText() (bỏ dấu, teencode, ...).
+     *   3. detectCommand()        — thử từ khóa Intent.
+     *   4. detectSpecialQuestion() — thử specialDetector của Agent.
+     *   5. Fallback 'search'.
+     *
+     * @param {string} input - Câu hỏi thô.
+     * @returns {Object} - Intent object.
+     */
     parseIntent(input) {
         const original = String(input || '').trim();
-        if (!original) return result('empty', 'empty', '', { confidence: 1, originalInput: original });
+        if (!original) {
+            return result('empty', 'empty', '', {
+                confidence: 1,
+                originalInput: original
+            });
+        }
 
         // 1. Chuẩn hóa
-        let clean = preprocessText(original);
-        if (!clean) return result('empty', 'empty', '', { confidence: 1, originalInput: original });
+        const clean = preprocessText(original);
+        if (!clean) {
+            return result('empty', 'empty', '', {
+                confidence: 1,
+                originalInput: original
+            });
+        }
 
-        // 2. Nhận diện Mệnh lệnh (Tự động)
+        // 2. Nhận diện Mệnh lệnh (Tầng 1 — từ khóa)
         const command = detectCommand(clean);
         if (command) {
             const query = cleanQuery(clean, command);
-            return result(command, 'command', query, { confidence: 0.95, signals: ['explicit-command', command], originalInput: original });
+            return result(command, 'command', query, {
+                confidence: 0.95,
+                signals: ['explicit-command', command],
+                originalInput: original
+            });
         }
 
-        // 3. Nhận diện Câu hỏi Chuyên môn
+        // 3. Nhận diện Câu hỏi Chuyên môn (Tầng 2 — specialDetector)
         const special = detectSpecialQuestion(clean);
         if (special) {
             const query = cleanQuery(clean, special);
-            return result(special, 'question', query, { questionType: special, confidence: 0.9, signals: ['special-question', special], originalInput: original });
+            return result(special, 'question', query, {
+                questionType: special,
+                confidence: 0.9,
+                signals: ['special-question', special],
+                originalInput: original
+            });
         }
 
-        // 4. Fallback
-        return result('search', 'search', clean, { questionType: null, confidence: 0.75, signals: ['topic-query'], originalInput: original });
+        // 4. Fallback: Tìm kiếm thông thường
+        return result('search', 'search', clean, {
+            questionType: null,
+            confidence: 0.75,
+            signals: ['topic-query'],
+            originalInput: original
+        });
     }
 };
