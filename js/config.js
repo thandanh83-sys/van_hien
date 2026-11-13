@@ -2,13 +2,16 @@
  * ==========================================================
  * VĂN ĐẠO - CONFIG MODULE (js/config.js)
  * Vị trí: js/config.js
- * Version: 1.0.0 (Network Edition)
+ * Version: 2.0.0 (DataHub Integration & Global State)
  * ==========================================================
- * Chức năng: 
- * - Chứa Hằng số toàn cục.
- * - Kho SVG Icons.
- * - APP_DATA: Dữ liệu tĩnh nạp từ JSON.
- * - STATE: Trạng thái động của UI (bao gồm cả Network Mode).
+ * CHỨC NĂNG:
+ * - Chứa Hằng số toàn cục, Kho SVG Icons.
+ * - APP_DATA: Dữ liệu tĩnh nạp từ JSON (RAM).
+ * - STATE: Trạng thái động của UI và Chỉ mục toàn cục.
+ * 
+ * TRIẾT LÝ:
+ * - STATE.GLOBAL_RECORDS là "nguồn sống" cho DataHub và AI.
+ * - Không AI nào được phép tự ý fetch JSON. Mọi thứ đi qua DataHub.
  * ==========================================================
  */
 
@@ -52,28 +55,37 @@ export const APP_DATA = {
 };
 
 // =====================================================================
-// 4. TRẠNG THÁI TOÀN CỤC (STATE)
+// 4. TRẠNG THÁI TOÀN CỤC (STATE) - TRÁI TIM CỦA DATAHUB
 // =====================================================================
 export const STATE = {
-    // Trạng thái Văn Hiến (Tác phẩm)
+    // --- Trạng thái Giao diện Văn Hiến (Tác phẩm) ---
     currentMainCat: 'all',
     currentGenre: 'all',
     currentPage: 1,
 
-    // Trạng thái Bách Khoa
+    // --- Trạng thái Giao diện Bách Khoa ---
     currentEncyGroup: 'triet-thuyet',
     currentEncyPage: 1,
     currentEncyDataForRender: [],
     
-    // Trạng thái Tìm kiếm / Hỏi Đạo (MỚI)
-    searchMode: 'lookup', // 'lookup' (Tra cứu) | 'ask' (Hỏi Đạo AI)
+    // --- Trạng thái Tìm kiếm / Hỏi Đạo ---
+    searchMode: 'lookup', // 'lookup' (Tra cứu UI) | 'ask' (Hỏi Đạo AI)
 
-    // Trạng thái Danh ngôn
+    // --- Trạng thái Danh ngôn ---
     currentQuoteIndex: -1,
     quoteIntervalId: null,
 
-    // Chỉ mục tìm kiếm (Global Index)
+    // =================================================================
+    // [CỰC KỲ QUAN TRỌNG] CHỈ MỤC TOÀN CỤC (GLOBAL INDEX)
+    // Được xây dựng trong main.js, sử dụng bởi DataHub & Search Engine.
+    // =================================================================
+    
+    // Map: { "id": { key, id, group, type, data } }
     GLOBAL_INDEX: new Map(), 
+    
+    // Map: { "group:id": { key, id, group, type, data } }
     GLOBAL_INDEX_BY_KEY: new Map(), 
+    
+    // Mảng chứa tất cả các record (dùng để build Inverted Index)
     GLOBAL_RECORDS: [] 
 };
