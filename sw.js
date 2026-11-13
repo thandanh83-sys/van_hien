@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO SERVICE WORKER (VERSION 5.0.0 - MODULAR HYBRID CACHE)
+   VĂN ĐẠO SERVICE WORKER (VERSION 5.0.1 - MODULAR HYBRID CACHE)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -16,7 +16,7 @@
 // I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
 // ĐỔI VERSION NÀY MỖI KHI BẠN CẬP NHẬT CODE ĐỂ XÓA CACHE CŨ
-const CACHE_VERSION = 'v5.0.0';
+const CACHE_VERSION = 'v5.0.1';
 
 const STATIC_CACHE  = `vandao-static-${CACHE_VERSION}`;
 const HTML_CACHE    = `vandao-html-${CACHE_VERSION}`;
@@ -28,7 +28,7 @@ const NETWORK_TIMEOUT = 4000;
 
 // =====================================================================
 // II. DANH SÁCH "APP SHELL" - NHỮNG FILE TỐI QUAN TRỌNG
-// Cập nhật chính xác 100% theo cấu trúc thư mục mới (css/ và js/)
+// Cập nhật chính xác 100% theo cấu trúc thư mục mới (css/, js/, assets/)
 // =====================================================================
 const PRECACHE_ASSETS = [
     './',
@@ -49,7 +49,7 @@ const PRECACHE_ASSETS = [
     './js/render.js',
     './js/router.js',
     './js/offline.js',
-    './js/ai.js',      // Bổ sung file AI Nội bộ
+    './js/ai.js',      // Đã thêm file AI Nội bộ
     './js/main.js',
     
     // --- Hình ảnh Bạch Ngọc & Icons ---
