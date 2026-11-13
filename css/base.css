@@ -3,7 +3,7 @@
  * VĂN ĐẠO - BASE CSS (css/base.css)
  * Chức năng: Khai báo Font chữ, Reset CSS, thiết lập nền tảng
  * cho toàn bộ trang web, và các thiết lập trợ năng (A11y).
- * Đã sửa: Ép Canvas (sóng nước) thành nền cố định, không đẩy nội dung.
+ * Đã sửa: Ép Canvas và Sương hiển thị đúng lớp (z-index: 1).
  * ==========================================================
  */
 
@@ -75,7 +75,7 @@ body {
 }
 
 /* =====================================================================
-   3. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG (FIX LỖI TRẮNG TRANG)
+   3. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG (ĐÃ SỬA LỖI HIỂN THỊ)
    ===================================================================== */
 #water-canvas {
     /* BẮT BUỘC: Ép hiệu ứng nổi lên trên, không chiếm diện tích HTML */
@@ -85,7 +85,7 @@ body {
     width: 100vw;
     height: 100vh;
     pointer-events: none; /* Xuyên qua để click được vào nút bên dưới */
-    z-index: -1; /* Chìm xuống dưới cùng, làm nền cho mọi nội dung */
+    z-index: 1; /* Nằm trên nền body, nhưng dưới container (z-index 10) */
     display: block;
 }
 
@@ -96,7 +96,7 @@ body {
     width: 100vw;
     height: 100vh;
     pointer-events: none; 
-    z-index: -1; 
+    z-index: 1; /* Hiển thị sương trên nền */
     overflow: hidden; 
 }
 
