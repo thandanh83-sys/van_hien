@@ -2,20 +2,10 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 1.0.0 (Network Edition)
- * ==========================================================
- * Chức năng:
- * - Khởi chạy App, quản lý Splash Screen.
- * - Load dữ liệu từ JSON.
- * - Chứa Logic Thi Pháp Học (POETRY_ANALYZER).
- * - Xử lý Bói Thơ (Fate Modal) với AI.
- * - Gắn sự kiện toàn cục (Search, Hỏi Đạo, Settings, Network).
+ * Version: 1.0.1 (Refined UI & Network)
  * ==========================================================
  */
 
-// =====================================================================
-// 1. IMPORTS
-// =====================================================================
 import { APP_DATA, STATE, ICONS } from './config.js';
 import { debounce, escapeHTML } from './utils.js';
 import { switchView, toggleMobileMenu, gotoEncyclopediaById, setCancelSearch } from './router.js';
@@ -277,7 +267,6 @@ async function loadAllData() {
             }
         };
 
-        // 1. Fetch 9 file JSON song song
         const results = await Promise.all([
             safeFetch('./data/data-ly-thuyet.json', []),
             safeFetch('./data/data-tac-gia.json', []),
@@ -290,7 +279,6 @@ async function loadAllData() {
             safeFetch('./data/data-tu-dien-the-loai.json', [])
         ]);
 
-        // 2. Gán vào APP_DATA
         APP_DATA.THEORY_DATA = results[0];
         APP_DATA.AUTHOR_DATA = results[1];
         APP_DATA.WORKS_DATA  = results[2];
@@ -302,7 +290,6 @@ async function loadAllData() {
         APP_DATA.FORTUNE_ADVICE = results[7].advice || {};
         APP_DATA.THE_LOAI_DATA = results[8];
 
-        // 3. Xây dựng Global Index
         STATE.GLOBAL_INDEX.clear(); 
         STATE.GLOBAL_INDEX_BY_KEY.clear(); 
         STATE.GLOBAL_RECORDS.length = 0;
@@ -326,10 +313,8 @@ async function loadAllData() {
         addToIndex(APP_DATA.WORKS_DATA, 'tinh-hoa');
         addToIndex(APP_DATA.THE_LOAI_DATA, 'the-loai');
 
-        // 4. Khởi động Mạng Lưới (Network Layer)
         await bootstrapNetwork();
 
-        // 5. Khởi tạo UI
         initMainFilters();
         
         if (APP_DATA.QUOTES_DATA && APP_DATA.QUOTES_DATA.length > 0) {
@@ -341,7 +326,6 @@ async function loadAllData() {
             if (qContainer) qContainer.innerHTML = `<p style="text-align:center; font-style:italic; color:var(--text-muted); padding: 20px;">Không có dữ liệu danh ngôn.</p>`;
         }
 
-        // 6. Build Search Index (Ngầm)
         triggerAsyncSearchIndex();
 
     } catch (err) {
@@ -391,15 +375,11 @@ function randomPoem() {
     loadingEl?.classList.add('hidden');
     resultEl.classList.add('show');
 
-    // Chọn bài ngẫu nhiên
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
-    
-    // AI tính toán
     const fortuneKey = calculateFortune();
     const aiResult = synthesizeDynamicFortune(randomWork, fortuneKey);
     const fortuneInfo = aiResult.fortuneInfo;
 
-    // Cập nhật UI
     if (badge) {
         badge.textContent = `Vận khí: ${fortuneInfo.name}`;
         badge.style.color = fortuneInfo.color;
@@ -474,7 +454,9 @@ async function refreshNetworkStatus(forceRefresh = false) {
                 `<span class="network-dot ${n.status}" title="${escapeHTML(n.label)}"></span>`
             ).join('');
         }
-        if (summaryEl) summaryEl.textContent = `${online}/${total} node đang hoạt động`;
+        
+        // [FIX LỖI 6] Đổi "node" thành "phân khu"
+        if (summaryEl) summaryEl.textContent = `${online}/${total} phân khu đang hoạt động`;
 
         if (nodesEl) {
             nodesEl.innerHTML = health.map(n => {
@@ -483,11 +465,14 @@ async function refreshNetworkStatus(forceRefresh = false) {
                     .replace('ky-tai', 'Kỳ Tài')
                     .replace('tinh-hoa', 'Tinh Hoa')
                     .replace('the-loai', 'Thể Loại');
+                    
+                const statusText = n.status === 'online' ? 'Hoạt động' : (n.status === 'offline' ? 'Ngoại tuyến' : 'Lỗi');
+                
                 return `
                     <div class="network-node-row">
                         <span class="network-dot ${n.status}"></span>
                         <span class="network-node-label">${escapeHTML(label)}</span>
-                        <span class="network-node-status ${n.status}">${n.status === 'online' ? 'Online' : (n.status === 'offline' ? 'Offline' : 'Lỗi')}</span>
+                        <span class="network-node-status ${n.status}">${statusText}</span>
                     </div>
                 `;
             }).join('');
@@ -589,9 +574,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             silkOverlay.classList.add('active', 'entering');
         }
         splash.classList.add('leaving'); 
-        setTimeout(() => {
-            splash.remove();
-        }, 500); 
+        setTimeout(() => { splash.remove(); }, 500); 
         setTimeout(() => {
             if (silkOverlay) silkOverlay.classList.remove('active', 'entering');
         }, 1000);
@@ -644,6 +627,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const input = document.getElementById('encyclopedia-search');
             const container = document.getElementById('encyclopedia-container');
             const filterBar = document.getElementById('encyclopedia-filter-bar');
+            const pagination = document.getElementById('encyclopedia-pagination');
             
             if (input) {
                 input.value = '';
@@ -654,9 +638,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (mode === 'ask') {
                 if (filterBar) filterBar.style.display = 'none';
+                if (pagination) pagination.style.display = 'none'; // Ẩn phân trang
                 if (container) container.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Nhập câu hỏi vào ô tìm kiếm phía trên để Hỏi Đạo.</p>`;
             } else {
                 if (filterBar) filterBar.style.display = 'flex';
+                if (pagination) pagination.style.display = 'flex'; // Hiện lại phân trang
                 renderEncyclopedia();
             }
         });
@@ -670,7 +656,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // 8.6. Sự kiện click toàn cục (Routing, đóng menu)
+    // 8.6. Sự kiện click toàn cục
     document.addEventListener('click', e => {
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
