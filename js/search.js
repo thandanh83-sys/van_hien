@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - SEARCH MODULE (js/search.js)
  * Vị trí: js/search.js
- * Version: 1.0.8 (Weighted Multi-token Match)
+ * Version: 1.1.0 (Offline Local Index)
  * ==========================================================
  */
 
@@ -69,7 +69,7 @@ export const VDSearchEngine = (() => {
         
         const scores = new Map();
 
-        // BƯỚC 1: Exact Match & Multi-token Match (Ưu tiên khớp chính xác cả câu)
+        // TẦNG 1: Exact Match & Multi-token (Ưu tiên tiêu đề)
         for (const record of STATE.GLOBAL_RECORDS) {
             const item = record.data;
             const titleText = item.title || item.name || '';
@@ -79,34 +79,25 @@ export const VDSearchEngine = (() => {
             
             let score = 0;
             
-            // Khớp chính xác toàn bộ câu (Rất cao)
             if (title === qNorm || titleAlias === qNorm) score += 2000;
             else if (title.includes(qNorm) || titleAlias.includes(qNorm)) score += 800;
             
-            // Khớp tác giả
             if (author && author === qNorm) score += (record.group === 'ky-tai' ? 700 : 300);
             else if (author && author.includes(qNorm)) score += 150;
 
-            // [FIX XẾP HẠNG] Khớp nhiều từ khóa cùng lúc (VD: "khúc vọng thanh xuân")
             if (tokens.length > 0) {
                 let matchCount = 0;
                 tokens.forEach(t => {
                     if (title.includes(t) || titleAlias.includes(t)) matchCount++;
                 });
-                
-                if (matchCount === tokens.length) {
-                    // Nếu chứa TẤT CẢ các từ khóa -> Cộng điểm cực cao
-                    score += 1500 + (tokens.length * 200);
-                } else if (matchCount > 0) {
-                    // Nếu chỉ chứa 1 phần
-                    score += matchCount * 150;
-                }
+                if (matchCount === tokens.length) score += 1500 + (tokens.length * 200);
+                else if (matchCount > 0) score += matchCount * 150;
             }
             
             if (score > 0) scores.set(record.key, score);
         }
 
-        // BƯỚC 2: Fuzzy Match (Inverted Index + TF-IDF)
+        // TẦNG 2: Fuzzy Match (Inverted Index)
         if (isIndexed && tokens.length) {
             tokens.forEach(w => {
                 const docs = invertedIndex[w];
@@ -122,8 +113,7 @@ export const VDSearchEngine = (() => {
                     const tf = count / (docLengths[key] || 1);
                     let score = tf * idf;
                     
-                    const titleText = record.data.title || record.data.name || '';
-                    const title = normalizeRouteText(titleText);
+                    const title = normalizeRouteText(record.data.title || record.data.name || '');
                     const author = normalizeRouteText(record.data.author);
                     
                     if (title.includes(w)) score *= 5;
@@ -140,15 +130,9 @@ export const VDSearchEngine = (() => {
         }).filter(Boolean).sort((a, b) => b.score - a.score);
     }
 
-    return { 
-        buildIndexAsync, 
-        search, 
-        getIndexStatus: () => isIndexed 
-    };
+    return { buildIndexAsync, search, getIndexStatus: () => isIndexed };
 })();
 
 export function triggerAsyncSearchIndex() {
-    if (!VDSearchEngine.getIndexStatus()) {
-        VDSearchEngine.buildIndexAsync();
-    }
+    if (!VDSearchEngine.getIndexStatus()) VDSearchEngine.buildIndexAsync();
 }
