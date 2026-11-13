@@ -1,7 +1,7 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
- * Đã cập nhật: Tích hợp Văn Đạo AI mới, sửa lỗi Thi pháp.
+ * Đã cập nhật: Tích hợp AI Động, tinh gọn giao diện Bói Thơ.
  * ==========================================================
  */
 
@@ -16,10 +16,11 @@ import {
 } from './render.js';
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
-import { synthesizeCommentary, VAN_DAO_AI } from './ai.js'; // AI MỚI
+// IMPORT AI ĐỘNG MỚI
+import { calculateFortune, synthesizeDynamicFortune } from './ai.js';
 
 // =====================================================================
-// PHẦN 1: HIỆU ỨNG NỀN
+// PHẦN 1: HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
 // =====================================================================
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
@@ -75,7 +76,7 @@ function initDewdrops() {
 }
 
 // =====================================================================
-// PHẦN 2: THI PHÁP HỌC (ĐÃ SỬA LỖI NGỮ ÂM VÀ NHẬN DIỆN)
+// PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER)
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
@@ -83,7 +84,6 @@ const POETRY_ANALYZER = (() => {
         return (nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) ? 'T' : 'B';
     }
     
-    // SỬA LỖI: Chỉ bỏ dấu thanh, giữ nguyên dấu cấu tạo nguyên âm (ă, â, ê, ô, ơ, ư)
     function getRhymePart(word) {
         if (!word) return '';
         const decomposed = word.toLowerCase().normalize('NFD');
@@ -102,7 +102,6 @@ const POETRY_ANALYZER = (() => {
         });
     }
 
-    // SỬA LỖI: Chỉ kết luận "có dạng", độ tin cậy trung bình khi mới dựa vào số tiếng
     function detectForm(lines) {
         const counts = lines.map(line => line.count);
         const n = counts.length;
@@ -153,7 +152,6 @@ const POETRY_ANALYZER = (() => {
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
 
-    // SỬA LỖI: Dùng .some() thay vì kiểm tra độ dài mảng
     function buildQuestions(form, rhymes, symbols) {
         const questions = [];
         if (form.confidence !== 'cao') questions.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay ngẫu nhiên?`);
@@ -188,16 +186,9 @@ function executePipeline() {
         return;
     }
 
-    // GỌI QUA API THỐNG NHẤT
-    const aiOutput = VAN_DAO_AI.analyze(raw, {
-        tasks: ['poetics'],
-        poeticsAnalyzer: POETRY_ANALYZER.generateReport
-    });
-    const report = aiOutput.poetics;
-
+    const report = POETRY_ANALYZER.generateReport(raw);
     if (!report) { panel.innerHTML = ''; return; }
 
-    // ESCAPE HTML ĐỂ BẢO MẬT
     const tier0 = report.bangTrac.map(l =>
         `<div class="line-row" style="border-bottom:none!important;padding:8px 0;"><span style="color:var(--text-muted);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${escapeHTML(l.text)}</span><span class="pattern-text">${escapeHTML(l.pattern)}</span></div>`
     ).join('');
@@ -353,18 +344,21 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// PHẦN 4: GỢI Ý ĐỌC (SỬ DỤNG AI MỚI)
+// PHẦN 4: BÓI THƠ (TÍCH HỢP AI ĐỘNG)
 // =====================================================================
 function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && (work.desc || work.description || work.content));
-    if (!validWorks.length) {
-        alert('Kho tác phẩm chưa có nội dung đủ để tạo gợi ý đọc.');
-        return;
-    }
+    if (!validWorks.length) return alert('Kho tác phẩm chưa có nội dung đủ để tạo gợi ý đọc.');
 
     const overlay = document.getElementById('fate-modal-overlay');
     const loadingEl = document.getElementById('fate-loading');
     const resultEl = document.getElementById('fate-result');
+    const badge = document.getElementById('fate-badge');
+    const titleEl = document.getElementById('fate-title');
+    const excerptEl = document.getElementById('fate-excerpt');
+    const commentaryEl = document.getElementById('fate-commentary');
+    const gotoBtn = document.getElementById('fate-goto-btn');
+
     if (!overlay || !resultEl) return;
 
     overlay.style.display = 'flex';
@@ -373,66 +367,81 @@ function randomPoem() {
     loadingEl?.classList.add('hidden');
     resultEl.classList.add('show');
 
+    // 1. Random Tác phẩm
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
-    const aiResult = synthesizeCommentary(randomWork);
+    
+    // 2. Random Khí vận
+    const fortuneKey = calculateFortune();
+    
+    // 3. AI tổng hợp (Tác phẩm + Khí vận)
+    const aiResult = synthesizeDynamicFortune(randomWork, fortuneKey);
+    const fortuneInfo = aiResult.fortuneInfo;
 
-    const badge = document.getElementById('fate-badge');
     if (badge) {
-        badge.textContent = `Gợi ý đọc · Độ tin cậy ${aiResult.confidence}`;
-        badge.style.color = 'var(--accent-text)';
-        badge.style.borderColor = 'var(--accent)';
+        badge.textContent = `Vận khí: ${fortuneInfo.name}`;
+        badge.style.color = fortuneInfo.color;
+        badge.style.borderColor = fortuneInfo.color;
     }
 
-    const titleEl = document.getElementById('fate-title');
     if (titleEl) titleEl.textContent = randomWork.title || 'Tác phẩm';
 
-    const excerptEl = document.getElementById('fate-excerpt');
     if (excerptEl) {
         const excerpt = randomWork.desc || randomWork.description || randomWork.content || '';
         excerptEl.textContent = `“${excerpt}”`;
     }
 
-    const adviceWrapper = aiResult.adviceHtml ? `
-        <div style="background:rgba(139,184,168,0.08); padding:15px; border-radius:8px; border-left:3px solid var(--accent); font-size:0.95rem; line-height:1.6; margin-top:15px;">
-            <div style="font-weight:700; color:var(--accent-text); margin-bottom:8px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên</div>
-            ${aiResult.adviceHtml}
-        </div>
-    ` : '';
-
-    const commentaryEl = document.getElementById('fate-commentary');
     if (commentaryEl) {
         commentaryEl.innerHTML = `
-            <p style="margin-bottom:15px; color:var(--accent-text); font-style:italic;">${aiResult.bridgeText}</p>
-            <div style="margin-bottom:15px;">
-                <div style="font-weight:700; color:var(--accent-text); margin-bottom:5px; text-transform:uppercase; font-size:0.8rem;">Lời bình</div>
-                <p style="margin:0;">${aiResult.commentaryText}</p>
+            <div style="margin-bottom:18px; color:var(--accent-text); font-style:italic; line-height:1.8;">
+                ${aiResult.bridgeText}
             </div>
-            ${adviceWrapper}
-        `;
+            
+            <div style="margin-bottom:18px; padding:15px; border-radius:10px; background:rgba(139,184,168,0.07);">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-weight:700; color:${fortuneInfo.color}; text-transform:uppercase; font-size:0.8rem;">✦ Lời chiêm nghiệm</div>
+                <p style="margin:0; line-height:1.8;">${aiResult.fortuneReflection}</p>
+            </div>
 
-        const authorName = randomWork.author || '';
-        const authorObj = APP_DATA.AUTHOR_DATA.find(author => (author.title || author.name || '').trim() === authorName.trim());
-        
-        if (authorObj?.id) {
-            commentaryEl.innerHTML += `
-                <div style="text-align:center; margin-top:15px; font-size:0.9rem;">
-                    <button data-route-encyclopedia="true" data-route-id="${escapeHTML(authorObj.id)}" data-route-group="ky-tai" class="volume-link" style="font-size:0.9rem;">
-                        Khám phá hồ sơ tác giả ${escapeHTML(authorName)} →
-                    </button>
-                </div>
-            `;
-        }
+            <div style="margin-bottom:15px;">
+                <div style="font-weight:700; color:var(--accent-text); margin-bottom:7px; text-transform:uppercase; font-size:0.8rem;">Lời bình văn học</div>
+                <p style="margin:0; line-height:1.8;">${aiResult.literaryCommentary}</p>
+            </div>
+
+            <div style="background:rgba(139,184,168,0.05); padding:15px; border-radius:8px; border-left:3px solid ${fortuneInfo.color}; font-size:0.95rem; line-height:1.7; margin-top:20px;">
+                <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên</div>
+                ${aiResult.adviceHtml}
+            </div>
+        `;
     }
 
-    const gotoBtn = document.getElementById('fate-goto-btn');
-    if (gotoBtn) {
-        gotoBtn.innerHTML = `
-            Đọc toàn bộ: <span style="color:var(--text-main); text-transform:none; font-size:0.85rem;">${escapeHTML(randomWork.title || '')} — ${escapeHTML(randomWork.author || '')}</span> &rarr;
+    // Nút liên kết Tác giả
+    const authorName = String(randomWork.author || '').trim();
+    const authorObj = APP_DATA.AUTHOR_DATA.find(author => {
+        const name = String(author.title || author.name || '').trim();
+        return name && authorName && (name === authorName || name.includes(authorName));
+    });
+
+    if (commentaryEl && authorObj?.id) {
+        commentaryEl.innerHTML += `
+            <div style="text-align:center; margin-top:18px; font-size:0.9rem;">
+                <button type="button" data-route-encyclopedia="true" data-route-id="${escapeHTML(authorObj.id)}" data-route-group="ky-tai" class="volume-link" style="font-size:0.9rem;">
+                    Khám phá hồ sơ tác giả ${escapeHTML(authorName)} →
+                </button>
+            </div>
         `;
+    }
+
+    // Nút đọc toàn bộ tinh gọn
+    if (gotoBtn) {
+        gotoBtn.innerHTML = `Đọc toàn bộ tác phẩm &rarr;`;
         gotoBtn.onclick = () => {
             overlay.classList.remove('show');
             setTimeout(() => { overlay.style.display = 'none'; }, 300);
-            gotoEncyclopediaById({ id: randomWork.id, group: 'tinh-hoa', title: randomWork.title, author: randomWork.author });
+            gotoEncyclopediaById({
+                id: randomWork.id,
+                group: 'tinh-hoa',
+                title: randomWork.title,
+                author: randomWork.author
+            });
         };
     }
 }
