@@ -2,70 +2,110 @@
  * ==========================================================
  * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
  * Vị trí: js/ai/master.js
- * Version: 2.0.0 (Knowledge Network Orchestrator)
+ * Version: 3.0.0 (Unified Intelligence Network Orchestrator)
  * ==========================================================
  * CHỨC NĂNG:
  * - Điều phối (Orchestrate) dựa trên Intent (type + mode).
- * - Xử lý Fallback thông minh cho các Agent chưa được xây dựng.
+ * - Sử dụng AgentRegistry để tra cứu Agent phù hợp thay vì hardcode.
+ * - Xử lý Fallback thông minh khi không tìm thấy Agent.
  * - Cung cấp API cho UI (processQuery) và Audit (parseIntent, dispatch).
+ * 
+ * TRIẾT LÝ:
+ * - Master AI là "Nhạc trưởng", không phải "Người làm tất cả".
+ * - Mọi quyết định định tuyến đều dựa trên AgentRegistry.
+ * - Kết quả trả về phải có cấu trúc chuẩn (answer, detail, source, meta).
  * ==========================================================
  */
 
 import { InputAI } from './input-ai.js';
 import { OutputAI } from './output-ai.js';
+import { AgentRegistry } from './agent-registry.js'; // [MỚI] Sổ đăng ký Agent
+
+// Import tất cả các Agent chuyên môn
 import { LiteratureAgent } from './agents/literature.js';
 import { PoeticsAgent } from './agents/poetics.js';
 import { AnalysisAgent } from './agents/analysis.js';
 import { FortuneAgent } from './agents/fortune-ai.js';
-import { KnowledgeAgent } from './agents/knowledge.js'; // [MỚI] Chuyên gia Mạng lưới
+import { KnowledgeAgent } from './agents/knowledge.js';
 
-// ==========================================================
-// 1. HÀM ĐIỀU PHỐI NỘI BỘ (Internal Dispatcher)
-// ==========================================================
+// =====================================================================
+// 1. BẢN ĐỒ AGENT (AGENT MAP) - Ánh xạ key từ Registry sang Object thực tế
+// =====================================================================
+const AGENT_MAP = {
+    'literature': LiteratureAgent,
+    'poetics': PoeticsAgent,
+    'analysis': AnalysisAgent,
+    'fortune': FortuneAgent,
+    'knowledge': KnowledgeAgent
+};
+
+// =====================================================================
+// 2. HÀM ĐIỀU PHỐI NỘI BỘ (Internal Dispatcher)
+// =====================================================================
 async function internalDispatch(intent) {
     try {
+        // -----------------------------------------------------------------
+        // BƯỚC 1: TRA CỨU AGENT REGISTRY
+        // -----------------------------------------------------------------
+        const agentKey = AgentRegistry.findAgentForTask(intent.type);
+        
+        if (!agentKey) {
+            // Fallback: Nếu không có Agent nào đăng ký task này, chuyển cho LiteratureAgent tìm kiếm
+            console.warn(`[MASTER] Không tìm thấy Agent cho task: "${intent.type}". Fallback về LiteratureAgent.`);
+            return await LiteratureAgent.search(intent.query);
+        }
+
+        const agent = AGENT_MAP[agentKey];
+        if (!agent) {
+            throw new Error(`Agent "${agentKey}" được đăng ký nhưng không tìm thấy trong AGENT_MAP.`);
+        }
+
+        // -----------------------------------------------------------------
+        // BƯỚC 2: GỌI HÀM TƯƠNG ỨNG CỦA AGENT
+        // -----------------------------------------------------------------
+        // Sử dụng switch để gọi đúng phương thức của Agent.
+        // (Có thể dùng dynamic method call nếu đặt tên hàm thống nhất, nhưng switch an toàn hơn).
         switch (intent.type) {
-            // ================= NHÓM TÁC PHẨM & TÁC GIẢ (LITERATURE AGENT) =================
+            // ================= NHÓM TÁC PHẨM & TÁC GIẢ (LITERATURE) =================
             case 'summarize-work':
-                return await LiteratureAgent.summarize(intent.query);
+                return await agent.summarize(intent.query);
 
             case 'find-author-of':
-                return await LiteratureAgent.findAuthor(intent.query);
+                return await agent.findAuthor(intent.query);
 
             case 'recommend':
-                return await LiteratureAgent.recommend(intent.query);
+                return await agent.recommend(intent.query);
             
             case 'define-genre':
-                return await LiteratureAgent.defineGenre(intent.query);
+                return await agent.defineGenre(intent.query);
 
-            // ================= NHÓM MẠNG LƯỚI (KNOWLEDGE AGENT) =================
+            // ================= NHÓM MẠNG LƯỚI (KNOWLEDGE) =================
             case 'find-related':
-                return await KnowledgeAgent.findRelated(intent.query);
+                return await agent.findRelated(intent.query);
 
             case 'find-author-info':
-                return await KnowledgeAgent.getAuthorInfo(intent.query);
+                return await agent.getAuthorInfo(intent.query);
 
             case 'list-author-works':
-                return await KnowledgeAgent.listAuthorWorks(intent.query);
+                return await agent.listAuthorWorks(intent.query);
 
-            // Fallback: Khám phá toàn cảnh mạng lưới
             case 'explore':
-                const exploreRes = await KnowledgeAgent.exploreEntity(intent.query);
+                const exploreRes = await agent.exploreEntity(intent.query);
                 if (exploreRes) return exploreRes;
                 // Nếu không tìm thấy, rơi xuống case search
                 break;
 
-            // ================= NHÓM THI PHÁP & TỪ ĐIỂN (POETICS AGENT) =================
+            // ================= NHÓM THI PHÁP & TỪ ĐIỂN (POETICS) =================
             case 'explain-symbol':
             case 'explain-allusion':
             case 'define-term':
-                return await PoeticsAgent.explainSymbol(intent.query);
+                return await agent.explainSymbol(intent.query);
 
-            // ================= NHÓM PHÂN TÍCH VĂN HỌC (ANALYSIS AGENT) =================
+            // ================= NHÓM PHÂN TÍCH (ANALYSIS) =================
             case 'analyze-work':
                 const workInfo = await LiteratureAgent.getWorkInfo(intent.query);
                 if (workInfo.ok) {
-                    const analysis = await AnalysisAgent.analyze(workInfo.record);
+                    const analysis = await agent.analyze(workInfo.record);
                     return { ...analysis, meta: [workInfo.record] };
                 }
                 return { 
@@ -73,7 +113,7 @@ async function internalDispatch(intent) {
                     source: 'master' 
                 };
 
-            // ================= NHÓM BÓI TOÁN (FORTUNE AGENT) =================
+            // ================= NHÓM BÓI TOÁN (FORTUNE) =================
             case 'fortune':
                 return { 
                     answer: 'Vui lòng sử dụng nút "Một bài thơ cho hôm nay" ở Trang Chủ để gieo quẻ vận khí.', 
@@ -83,39 +123,47 @@ async function internalDispatch(intent) {
             // ================= NHÓM MẶC ĐỊNH (SEARCH) =================
             case 'search':
             default:
-                // Nếu là câu hỏi nhưng chưa có Agent chuyên biệt,
-                // chuyển sang cho LiteratureAgent tìm kiếm.
-                return await LiteratureAgent.search(intent.query);
+                return await agent.search(intent.query);
         }
     } catch (err) {
-        console.error('[MASTER AI] Lỗi trong quá trình xử lý:', err);
+        console.error('[MASTER AI] Lỗi trong quá trình điều phối:', err);
         return { 
-            answer: 'Đã xảy ra lỗi khi kết nối với chuyên gia. Hãy thử lại sau.', 
+            answer: 'Hệ thống đang gặp chút trục trặc trong việc kết nối tri thức. Hãy thử lại sau giây lát.', 
+            detail: `Chi tiết lỗi: ${err.message}`,
             source: 'error' 
         };
     }
 }
 
-// ==========================================================
-// 2. PUBLIC API (Dành cho UI & Audit)
-// ==========================================================
+// =====================================================================
+// 3. PUBLIC API (Dành cho UI & Audit)
+// =====================================================================
 export const MasterAI = {
     /**
-     * Dùng cho Audit.js test
+     * Phân tích câu hỏi (Dùng cho Audit hoặc Debug)
+     * @param {string} input 
+     * @returns {Object} Intent object
      */
     parseIntent(input) {
         return InputAI.parseIntent(input);
     },
 
     /**
-     * Dùng cho Audit.js test
+     * Thực thi một Intent (Dùng cho Audit hoặc gọi trực tiếp từ code khác)
+     * @param {Object} intent 
+     * @returns {Promise<Object>} Kết quả từ Agent
      */
     async dispatch(intent) {
         return await internalDispatch(intent);
     },
 
     /**
-     * Dùng cho UI (ask-dao.js) khi người dùng nhấn Enter
+     * [API CHÍNH] Xử lý câu hỏi từ người dùng (Dùng cho UI ask-dao.js)
+     * Tự động phân tích, hiển thị loading, gọi Agent và render kết quả.
+     * 
+     * @param {HTMLInputElement} inputElement - Ô input chứa câu hỏi
+     * @param {HTMLElement} container - Khung chứa kết quả
+     * @returns {Promise<Object>} { type: 'search' | 'answered' | 'empty' }
      */
     async processQuery(inputElement, container) {
         const text = inputElement.value.trim();
@@ -144,5 +192,5 @@ export const MasterAI = {
     }
 };
 
-// Tương thích ngược
+// Tương thích ngược (Legacy support)
 export const AIDispatcher = MasterAI;
