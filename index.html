@@ -16,6 +16,11 @@
     <!-- ================================================================= -->
     <link rel="preload" href="assets/fonts/AlexBrush-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="assets/khung.jpg" as="image">
+    
+    <!-- Preload các file JS AI cốt lõi để tránh hiện tượng "nháy" khi hỏi đáp -->
+    <link rel="modulepreload" href="js/ai.js">
+    <link rel="modulepreload" href="js/ai/master.js">
+    <link rel="modulepreload" href="js/network/data-hub.js">
 
     <!-- ================================================================= -->
     <!-- 3. FAVICON & PWA MANIFEST                                        -->
@@ -51,7 +56,6 @@
 
     <!-- ================================================================= -->
     <!-- 7. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG (CANVAS)                   -->
-    <!-- Ép chìm xuống dưới cùng, không chiếm chỗ -->
     <!-- ================================================================= -->
     <canvas id="water-canvas" aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; display: block;"></canvas>
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden;"></div>
@@ -86,7 +90,6 @@
 
     <!-- ================================================================= -->
     <!-- 10. THANH ĐIỀU HƯỚNG (HEADER)                                    -->
-    <!-- Nằm ngoài .container để tránh lỗi khoảng trắng đầu trang         -->
     <!-- ================================================================= -->
     <header id="app-header">
         <nav class="navbar" aria-label="Điều hướng chính">
@@ -202,7 +205,7 @@
                     <label for="encyclopedia-search" class="sr-only">Tìm kiếm hoặc Hỏi Đạo</label>
                     <div class="search-wrap search-box-wrapper">
                         <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="search" id="encyclopedia-search" placeholder="Tìm kiếm hoặc hỏi: Ai viết Truyện Kiều? / Lục bát là gì?" aria-describedby="encyclopedia-count" oninput="window.handleSearchInput()">
+                        <input type="search" id="encyclopedia-search" placeholder="Tìm kiếm hoặc hỏi: Tác phẩm thời nhà Lê? / Lục bát là gì?" aria-describedby="encyclopedia-count" oninput="window.handleSearchInput()">
                         <button type="button" id="clear-search-btn" class="clear-btn" onclick="window.clearSearch()" title="Xóa tìm kiếm">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -322,7 +325,7 @@
             <!-- Khối Mạng Lưới Tri Thức (Network) -->
             <div style="margin-bottom: 20px;">
                 <p style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">
-                    Mạng Lưới Tri Thức
+                    Mạng Lưới Tri Thức (DataHub)
                 </p>
                 
                 <div class="network-section">
@@ -380,7 +383,7 @@
     <!-- 16. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
-        window.VD_APP_VERSION = '1.3.3';
+        window.VD_APP_VERSION = '3.2.0';
         window.VD_BUILD_DATE  = '2026-11-21';
     </script>
     
