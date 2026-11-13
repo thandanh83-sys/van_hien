@@ -156,3 +156,52 @@ export const CharacterAgent = {
         };
     }
 };
+
+// =====================================================================
+// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// =====================================================================
+/**
+ * Metadata tự mô tả của CharacterAgent.
+ * Chuyên trách tra cứu nhân vật văn học (Thúy Kiều, Chí Phèo, Tấm, Cám...).
+ *
+ * CƠ CHẾ HOẠT ĐỘNG (Text Scanning):
+ * - Duyệt qua `APP_DATA.WORKS_DATA` (kho tác phẩm trong RAM).
+ * - Tìm nhân vật trong 2 nguồn:
+ *     1. Tiêu đề tác phẩm (VD: "Chí Phèo" -> tên tác phẩm).
+ *     2. Trường mô tả (desc) của tác phẩm.
+ * - KHÔNG fetch nội dung chi tiết (content) để tối ưu hiệu năng,
+ *   vì nội dung chi tiết thường rất dài và ít khi chứa tên nhân vật
+ *   dạng đủ rõ để match chuẩn xác.
+ *
+ * NÂNG CẤP TRONG TƯƠNG LAI:
+ * - Có thể thêm quét `content` (chi tiết) hoặc dùng DataHub để
+ *   lấy nội dung đã cache offline, giúp tăng độ chính xác.
+ * - Có thể mở rộng danh sách nhân vật được index sẵn (characters
+ *   dictionary) để tăng tốc tra cứu.
+ */
+CharacterAgent.agentInfo = {
+    // ---- Định danh ----
+    key: 'character',
+    name: 'Nhân Vật AI',
+    description: 'Chuyên trách tra cứu nhân vật văn học.',
+
+    // ---- Năng lực ----
+    capabilities: {
+        'get-character-info': 'getCharacterInfo' // "Thúy Kiều là ai?"
+    },
+
+    // ---- Loại dữ liệu có thể đọc ----
+    canRead: ['work', 'author'],
+
+    // ---- Agent được phép ủy thác ----
+    canDelegate: ['literature', 'knowledge'],
+
+    // ---- Từ khóa nhận diện Intent ----
+    intentPatterns: {
+        // 'la ai' rất dễ trùng với các intent khác (VD: 'find-author-of'
+        // cũng có 'la ai' trong câu "ai là tác giả của..."), nhưng
+        // InputAI sẽ ưu tiên theo thứ tự đăng ký trong DynamicIntentPatterns.
+        // Trong thực tế, cần kết hợp thêm context (VD: có 'nhan vat' đi kèm).
+        'get-character-info': ['nhan vat', 'character', 'la ai', 'nhan vat nao']
+    }
+};
