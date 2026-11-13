@@ -69,7 +69,7 @@
     "parent": "van-xuoi",
     "classification": "the-loai",
     "description": "Tác phẩm tự sự cỡ lớn, phản ánh bức tranh xã hội rộng lớn với nhiều tuyến nhân vật và sự kiện đan xen. Có khả năng bao quát hiện thực và đi sâu vào thế giới nội tâm.",
-    "related": ["so-do", "tat-den", "toi-ac-va-hinh-phat", "chiến-tranh-va-hoa-binh"]
+    "related": ["so-do", "tat-den", "toi-ac-va-hinh-phat", "chien-tranh-va-hoa-binh"]
   },
   {
     "id": "truyen-chuong-hoi",
