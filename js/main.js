@@ -2,15 +2,15 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 1.1.0 (Offline-First & AI Integration)
+ * Version: 1.2.0 (Multi-Agent Integration)
  * ==========================================================
  * CHỨC NĂNG:
- * - Khởi chạy App, quản lý Splash Screen.
- * - Load dữ liệu từ JSON.
- * - Xử lý Tìm kiếm thông minh (Gộp Tra Cứu & Hỏi Đạo).
- * - Bắt sự kiện Hỏi AI Tóm tắt trong bài đọc.
- * - Tích hợp AI vào Thi Pháp Học (Tầng 4).
- * - Sử dụng Custom Modal thay thế alert/confirm.
+ * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
+ * - Load dữ liệu từ JSON vào APP_DATA.
+ * - Xử lý Thi Pháp Học (Tích hợp Tầng 4: AI Analysis).
+ * - Xử lý Bói Thơ (Tích hợp Fortune Agent + Analysis Agent).
+ * - Gắn sự kiện Tìm kiếm (Master AI), Cài đặt (Network/Offline).
+ * - Sử dụng Custom Modal (showAlert, showConfirm) thay thế alert/confirm.
  * ==========================================================
  */
 
@@ -28,7 +28,8 @@ import {
 } from './render.js';
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
-import { calculateFortune, synthesizeDynamicFortune, AIDispatcher, analyzeWork } from './ai.js';
+// [MULTI-AGENT] Import từ Facade AI (js/ai.js)
+import { AIDispatcher, analyzeWork, calculateFortune, synthesizeDynamicFortune } from './ai.js';
 import { runFullDiagnosis } from './audit.js';
 import { MotherNode, bootstrapNetwork } from './network/index.js';
 import { handleSmartSearch, resetSearchState } from './ask-dao.js';
@@ -254,9 +255,8 @@ function executePipeline() {
         </div>
     `;
 
-    // Gọi AI phân tích (Tầng 4)
-    import('./ai.js').then(({ analyzeWork }) => {
-        const analysis = analyzeWork({ content: raw, title: 'Bài thơ chưa đặt tên', author: 'Khuyết danh' });
+    // Gọi Analysis Agent phân tích (Thông qua Facade ai.js)
+    analyzeWork({ content: raw, title: 'Bài thơ chưa đặt tên', author: 'Khuyết danh' }).then(analysis => {
         const aiDiv = document.getElementById('ai-poetry-analysis');
         if (aiDiv) {
             aiDiv.innerHTML = `
@@ -394,8 +394,11 @@ function randomPoem() {
     resultEl.classList.add('show');
 
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
+    
+    // [MULTI-AGENT] Phân tích và Bói toán
+    const analysis = analyzeWork(randomWork);
     const fortuneKey = calculateFortune();
-    const aiResult = synthesizeDynamicFortune(randomWork, fortuneKey);
+    const aiResult = synthesizeDynamicFortune(randomWork, fortuneKey, analysis);
     const fortuneInfo = aiResult.fortuneInfo;
 
     if (badge) {
