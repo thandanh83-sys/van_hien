@@ -1,9 +1,14 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
- * Chức năng: Hiển thị Văn Hiến, Đại Bách Khoa, Accordion,
- * Quản lý nội dung, Symbol Highlighter, Tác phẩm liên quan.
- * Đã sửa: Logic gợi ý tác phẩm chặt chẽ, tách link tác giả.
+ * Vị trí: js/render.js
+ * Version: 1.0.0
+ * ==========================================================
+ * Chức năng:
+ * - Render Văn Hiến, Bách Khoa, Accordion.
+ * - Quản lý Cache nội dung (ContentManager).
+ * - Tìm tác phẩm liên quan & Tác giả liên quan (NÂNG CẤP).
+ * - Bộ highlight biểu tượng.
  * ==========================================================
  */
 
@@ -139,7 +144,7 @@ export function renderHeritage() {
    MODULE 5: CONTENT MANAGER (BỘ NHỚ ĐỆM NỘI DUNG)
    ===================================================================== */
 export const ContentManager = (() => {
-    const MAX_CACHE_BYTES = 5 * 1024 * 1024;
+    const MAX_CACHE_BYTES = 5 * 1024 * 1024; // 5MB
     const cache = new Map();
     const pending = new Map();
     let currentSize = 0;
@@ -147,7 +152,7 @@ export const ContentManager = (() => {
     function getCache(key) {
         if (!cache.has(key)) return null;
         const v = cache.get(key);
-        cache.delete(key); cache.set(key, v);
+        cache.delete(key); cache.set(key, v); // LRU: Đẩy lên đầu
         return v;
     }
 
@@ -158,6 +163,7 @@ export const ContentManager = (() => {
         }
         const size = JSON.stringify(value).length;
         if (size > MAX_CACHE_BYTES) return;
+        
         while (currentSize + size > MAX_CACHE_BYTES && cache.size) {
             const oldest = cache.keys().next().value;
             currentSize -= JSON.stringify(cache.get(oldest)).length;
@@ -171,6 +177,7 @@ export const ContentManager = (() => {
         const key = `${group}:${item.id}`;
         const cached = getCache(key);
         if (cached) return cached;
+        
         const inFlight = pending.get(key);
         if (inFlight && !inFlight.signal?.aborted) return inFlight.promise;
         if (inFlight) pending.delete(key);
@@ -204,7 +211,7 @@ export const ContentManager = (() => {
         }
     }
 
-    return { load, clearCache: () => { cache.clear(); currentSize = 0; }, getStats: () => ({ items: cache.size, size: currentSize }) };
+    return { load, clearCache: () => { cache.clear(); currentSize = 0; } };
 })();
 
 const accordionAbortControllers = new Map();
@@ -223,6 +230,7 @@ export async function ensureAccordionContent(details) {
     const group = details.dataset.group;
     const cacheKey = `${group}:${itemId}`;
     const contentDiv = details.querySelector('.accordion-content');
+    
     if (!itemId || !group || !contentDiv) return;
     if (contentDiv.dataset.contentLoaded === 'true') return;
     if (contentDiv.dataset.loading === 'true') return;
@@ -284,7 +292,9 @@ export function bindEncyclopediaEvents() {
         const details = e.target;
         if (!(details instanceof HTMLDetailsElement)) return;
         if (!details.matches('details[data-id][data-group]')) return;
+        
         if (details.open) {
+            // Đóng các accordion khác
             container.querySelectorAll('details[open]').forEach(other => {
                 if (other !== details) { other.open = false; clearAccordionContent(other); }
             });
@@ -396,6 +406,9 @@ export function renderEncyclopedia() {
 }
 
 export function searchEncyclopedia() {
+    // [FIX P1] Nếu đang ở chế độ Hỏi Đạo, không chạy search thường
+    if (STATE.searchMode === 'ask') return;
+
     const input = document.getElementById('encyclopedia-search');
     if (!input) return;
     const kw = input.value.trim();
@@ -431,11 +444,10 @@ export function searchEncyclopedia() {
 }
 
 /* =====================================================================
-   MODULE 5.3: TÁC PHẨM LIÊN QUAN & SYMBOL HIGHLIGHTER
+   MODULE 5.3: TÁC PHẨM & TÁC GIẢ LIÊN QUAN (NÂNG CẤP)
    ===================================================================== */
 export function findSymbols(text) {
     if (!text) return [];
-
     const source = String(text).toLocaleLowerCase('vi').normalize('NFC');
     const dictionary = APP_DATA.DICTIONARY_DATA || {};
     const groups = [
@@ -445,7 +457,6 @@ export function findSymbols(text) {
     ];
 
     const candidates = [];
-
     for (const [type, entries] of groups) {
         for (const [keyword, info] of Object.entries(entries)) {
             const normalizedKeyword = String(keyword).toLocaleLowerCase('vi').normalize('NFC').trim();
@@ -467,8 +478,10 @@ export function findSymbols(text) {
         }
     }
 
+    // Sắp xếp theo độ dài giảm dần (để bắt từ dài trước, tránh đè từ ngắn)
     candidates.sort((a, b) => b.length - a.length || a.start - b.start);
 
+    // Lọc trùng lặp (overlap)
     const accepted = [];
     for (const item of candidates) {
         const overlaps = accepted.some(hit => item.start < hit.end && item.end > hit.start);
@@ -527,103 +540,200 @@ export function highlightSymbolsInContent(container) {
     });
 }
 
-// =====================================================================
-// HÀM TÌM TÁC PHẨM LIÊN QUAN (ĐÃ SIẾT CHẶT LOGIC)
-// =====================================================================
+// [FIX P0] TÌM TÁC PHẨM LIÊN QUAN
 export function findRelatedWorks(current, limit = 5) {
     if (!current) return [];
     
-    return APP_DATA.WORKS_DATA
+    const currentAuthor = (current.author || '').toLowerCase().trim();
+    const isAnonymous = !currentAuthor || ['dân gian', 'khuyết danh', 'vô danh'].includes(currentAuthor);
+    // [FIX] Dùng desc || content thay vì chỉ content
+    const currentText = current.desc || current.content || '';
+    
+    let scoredWorks = APP_DATA.WORKS_DATA
         .filter(w => w.id !== current.id)
         .map(w => {
             let score = 0;
-            let reason = "";
+            const reasons = [];
 
-            // 1. Ưu tiên tuyệt đối: Cùng tác giả
-            if (w.author && current.author && w.author.trim() === current.author.trim()) {
-                score += 50;
-                reason = "Cùng tác giả";
+            // 1. Cùng tác giả (+60)
+            if (!isAnonymous && w.author && w.author.toLowerCase().trim() === currentAuthor) {
+                score += 60;
+                reasons.push("Cùng tác giả");
             }
-
-            // 2. Cùng thể loại (Phải trùng khớp ít nhất 1 thể loại)
+            // 2. Cùng thời kỳ (+40)
+            if (current.era && w.era && current.era.toLowerCase().trim() === w.era.toLowerCase().trim()) {
+                score += 40;
+                reasons.push("Cùng thời kỳ");
+            }
+            // 3. Cùng loại hình (+30)
+            if (current.loai_hinh && w.loai_hinh === current.loai_hinh) {
+                score += 30;
+                if (!reasons.length) reasons.push("Cùng loại hình");
+            }
+            // 4. Cùng thể loại (+25)
             const sharedGenres = (w.the_loai || []).filter(g => (current.the_loai || []).includes(g));
             if (sharedGenres.length > 0) {
-                score += sharedGenres.length * 10;
-                if (!reason) reason = `Cùng thể loại: ${sharedGenres[0]}`;
+                score += sharedGenres.length * 25;
+                if (!reasons.length) reasons.push(`Cùng thể loại: ${sharedGenres[0]}`);
             }
-
-            // 3. Cùng chủ đề (chỉ xét nếu đã có điểm từ tác giả/thể loại, tránh gợi ý rác)
+            // 5. Chung chủ đề (+5/symbol)
             if (score > 0) {
-                const curSyms = new Set(findSymbols(current.content || '').map(s => s.keyword));
+                const curSyms = new Set(findSymbols(currentText).map(s => s.keyword));
                 if (curSyms.size > 0) {
-                    const sharedSyms = findSymbols(w.content || '').filter(s => curSyms.has(s.keyword)).length;
+                    const wText = w.desc || w.content || '';
+                    const sharedSyms = findSymbols(wText).filter(s => curSyms.has(s.keyword)).length;
                     if (sharedSyms > 0) {
-                        score += sharedSyms * 2;
-                        if (!reason) reason = "Cùng chủ đề";
+                        score += sharedSyms * 5;
+                        if (!reasons.length) reasons.push("Cùng chủ đề");
                     }
                 }
             }
-
-            return { w, score, reason };
+            return { w, score, reason: reasons[0] || "" };
         })
-        .filter(x => x.score > 0) // Chỉ lấy những bài thực sự có điểm
+        .filter(x => x.score > 0)
         .sort((a, b) => b.score - a.score)
         .slice(0, limit)
-        .map(x => ({ ...x.w, _reason: x.reason })); // Đính kèm lý do
+        .map(x => ({ ...x.w, _reason: x.reason }));
+
+    // Fallback: Nếu không có gì liên quan, lấy ngẫu nhiên
+    if (scoredWorks.length === 0) {
+        const others = APP_DATA.WORKS_DATA.filter(w => w.id !== current.id);
+        others.sort(() => 0.5 - Math.random());
+        scoredWorks = others.slice(0, 3).map(w => ({ ...w, _reason: "Gợi ý ngẫu nhiên" }));
+    }
+    return scoredWorks;
 }
 
-// =====================================================================
-// HÀM HIỂN THỊ TÁC PHẨM LIÊN QUAN (CÓ LINK TÁC GIẢ RIÊNG)
-// =====================================================================
+// [NEW P1] TÌM TÁC GIẢ LIÊN QUAN
+export function findRelatedAuthors(current, limit = 4) {
+    if (!current || !current.author) return [];
+    const currentAuthor = current.author.toLowerCase().trim();
+    if (['dân gian', 'khuyết danh', 'vô danh'].includes(currentAuthor)) return [];
+    
+    const currentAuthorObj = APP_DATA.AUTHOR_DATA.find(a => {
+        const t = (a.title || a.name || '').replace(/^Chân Dung Tác Giả:\s*/i, '').toLowerCase().trim();
+        return t === currentAuthor;
+    });
+    
+    const currentWorks = APP_DATA.WORKS_DATA.filter(w => 
+        w.author && w.author.toLowerCase().trim() === currentAuthor
+    );
+    if (currentWorks.length === 0) return [];
+    
+    const currentEras = new Set(currentWorks.map(w => (w.era || '').toLowerCase().trim()).filter(Boolean));
+    const currentLoaiHinh = new Set(currentWorks.map(w => w.loai_hinh).filter(Boolean));
+    const currentGenres = new Set();
+    currentWorks.forEach(w => (w.the_loai || []).forEach(g => currentGenres.add(g)));
+    
+    return APP_DATA.AUTHOR_DATA
+        .filter(a => !currentAuthorObj || a.id !== currentAuthorObj.id)
+        .map(a => {
+            const authorName = (a.title || a.name || '').replace(/^Chân Dung Tác Giả:\s*/i, '').toLowerCase().trim();
+            if (authorName === currentAuthor) return null;
+            const theirWorks = APP_DATA.WORKS_DATA.filter(w => w.author && w.author.toLowerCase().trim() === authorName);
+            if (theirWorks.length === 0) return null;
+            
+            let score = 0;
+            let reason = "";
+            
+            const theirEras = new Set(theirWorks.map(w => (w.era || '').toLowerCase().trim()).filter(Boolean));
+            const sharedEras = [...currentEras].filter(e => theirEras.has(e));
+            if (sharedEras.length > 0) { score += sharedEras.length * 25; reason = "Cùng thời kỳ"; }
+            
+            const theirLoaiHinh = new Set(theirWorks.map(w => w.loai_hinh).filter(Boolean));
+            const sharedLoaiHinh = [...currentLoaiHinh].filter(l => theirLoaiHinh.has(l));
+            if (sharedLoaiHinh.length > 0) {
+                score += sharedLoaiHinh.length * 20;
+                if (!reason) reason = "Cùng loại hình";
+            }
+            
+            const theirGenres = new Set();
+            theirWorks.forEach(w => (w.the_loai || []).forEach(g => theirGenres.add(g)));
+            const sharedGenres = [...currentGenres].filter(g => theirGenres.has(g));
+            if (sharedGenres.length > 0) {
+                score += sharedGenres.length * 15;
+                if (!reason) reason = `Cùng thể loại: ${sharedGenres[0]}`;
+            }
+            
+            return { a, score, reason };
+        })
+        .filter(x => x && x.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit)
+        .map(x => ({ ...x.a, _reason: x.reason }));
+}
+
+// [NEW P1] HIỂN THỊ 2 KHỐI (TÁC GIẢ + TÁC PHẨM)
 export function appendRelatedSection(container, item, group) {
     if (group !== 'tinh-hoa') return;
-    if (container.querySelector('.related-section')) return; 
+    if (container.querySelector('.related-section')) return;
     
-    const related = findRelatedWorks(item, 5);
-    if (!related.length) return;
-
+    const relatedWorks = findRelatedWorks(item, 5);
+    const relatedAuthors = findRelatedAuthors(item, 4);
+    if (!relatedWorks.length && !relatedAuthors.length) return;
+    
     const section = document.createElement('div');
     section.className = 'related-section';
     
-    section.innerHTML = `
-        <div class="related-title">Tác phẩm liên quan</div>
-        <div class="related-grid">
-            ${related.map(w => `
-                <div class="related-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 12px 14px;">
-                    
-                    <!-- VÙNG 1: BẤM VÀO ĐỂ ĐỌC BÀI (Chiếm 80% diện tích) -->
-                    <div 
-                        data-route-encyclopedia="true" 
-                        data-route-id="${escapeHTML(w.id)}" 
-                        data-route-group="tinh-hoa" 
-                        data-route-title="${escapeHTML(w.title)}" 
-                        data-route-author="${escapeHTML(w.author || '')}"
-                        style="flex: 1; cursor: pointer;"
-                    >
-                        <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px; line-height: 1.3;">
-                            ${escapeHTML(w.title)}
-                        </div>
-                    </div>
-
-                    <!-- VÙNG 2: BẤM VÀO TÊN TÁC GIẢ ĐỂ MỞ HỒ SƠ (Nhỏ hơn, ở dưới cùng) -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px dashed rgba(139,184,168,0.2); padding-top: 6px;">
-                        <span 
-                            data-route-encyclopedia="true" 
-                            data-route-group="ky-tai" 
-                            data-route-title="${escapeHTML(w.author || '')}"
-                            style="font-size: 0.75rem; color: var(--accent-text); cursor: pointer; text-decoration: underline;"
-                            title="Xem hồ sơ tác giả"
-                        >
-                            ${escapeHTML(w.author || 'Vô danh')}
-                        </span>
-                        <span style="font-size: 0.65rem; color: var(--text-muted); font-style: italic;">
-                            ${escapeHTML(w._reason || '')}
-                        </span>
-                    </div>
+    let html = '';
+    
+    // KHỐI 1: TÁC GIẢ (Viền Vàng)
+    if (relatedAuthors.length > 0) {
+        html += `
+            <div class="related-block">
+                <div class="related-title">Tác giả liên quan</div>
+                <div class="related-grid author-grid">
+                    ${relatedAuthors.map(a => {
+                        const authorName = (a.title || a.name || '').replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
+                        return `
+                            <button type="button" class="related-card author-related-card"
+                                data-route-encyclopedia="true"
+                                data-route-id="${escapeHTML(a.id)}"
+                                data-route-group="ky-tai"
+                                data-route-title="${escapeHTML(authorName)}">
+                                <div class="author-related-name">${escapeHTML(authorName)}</div>
+                                ${a._reason ? `<div class="author-related-reason">${escapeHTML(a._reason)}</div>` : ''}
+                            </button>
+                        `;
+                    }).join('')}
                 </div>
-            `).join('')}
-        </div>
-    `;
+            </div>
+        `;
+    }
+    
+    // KHỐI 2: TÁC PHẨM (Viền Xanh)
+    if (relatedWorks.length > 0) {
+        html += `
+            <div class="related-block">
+                <div class="related-title">Tác phẩm liên quan</div>
+                <div class="related-grid">
+                    ${relatedWorks.map(w => `
+                        <div class="related-card work-related-card">
+                            <div class="work-related-title"
+                                data-route-encyclopedia="true"
+                                data-route-id="${escapeHTML(w.id)}"
+                                data-route-group="tinh-hoa"
+                                data-route-title="${escapeHTML(w.title)}"
+                                data-route-author="${escapeHTML(w.author || '')}">
+                                ${escapeHTML(w.title)}
+                            </div>
+                            <div class="work-related-meta">
+                                <span class="work-related-author"
+                                    data-route-encyclopedia="true"
+                                    data-route-group="ky-tai"
+                                    data-route-title="${escapeHTML(w.author || '')}">
+                                    ${escapeHTML(w.author || 'Vô danh')}
+                                </span>
+                                <span class="work-related-reason">${escapeHTML(w._reason || '')}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    section.innerHTML = html;
     container.appendChild(section);
 }
 
