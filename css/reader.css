@@ -1,7 +1,8 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - READER CSS (css/reader.css)
- * Đã sửa: Khoảng trắng đầu trang, xóa code chết.
+ * Đã sửa: Khoảng trắng đầu trang, xóa code chết, 
+ * và sửa bố cục nút Hero trên Mobile/PC theo yêu cầu.
  * ==========================================================
  */
 
@@ -14,7 +15,6 @@
     display: flex; 
     align-items: center; 
     justify-content: space-between; 
-    /* XÓA min-height: 60vh để hết khoảng trắng */
     gap: 40px; 
     margin-top: 20px; 
     margin-bottom: 40px; 
@@ -25,7 +25,15 @@
 .hero-content .no-wrap { white-space: nowrap; } 
 .hero-content p { font-family: var(--font-body); font-size: 1.15rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.7; text-align: left; }
 
-.hero-actions { display: flex; align-items: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+/* BỐ CỤC NÚT TRÊN MÁY TÍNH (PC): Nằm ngang hàng */
+.hero-actions { 
+    display: flex; 
+    flex-direction: row; /* Ngang hàng */
+    align-items: center; 
+    gap: 15px; 
+    margin-top: 20px; 
+    flex-wrap: wrap; 
+}
 
 .btn-hero-primary { display: inline-flex; align-items: center; justify-content: center; padding: 14px 32px; background: var(--bg-base); border: 1px solid var(--accent); border-radius: var(--radius-pill); color: var(--accent-text); box-shadow: var(--shadow); cursor: pointer; font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; transition: all 0.3s var(--ease-silk); }
 .btn-hero-primary:hover { background: var(--accent); color: #fff; }
@@ -169,8 +177,19 @@
     .hero-content .no-wrap { white-space: normal; }
     .hero-content p { text-align: center; font-size: 1rem; margin-bottom: 20px; }
     
-    .hero-actions { flex-direction: row; justify-content: center; width: 100%; gap: 10px; }
-    .btn-hero-primary, .btn-hero-secondary { flex: 1; padding: 12px 5px; font-size: 0.7rem; letter-spacing: 0.5px; white-space: nowrap; }
+    /* BỐ CỤC NÚT TRÊN MOBILE: Xếp chồng lên nhau (Khám phá trên, Bài thơ dưới) */
+    .hero-actions {
+        flex-direction: column; 
+        justify-content: center;
+        width: 100%;
+        gap: 15px; 
+    }
+    .btn-hero-primary, .btn-hero-secondary {
+        width: 100%; /* Giãn full chiều ngang */
+        flex: unset;
+        padding: 14px 20px; 
+        font-size: 0.8rem; 
+    }
 
     .hero-visual { justify-content: center; }
     .arch-frame { width: 260px; height: 340px; border-radius: 130px 130px 16px 16px; }
