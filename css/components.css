@@ -2,13 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 1.0.2 (Refined UI & Pagination)
+ * Version: 1.0.4 (Smart Search Integration)
  * ==========================================================
  * CHỨC NĂNG:
- * - Định dạng các thành phần nhỏ lẻ (Nút, Thanh tìm kiếm, Toggle).
+ * - Định dạng các thành phần nhỏ lẻ (Nút, Thanh tìm kiếm).
  * - Khối kết quả Hỏi Đạo (Ask Result).
  * - Highlight & Tooltip (Biểu tượng, Từ khóa).
  * - Phân trang (Pagination).
+ * - Nút Xóa Offline (Danger Button).
  * ==========================================================
  */
 
@@ -63,16 +64,17 @@
     display: none; 
 } 
 
-/* Nút Bộ lọc (Văn Hiến, Bách Khoa) - Nâng cấp Gradient Hover */
+/* Nút Bộ lọc (Văn Hiến, Bách Khoa) - Đã Fix Lỗi Mất Chữ */
 .filter-btn { 
     background: transparent;
     border: 1px solid var(--border-color); 
     color: var(--text-muted); 
-    padding: 9px 22px; 
+    padding: 9px 20px; 
     border-radius: var(--radius-pill); 
     cursor: pointer; 
-    letter-spacing: 0.08em !important; 
-    white-space: nowrap;
+    letter-spacing: 0.05em !important; 
+    white-space: nowrap; /* Không cho xuống dòng */
+    flex-shrink: 0; /* Không cho co lại gây mất chữ */
     font-size: 0.8rem;
     position: relative;
     overflow: hidden;
@@ -120,7 +122,7 @@
 }
 
 /* =====================================================================
-   2. PHÂN TRANG (PAGINATION) - ĐÃ FIX LỖI THÔ KỆCH
+   2. PHÂN TRANG (PAGINATION)
    ===================================================================== */
 .pagination-container {
     display: flex;
@@ -183,7 +185,7 @@
 }
 
 /* =====================================================================
-   3. THANH TÌM KIẾM & TOGGLE (SEARCH & INPUT)
+   3. THANH TÌM KIẾM (SEARCH BAR)
    ===================================================================== */
 .search-container { 
     display: flex; 
@@ -195,52 +197,11 @@
     margin-bottom: 25px; 
 }
 
-/* Nút chuyển đổi Tra Cứu / Hỏi Đạo */
-.search-mode-toggle {
-    display: flex;
-    justify-content: center;
-    gap: 4px;
-    padding: 4px;
-    background: rgba(139, 184, 168, 0.06);
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-color);
-    align-self: center;
-}
-
-.search-mode-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 20px;
-    background: transparent;
-    border: none;
-    border-radius: var(--radius-pill);
-    color: var(--text-muted);
-    font-family: var(--font-body);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s var(--ease-silk);
-}
-.search-mode-btn:hover { 
-    color: var(--text-main); 
-}
-.search-mode-btn.active {
-    background: var(--card-bg);
-    color: var(--accent-text);
-    box-shadow: 0 2px 8px rgba(139, 184, 168, 0.2);
-}
-.search-mode-btn svg { 
-    opacity: 0.85; 
-}
-
-/* Ô nhập liệu */
+/* Ô nhập liệu - Mở rộng để chứa câu hỏi dài */
 .search-wrap { 
     position: relative; 
     width: 100%; 
-    max-width: 480px; 
+    max-width: 580px; /* Tăng từ 480px lên 580px */
     margin: 0 auto; 
 }
 .search-icon { 
@@ -412,7 +373,7 @@
 }
 
 /* =====================================================================
-   5. HIGHLIGHT VÀ TOOLTIP
+   5. HIGHLIGHT VÀ TOOLTIP (ĐÃ FIX LỖI ĐỨT CHỮ)
    ===================================================================== */
 mark {
     background-color: #f0ead6;
@@ -422,12 +383,14 @@ mark {
     font-weight: 700; 
 }
 
-/* Highlight Biểu tượng (Chỉ gạch chân mờ, không đè chữ) */
+/* Highlight Biểu tượng (Dùng nền khối thay vì gạch chân) */
 .symbol-mark {
-    background: linear-gradient(transparent 70%, rgba(139, 184, 168, 0.4) 70%);
-    cursor: help; 
-    padding: 0 1px; 
+    background: rgba(139, 184, 168, 0.25); /* Nền xanh mờ */
+    border-radius: 4px;
+    padding: 2px 4px; 
+    margin: 0 2px;
     position: relative;
+    cursor: help; 
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
     color: inherit; 
@@ -440,8 +403,8 @@ mark {
     bottom: 100%; 
     left: 50%;
     transform: translateX(-50%) translateY(4px);
-    background: var(--text-main, #2c3e38); 
-    color: var(--bg-base, #fdfbf7);
+    background: var(--text-main); 
+    color: var(--bg-base);
     padding: 6px 12px; 
     border-radius: 6px;
     font-size: 0.8rem; 
@@ -460,7 +423,51 @@ mark {
 }
 
 /* =====================================================================
-   6. SKELETON LOADING
+   6. CÀI ĐẶT & NÚT XÓA OFFLINE (DANGER BUTTON)
+   ===================================================================== */
+.offline-option-btn {
+    width: 100%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    background: transparent; 
+    border: 1px solid var(--border-color); 
+    border-radius: 12px;
+    padding: 12px 16px; 
+    cursor: pointer; 
+    transition: all 0.2s;
+    text-align: left;
+}
+.offline-option-btn:hover { 
+    border-color: var(--accent); 
+    background: rgba(139, 184, 168, 0.05); 
+}
+
+/* Nút Xóa Dữ Liệu (Tinh tế, rõ ràng, có cảnh báo) */
+.offline-text-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(163, 107, 107, 0.05); /* Nền đỏ cực nhạt */
+    border: 1px solid rgba(163, 107, 107, 0.2);
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: #a36b6b;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 auto;
+}
+.offline-text-btn:hover {
+    background: rgba(163, 107, 107, 0.1);
+    border-color: #a36b6b;
+    box-shadow: 0 4px 12px rgba(163, 107, 107, 0.15);
+}
+
+/* =====================================================================
+   7. SKELETON LOADING
    ===================================================================== */
 .skeleton { 
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
