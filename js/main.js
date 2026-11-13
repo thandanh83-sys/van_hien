@@ -1,7 +1,7 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
- * Đã sửa: Giao diện Fate Modal (Bói thơ) theo yêu cầu.
+ * Đã cập nhật: Tích hợp Văn Đạo AI mới, sửa lỗi Thi pháp.
  * ==========================================================
  */
 
@@ -16,10 +16,10 @@ import {
 } from './render.js';
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
-import { calculateFortune, generateBridgeText, synthesizeCommentary } from './ai.js';
+import { synthesizeCommentary, VAN_DAO_AI } from './ai.js'; // AI MỚI
 
 // =====================================================================
-// PHẦN 1: HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
+// PHẦN 1: HIỆU ỨNG NỀN
 // =====================================================================
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
@@ -75,47 +75,55 @@ function initDewdrops() {
 }
 
 // =====================================================================
-// PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER)
+// PHẦN 2: THI PHÁP HỌC (ĐÃ SỬA LỖI NGỮ ÂM VÀ NHẬN DIỆN)
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
         const nfd = s.normalize('NFD');
         return (nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) ? 'T' : 'B';
     }
+    
+    // SỬA LỖI: Chỉ bỏ dấu thanh, giữ nguyên dấu cấu tạo nguyên âm (ă, â, ê, ô, ơ, ư)
     function getRhymePart(word) {
         if (!word) return '';
-        const clean = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        const m = clean.match(/[aeiouy]+[^aeiouy]*$/);
-        return m ? m[0] : clean.slice(-2);
+        const decomposed = word.toLowerCase().normalize('NFD');
+        const clean = decomposed.replace(/[\u0300\u0301\u0303\u0309\u0323]/g, '').normalize('NFC');
+        const vowels = 'aăâeêioôơuưy';
+        const pattern = new RegExp(`[${vowels}]+[^${vowels}]*$`, 'u');
+        const match = clean.match(pattern);
+        return match ? match[0] : clean.slice(-2);
     }
+
     function analyzeBangTrac(text) {
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length);
         return lines.map((line, i) => {
             const syl = line.match(/[\p{L}\p{N}]+/gu) || [];
-            return {
-                lineNum: i + 1, text: line, count: syl.length,
-                pattern: syl.map(getTone).join(' - '),
-                lastSyllable: syl[syl.length - 1] || ''
-            };
+            return { lineNum: i + 1, text: line, count: syl.length, pattern: syl.map(getTone).join(' - '), lastSyllable: syl[syl.length - 1] || '' };
         });
     }
+
+    // SỬA LỖI: Chỉ kết luận "có dạng", độ tin cậy trung bình khi mới dựa vào số tiếng
     function detectForm(lines) {
-        const counts = lines.map(l => l.count);
+        const counts = lines.map(line => line.count);
         const n = counts.length;
-        const uniform = counts.every(c => c === counts[0]);
+        if (!n) return { form: 'Chưa xác định', confidence: 'thấp', note: 'Không có câu thơ để phân tích.' };
+        const uniform = counts.every(count => count === counts[0]);
         const c = counts[0];
-        if (n === 2 && c === 7) return { form: 'Thất ngôn (2 câu)', confidence: 'trung bình', note: '2 câu × 7 chữ' };
-        if (n === 4 && c === 7) return { form: 'Thất ngôn tứ tuyệt', confidence: 'cao', note: '4 câu × 7 chữ' };
-        if (n === 8 && c === 7) return { form: 'Thất ngôn bát cú Đường luật', confidence: 'cao', note: '8 câu × 7 chữ' };
+
+        if (n === 2 && c === 7) return { form: 'Thất ngôn (2 câu)', confidence: 'trung bình', note: '2 câu × 7 tiếng' };
+        if (n === 4 && c === 7) return { form: 'Có dạng thất ngôn tứ tuyệt', confidence: 'trung bình', note: '4 câu × 7 tiếng; cần đối chiếu thêm cách gieo vần và cấu trúc' };
+        if (n === 8 && c === 7) return { form: 'Có dạng thất ngôn bát cú', confidence: 'trung bình', note: '8 câu × 7 tiếng; cần kiểm tra niêm, luật, đối và vần trước khi kết luận là Đường luật' };
+
         if (n >= 2 && counts[0] === 6 && counts[1] === 8) {
-            const strict = n % 2 === 0 && counts.every((v, i) => v === (i % 2 === 0 ? 6 : 8));
-            return strict
-                ? { form: 'Lục bát', confidence: 'cao', note: 'Luân phiên 6-8 đều' }
-                : { form: 'Hình thức sáu-tám (biến thể)', confidence: 'trung bình', note: 'Có câu 6-8' };
+            const strict = n % 2 === 0 && counts.every((value, index) => value === (index % 2 === 0 ? 6 : 8));
+            if (strict) return { form: 'Có dạng lục bát', confidence: 'trung bình', note: 'Luân phiên 6-8 đều; cần kiểm tra thêm cách hiệp vần' };
+            return { form: 'Hình thức sáu-tám (biến thể)', confidence: 'trung bình', note: 'Có câu 6-8 nhưng chưa luân phiên đều' };
         }
-        if (!uniform) return { form: 'Thơ tự do hoặc biến thể', confidence: 'thấp', note: `Số chữ: ${counts.join(' - ')}` };
-        return { form: `Thơ ${c} chữ`, confidence: 'trung bình', note: `${n} câu × ${c} chữ` };
+
+        if (!uniform) return { form: 'Thơ tự do hoặc biến thể', confidence: 'thấp', note: `Số tiếng từng câu: ${counts.join(' - ')}` };
+        return { form: `Thơ ${c} tiếng`, confidence: 'trung bình', note: `${n} câu × ${c} tiếng` };
     }
+
     function checkRhymeDetails(lines) {
         const result = { chan: [], lung: [], lien: [], cach: [] };
         const lastSyl = lines.map(l => l.lastSyllable);
@@ -144,14 +152,20 @@ const POETRY_ANALYZER = (() => {
         }
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
+
+    // SỬA LỖI: Dùng .some() thay vì kiểm tra độ dài mảng
     function buildQuestions(form, rhymes, symbols) {
-        const qs = [];
-        if (form.confidence !== 'cao') qs.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay ngẫu nhiên? (Xem Quyển I, mục 1.3)`);
-        if (!rhymes.details.chan.length) qs.push(`Không thấy vần chân rõ ràng. Tác giả có chủ ý dùng vần lỏng, hay đây là thơ tự do?`);
-        if (symbols.length) qs.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này gợi nghĩa nào? (Xem Quyển ${symbols[0].vol}, mục ${symbols[0].sec})`);
-        qs.push(`Điều gì ở bài thơ này là "của riêng" tác giả — khác với bài cùng thể?`);
-        return qs.slice(0, 5);
+        const questions = [];
+        if (form.confidence !== 'cao') questions.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay ngẫu nhiên?`);
+        
+        const hasChanRhyme = rhymes.details.chan.some(item => item.isMatch);
+        if (!hasChanRhyme) questions.push('Phép dò gần đúng chưa nhận diện được vần chân rõ ràng; cần nghe nhịp đọc và kiểm tra thêm ngữ âm trước khi kết luận.');
+        
+        if (symbols.length) questions.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này gợi nghĩa nào?`);
+        questions.push('Điều gì ở bài thơ này là "của riêng" tác giả — khác với bài cùng thể?');
+        return questions.slice(0, 5);
     }
+
     function generateReport(text) {
         const bangTrac = analyzeBangTrac(text);
         if (!bangTrac.length) return null;
@@ -173,11 +187,19 @@ function executePipeline() {
         panel.innerHTML = `<div class="result-step" style="border-left-color:var(--accent-gold);"><p style="font-style:italic;color:var(--text-muted);text-align:center;">Vui lòng nhập bài thơ để phân tích.</p></div>`;
         return;
     }
-    const report = POETRY_ANALYZER.generateReport(raw);
+
+    // GỌI QUA API THỐNG NHẤT
+    const aiOutput = VAN_DAO_AI.analyze(raw, {
+        tasks: ['poetics'],
+        poeticsAnalyzer: POETRY_ANALYZER.generateReport
+    });
+    const report = aiOutput.poetics;
+
     if (!report) { panel.innerHTML = ''; return; }
 
+    // ESCAPE HTML ĐỂ BẢO MẬT
     const tier0 = report.bangTrac.map(l =>
-        `<div class="line-row" style="border-bottom:none!important;padding:8px 0;"><span style="color:var(--text-muted);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${l.text}</span><span class="pattern-text">${l.pattern}</span></div>`
+        `<div class="line-row" style="border-bottom:none!important;padding:8px 0;"><span style="color:var(--text-muted);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${escapeHTML(l.text)}</span><span class="pattern-text">${escapeHTML(l.pattern)}</span></div>`
     ).join('');
 
     const renderRhyme = (title, arr, color) => {
@@ -190,8 +212,8 @@ function executePipeline() {
         });
         const list = Object.entries(groups).map(([r, d]) =>
             `<li style="margin-bottom:12px;display:flex;justify-content:space-between;padding:12px 16px;background:rgba(139,184,168,0.06);border-radius:10px;flex-wrap:wrap;gap:16px;">
-                <span style="flex:1;min-width:220px;line-height:1.5;">Câu ${Array.from(d.cauSet).sort((a,b)=>a-b).join(', ')} <span style="margin-left:8px;font-style:italic;color:var(--text-main);">(${Array.from(d.wordSet).map(w=>`"${w}"`).join(' - ')})</span></span>
-                <span style="color:${color};font-weight:700;">${ICONS.check} cùng vần [${r}]</span>
+                <span style="flex:1;min-width:220px;line-height:1.5;">Câu ${Array.from(d.cauSet).sort((a,b)=>a-b).join(', ')} <span style="margin-left:8px;font-style:italic;color:var(--text-main);">(${Array.from(d.wordSet).map(w=>`"${escapeHTML(w)}"`).join(' - ')})</span></span>
+                <span style="color:${color};font-weight:700;">${ICONS.check} cùng vần [${escapeHTML(r)}]</span>
             </li>`
         ).join('');
         return `<div style="margin-bottom:24px;"><strong style="display:block;margin-bottom:12px;color:${color};font-size:0.85rem;text-transform:uppercase;">${title}</strong><ul style="padding-left:0;list-style:none;margin:0;">${list}</ul></div>`;
@@ -206,7 +228,7 @@ function executePipeline() {
     if (hLung) rhymeHtml += renderRhyme('2. Vần lưng', report.rhymes.details.lung, 'var(--accent-gold)');
     if (hLien) rhymeHtml += renderRhyme('3. Vần liền', report.rhymes.details.lien, 'var(--text-main)');
     if (hCach) rhymeHtml += renderRhyme('4. Vần cách', report.rhymes.details.cach, 'var(--text-muted)');
-    if (!hChan && !hLung && !hLien && !hCach) rhymeHtml = `<p style="font-style:italic;color:#e74c3c;padding:15px 0;text-align:center;">Bài thơ không sử dụng vần.</p>`;
+    if (!hChan && !hLung && !hLien && !hCach) rhymeHtml = `<p style="font-style:italic;color:#e74c3c;padding:15px 0;text-align:center;">Phép dò chưa tìm thấy vần rõ ràng.</p>`;
 
     const tier1 = `<div style="margin-bottom:20px;"><strong>Thể thơ:</strong> ${report.form.form} <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note}</span></div>${rhymeHtml}`;
     
@@ -215,18 +237,12 @@ function executePipeline() {
         : report.symbols.map(s => `<div class="symbol-row" style="padding:8px 0;">
             <span class="symbol-keyword">${escapeHTML(s.keyword)}</span>
             <span class="symbol-meaning"><em style="font-size:0.8rem;">[${escapeHTML(s.type)}]</em> ${escapeHTML(s.mean)}</span>
-            <button type="button" class="volume-link" data-route-encyclopedia="true" 
-                data-route-volume="${escapeHTML(s.vol)}" 
-                data-route-section="${escapeHTML(s.sec)}" 
-                data-route-group="triet-thuyet">Xem Bách Khoa</button>
+            <button type="button" class="volume-link" data-route-encyclopedia="true" data-route-volume="${escapeHTML(s.vol)}" data-route-section="${escapeHTML(s.sec)}" data-route-group="triet-thuyet">Xem Bách Khoa</button>
         </div>`).join('');
         
     const tier3 = report.questions.map(q => {
         const formatted = q.replace(/\(Xem Quyển ([IVXLCDM]+), mục ([\d.]+)\)/g, (_, v, sec) => 
-            `(<button type="button" class="volume-link" data-route-encyclopedia="true" 
-                data-route-volume="${escapeHTML(v)}" 
-                data-route-section="${escapeHTML(sec)}" 
-                data-route-group="triet-thuyet">Xem Bách Khoa</button>)`
+            `(<button type="button" class="volume-link" data-route-encyclopedia="true" data-route-volume="${escapeHTML(v)}" data-route-section="${escapeHTML(sec)}" data-route-group="triet-thuyet">Xem Bách Khoa</button>)`
         );
         return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${formatted}</div></div>`;
     }).join('');
@@ -322,7 +338,6 @@ async function loadAllData() {
     }
 }
 
-// ĐÃ XÓA HOÀN TOÀN NHÃN "NGUYÊN VĂN"
 function renderRandomQuote() { 
     const c = document.getElementById('daily-quote-container');
     if (!c || APP_DATA.QUOTES_DATA.length === 0) return; 
@@ -332,96 +347,98 @@ function renderRandomQuote() {
         do { newIndex = Math.floor(Math.random() * APP_DATA.QUOTES_DATA.length); } while (APP_DATA.QUOTES_DATA.length > 1 && newIndex === STATE.currentQuoteIndex);
         STATE.currentQuoteIndex = newIndex;
         const quote = APP_DATA.QUOTES_DATA[STATE.currentQuoteIndex];
-
         c.innerHTML = `<p class="quote-text">${quote.text}</p><p class="quote-author">— ${quote.author} —</p>`;
         c.style.opacity = 1;
     }, 500);
 }
 
 // =====================================================================
-// PHẦN 4: BÓI THƠ (ĐÃ SỬA THEO YÊU CẦU)
+// PHẦN 4: GỢI Ý ĐỌC (SỬ DỤNG AI MỚI)
 // =====================================================================
 function randomPoem() {
-    const validWorks = APP_DATA.WORKS_DATA.filter(w => w.desc && w.desc.trim() !== '');
-    if (!validWorks || validWorks.length === 0) {
-        alert("Kho tàng văn học đang được tải, vui lòng thử lại sau giây lát.");
+    const validWorks = APP_DATA.WORKS_DATA.filter(work => work && (work.desc || work.description || work.content));
+    if (!validWorks.length) {
+        alert('Kho tác phẩm chưa có nội dung đủ để tạo gợi ý đọc.');
         return;
     }
 
     const overlay = document.getElementById('fate-modal-overlay');
     const loadingEl = document.getElementById('fate-loading');
     const resultEl = document.getElementById('fate-result');
-    
+    if (!overlay || !resultEl) return;
+
     overlay.style.display = 'flex';
-    void overlay.offsetWidth; 
+    void overlay.offsetWidth;
     overlay.classList.add('show');
-    
-    loadingEl.classList.add('hidden');
+    loadingEl?.classList.add('hidden');
     resultEl.classList.add('show');
 
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
-    const fortuneKey = calculateFortune(randomWork); 
-    const fortuneInfo = APP_DATA.FORTUNE_CONFIG[fortuneKey] || { name: 'Bình Hòa', color: '#6a7c76' };
-    
-    const bridgeText = generateBridgeText(randomWork, fortuneKey); 
-    const { commentaryText, adviceHtml } = synthesizeCommentary(randomWork, fortuneKey); 
+    const aiResult = synthesizeCommentary(randomWork);
 
     const badge = document.getElementById('fate-badge');
-    badge.textContent = `Vận Khí: ${fortuneInfo.name}`;
-    badge.style.color = fortuneInfo.color;
-    badge.style.borderColor = fortuneInfo.color;
-    
-    document.getElementById('fate-title').textContent = randomWork.title;
-    document.getElementById('fate-excerpt').innerHTML = `"${randomWork.desc}"`;
-
-    let adviceWrapper = '';
-    if (adviceHtml) {
-        adviceWrapper = `
-            <div style="background: rgba(139, 184, 168, 0.08); padding: 15px; border-radius: 8px; border-left: 3px solid ${fortuneInfo.color}; font-size: 0.95rem; line-height: 1.6; margin-top: 15px;">
-                <div style="font-weight: 700; color: var(--accent-text); margin-bottom: 8px; text-transform: uppercase; font-size: 0.8rem;">Lời khuyên</div>
-                ${adviceHtml}
-            </div>
-        `;
+    if (badge) {
+        badge.textContent = `Gợi ý đọc · Độ tin cậy ${aiResult.confidence}`;
+        badge.style.color = 'var(--accent-text)';
+        badge.style.borderColor = 'var(--accent)';
     }
 
-    document.getElementById('fate-commentary').innerHTML = `
-        <p style="margin-bottom: 15px; color: var(--accent-text); font-style: italic;">${bridgeText}</p>
-        <div style="margin-bottom: 15px;">
-            <div style="font-weight: 700; color: var(--accent-text); margin-bottom: 5px; text-transform: uppercase; font-size: 0.8rem;">Lời bình</div>
-            <p style="margin: 0;">${commentaryText}</p>
+    const titleEl = document.getElementById('fate-title');
+    if (titleEl) titleEl.textContent = randomWork.title || 'Tác phẩm';
+
+    const excerptEl = document.getElementById('fate-excerpt');
+    if (excerptEl) {
+        const excerpt = randomWork.desc || randomWork.description || randomWork.content || '';
+        excerptEl.textContent = `“${excerpt}”`;
+    }
+
+    const adviceWrapper = aiResult.adviceHtml ? `
+        <div style="background:rgba(139,184,168,0.08); padding:15px; border-radius:8px; border-left:3px solid var(--accent); font-size:0.95rem; line-height:1.6; margin-top:15px;">
+            <div style="font-weight:700; color:var(--accent-text); margin-bottom:8px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên</div>
+            ${aiResult.adviceHtml}
         </div>
-        ${adviceWrapper}
-    `;
+    ` : '';
 
-    const authorObj = APP_DATA.AUTHOR_DATA.find(a => a.title.includes(randomWork.author));
-    if (authorObj) {
-        document.getElementById('fate-commentary').innerHTML += `
-            <div style="text-align: center; margin-top: 15px; font-size: 0.9rem;">
-                <button data-route-encyclopedia="true" data-route-id="${authorObj.id}" data-route-group="ky-tai" class="volume-link" style="font-size: 0.9rem;">
-                    Khám phá hồ sơ tác giả ${randomWork.author} →
-                </button>
+    const commentaryEl = document.getElementById('fate-commentary');
+    if (commentaryEl) {
+        commentaryEl.innerHTML = `
+            <p style="margin-bottom:15px; color:var(--accent-text); font-style:italic;">${aiResult.bridgeText}</p>
+            <div style="margin-bottom:15px;">
+                <div style="font-weight:700; color:var(--accent-text); margin-bottom:5px; text-transform:uppercase; font-size:0.8rem;">Lời bình</div>
+                <p style="margin:0;">${aiResult.commentaryText}</p>
             </div>
+            ${adviceWrapper}
         `;
+
+        const authorName = randomWork.author || '';
+        const authorObj = APP_DATA.AUTHOR_DATA.find(author => (author.title || author.name || '').trim() === authorName.trim());
+        
+        if (authorObj?.id) {
+            commentaryEl.innerHTML += `
+                <div style="text-align:center; margin-top:15px; font-size:0.9rem;">
+                    <button data-route-encyclopedia="true" data-route-id="${escapeHTML(authorObj.id)}" data-route-group="ky-tai" class="volume-link" style="font-size:0.9rem;">
+                        Khám phá hồ sơ tác giả ${escapeHTML(authorName)} →
+                    </button>
+                </div>
+            `;
+        }
     }
 
-    // SỬA LỖI: Gộp tên tác phẩm & tác giả vào nút Đọc toàn bộ
     const gotoBtn = document.getElementById('fate-goto-btn');
-    gotoBtn.innerHTML = `Đọc toàn bộ: <span style="color: var(--text-main); text-transform: none; font-size: 0.85rem;">${randomWork.title} — ${randomWork.author}</span> &rarr;`;
-    
-    gotoBtn.onclick = () => {
-        overlay.classList.remove('show');
-        setTimeout(() => { overlay.style.display = 'none'; }, 300);
-        gotoEncyclopediaById({
-            id: randomWork.id,
-            group: 'tinh-hoa',
-            title: randomWork.title,
-            author: randomWork.author
-        });
-    };
+    if (gotoBtn) {
+        gotoBtn.innerHTML = `
+            Đọc toàn bộ: <span style="color:var(--text-main); text-transform:none; font-size:0.85rem;">${escapeHTML(randomWork.title || '')} — ${escapeHTML(randomWork.author || '')}</span> &rarr;
+        `;
+        gotoBtn.onclick = () => {
+            overlay.classList.remove('show');
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+            gotoEncyclopediaById({ id: randomWork.id, group: 'tinh-hoa', title: randomWork.title, author: randomWork.author });
+        };
+    }
 }
 
 // =====================================================================
-// PHẦN 5: XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
+// PHẦN 5 & 6: XUẤT & KHỞI CHẠY
 // =====================================================================
 window.executePipeline = executePipeline;
 window.randomPoem = randomPoem;
@@ -452,9 +469,6 @@ window.clearSearch = function() {
     searchEncyclopedia(); 
 };
 
-// =====================================================================
-// PHẦN 6: KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
-// =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
     document.getElementById('fate-close-btn')?.addEventListener('click', () => {
