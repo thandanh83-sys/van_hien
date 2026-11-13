@@ -2,10 +2,20 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 1.0.1 (Refined UI & Network)
+ * Version: 1.0.4 (Smart Search & Cleanup)
+ * ==========================================================
+ * CHỨC NĂNG:
+ * - Khởi chạy App, quản lý Splash Screen.
+ * - Load dữ liệu từ JSON.
+ * - Chứa Logic Thi Pháp Học (POETRY_ANALYZER).
+ * - Xử lý Bói Thơ (Fate Modal) với AI.
+ * - Gắn sự kiện toàn cục (Search, Settings, Network).
  * ==========================================================
  */
 
+// =====================================================================
+// 1. IMPORTS
+// =====================================================================
 import { APP_DATA, STATE, ICONS } from './config.js';
 import { debounce, escapeHTML } from './utils.js';
 import { switchView, toggleMobileMenu, gotoEncyclopediaById, setCancelSearch } from './router.js';
@@ -20,7 +30,7 @@ import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize 
 import { calculateFortune, synthesizeDynamicFortune, AIDispatcher } from './ai.js';
 import { runFullDiagnosis } from './audit.js';
 import { MotherNode, bootstrapNetwork } from './network/index.js';
-import { askDao } from './ask-dao.js';
+import { handleSmartSearch } from './ask-dao.js';
 
 // =====================================================================
 // 2. HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
@@ -455,7 +465,6 @@ async function refreshNetworkStatus(forceRefresh = false) {
             ).join('');
         }
         
-        // [FIX LỖI 6] Đổi "node" thành "phân khu"
         if (summaryEl) summaryEl.textContent = `${online}/${total} phân khu đang hoạt động`;
 
         if (nodesEl) {
@@ -517,12 +526,13 @@ window.clearSearch = function() {
     input.value = ''; 
     if (clearBtn) clearBtn.classList.remove('show'); 
     input.focus(); 
-    if (STATE.searchMode === 'lookup') {
-        searchEncyclopedia(); 
-    } else {
-        const container = document.getElementById('encyclopedia-container');
-        if (container) container.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Nhập câu hỏi vào ô tìm kiếm phía trên để Hỏi Đạo.</p>`;
-    }
+    
+    // Reset lại giao diện tìm kiếm mặc định
+    const filterBar = document.getElementById('encyclopedia-filter-bar');
+    const pagination = document.getElementById('encyclopedia-pagination');
+    if (filterBar) filterBar.style.display = 'flex';
+    if (pagination) pagination.style.display = 'flex';
+    renderEncyclopedia(); 
 };
 
 // =====================================================================
@@ -588,65 +598,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // 8.4. Sự kiện Tìm kiếm & Hỏi Đạo
+    // 8.4. Sự kiện Tìm kiếm (Gộp Hỏi Đạo)
     document.getElementById('search-input')?.addEventListener('input', debounce(() => { STATE.currentPage = 1; renderHeritage(); }, 300));
     
     const encyclopediaSearchInput = document.getElementById('encyclopedia-search');
     if (encyclopediaSearchInput) {
+        // Gõ đến đâu tìm đến đó (Debounce)
         const debouncedSearch = debounce(() => {
-            if (STATE.searchMode === 'lookup') {
-                searchEncyclopedia();
-            }
+            searchEncyclopedia();
         }, 300);
         setCancelSearch(debouncedSearch.cancel);
+        
         encyclopediaSearchInput.addEventListener('input', debouncedSearch);
         
+        // Nhấn Enter -> Gọi hàm gộp (Tự nhận diện AI hay Search thường)
         encyclopediaSearchInput.addEventListener('keydown', e => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                if (STATE.searchMode === 'ask') {
-                    askDao();
-                } else {
-                    searchEncyclopedia();
-                }
+                handleSmartSearch(); 
             }
         });
     }
-
-    // Toggle Search Mode
-    document.querySelectorAll('.search-mode-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const mode = btn.dataset.mode;
-            STATE.searchMode = mode;
-            document.querySelectorAll('.search-mode-btn').forEach(b => {
-                const active = b === btn;
-                b.classList.toggle('active', active);
-                b.setAttribute('aria-selected', String(active));
-            });
-            
-            const input = document.getElementById('encyclopedia-search');
-            const container = document.getElementById('encyclopedia-container');
-            const filterBar = document.getElementById('encyclopedia-filter-bar');
-            const pagination = document.getElementById('encyclopedia-pagination');
-            
-            if (input) {
-                input.value = '';
-                input.placeholder = mode === 'ask'
-                    ? 'Hỏi: Ai viết bài Sóng? / Tác phẩm nào của Nam Cao? / Lục bát là gì?'
-                    : 'Tìm tên Quyển, tác giả hoặc nội dung...';
-            }
-            
-            if (mode === 'ask') {
-                if (filterBar) filterBar.style.display = 'none';
-                if (pagination) pagination.style.display = 'none'; // Ẩn phân trang
-                if (container) container.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Nhập câu hỏi vào ô tìm kiếm phía trên để Hỏi Đạo.</p>`;
-            } else {
-                if (filterBar) filterBar.style.display = 'flex';
-                if (pagination) pagination.style.display = 'flex'; // Hiện lại phân trang
-                renderEncyclopedia();
-            }
-        });
-    });
 
     // 8.5. Xử lý URL params
     const urlParams = new URLSearchParams(window.location.search);
