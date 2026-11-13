@@ -1,13 +1,19 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - CONFIG MODULE (js/config.js)
- * Chức năng: Chứa Hằng số, Kho SVG, Dữ liệu toàn cục (APP_DATA)
- * và Trạng thái toàn cục (STATE).
+ * Vị trí: js/config.js
+ * Version: 1.0.0 (Network Edition)
+ * ==========================================================
+ * Chức năng: 
+ * - Chứa Hằng số toàn cục.
+ * - Kho SVG Icons.
+ * - APP_DATA: Dữ liệu tĩnh nạp từ JSON.
+ * - STATE: Trạng thái động của UI (bao gồm cả Network Mode).
  * ==========================================================
  */
 
 // =====================================================================
-// 1. KHO ICON SVG (Giữ nguyên 100% từ bản gốc)
+// 1. KHO ICON SVG (Dùng chung toàn app)
 // =====================================================================
 export const SVG_ATTR = `viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"`;
 
@@ -28,32 +34,28 @@ export const ICONS = {
 export const ITEMS_PER_PAGE = 20;
 export const ENCY_ITEMS_PER_PAGE = 20;
 
-
 // =====================================================================
 // 3. DỮ LIỆU TOÀN CỤC (APP_DATA)
-// Chứa toàn bộ dữ liệu load từ file JSON. 
-// Dùng object để có thể gán lại giá trị từ file main.js mà không bị lỗi ES6.
+// Được gán lại giá trị trong loadAllData() của main.js
 // =====================================================================
 export const APP_DATA = {
-    THEORY_DATA: [],       // Dữ liệu Lý thuyết
-    AUTHOR_DATA: [],       // Dữ liệu Tác giả
-    WORKS_DATA: [],        // Dữ liệu Tác phẩm
+    THEORY_DATA: [],       // Dữ liệu Lý thuyết (Quyển I - XVIII)
+    AUTHOR_DATA: [],       // Dữ liệu Tác giả (Kỳ Tài)
+    WORKS_DATA: [],        // Dữ liệu Tác phẩm (Tinh Hoa)
     QUOTES_DATA: [],       // Dữ liệu Danh ngôn
-    COMMENTARY_DATA: {},   // Dữ liệu Lời bình
-    DICTIONARY_DATA: { symbols: {}, dienTich: {}, hanViet: {} }, // Từ điển
+    COMMENTARY_DATA: {},   // Dữ liệu Lời bình & Vận khí
+    DICTIONARY_DATA: { symbols: {}, dienTich: {}, hanViet: {} }, 
     CATEGORY_NAMES: {},    // Tên thể loại
-    FORTUNE_CONFIG: {},    // Cấu hình vận khí (Bói thơ)
-    FORTUNE_ADVICE: {},    // Lời khuyên vận khí
+    FORTUNE_CONFIG: {},    // Cấu hình vận khí
+    FORTUNE_ADVICE: {},    // Lời khuyên
     THE_LOAI_DATA: []      // Dữ liệu Thể loại (từ điển thể loại)
 };
 
-
 // =====================================================================
 // 4. TRẠNG THÁI TOÀN CỤC (STATE)
-// Lưu trữ các trạng thái hiện tại của UI, bộ đệm tìm kiếm, v.v.
 // =====================================================================
 export const STATE = {
-    // Trạng thái bộ lọc Văn Hiến
+    // Trạng thái Văn Hiến (Tác phẩm)
     currentMainCat: 'all',
     currentGenre: 'all',
     currentPage: 1,
@@ -62,6 +64,9 @@ export const STATE = {
     currentEncyGroup: 'triet-thuyet',
     currentEncyPage: 1,
     currentEncyDataForRender: [],
+    
+    // Trạng thái Tìm kiếm / Hỏi Đạo (MỚI)
+    searchMode: 'lookup', // 'lookup' (Tra cứu) | 'ask' (Hỏi Đạo AI)
 
     // Trạng thái Danh ngôn
     currentQuoteIndex: -1,
