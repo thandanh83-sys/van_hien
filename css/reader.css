@@ -1,43 +1,25 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - READER CSS (css/reader.css)
- * Đã sửa: Khoảng trắng đầu trang, xóa code chết, 
- * và sửa bố cục nút Hero trên Mobile/PC theo yêu cầu.
+ * Đã sửa: Khoảng trắng đầu trang, nút Mobile không bị kéo giãn.
  * ==========================================================
  */
 
 /* 1. CÁC VIEW */
-.view { display: none; min-height: 100vh; }
+.view { display: none; min-height: calc(100vh - 85px); }
 .view.active { display: block; }
 
-/* 2. TRANG CHỦ (HERO, KHUNG VÒM & DANH NGÔN) */
-.hero { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    gap: 40px; 
-    margin-top: 20px; 
-    margin-bottom: 40px; 
-}
+/* 2. TRANG CHỦ */
+.hero { display: flex; align-items: center; justify-content: space-between; gap: 40px; margin-top: 0; margin-bottom: 40px; }
 .hero-content { flex: 1; max-width: 580px; }
 .hero-content h1 { font-family: var(--font-calligraphy); font-size: clamp(3.5rem, 6vw, 5rem); font-weight: 400; line-height: 1.1; margin-bottom: 20px; color: var(--text-main); text-wrap: balance; }
 .hero-content h1 i { font-style: italic; color: var(--accent-text); }
 .hero-content .no-wrap { white-space: nowrap; } 
 .hero-content p { font-family: var(--font-body); font-size: 1.15rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.7; text-align: left; }
 
-/* BỐ CỤC NÚT TRÊN MÁY TÍNH (PC): Nằm ngang hàng */
-.hero-actions { 
-    display: flex; 
-    flex-direction: row; /* Ngang hàng */
-    align-items: center; 
-    gap: 15px; 
-    margin-top: 20px; 
-    flex-wrap: wrap; 
-}
-
+.hero-actions { display: flex; flex-direction: row; align-items: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
 .btn-hero-primary { display: inline-flex; align-items: center; justify-content: center; padding: 14px 32px; background: var(--bg-base); border: 1px solid var(--accent); border-radius: var(--radius-pill); color: var(--accent-text); box-shadow: var(--shadow); cursor: pointer; font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; transition: all 0.3s var(--ease-silk); }
 .btn-hero-primary:hover { background: var(--accent); color: #fff; }
-
 .btn-hero-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 24px; background: transparent; border: 1px solid var(--border-color); border-radius: var(--radius-pill); color: var(--text-muted); cursor: pointer; font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; transition: all 0.3s var(--ease-silk); }
 .btn-hero-secondary:hover { border-color: var(--accent-gold); color: var(--accent-text); background: rgba(212, 196, 168, 0.1); }
 .btn-hero-secondary svg { transition: transform 0.6s ease; }
@@ -48,7 +30,6 @@
 .arch-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 170px 170px 16px 16px; transition: transform 1s ease; }
 .arch-frame:hover img { transform: scale(1.03); }
 
-/* Khối Danh ngôn */
 #daily-quote-container { margin-top: 20px; text-align: center; padding: 40px 20px; transition: opacity 0.5s ease; }
 .quote-text { font-family: var(--font-body); font-size: 1.6rem; color: var(--text-main); font-style: italic; line-height: 1.5; max-width: 700px; margin: 0 auto 15px; text-wrap: balance; }
 .quote-author { font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; color: var(--accent-text); letter-spacing: 2px; text-transform: uppercase; }
@@ -62,20 +43,11 @@
 #sub-filter-bar { margin-top: -10px; margin-bottom: 30px; gap: 8px; }
 #sub-filter-bar .filter-btn { padding: 6px 14px; font-size: 0.7rem; background: transparent; border-radius: var(--radius-pill); }
 
-/* 4. VĂN HIẾN (THẺ TÁC PHẨM) */
+/* 4. VĂN HIẾN */
 .heritage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-
-.heritage-card { 
-    content-visibility: auto; contain-intrinsic-size: auto 300px;
-    background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 24px;
-    box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; scroll-margin-top: 120px; 
-    opacity: 0; transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.4s ease, outline 0.4s ease, background-color 0.4s ease;
-    outline: 2px solid transparent; outline-offset: 4px;
-}
+.heritage-card { content-visibility: auto; contain-intrinsic-size: auto 300px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 24px; box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; scroll-margin-top: 120px; opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.4s ease, outline 0.4s ease, background-color 0.4s ease; outline: 2px solid transparent; outline-offset: 4px; }
 .heritage-card.is-visible { opacity: 1; transform: translateY(0); }
 .heritage-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(139, 184, 168, 0.15); border-color: var(--accent); }
-
 .heritage-card.highlight-target { border-color: var(--accent) !important; background-color: rgba(139, 184, 168, 0.15) !important; animation: glowPulse 2.5s ease-out forwards; }
 @keyframes glowPulse { 0% { box-shadow: 0 0 0 0 rgba(139, 184, 168, 0.8); transform: scale(1); } 30% { box-shadow: 0 0 0 10px rgba(139, 184, 168, 0); transform: scale(1.02); } 100% { box-shadow: var(--shadow); transform: scale(1); } }
 
@@ -92,14 +64,8 @@
 .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* 5. ĐẠI BÁCH KHOA (SỔ TAY ACCORDION) */
-.accordion-item { 
-    content-visibility: auto; contain-intrinsic-size: auto 100px;
-    background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 0; overflow: hidden; margin-bottom: 12px; box-shadow: var(--shadow); scroll-margin-top: 120px;
-    opacity: 0; transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.4s ease, outline 0.4s ease, background-color 0.4s ease;
-    outline: 2px solid transparent; outline-offset: 4px;
-}
+/* 5. ĐẠI BÁCH KHOA */
+.accordion-item { content-visibility: auto; contain-intrinsic-size: auto 100px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 0; overflow: hidden; margin-bottom: 12px; box-shadow: var(--shadow); scroll-margin-top: 120px; opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease, border-color 0.4s ease, outline 0.4s ease, background-color 0.4s ease; outline: 2px solid transparent; outline-offset: 4px; }
 .accordion-item.is-visible { opacity: 1; transform: translateY(0); }
 .accordion-item.highlight-target { border-color: var(--accent) !important; background-color: rgba(139, 184, 168, 0.15) !important; animation: glowPulse 2.5s ease-out forwards; }
 
@@ -118,7 +84,6 @@
 .accordion-content li { margin-bottom: 6px; }
 .accordion-content blockquote { font-family: var(--font-body); border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 15px; font-style: italic; margin: 20px 0; background: rgba(139, 184, 168, 0.05); text-align: center; font-size: 1.2rem; border-radius: 8px; }
 
-/* Tác phẩm liên quan */
 .related-section { margin-top: 32px; padding-top: 24px; border-top: 1px dashed rgba(139,184,168,0.3); }
 .related-title { font-family: var(--font-body); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 12px; }
 .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
@@ -154,7 +119,7 @@
 .volume-link { color: var(--accent-text); background: transparent; border: 0; padding: 0; cursor: pointer; font-family: var(--font-body); font-size: 0.8rem; font-weight: 700; text-decoration: underline; }
 .question-item { padding: 6px 0; line-height: 1.5; color: var(--text-main); font-size: 1rem; display: flex; align-items: flex-start; font-family: var(--font-body); }
 
-/* 7. FATE MODAL (BÓI THƠ) */
+/* 7. FATE MODAL */
 #fate-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(253, 251, 247, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; display: flex; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
 #fate-modal-overlay.show { opacity: 1; }
 #fate-modal { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); box-shadow: var(--shadow-heavy); width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; min-height: 350px; transform: translateY(20px) scale(0.98); transition: transform 0.4s var(--ease-silk); }
@@ -170,24 +135,25 @@
 .spinner { width: 40px; height: 40px; border: 3px solid rgba(139, 184, 168, 0.2); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* 8. RESPONSIVE (MOBILE) */
+/* 8. RESPONSIVE (MOBILE & IPAD - ĐÃ FIX THÔ) */
 @media (max-width: 850px) {
     .hero { flex-direction: column; text-align: center; gap: 20px; margin-top: 0; }
-    .hero-content h1 { font-size: 2.5rem; line-height: 1.2; padding: 0 10px; text-align: center; }
+    .hero-content h1 { font-size: 2.2rem; line-height: 1.3; padding: 0 10px; text-align: center; }
     .hero-content .no-wrap { white-space: normal; }
-    .hero-content p { text-align: center; font-size: 1rem; margin-bottom: 20px; }
+    .hero-content p { text-align: center; font-size: 0.95rem; line-height: 1.6; padding: 0 15px; margin-bottom: 25px; }
     
-    /* BỐ CỤC NÚT TRÊN MOBILE: Xếp chồng lên nhau (Khám phá trên, Bài thơ dưới) */
+    /* BỐ CỤC NÚT: Căn giữa, không kéo full 100% để không bị "thô" */
     .hero-actions {
         flex-direction: column; 
         justify-content: center;
+        align-items: center; 
         width: 100%;
-        gap: 15px; 
+        gap: 12px; 
     }
     .btn-hero-primary, .btn-hero-secondary {
-        width: 100%; /* Giãn full chiều ngang */
-        flex: unset;
-        padding: 14px 20px; 
+        width: 80%; /* Chỉ chiếm 80% */
+        max-width: 320px; /* Giới hạn chiều rộng */
+        padding: 12px 20px; 
         font-size: 0.8rem; 
     }
 
