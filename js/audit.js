@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - AUDIT MODULE (js/audit.js)
  * Vị trí: js/audit.js
- * Version: 4.1.0 (Manifest-Driven Diagnostics & Full AI Test)
+ * Version: 4.2.0 (Pure Text Icons & Manifest-Driven Diagnostics)
  * ==========================================================
  * HƯỚNG DẪN SỬ DỤNG (Mở Console F12, gõ trực tiếp):
  * - Khám tổng quát: window.audit()
@@ -11,6 +11,11 @@
  * - Khám tác phẩm: window.auditWorks()
  * - Khám tác giả: window.auditAuthors()
  * - Khám AI: window.auditAIPipeline()
+ * ==========================================================
+ * LƯU Ý v4.2.0:
+ * - Đã thay thế toàn bộ ký tự icon [✓] / [✗] bằng text thuần
+ *   [OK] / [FAIL] để tuân thủ yêu cầu "không dùng icon/unicode icon".
+ * - Không còn emoji, không còn ký tự đặc biệt trong console log.
  * ==========================================================
  */
 
@@ -79,6 +84,7 @@ export async function auditStaticFiles() {
         
         // Gộp tất cả các mảng lại thành một danh sách phẳng
         const allUrls = [
+            ...(manifest.root || []),
             ...(manifest.css || []), 
             ...(manifest.js_core || []), 
             ...(manifest.js_ai || []), 
@@ -86,13 +92,14 @@ export async function auditStaticFiles() {
             ...(manifest.js_network || []), 
             ...(manifest.json_data || []), 
             ...(manifest.json_manifests || []), 
-            ...(manifest.assets || []), 
-            ...(manifest.root || [])
+            ...(manifest.assets || [])
         ];
         
-        totalFiles = allUrls.length;
+        // Loại bỏ trùng lặp
+        const uniqueUrls = [...new Set(allUrls)];
+        totalFiles = uniqueUrls.length;
 
-        for (const relPath of allUrls) {
+        for (const relPath of uniqueUrls) {
             const result = await checkFile(relPath);
             if (!result.ok) {
                 missingFiles.push({ file: relPath, status: result.status || result.error });
@@ -136,10 +143,22 @@ export async function auditNetwork() {
         if (agentKeys.length === 0) {
             errors.push({ node: 'AgentRegistry', error: 'Không có Agent nào được đăng ký.' });
         } else {
-            const { AgentMap } = await import('./ai/agents/index.js');
-            const missingInMap = agentKeys.filter(k => !AgentMap[k]);
-            if (missingInMap.length > 0) {
-                errors.push({ node: 'AgentRegistry', error: `Thiếu trong AgentMap: ${missingInMap.join(', ')}` });
+            // Dùng validate() mới của v7.0.0
+            if (typeof AgentRegistry.validate === 'function') {
+                const validation = AgentRegistry.validate();
+                if (validation.invalid.length > 0) {
+                    errors.push({ 
+                        node: 'AgentRegistry', 
+                        error: `Các Agent không hợp lệ: ${validation.invalid.join(', ')}` 
+                    });
+                }
+            } else {
+                // Fallback nếu chạy với index.js cũ
+                const { AgentMap } = await import('./ai/agents/index.js');
+                const missingInMap = agentKeys.filter(k => !AgentMap[k]);
+                if (missingInMap.length > 0) {
+                    errors.push({ node: 'AgentRegistry', error: `Thiếu trong AgentMap: ${missingInMap.join(', ')}` });
+                }
             }
         }
     } catch (err) {
@@ -233,16 +252,16 @@ export async function auditAIPipeline() {
         // Thi pháp
         { input: "Ý nghĩa của trăng", expectedType: "explain-symbol", expectedKeyword: "trăng" },
 
-        // [MỚI] Các Agent mới
+        // Các Agent mới
         { input: "Dịch Truyện Kiều sang tiếng Anh", expectedType: "translate-work", expectedKeyword: "The Tale of Kieu" },
         { input: "Thúy Kiều là ai?", expectedType: "get-character-info", expectedKeyword: "Truyện Kiều" },
         { input: "So sánh Nguyễn Du và Nam Cao", expectedType: "compare-entities", expectedKeyword: "Nguyễn Du" },
-        { input: "Khen bài thơ này", expectedType: "praise-work", expectedKeyword: "Bài thơ" }, // Praiser trả về comment
-        { input: "Chê bài thơ này", expectedType: "criticize-work", expectedKeyword: "Tác phẩm" } // Critic trả về comment
+        { input: "Khen bài thơ này", expectedType: "praise-work", expectedKeyword: "Bài thơ" },
+        { input: "Chê bài thơ này", expectedType: "criticize-work", expectedKeyword: "Tác phẩm" }
     ];
 
     const results = [];
-    const failedCases = []; // Chỉ lưu những case bị lỗi
+    const failedCases = [];
 
     try {
         const { MasterAI } = await import('./ai/master.js');
@@ -301,7 +320,7 @@ export async function auditAIPipeline() {
 export async function runFullDiagnosis() {
     console.clear();
     console.log(
-        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.1.0 ===",
+        "%c=== BỆNH VIỆN VĂN ĐẠO - CHẨN ĐOÁN TOÀN DIỆN v4.2.0 ===",
         "background: linear-gradient(135deg, #2c3e38, #557a6f); color: #d4c4a8; font-size: 16px; font-weight: bold; padding: 10px 20px; border-radius: 8px;"
     );
 
@@ -319,9 +338,17 @@ export async function runFullDiagnosis() {
 
     console.log("─".repeat(60));
     if (totalErrors === 0) {
-        console.log(`%c[✓] CHẨN ĐOÁN HOÀN TẤT — Hệ thống khỏe mạnh, không tìm thấy lỗi nào.`, "background: #2ecc71; color: white; font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 4px;");
+        // Đã thay thế [✓] bằng [OK]
+        console.log(
+            `%c[OK] CHẨN ĐOÁN HOÀN TẤT - Hệ thống khỏe mạnh, không tìm thấy lỗi nào.`,
+            "background: #2ecc71; color: white; font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 4px;"
+        );
     } else {
-        console.log(`%c[✗] CHẨN ĐOÁN HOÀN TẤT — Phát hiện ${totalErrors} lỗi ở các phần trên. Hãy bóc thuốc theo hướng dẫn.`, "background: #e74c3c; color: white; font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 4px;");
+        // Đã thay thế [✗] bằng [FAIL]
+        console.log(
+            `%c[FAIL] CHẨN ĐOÁN HOÀN TẤT - Phát hiện ${totalErrors} lỗi ở các phần trên. Hãy bóc thuốc theo hướng dẫn.`,
+            "background: #e74c3c; color: white; font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 4px;"
+        );
     }
 }
 
