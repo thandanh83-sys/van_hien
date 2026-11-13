@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
  * Vị trí: js/ai/master.js
- * Version: 1.3.0 (Mode-Aware & Intent Router)
+ * Version: 2.0.0 (Knowledge Network Orchestrator)
  * ==========================================================
  * CHỨC NĂNG:
  * - Điều phối (Orchestrate) dựa trên Intent (type + mode).
@@ -17,6 +17,7 @@ import { LiteratureAgent } from './agents/literature.js';
 import { PoeticsAgent } from './agents/poetics.js';
 import { AnalysisAgent } from './agents/analysis.js';
 import { FortuneAgent } from './agents/fortune-ai.js';
+import { KnowledgeAgent } from './agents/knowledge.js'; // [MỚI] Chuyên gia Mạng lưới
 
 // ==========================================================
 // 1. HÀM ĐIỀU PHỐI NỘI BỘ (Internal Dispatcher)
@@ -24,7 +25,7 @@ import { FortuneAgent } from './agents/fortune-ai.js';
 async function internalDispatch(intent) {
     try {
         switch (intent.type) {
-            // ================= NHÓM TÁC PHẨM & TÁC GIẢ =================
+            // ================= NHÓM TÁC PHẨM & TÁC GIẢ (LITERATURE AGENT) =================
             case 'summarize-work':
                 return await LiteratureAgent.summarize(intent.query);
 
@@ -33,35 +34,46 @@ async function internalDispatch(intent) {
 
             case 'recommend':
                 return await LiteratureAgent.recommend(intent.query);
-
-            case 'find-author-info':
-                // Fallback: Tạm dùng chức năng tìm tác giả
-                return await LiteratureAgent.findAuthor(intent.query);
-
-            case 'compare-works':
-            case 'list':
-                // Fallback: Tạm dùng chức năng search nếu chưa có Agent So sánh
-                return await LiteratureAgent.search(intent.query);
-
-            // ================= NHÓM THI PHÁP & TỪ ĐIỂN =================
-            case 'explain-symbol':
-            case 'explain-allusion': // Gộp chung vào xử lý biểu tượng
-            case 'define-term':      // Gộp chung vào xử lý biểu tượng
-                return await PoeticsAgent.explainSymbol(intent.query);
-
+            
             case 'define-genre':
                 return await LiteratureAgent.defineGenre(intent.query);
 
-            // ================= NHÓM PHÂN TÍCH VĂN HỌC =================
+            // ================= NHÓM MẠNG LƯỚI (KNOWLEDGE AGENT) =================
+            case 'find-related':
+                return await KnowledgeAgent.findRelated(intent.query);
+
+            case 'find-author-info':
+                return await KnowledgeAgent.getAuthorInfo(intent.query);
+
+            case 'list-author-works':
+                return await KnowledgeAgent.listAuthorWorks(intent.query);
+
+            // Fallback: Khám phá toàn cảnh mạng lưới
+            case 'explore':
+                const exploreRes = await KnowledgeAgent.exploreEntity(intent.query);
+                if (exploreRes) return exploreRes;
+                // Nếu không tìm thấy, rơi xuống case search
+                break;
+
+            // ================= NHÓM THI PHÁP & TỪ ĐIỂN (POETICS AGENT) =================
+            case 'explain-symbol':
+            case 'explain-allusion':
+            case 'define-term':
+                return await PoeticsAgent.explainSymbol(intent.query);
+
+            // ================= NHÓM PHÂN TÍCH VĂN HỌC (ANALYSIS AGENT) =================
             case 'analyze-work':
                 const workInfo = await LiteratureAgent.getWorkInfo(intent.query);
                 if (workInfo.ok) {
-                    const analysis = await AnalysisAgent.analyze(workInfo.data);
-                    return { ...analysis, meta: [workInfo.data] };
+                    const analysis = await AnalysisAgent.analyze(workInfo.record);
+                    return { ...analysis, meta: [workInfo.record] };
                 }
-                return workInfo; // Trả về lỗi nếu không tìm thấy
+                return { 
+                    answer: `Không tìm thấy tác phẩm "${intent.query}" để phân tích.`, 
+                    source: 'master' 
+                };
 
-            // ================= NHÓM BÓI TOÁN =================
+            // ================= NHÓM BÓI TOÁN (FORTUNE AGENT) =================
             case 'fortune':
                 return { 
                     answer: 'Vui lòng sử dụng nút "Một bài thơ cho hôm nay" ở Trang Chủ để gieo quẻ vận khí.', 
@@ -71,8 +83,8 @@ async function internalDispatch(intent) {
             // ================= NHÓM MẶC ĐỊNH (SEARCH) =================
             case 'search':
             default:
-                // Nếu là câu hỏi (mode = question) nhưng chưa có Agent chuyên biệt,
-                // ta chuyển sang cho LiteratureAgent tìm kiếm.
+                // Nếu là câu hỏi nhưng chưa có Agent chuyên biệt,
+                // chuyển sang cho LiteratureAgent tìm kiếm.
                 return await LiteratureAgent.search(intent.query);
         }
     } catch (err) {
