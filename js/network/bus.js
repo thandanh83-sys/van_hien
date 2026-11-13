@@ -1,54 +1,29 @@
 /**
  * ==========================================================
- * VĂN ĐẠO — NETWORK BUS (BroadcastChannel) v1.0.0
+ * VĂN ĐẠO — NETWORK BUS (VDBus) v1.0.0
+ * Vị trí: js/network/bus.js
  * ==========================================================
  * 
  * CHỨC NĂNG:
- * ─────────────────────────────────────────────────────────
- * Bus là "đường dây nội bộ" giữa các tab cùng origin:
- * 
- *   1. Publish: 1 tab gửi tin → tất cả tab khác nhận
- *   2. Subscribe: tab đăng ký nhận tin theo type
- *   3. Request-Response: gửi request + chờ response
- *   4. Targeted: gửi riêng cho 1 node cụ thể
- * 
- * TRIẾT LÝ:
- * ─────────────────────────────────────────────────────────
- * "Đồng thanh tương ứng, đồng khí tương cầu" — Cổ ngữ
- * 
- * Các node không cần biết nhau trực tiếp. Chúng chỉ cần biết
- * "tần số chung" (channel name). Ai nói đúng tần số thì
- * nghe được, ai không thì không.
- * 
- * Bus tự động detect và fallback:
- *   - Ưu tiên BroadcastChannel (nhanh, real-time)
- *   - Fallback localStorage (chậm hơn, cho Safari cũ)
+ * Bus là "đường dây nội bộ" giữa các tab/iframe cùng origin:
+ * - Publish: Gửi tin nhắn đến tất cả (hoặc 1) node.
+ * - Subscribe: Đăng ký nhận tin nhắn theo từ khóa.
+ * - Request-Response: Gửi câu hỏi và chờ câu trả lời.
  * 
  * TƯƠNG THÍCH:
- * ─────────────────────────────────────────────────────────
- * - Chrome 54+    : BroadcastChannel ✅
- * - Firefox 38+   : BroadcastChannel ✅
- * - Safari 15.4+  : BroadcastChannel ✅
- * - Safari < 15.4 : localStorage fallback ✅
- * - IE 11         : localStorage fallback ✅
- * 
- * VERSION: 1.0.0
+ * - Ưu tiên 1: BroadcastChannel (Chrome, Firefox, Safari 15.4+)
+ * - Fallback: localStorage event (Trình duyệt cũ, Safari < 15.4)
  * ==========================================================
  */
 
-// ==========================================================
-// PHẦN 1: CẤU HÌNH
-// ==========================================================
 const CONFIG = Object.freeze({
-    CHANNEL_NAME: 'vandao-network',
-    STORAGE_KEY: 'vandao_network_msg',
+    CHANNEL_NAME: 'vandao-network-bus',
+    STORAGE_KEY: 'vandao_bus_msg',
     DEFAULT_TIMEOUT: 5000,
     MAX_HANDLERS_PER_TYPE: 50
 });
 
-// ==========================================================
-// PHẦN 2: NODE ID GENERATOR
-// ==========================================================
+// Sinh ID ngẫu nhiên cho mỗi tab (Máy con)
 function generateNodeId() {
     const ts = Date.now().toString(36).slice(-4);
     const rand = Math.random().toString(36).slice(2, 8);
@@ -56,16 +31,10 @@ function generateNodeId() {
 }
 
 // ==========================================================
-// PHẦN 3: CHANNEL ADAPTERS
+// CƠ CHẾ 1: BROADCAST CHANNEL (Hiện đại)
 // ==========================================================
-
-/**
- * BroadcastChannel Adapter — modern, real-time
- * @returns {Object|null}
- */
 function createBroadcastChannelAdapter() {
     if (typeof BroadcastChannel === 'undefined') return null;
-
     try {
         const channel = new BroadcastChannel(CONFIG.CHANNEL_NAME);
         return {
@@ -75,74 +44,65 @@ function createBroadcastChannelAdapter() {
             close: () => channel.close()
         };
     } catch (err) {
-        console.warn('[BUS] Không tạo được BroadcastChannel:', err);
+        console.warn('[BUS] Lỗi tạo BroadcastChannel:', err);
         return null;
     }
 }
 
-/**
- * LocalStorage Adapter — fallback cho Safari cũ
- * Cơ chế: ghi vào localStorage → tab khác nhận qua 'storage' event
- * @returns {Object|null}
- */
+// ==========================================================
+// CƠ CHẾ 2: LOCAL STORAGE (Dự phòng cho trình duyệt cũ)
+// ==========================================================
 function createLocalStorageAdapter() {
-    if (typeof localStorage === 'undefined') return null;
-    if (typeof window === 'undefined' || !window.addEventListener) return null;
-
+    if (typeof localStorage === 'undefined' || typeof window === 'undefined') return null;
     let handler = null;
-
     const onStorage = (e) => {
         if (e.key !== CONFIG.STORAGE_KEY || !e.newValue) return;
         try {
             const msg = JSON.parse(e.newValue);
             if (handler) handler(msg);
-        } catch (_) { /* ignore parse error */ }
+        } catch (_) { /* Bỏ qua lỗi parse JSON */ }
     };
-
     window.addEventListener('storage', onStorage);
-
     return {
         name: 'LocalStorage',
         send: (msg) => {
             try {
-                // _ts + _rand đảm bảo mỗi message là unique → storage event luôn fire
+                // Thêm _ts và _rand để đảm bảo mỗi message là duy nhất
                 localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify({
                     ...msg,
                     _ts: Date.now(),
                     _rand: Math.random()
                 }));
-            } catch (_) { /* quota exceeded */ }
+            } catch (_) { /* Bỏ qua lỗi quá dung lượng */ }
         },
         onMessage: (h) => { handler = h; },
         close: () => { window.removeEventListener('storage', onStorage); }
     };
 }
 
-// Adapter selection (ưu tiên BroadcastChannel)
+// Khởi tạo Adapter
 const adapter = createBroadcastChannelAdapter() || createLocalStorageAdapter();
 
 // ==========================================================
-// PHẦN 4: STATE
+// TRẠNG THÁI CỦA BUS
 // ==========================================================
 const nodeId = generateNodeId();
-const handlers = new Map();          // type → [fn]
-const pendingRequests = new Map();   // requestId → { resolve, timer }
+const handlers = new Map();          // type -> [functions]
+const pendingRequests = new Map();   // requestId -> { resolve, timer }
 
 // ==========================================================
-// PHẦN 5: MESSAGE HANDLER
+// LẮNG NGHE TIN NHẮN
 // ==========================================================
 if (adapter) {
     adapter.onMessage((msg) => {
         if (!msg || typeof msg !== 'object') return;
-
         const { type, data, from, to, requestId, isResponse } = msg;
+        
         if (!type) return;
-        if (from === nodeId) return;  // Bỏ qua message của chính mình
+        if (from === nodeId) return; // Bỏ qua tin nhắn do chính mình gửi
+        if (to && to !== 'all' && to !== nodeId) return; // Lọc người nhận
 
-        // Target filter: chỉ nhận nếu gửi cho mình hoặc broadcast
-        if (to && to !== 'all' && to !== nodeId) return;
-
-        // Response cho request-response pattern
+        // Xử lý câu trả lời (Request-Response pattern)
         if (isResponse && requestId) {
             const pending = pendingRequests.get(requestId);
             if (pending) {
@@ -153,32 +113,28 @@ if (adapter) {
             return;
         }
 
-        // Dispatch đến handlers
+        // Phân phát đến các hàm đang lắng nghe (Subscribers)
         const list = handlers.get(type) || [];
         list.forEach(fn => {
-            try {
-                fn(data, from);
-            } catch (err) {
-                console.warn(`[BUS] Handler error cho "${type}":`, err);
-            }
+            try { fn(data, from); } 
+            catch (err) { console.warn(`[BUS] Lỗi xử lý tin "${type}":`, err); }
         });
     });
 }
 
 // ==========================================================
-// PHẦN 6: PUBLIC API
+// XUẤT API TOÀN CỤC
 // ==========================================================
 export const VDBus = Object.freeze({
-    // Metadata
     nodeId,
     adapterName: adapter ? adapter.name : 'none',
     isActive: !!adapter,
 
     /**
-     * Publish: gửi tin đến tất cả (hoặc 1) node
-     * @param {string} type
-     * @param {*} data
-     * @param {string} [to='all']
+     * Publish: Gửi tin nhắn đi
+     * @param {string} type - Loại tin nhắn
+     * @param {*} data - Nội dung gửi
+     * @param {string} [to='all'] - 'all' hoặc 'node-id-cụ-thể'
      */
     publish(type, data, to = 'all') {
         if (!adapter || !type) return;
@@ -186,21 +142,19 @@ export const VDBus = Object.freeze({
     },
 
     /**
-     * Subscribe: đăng ký nhận tin
-     * @param {string} type
-     * @param {Function} handler - (data, from) => void
-     * @returns {Function} unsubscribe
+     * Subscribe: Đăng ký nhận tin nhắn
+     * @param {string} type - Loại tin nhắn muốn nghe
+     * @param {Function} handler - Hàm xử lý (data, from) => {}
+     * @returns {Function} Hàm hủy đăng ký (unsubscribe)
      */
     subscribe(type, handler) {
         if (!type || typeof handler !== 'function') return () => {};
-
         if (!handlers.has(type)) handlers.set(type, []);
         const list = handlers.get(type);
-
+        
         if (list.length >= CONFIG.MAX_HANDLERS_PER_TYPE) {
-            console.warn(`[BUS] Quá nhiều handler cho "${type}" (${list.length}). Cân nhắc dọn dẹp.`);
+            console.warn(`[BUS] Quá nhiều handler cho "${type}". Có thể rò rỉ bộ nhớ.`);
         }
-
         list.push(handler);
 
         return () => {
@@ -210,22 +164,21 @@ export const VDBus = Object.freeze({
     },
 
     /**
-     * Request-Response pattern
-     * @param {string} type
-     * @param {*} data
-     * @param {string} [to='mother']
-     * @param {number} [timeoutMs=5000]
-     * @returns {Promise<*|null>} null nếu timeout
+     * Request: Gửi câu hỏi và chờ trả lời (Promise)
+     * @param {string} type - Loại câu hỏi
+     * @param {*} data - Dữ liệu kèm theo
+     * @param {string} [to='mother'] - Gửi cho ai
+     * @param {number} [timeoutMs=5000] - Thời gian chờ tối đa
+     * @returns {Promise<*|null>}
      */
     request(type, data, to = 'mother', timeoutMs = CONFIG.DEFAULT_TIMEOUT) {
         if (!adapter) return Promise.resolve(null);
-
         const requestId = `req-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
         return new Promise((resolve) => {
             const timer = setTimeout(() => {
                 pendingRequests.delete(requestId);
-                resolve(null);
+                resolve(null); // Trả về null nếu timeout
             }, timeoutMs);
 
             pendingRequests.set(requestId, { resolve, timer });
@@ -234,29 +187,17 @@ export const VDBus = Object.freeze({
     },
 
     /**
-     * Respond: trả lời request
-     * @param {string} requestId
-     * @param {*} data
-     * @param {string} to
+     * Respond: Trả lời một request
      */
     respond(requestId, data, to) {
         if (!adapter || !requestId) return;
-        adapter.send({
-            type: 'response',
-            data,
-            from: nodeId,
-            to,
-            requestId,
-            isResponse: true
-        });
+        adapter.send({ type: 'response', data, from: nodeId, to, requestId, isResponse: true });
     },
 
-    /** Clear tất cả handlers (dùng khi cleanup) */
-    clearHandlers() {
-        handlers.clear();
-    },
+    /** Dọn dẹp tất cả (Dùng khi chuyển trang hoặc test) */
+    clearHandlers() { handlers.clear(); },
 
-    /** Destroy channel (dùng khi test hoặc page unload) */
+    /** Hủy toàn bộ Bus */
     destroy() {
         handlers.clear();
         pendingRequests.forEach(p => clearTimeout(p.timer));
@@ -264,7 +205,7 @@ export const VDBus = Object.freeze({
         if (adapter) adapter.close();
     },
 
-    /** Debug: trạng thái hiện tại */
+    /** Xem trạng thái hiện tại (Dùng trong Console) */
     debug() {
         return {
             nodeId,
@@ -276,7 +217,7 @@ export const VDBus = Object.freeze({
     }
 });
 
-// Auto-cleanup khi page unload
+// Tự động dọn dẹp khi đóng tab
 if (typeof window !== 'undefined' && window.addEventListener) {
     window.addEventListener('beforeunload', () => VDBus.destroy());
 }
