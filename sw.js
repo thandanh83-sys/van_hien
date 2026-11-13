@@ -1,5 +1,5 @@
 /* =====================================================================
-   VĂN ĐẠO SERVICE WORKER (VERSION 1.2.0 - MULTI-AGENT AI)
+   VĂN ĐẠO SERVICE WORKER (VERSION 1.3.3 - MULTI-AGENT AI)
    Tác giả: Văn Đạo
    
    TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -10,14 +10,14 @@
    2. Sự tĩnh tại (No Auto-Skip): TUYỆT ĐỐI KHÔNG gọi skipWaiting() trong 
       install. SW mới phải chờ người dùng xác nhận (qua banner).
    3. Smart Offline: Hỗ trợ tải theo lô (Batch Download) cho Tủ Sách Offline.
-   4. AI Ready: Cache toàn bộ hệ thống Multi-Agent (Input, Master, Output, Agents).
+   4. AI Ready: Cache toàn bộ hệ thống Multi-Agent (bao gồm cả Praiser và Critic).
    ===================================================================== */
 
 // =====================================================================
 // I. KHAI BÁO PHIÊN BẢN VÀ TÊN BỘ NHỚ ĐỆM
 // =====================================================================
 // ĐỔI VERSION NÀY MỖI KHI BẠN CẬP NHẬT CODE ĐỂ XÓA CACHE CŨ
-const CACHE_VERSION = 'v1.2.0';
+const CACHE_VERSION = 'v1.3.3';
 
 const STATIC_CACHE  = `vandao-static-${CACHE_VERSION}`;
 const HTML_CACHE    = `vandao-html-${CACHE_VERSION}`;
@@ -29,7 +29,7 @@ const NETWORK_TIMEOUT = 4000;
 
 // =====================================================================
 // II. DANH SÁCH "APP SHELL" - NHỮNG FILE TỐI QUAN TRỌNG
-// Cập nhật chính xác 100% theo cấu trúc thư mục v1.2.0
+// Cập nhật chính xác 100% theo cấu trúc thư mục v1.3.3
 // =====================================================================
 const PRECACHE_ASSETS = [
     './',
@@ -54,16 +54,20 @@ const PRECACHE_ASSETS = [
     './js/ask-dao.js',
     './js/main.js',
     
-    // --- JS Multi-Agent AI (Hệ thống AI mới) ---
+    // --- JS Multi-Agent AI (Hệ thống AI) ---
     './js/ai.js',                   // File Facade (Cổng giao tiếp)
     './js/ai/core.js',              // Hạ tầng dùng chung
-    './js/ai/input-ai.js',          // Nhận diện câu hỏi
+    './js/ai/input-ai.js',          // Nhận diện câu hỏi (Input AI 2.0)
     './js/ai/master.js',            // Điều phối trung tâm
     './js/ai/output-ai.js',         // Định dạng câu trả lời
+    
+    // Các Agents chuyên môn
     './js/ai/agents/literature.js', // Agent Văn học
     './js/ai/agents/poetics.js',    // Agent Thi pháp
     './js/ai/agents/analysis.js',   // Agent Phân tích
     './js/ai/agents/fortune-ai.js', // Agent Bói thơ
+    './js/ai/agents/praiser.js',    // [MỚI] Agent Tán thưởng
+    './js/ai/agents/critic.js',     // [MỚI] Agent Phê bình
     
     // --- JS Network ---
     './js/network/mother.js',
