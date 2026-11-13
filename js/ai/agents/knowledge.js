@@ -155,3 +155,42 @@ export const KnowledgeAgent = {
         };
     }
 };
+
+// =====================================================================
+// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// =====================================================================
+/**
+ * Metadata tự mô tả của KnowledgeAgent.
+ * Chuyên trách mạng lưới liên kết: quan hệ tác giả - tác phẩm - thể loại.
+ *
+ * ĐIỂM MẠNH:
+ * - Dùng DataHub.getGraph() để khai thác đồ thị tri thức.
+ * - Không tự fetch JSON, mọi truy xuất qua DataHub (Offline-First).
+ */
+KnowledgeAgent.agentInfo = {
+    // ---- Định danh ----
+    key: 'knowledge',
+    name: 'Tri Thức AI',
+    description: 'Chuyên trách Mạng lưới liên kết (Tác giả - Tác phẩm - Thể loại).',
+
+    // ---- Năng lực (task -> method) ----
+    capabilities: {
+        'find-related': 'findRelated',          // "Tác phẩm giống Truyện Kiều?"
+        'find-author-info': 'getAuthorInfo',    // "Tiểu sử Nguyễn Du?"
+        'list-author-works': 'listAuthorWorks', // "Nguyễn Du có tác phẩm nào?"
+        'explore': 'exploreEntity'              // Fallback khám phá thực thể
+    },
+
+    // ---- Loại dữ liệu có thể đọc ----
+    canRead: ['work', 'author', 'genre', 'symbol'],
+
+    // ---- Agent được phép ủy thác ----
+    canDelegate: ['literature', 'poetics', 'history'],
+
+    // ---- Từ khóa nhận diện Intent ----
+    intentPatterns: {
+        'find-related': ['lien quan', 'giong', 'tuong tu', 'cung the loai', 'cung tac gia'],
+        'find-author-info': ['tieu su', 'cuoc doi', 'su nghiep', 'thong tin ve tac gia'],
+        'list-author-works': ['tac pham cua', 'sang tac nhung tac pham nao', 'co nhung tac pham nao', 'liet ke tac pham']
+    }
+};
