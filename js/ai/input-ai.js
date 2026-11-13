@@ -2,17 +2,18 @@
  * ==========================================================
  * VĂN ĐẠO AI - INPUT AI (js/ai/input-ai.js)
  * Vị trí: js/ai/input-ai.js
- * Version: 5.3.0 (Semantic Parser & Full 11 Agents Support)
+ * Version: 6.0.0 (Dynamic Intent Mapping)
  * ==========================================================
  * NHIỆM VỤ:
  * 1. Nhận diện câu hỏi, mệnh lệnh, tìm kiếm.
- * 2. Trích xuất thực thể.
- * 3. Hỗ trợ các câu hỏi về Lịch sử, Dịch thuật, Nhân vật, So sánh, Khen/Chê.
+ * 2. Tự động lấy từ khóa từ AgentRegistry (không hardcode).
+ * 3. Hỗ trợ các câu hỏi đặc biệt (So sánh, Khen/Chê).
  * ==========================================================
  */
 
 import { extractEntity } from './core.js';
 import { preprocessText } from './nlp-tools.js';
+import { DynamicIntentPatterns } from './agents/index.js'; // [MỚI] Import bộ từ khóa động
 
 // =====================================================================
 // PHẦN 1: CÔNG CỤ XỬ LÝ NGÔN NGỮ
@@ -50,42 +51,11 @@ const EXTRACTION_PATTERNS = {
     'find-works-by-era': [/\b(tac pham|bai tho|truyen|tieu thuyet)\b/gi, /\b(thoi|thuoc thoi|thoi ky|trieu dai|nha)\b/gi, /\b(nao|gi)\b/gi, /\b(co|cho toi|cho minh|tim|liet ke)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
     'find-authors-by-era': [/\b(tac gia|nha tho|nha van)\b/gi, /\b(thoi|thuoc thoi|thoi ky|trieu dai|nha)\b/gi, /\b(nao|gi|ai)\b/gi, /\b(co|cho toi|cho minh|tim|liet ke)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
     'get-historical-context': [/\b(viet|sang tac|thuoc|hoat dong)\b/gi, /\b(thoi|thoi ky|trieu dai|nam nao|khi nao)\b/gi, /\b(boi canh|hoan canh|lich su)\b/gi, /\b(la gi|the nao|ra sao)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
-    
-    // [MỚI] Pattern cho Dịch thuật
-    'translate-work': [
-        /\b(dich|translate|chuyen ngu|dich thuat|sang tieng anh|sang tieng viet)\b/gi,
-        /\b(tac pham|bai tho|truyen|tieu thuyet|doan van)\b/gi,
-        /\b(sang|qua|thanh)\b/gi,
-        /\b(khong|a|nhi|vay)\b/gi
-    ],
-    // [MỚI] Pattern cho Nhân vật
-    'get-character-info': [
-        /\b(nhan vat|character|nhan vat nao|thong tin nhan vat)\b/gi,
-        /\b(trong|thuoc|cua)\b/gi,
-        /\b(tac pham|truyen|bai tho)\b/gi,
-        /\b(la ai|la gi|the nao)\b/gi,
-        /\b(khong|a|nhi|vay)\b/gi
-    ],
-    // [MỚI] Pattern cho So sánh
-    'compare-entities': [
-        /\b(so sanh|compare|giua|khac nhau|tuong dong|giong)\b/gi,
-        /\b(va|voi|cung)\b/gi,
-        /\b(tac gia|tac pham|truyen|bai tho)\b/gi,
-        /\b(khong|a|nhi|vay)\b/gi
-    ],
-    // [MỚI] Pattern cho Khen
-    'praise-work': [
-        /\b(khen|ca ngoi|praise|dep|hay|tuyet voi)\b/gi,
-        /\b(bai tho|tac pham|truyen)\b/gi,
-        /\b(khong|a|nhi|vay)\b/gi
-    ],
-    // [MỚI] Pattern cho Chê
-    'criticize-work': [
-        /\b(che|phe binh|criticize|han che|do|te|kem)\b/gi,
-        /\b(bai tho|tac pham|truyen)\b/gi,
-        /\b(khong|a|nhi|vay)\b/gi
-    ],
-
+    'translate-work': [/\b(dich|translate|chuyen ngu|dich thuat|sang tieng anh|sang tieng viet)\b/gi, /\b(tac pham|bai tho|truyen|tieu thuyet|doan van)\b/gi, /\b(sang|qua|thanh)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
+    'get-character-info': [/\b(nhan vat|character|nhan vat nao|thong tin nhan vat)\b/gi, /\b(trong|thuoc|cua)\b/gi, /\b(tac pham|truyen|bai tho)\b/gi, /\b(la ai|la gi|the nao)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
+    'compare-entities': [/\b(so sanh|compare|giua|khac nhau|tuong dong|giong)\b/gi, /\b(va|voi|cung)\b/gi, /\b(tac gia|tac pham|truyen|bai tho)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
+    'praise-work': [/\b(khen|ca ngoi|praise|dep|hay|tuyet voi)\b/gi, /\b(bai tho|tac pham|truyen)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
+    'criticize-work': [/\b(che|phe binh|criticize|han che|do|te|kem)\b/gi, /\b(bai tho|tac pham|truyen)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
     'default': [/\b(tim|kiem|tra cuu|cho toi|cho minh)\b/gi, /\b(khong|a|nhi|vay)\b/gi]
 };
 
@@ -107,52 +77,23 @@ function cleanQuery(text, intentType = 'default') {
 }
 
 // =====================================================================
-// PHẦN 3: NHẬN DIỆN Ý ĐỊNH (BAG OF WORDS)
+// PHẦN 3: NHẬN DIỆN Ý ĐỊNH (TỰ ĐỘNG TỪ AGENTS)
 // =====================================================================
 
 function detectCommand(text) {
     const words = new Set(text.split(' '));
     const hasAny = (arr) => arr.some(w => words.has(w));
-    const hasAll = (arr) => arr.every(w => words.has(w));
 
-    // 1. NHÓM SO SÁNH (Ưu tiên cao nhất vì dễ nhầm với tìm kiếm)
+    // 1. Ưu tiên các logic đặc biệt (So sánh cần 2 thực thể)
     if (hasAny(['so sanh', 'compare', 'khac', 'tuong dong']) || (hasAny(['giong']) && hasAny(['va', 'voi']))) {
         return 'compare-entities';
     }
 
-    // 2. NHÓM KHEN / CHÊ
-    if (hasAny(['khen', 'ca ngoi', 'praise', 'tuyet'])) return 'praise-work';
-    if (hasAny(['che', 'phe binh', 'criticize', 'han che', 'te'])) return 'criticize-work';
-
-    // 3. NHÓM LỊCH SỬ
-    if (hasAny(['thoi', 'ky', 'trieu', 'nha']) && hasAny(['tac', 'pham', 'bai'])) return 'find-works-by-era';
-    if (hasAny(['thoi', 'ky', 'trieu', 'nha']) && hasAny(['tac', 'gia', 'nha', 'tho', 'van'])) return 'find-authors-by-era';
-    if (hasAny(['viet', 'sang', 'tac', 'thuoc', 'hoat']) && hasAny(['thoi', 'ky', 'nao', 'bao'])) return 'get-historical-context';
-
-    // 4. NHÓM DỊCH THUẬT
-    if (hasAny(['dich', 'translate', 'chuyen', 'ngu', 'dich thuat'])) return 'translate-work';
-
-    // 5. NHÓM NHÂN VẬT
-    if (hasAny(['nhan vat', 'character'])) return 'get-character-info';
-    // Phân biệt "Ai là tác giả" vs "Thúy Kiều là ai"
-    if (hasAny(['ai la']) && !hasAny(['tac gia', 'viet', 'sang tac'])) {
-        return 'get-character-info';
+    // 2. Tự động nhận diện từ DynamicIntentPatterns
+    for (const [intent, keywords] of Object.entries(DynamicIntentPatterns)) {
+        if (keywords.some(kw => words.has(kw))) return intent;
     }
 
-    // 6. NHÓM MẠNG LƯỚI TRI THỨC
-    if (hasAny(['giong', 'tuong', 'lien', 'quan']) && hasAny(['tac', 'pham', 'bai', 'truyen'])) return 'find-related';
-    if (hasAll(['tac', 'pham']) && hasAny(['cua', 'gi', 'nao'])) return 'list-author-works';
-
-    // 7. NHÓM HÀNH ĐỘNG VĂN HỌC
-    if (hasAny(['phan', 'tich', 'binh', 'giang', 'danh', 'gia', 'cam', 'nhan'])) return 'analyze-work';
-    if (hasAny(['tom', 'tat', 'noi', 'dung', 'ke', 'lai'])) return 'summarize-work';
-    if (hasAny(['goi', 'y', 'de', 'xuat', 'nen', 'doc', 'muon'])) return 'recommend';
-
-    // 8. NHÓM TÁC GIẢ
-    if (hasAny(['ai', 'viet', 'sang', 'tac', 'cua'])) {
-        if (hasAny(['tac', 'pham', 'truyen', 'bai', 'tho'])) return 'find-author-of';
-        if (hasAny(['tieu', 'su', 'cuoc', 'doi', 'thong', 'tin'])) return 'find-author-info';
-    }
     return null;
 }
 
@@ -180,7 +121,7 @@ export const InputAI = {
         let clean = preprocessText(original);
         if (!clean) return result('empty', 'empty', '', { confidence: 1, originalInput: original });
 
-        // 2. Nhận diện Mệnh lệnh
+        // 2. Nhận diện Mệnh lệnh (Tự động từ Agent)
         const command = detectCommand(clean);
         if (command) {
             const query = cleanQuery(clean, command);
