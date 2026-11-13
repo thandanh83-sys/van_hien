@@ -2,15 +2,23 @@
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
  * Vị trí: js/render.js
- * Version: 1.0.8 (Bug Fixes & AI Integration)
+ * Version: 2.0.0 (DataHub Integration & UI Polish)
+ * ==========================================================
+ * CHỨC NĂNG:
+ * - Hiển thị Văn Hiến (Tác phẩm), Bách Khoa (Tác giả, Lý thuyết).
+ * - Tự động tạo liên kết Tác giả/Tác phẩm liên quan qua DataHub.
+ * - Quản lý Lazy Load, Phân trang, và Tooltip biểu tượng.
  * ==========================================================
  */
 
 import { APP_DATA, STATE, ICONS, ITEMS_PER_PAGE, ENCY_ITEMS_PER_PAGE } from './config.js';
 import { escapeHTML, normalizeRouteId, highlightText, formatContent, removeAccents } from './utils.js';
 import { VDSearchEngine } from './search.js';
+import { DataHub } from './network/data-hub.js'; // [MỚI] Trái tim dữ liệu
 
-// MODULE 1: LAZY LOAD
+// =====================================================================
+// MODULE 1: LAZY LOAD (TỐI ƯU HIỆU NĂNG CUỘN)
+// =====================================================================
 export const PerformanceEngine = (() => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -23,7 +31,9 @@ export const PerformanceEngine = (() => {
     return { observe: (sel) => document.querySelectorAll(sel).forEach(el => observer.observe(el)) };
 })();
 
-// MODULE 2: VĂN HIẾN
+// =====================================================================
+// MODULE 2: VĂN HIẾN (DANH SÁCH TÁC PHẨM)
+// =====================================================================
 export function initMainFilters() {
     const mainBar = document.getElementById('main-filter-bar');
     if (!mainBar || !APP_DATA.WORKS_DATA.length) return;
@@ -43,12 +53,16 @@ export function filterMainCategory(category, btnElement) {
     if (!subBar) return;
 
     if (category === 'all') { subBar.style.display = 'none'; renderHeritage(); return; }
+    
     const itemsInCat = APP_DATA.WORKS_DATA.filter(i => i.loai_hinh === category);
     const uniqueGenres = new Set();
-    itemsInCat.forEach(i => { if (Array.isArray(i.the_loai)) i.the_loai.forEach(g => uniqueGenres.add(g)); });
+    itemsInCat.forEach(i => { 
+        if (Array.isArray(i.the_loai)) i.the_loai.forEach(g => uniqueGenres.add(g)); 
+    });
 
-    if (!uniqueGenres.size) { subBar.style.display = 'none'; }
-    else {
+    if (!uniqueGenres.size) { 
+        subBar.style.display = 'none'; 
+    } else {
         subBar.style.display = 'flex';
         let html = `<button class="filter-btn active" onclick="window.filterSubGenre('all', this)" style="padding:6px 16px;font-size:0.8rem;">Tất cả thể loại</button>`;
         Array.from(uniqueGenres).sort().forEach(g => {
@@ -113,73 +127,31 @@ export function renderHeritage() {
     PerformanceEngine.observe('.heritage-card');
 }
 
-// MODULE 3: CONTENT MANAGER
+// =====================================================================
+// MODULE 3: CONTENT MANAGER (QUẢN LÝ NỘI DUNG QUA DATAHUB)
+// =====================================================================
 export const ContentManager = (() => {
-    const MAX_CACHE_BYTES = 5 * 1024 * 1024;
-    const cache = new Map();
-    const pending = new Map();
-    let currentSize = 0;
-
-    function getCache(key) {
-        if (!cache.has(key)) return null;
-        const v = cache.get(key);
-        cache.delete(key); cache.set(key, v);
-        return v;
-    }
-    function setCache(key, value) {
-        if (cache.has(key)) { currentSize -= JSON.stringify(cache.get(key)).length; cache.delete(key); }
-        const size = JSON.stringify(value).length;
-        if (size > MAX_CACHE_BYTES) return;
-        while (currentSize + size > MAX_CACHE_BYTES && cache.size) {
-            const oldest = cache.keys().next().value;
-            currentSize -= JSON.stringify(cache.get(oldest)).length;
-            cache.delete(oldest);
-        }
-        cache.set(key, value); currentSize += size;
-    }
+    // Hàm load giờ đây giao phó hoàn toàn cho DataHub
     async function load(item, group, signal) {
-        const key = `${group}:${item.id}`;
-        const cached = getCache(key);
-        if (cached) return cached;
-        const inFlight = pending.get(key);
-        if (inFlight && !inFlight.signal?.aborted) return inFlight.promise;
-        if (inFlight) pending.delete(key);
-
-        const task = (async () => {
-            let result;
-            try {
-                if (group === 'tinh-hoa') {
-                    const res = await fetch(`./data/tac-pham/${encodeURIComponent(item.id)}.json`, { signal });
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    result = await res.json();
-                } else if (group === 'ky-tai') {
-                    const res = await fetch(`./data/tac-gia/${encodeURIComponent(item.id)}.json`, { signal });
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    result = await res.json();
-                } else {
-                    result = { content: item.content || item.description || '' };
-                }
-                setCache(key, result);
-                return result;
-            } catch (err) {
-                if (err.name === 'AbortError') console.log(`[CONTENT] Huỷ tải: ${key}`);
-                throw err;
-            }
-        })();
-        pending.set(key, { promise: task, signal });
-        try { return await task; }
-        finally { if (pending.get(key)?.promise === task) pending.delete(key); }
+        try {
+            // DataHub tự lo việc lấy từ RAM, Cache, hay Fetch
+            const detail = await DataHub.getDetail(item.id);
+            
+            // DataHub trả về object detail, ta bọc lại cho đồng bộ cấu trúc cũ
+            return { content: detail.content || detail.description || '' };
+        } catch (err) {
+            if (err.name === 'AbortError') console.log(`[CONTENT] Huỷ tải: ${item.id}`);
+            throw err;
+        }
     }
-    return { load, clearCache: () => { cache.clear(); currentSize = 0; } };
+    return { load, clearCache: () => DataHub.clearCache() };
 })();
 
 const accordionAbortControllers = new Map();
+
 export function findEncyclopediaItem(id, group) {
-    if (group === 'triet-thuyet') return APP_DATA.THEORY_DATA.find(i => i.id === id);
-    if (group === 'ky-tai') return APP_DATA.AUTHOR_DATA.find(i => i.id === id);
-    if (group === 'tinh-hoa') return APP_DATA.WORKS_DATA.find(i => i.id === id);
-    if (group === 'the-loai') return APP_DATA.THE_LOAI_DATA.find(i => i.id === id);
-    return null;
+    const meta = DataHub.getMetadata(id);
+    return meta ? meta.data : null;
 }
 
 export async function ensureAccordionContent(details) {
@@ -188,18 +160,24 @@ export async function ensureAccordionContent(details) {
     const group = details.dataset.group;
     const cacheKey = `${group}:${itemId}`;
     const contentDiv = details.querySelector('.accordion-content');
+    
     if (!itemId || !group || !contentDiv || contentDiv.dataset.contentLoaded === 'true' || contentDiv.dataset.loading === 'true') return;
 
     const controller = new AbortController();
     accordionAbortControllers.set(cacheKey, controller);
     const item = findEncyclopediaItem(itemId, group);
-    if (!item) { if (accordionAbortControllers.get(cacheKey) === controller) accordionAbortControllers.delete(cacheKey); return; }
+    
+    if (!item) { 
+        if (accordionAbortControllers.get(cacheKey) === controller) accordionAbortControllers.delete(cacheKey); 
+        return; 
+    }
 
     contentDiv.dataset.loading = 'true';
     contentDiv.innerHTML = `<p style="opacity:.5;font-style:italic;padding:10px;">${ICONS.clock} Đang tải nội dung...</p>`;
 
     try {
         const data = await ContentManager.load(item, group, controller.signal);
+        
         if (!details.isConnected || !details.open || details.dataset.id !== itemId) return;
 
         if (data.content && data.content.trim()) {
@@ -223,10 +201,15 @@ export async function ensureAccordionContent(details) {
 export function clearAccordionContent(details) {
     const itemId = details.dataset.id; const group = details.dataset.group;
     const cacheKey = `${group}:${itemId}`;
-    if (accordionAbortControllers.has(cacheKey)) { accordionAbortControllers.get(cacheKey).abort(); accordionAbortControllers.delete(cacheKey); }
+    if (accordionAbortControllers.has(cacheKey)) { 
+        accordionAbortControllers.get(cacheKey).abort(); 
+        accordionAbortControllers.delete(cacheKey); 
+    }
     const content = details.querySelector('.accordion-content');
     if (!content) return;
-    content.replaceChildren(); delete content.dataset.contentLoaded; delete content.dataset.loading;
+    content.replaceChildren(); 
+    delete content.dataset.contentLoaded; 
+    delete content.dataset.loading;
 }
 
 export function bindEncyclopediaEvents() {
@@ -238,13 +221,19 @@ export function bindEncyclopediaEvents() {
         if (!(details instanceof HTMLDetailsElement)) return;
         if (!details.matches('details[data-id][data-group]')) return;
         if (details.open) {
-            container.querySelectorAll('details[open]').forEach(other => { if (other !== details) { other.open = false; clearAccordionContent(other); } });
+            container.querySelectorAll('details[open]').forEach(other => { 
+                if (other !== details) { other.open = false; clearAccordionContent(other); } 
+            });
             ensureAccordionContent(details);
-        } else { clearAccordionContent(details); }
+        } else { 
+            clearAccordionContent(details); 
+        }
     }, true);
 }
 
-// MODULE 4: BÁCH KHOA
+// =====================================================================
+// MODULE 4: BÁCH KHOA (SẮP XẾP & HIỂN THỊ)
+// =====================================================================
 export function romanToInt(roman) {
     if (roman === '0') return 0;
     const map = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
@@ -269,8 +258,14 @@ export function sortEncyData(data, group) {
 
 export function filterEncyclopediaGroup(group, btnElement) {
     STATE.currentEncyGroup = group; STATE.currentEncyPage = 1;
-    document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
-    if (btnElement) { btnElement.classList.add('active'); btnElement.setAttribute('aria-pressed', 'true'); }
+    document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => { 
+        b.classList.remove('active'); 
+        b.setAttribute('aria-pressed', 'false'); 
+    });
+    if (btnElement) { 
+        btnElement.classList.add('active'); 
+        btnElement.setAttribute('aria-pressed', 'true'); 
+    }
     const si = document.getElementById('encyclopedia-search');
     if (si) si.value = '';
     document.getElementById('clear-search-btn')?.classList.remove('show');
@@ -363,12 +358,16 @@ export function searchEncyclopedia() {
         const idx = STATE.GLOBAL_INDEX_BY_KEY.get(r.key);
         return idx ? { ...idx.data, _group: idx.group || idx.type } : null;
     }).filter(Boolean);
+    
     STATE.currentEncyPage = 1;
     renderEncyclopediaList(data, true, tokens);
     document.getElementById('encyclopedia-count').textContent = `Tìm thấy ${results.length} mục`;
 }
 
-// MODULE 5: TÁC PHẨM & TÁC GIẢ LIÊN QUAN
+// =====================================================================
+// MODULE 5: LIÊN KẾT (DÙNG DATAHUB THAY VÌ TỰ TÍNH TOÁN)
+// =====================================================================
+
 export function findSymbols(text) {
     if (!text) return [];
     const source = String(text).toLocaleLowerCase('vi').normalize('NFC');
@@ -439,89 +438,50 @@ export function highlightSymbolsInContent(container) {
     });
 }
 
+/**
+ * [MỚI] Tìm tác phẩm liên quan (Giao phó cho DataHub)
+ */
 export function findRelatedWorks(current, limit = 5) {
-    if (!current) return [];
-    const currentAuthor = (current.author || '').toLowerCase().trim();
-    const isAnonymous = !currentAuthor || ['dân gian', 'khuyết danh', 'vô danh'].includes(currentAuthor);
-    const currentText = current.desc || current.content || '';
+    if (!current || !current.id) return [];
     
-    let scoredWorks = APP_DATA.WORKS_DATA
-        .filter(w => w.id !== current.id)
-        .map(w => {
-            let score = 0; const reasons = [];
-            if (!isAnonymous && w.author && w.author.toLowerCase().trim() === currentAuthor) { score += 60; reasons.push("Đồng tác giả"); }
-            if (current.era && w.era && current.era.toLowerCase().trim() === w.era.toLowerCase().trim()) { score += 40; reasons.push("Đồng thời đại"); }
-            if (current.loai_hinh && w.loai_hinh === current.loai_hinh) { score += 30; if (!reasons.length) reasons.push("Chung nguồn cảm hứng"); }
-            const sharedGenres = (w.the_loai || []).filter(g => (current.the_loai || []).includes(g));
-            if (sharedGenres.length > 0) { score += sharedGenres.length * 25; if (!reasons.length) reasons.push(`Đồng điệu: ${sharedGenres[0]}`); }
-            if (score > 0) {
-                const curSyms = new Set(findSymbols(currentText).map(s => s.keyword));
-                if (curSyms.size > 0) {
-                    const wText = w.desc || w.content || '';
-                    const sharedSyms = findSymbols(wText).filter(s => curSyms.has(s.keyword)).length;
-                    if (sharedSyms > 0) { score += sharedSyms * 5; if (!reasons.length) reasons.push("Chung chủ đề"); }
-                }
-            }
-            return { w, score, reason: reasons[0] || "" };
-        })
-        .filter(x => x.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit)
-        .map(x => ({ ...x.w, _reason: x.reason }));
+    const graph = DataHub.getGraph(current.id);
+    if (!graph) return [];
 
-    if (scoredWorks.length === 0) {
+    let related = graph.relatedWorks || [];
+    
+    // Nếu rỗng, lấy gợi ý ngẫu nhiên
+    if (related.length === 0) {
         const others = APP_DATA.WORKS_DATA.filter(w => w.id !== current.id);
         others.sort(() => 0.5 - Math.random());
-        scoredWorks = others.slice(0, 3).map(w => ({ ...w, _reason: "Gợi ý ngẫu nhiên" }));
+        related = others.slice(0, limit).map(w => ({ ...w, _reason: "Gợi ý ngẫu nhiên" }));
     }
-    return scoredWorks;
+
+    return related.slice(0, limit);
 }
 
+/**
+ * [MỚI] Tìm tác giả liên quan (Giao phó cho DataHub)
+ */
 export function findRelatedAuthors(current, limit = 4) {
-    if (!current || !current.author) return [];
-    const currentAuthor = current.author.toLowerCase().trim();
-    if (['dân gian', 'khuyết danh', 'vô danh'].includes(currentAuthor)) return [];
-    const currentAuthorObj = APP_DATA.AUTHOR_DATA.find(a => { const t = (a.title || a.name || '').replace(/^Chân Dung Tác Giả:\s*/i, '').toLowerCase().trim(); return t === currentAuthor; });
-    const currentWorks = APP_DATA.WORKS_DATA.filter(w => w.author && w.author.toLowerCase().trim() === currentAuthor);
-    if (currentWorks.length === 0) return [];
-    
-    const currentEras = new Set(currentWorks.map(w => (w.era || '').toLowerCase().trim()).filter(Boolean));
-    const currentLoaiHinh = new Set(currentWorks.map(w => w.loai_hinh).filter(Boolean));
-    const currentGenres = new Set();
-    currentWorks.forEach(w => (w.the_loai || []).forEach(g => currentGenres.add(g)));
-    
-    return APP_DATA.AUTHOR_DATA
-        .filter(a => !currentAuthorObj || a.id !== currentAuthorObj.id)
-        .map(a => {
-            const authorName = (a.title || a.name || '').replace(/^Chân Dung Tác Giả:\s*/i, '').toLowerCase().trim();
-            if (authorName === currentAuthor) return null;
-            const theirWorks = APP_DATA.WORKS_DATA.filter(w => w.author && w.author.toLowerCase().trim() === authorName);
-            if (theirWorks.length === 0) return null;
-            
-            let score = 0; let reason = "";
-            const theirEras = new Set(theirWorks.map(w => (w.era || '').toLowerCase().trim()).filter(Boolean));
-            const sharedEras = [...currentEras].filter(e => theirEras.has(e));
-            if (sharedEras.length > 0) { score += sharedEras.length * 25; reason = "Đồng thời đại"; }
-            
-            const theirLoaiHinh = new Set(theirWorks.map(w => w.loai_hinh).filter(Boolean));
-            const sharedLoaiHinh = [...currentLoaiHinh].filter(l => theirLoaiHinh.has(l));
-            if (sharedLoaiHinh.length > 0) { score += sharedLoaiHinh.length * 20; if (!reason) reason = "Chung nguồn cảm hứng"; }
-            
-            const theirGenres = new Set();
-            theirWorks.forEach(w => (w.the_loai || []).forEach(g => theirGenres.add(g)));
-            const sharedGenres = [...currentGenres].filter(g => theirGenres.has(g));
-            if (sharedGenres.length > 0) { score += sharedGenres.length * 15; if (!reason) reason = `Đồng điệu văn chương`; }
-            
-            return { a, score, reason };
-        })
-        .filter(x => x && x.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit)
-        .map(x => ({ ...x.a, _reason: x.reason }));
+    if (!current || !current.id) return [];
+
+    const graph = DataHub.getGraph(current.id);
+    if (!graph) return [];
+
+    // Nếu là Tác phẩm, trả về Tác giả của nó
+    if (graph.author) {
+        return [{ ...graph.author, _reason: "Tác giả của tác phẩm" }];
+    }
+
+    // Nếu là Tác giả, trả về các Tác giả cùng thời đại
+    if (graph.relatedWorks && graph.relatedWorks.length > 0) {
+        return graph.relatedWorks.slice(0, limit).map(a => ({ ...a, _reason: "Đồng thời đại" }));
+    }
+
+    return [];
 }
 
 export function appendRelatedSection(container, item, group) {
-    if (group !== 'tinh-hoa') return;
     if (container.querySelector('.related-section')) return;
     
     const relatedWorks = findRelatedWorks(item, 5);
@@ -587,7 +547,7 @@ export function appendRelatedSection(container, item, group) {
         `;
     }
 
-    // THÊM NÚT HỎI AI TÓM TẮT
+    // Nút Hỏi AI
     html += `
         <div style="margin-top: 30px; text-align: center; border-top: 1px dashed rgba(139,184,168,0.3); padding-top: 20px;">
             <button type="button" class="btn-ask-ai"
@@ -604,7 +564,9 @@ export function appendRelatedSection(container, item, group) {
     container.appendChild(section);
 }
 
-// MODULE 10: PHÂN TRANG
+// =====================================================================
+// MODULE 6: PHÂN TRANG
+// =====================================================================
 export function renderPagination(totalPages, containerId = 'pagination-container', pageType = 'heritage') {
     const pagContainer = document.getElementById(containerId);
     if (!pagContainer) return;
