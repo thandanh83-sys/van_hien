@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 3.2.0 (Plugin Architecture & Unified Network)
+ * Version: 3.3.0 (Pure SVG Icons & Plugin Architecture)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
@@ -10,7 +10,11 @@
  * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI).
  * - Gắn sự kiện Tìm kiếm Hỏi Đạo (Master AI).
  * - Quản lý Settings (Offline & Network Health).
- * - [MỚI] Kết nối với DataHub và AgentRegistry qua NetworkLayer.
+ * - Kết nối với DataHub và AgentRegistry qua NetworkLayer.
+ *
+ * TRIẾT LÝ:
+ * - Không dùng emoji/unicode icon. Mọi icon đều là SVG thuần.
+ * - Mọi thao tác dữ liệu đều đi qua DataHub (Offline-First).
  * ==========================================================
  */
 
@@ -33,12 +37,26 @@ import {
     PraiserAgent, CriticAgent 
 } from './ai.js';
 import { runFullDiagnosis } from './audit.js';
-// [MỚI] Import từ NetworkLayer (không còn MotherNode)
 import { bootstrapNetwork, DataHub, AgentRegistry } from './network/index.js';
 import { handleSmartSearch, resetSearchState } from './ask-dao.js';
 
 // =====================================================================
-// 2. HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
+// 2. HELPER: SVG SPARKLE ICON (Thay thế ký tự "✦")
+// =====================================================================
+/**
+ * Sinh SVG tia sáng (sparkle) với kích thước và màu tuỳ biến.
+ * Dùng để thay thế ký tự unicode "✦" trong các tiêu đề nhỏ.
+ *
+ * @param {number} size - Kích thước (px), mặc định 12.
+ * @param {string} color - Màu stroke, mặc định kế thừa currentColor.
+ * @returns {string} Chuỗi HTML của thẻ <svg>.
+ */
+function sparkleSvg(size = 12, color = 'currentColor') {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:6px; flex-shrink:0;" aria-hidden="true" focusable="false"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>`;
+}
+
+// =====================================================================
+// 3. HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
 // =====================================================================
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
@@ -87,7 +105,7 @@ function initDewdrops() {
 }
 
 // =====================================================================
-// 3. THI PHÁP HỌC (POETRY ANALYZER)
+// 4. THI PHÁP HỌC (POETRY ANALYZER)
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
@@ -234,22 +252,21 @@ function executePipeline() {
         return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${q}</div></div>`;
     }).join('');
 
+    // [ĐÃ THAY ĐỔI] Thay ký tự "✦" bằng SVG sparkle thuần.
     panel.innerHTML = `
         <div class="result-step tier-0"><div class="tier-label">TẦNG 0</div><div class="step-title">Bóc tách thanh điệu</div>${tier0}</div>
         <div class="result-step tier-1"><div class="tier-label">TẦNG 1</div><div class="step-title">Thể thơ & Vần</div>${tier1}</div>
         <div class="result-step tier-2"><div class="tier-label">TẦNG 2</div><div class="step-title">Biểu tượng · Điển tích</div>${tier2}</div>
         <div class="result-step tier-3"><div class="tier-label">TẦNG 3</div><div class="step-title">Câu hỏi mở</div>${tier3}</div>
         
-        <!-- TẦNG 4: AI BÌNH LUẬN (2 GÓC NHÌN) -->
         <div class="result-step tier-4" style="border-left-color: var(--accent-gold);">
             <div class="tier-label" style="color: var(--accent-text); border-color: var(--accent-text);">TẦNG 4</div>
             <div class="step-title">Hai Góc Nhìn Từ AI</div>
             
             <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
-                <!-- Khối Tán Dương -->
                 <div style="background: rgba(139, 184, 168, 0.05); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
                     <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700; color: var(--accent-text); text-transform:uppercase; font-size:0.8rem;">
-                        ✦ Góc Nhìn Tán Thưởng
+                        ${sparkleSvg(12, 'var(--accent-text)')} Góc Nhìn Tán Thưởng
                     </div>
                     ${(() => {
                         const praise = PraiserAgent.analyze(raw);
@@ -262,10 +279,9 @@ function executePipeline() {
                     })()}
                 </div>
 
-                <!-- Khối Phê Bình -->
                 <div style="background: rgba(163, 107, 107, 0.05); padding: 15px; border-radius: 8px; border-left: 3px solid #a36b6b;">
                     <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700; color: #a36b6b; text-transform:uppercase; font-size:0.8rem;">
-                        ✦ Góc Nhìn Phê Bình
+                        ${sparkleSvg(12, '#a36b6b')} Góc Nhìn Phê Bình
                     </div>
                     ${(() => {
                         const critique = CriticAgent.analyze(raw);
@@ -283,7 +299,7 @@ function executePipeline() {
 }
 
 // =====================================================================
-// 4. LOAD DATA & KHỞI TẠO MẠNG LƯỚI
+// 5. LOAD DATA & KHỞI TẠO MẠNG LƯỚI
 // =====================================================================
 async function loadAllData() {
     try {
@@ -321,7 +337,6 @@ async function loadAllData() {
         APP_DATA.FORTUNE_ADVICE = results[7].advice || {};
         APP_DATA.THE_LOAI_DATA = results[8];
 
-        // Xây dựng lại Global Index (Trái tim của DataHub)
         STATE.GLOBAL_INDEX.clear(); 
         STATE.GLOBAL_INDEX_BY_KEY.clear(); 
         STATE.GLOBAL_RECORDS.length = 0;
@@ -345,7 +360,6 @@ async function loadAllData() {
         addToIndex(APP_DATA.WORKS_DATA, 'tinh-hoa');
         addToIndex(APP_DATA.THE_LOAI_DATA, 'the-loai');
 
-        // Kích hoạt mạng lưới (DataHub, AgentRegistry, VDBus)
         await bootstrapNetwork();
 
         initMainFilters();
@@ -385,7 +399,7 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// 5. BÓI THƠ (FATE MODAL) - 4 KHỐI ĐÁNH GIÁ
+// 6. BÓI THƠ (FATE MODAL) - 4 KHỐI ĐÁNH GIÁ
 // =====================================================================
 function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && work.id);
@@ -428,34 +442,44 @@ function randomPoem() {
         excerptEl.textContent = `“${excerpt}”`;
     }
 
+    // [ĐÃ THAY ĐỔI] Toàn bộ ký tự "✦" được thay bằng SVG sparkle.
     if (commentaryEl) {
         commentaryEl.innerHTML = `
             <div style="margin-bottom:18px; color:var(--accent-text); font-style:italic; line-height:1.8;">
                 ${aiResult.bridgeText}
             </div>
             <div style="margin-bottom:18px; padding:15px; border-radius:10px; background:rgba(139,184,168,0.07);">
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-weight:700; color:${fortuneInfo.color}; text-transform:uppercase; font-size:0.8rem;">✦ Lời chiêm nghiệm</div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-weight:700; color:${fortuneInfo.color}; text-transform:uppercase; font-size:0.8rem;">
+                    ${sparkleSvg(12, fortuneInfo.color)} Lời chiêm nghiệm
+                </div>
                 <p style="margin:0; line-height:1.8;">${aiResult.fortuneReflection}</p>
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
                 <div style="background: rgba(139, 184, 168, 0.05); padding: 12px 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
-                    <div style="font-weight:700; color: var(--accent-text); margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">✦ Góc Nhìn Tán Thưởng</div>
+                    <div style="font-weight:700; color: var(--accent-text); margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">
+                        ${sparkleSvg(11, 'var(--accent-text)')} Góc Nhìn Tán Thưởng
+                    </div>
                     <p style="margin:0; line-height:1.6; font-size:0.95rem;">${aiResult.praiseCommentary}</p>
                 </div>
                 <div style="background: rgba(163, 107, 107, 0.05); padding: 12px 15px; border-radius: 8px; border-left: 3px solid #a36b6b;">
-                    <div style="font-weight:700; color: #a36b6b; margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">✦ Góc Nhìn Phê Bình</div>
+                    <div style="font-weight:700; color: #a36b6b; margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">
+                        ${sparkleSvg(11, '#a36b6b')} Góc Nhìn Phê Bình
+                    </div>
                     <p style="margin:0; line-height:1.6; font-size:0.95rem;">${aiResult.criticCommentary}</p>
                 </div>
             </div>
             <div style="background:rgba(139,184,168,0.05); padding:15px; border-radius:8px; border-left:3px solid ${fortuneInfo.color}; font-size:0.95rem; line-height:1.7;">
-                <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên (Nên / Tránh)</div>
+                <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">
+                    ${sparkleSvg(12, 'var(--accent-text)')} Lời khuyên (Nên / Tránh)
+                </div>
                 ${aiResult.adviceHtml}
             </div>
         `;
     }
 
+    // [ĐÃ THAY ĐỔI] Thay "&rarr;" bằng SVG arrowRight có sẵn trong ICONS.
     if (gotoBtn) {
-        gotoBtn.innerHTML = `Đọc toàn bộ tác phẩm &rarr;`;
+        gotoBtn.innerHTML = `Đọc toàn bộ tác phẩm ${ICONS.arrowRight}`;
         gotoBtn.onclick = () => {
             overlay.classList.remove('show');
             setTimeout(() => { overlay.style.display = 'none'; }, 300);
@@ -470,7 +494,7 @@ function randomPoem() {
 }
 
 // =====================================================================
-// 6. MẠNG LƯỚI TRI THỨC (NETWORK STATUS) - Hiển thị trạng thái DataHub
+// 7. MẠNG LƯỚI TRI THỨC (NETWORK STATUS)
 // =====================================================================
 async function refreshNetworkStatus(forceRefresh = false) {
     const dotsEl = document.getElementById('network-dots');
@@ -527,7 +551,7 @@ async function refreshNetworkStatus(forceRefresh = false) {
 }
 
 // =====================================================================
-// 7. XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
+// 8. XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
 // =====================================================================
 window.executePipeline = executePipeline;
 window.randomPoem = randomPoem;
@@ -568,10 +592,10 @@ window.clearSearch = function() {
 };
 
 // =====================================================================
-// 8. KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
+// 9. KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
 // =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // 8.1. Sự kiện Bói Thơ
+    // 9.1. Sự kiện Bói Thơ
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
     document.getElementById('fate-close-btn')?.addEventListener('click', () => {
         const o = document.getElementById('fate-modal-overlay');
@@ -585,7 +609,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 8.2. Splash Screen & Load Data
+    // 9.2. Splash Screen & Load Data
     const splash = document.getElementById('jade-splash');
     const status = document.getElementById('bootStatusText');
     const qc = document.querySelector('.boot-quote');
@@ -627,7 +651,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     }
 
-    // 8.3. Khôi phục bản nháp
+    // 9.3. Khôi phục bản nháp
     const draft = localStorage.getItem('vandao_draft_poem');
     if (draft) {
         const pi = document.getElementById('poemInput');
@@ -635,7 +659,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // 8.4. Sự kiện Tìm kiếm (Gộp Hỏi Đạo cho cả 2 View)
+    // 9.4. Sự kiện Tìm kiếm (Gộp Hỏi Đạo cho cả 2 View)
     const heritageSearchConfig = {
         inputId: 'search-input',
         containerId: 'heritage-grid',
@@ -678,7 +702,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 8.5. Xử lý URL params
+    // 9.5. Xử lý URL params
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
     if (initialTab && ['heritage', 'encyclopedia', 'analyze'].includes(initialTab)) {
@@ -686,9 +710,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // 8.6. Sự kiện click toàn cục
+    // 9.6. Sự kiện click toàn cục
     document.addEventListener('click', e => {
-        // Bắt sự kiện nút Hỏi AI trong bài đọc
         const aiBtn = e.target.closest('[data-ai-action="summarize-work"]');
         if (aiBtn) {
             e.preventDefault();
@@ -740,7 +763,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 8.7. Settings Dialog & Network
+    // 9.7. Settings Dialog & Network
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
@@ -774,7 +797,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         refreshNetworkStatus(true);
     });
 
-    // 8.8. NÚT TẢI OFFLINE (Sử dụng Custom Modal)
+    // 9.8. NÚT TẢI OFFLINE
     const btnOfflineStart = document.getElementById('offline-btn-start');
     const btnOfflineCancel = document.getElementById('offline-btn-cancel');
     const btnOfflineClear = document.getElementById('offline-btn-clear');
@@ -830,6 +853,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 8.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
+    // 9.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
     bindEncyclopediaEvents();
 });
