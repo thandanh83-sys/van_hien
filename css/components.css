@@ -2,14 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 1.0.4 (Smart Search Integration)
+ * Version: 1.0.9 (Glassmorphism & AI Integration)
  * ==========================================================
  * CHỨC NĂNG:
- * - Định dạng các thành phần nhỏ lẻ (Nút, Thanh tìm kiếm).
+ * - Định dạng Nút bấm, Thanh tìm kiếm, Phân trang.
  * - Khối kết quả Hỏi Đạo (Ask Result).
- * - Highlight & Tooltip (Biểu tượng, Từ khóa).
- * - Phân trang (Pagination).
- * - Nút Xóa Offline (Danger Button).
+ * - Highlight & Tooltip (Biểu tượng).
+ * - Nút Hỏi AI & Nút Xóa Offline.
  * ==========================================================
  */
 
@@ -64,40 +63,39 @@
     display: none; 
 } 
 
-/* Nút Bộ lọc (Văn Hiến, Bách Khoa) - Đã Fix Lỗi Mất Chữ */
+/* Nút Bộ lọc (Văn Hiến, Bách Khoa) - Glassmorphism */
 .filter-btn { 
-    background: transparent;
-    border: 1px solid var(--border-color); 
-    color: var(--text-muted); 
-    padding: 9px 20px; 
+    background: rgba(253, 251, 247, 0.4); /* Nền trắng siêu mờ */
+    border: 1px solid rgba(139, 184, 168, 0.2); 
+    color: var(--text-main); /* Chữ màu đậm, rõ nét */
+    padding: 10px 24px; 
     border-radius: var(--radius-pill); 
     cursor: pointer; 
     letter-spacing: 0.05em !important; 
-    white-space: nowrap; /* Không cho xuống dòng */
-    flex-shrink: 0; /* Không cho co lại gây mất chữ */
-    font-size: 0.8rem;
+    white-space: nowrap; /* Chống rớt dòng gây mất chữ */
+    flex-shrink: 0; /* Chống co rút gây mất chữ */
+    font-size: 0.85rem;
+    font-weight: 700 !important;
     position: relative;
     overflow: hidden;
-    transition: all 0.35s var(--ease-silk);
+    transition: all 0.3s var(--ease-silk);
+    backdrop-filter: blur(4px); /* Làm mờ hậu cảnh */
+    -webkit-backdrop-filter: blur(4px);
     z-index: 1;
 }
-.filter-btn::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--accent-text), var(--accent));
-    opacity: 0;
-    transition: opacity 0.35s var(--ease-silk);
-    z-index: -1;
-}
+
+/* Hiệu ứng khi Hover hoặc Active */
 .filter-btn:hover, .filter-btn.active { 
-    color: #ffffff !important; 
-    border-color: var(--accent-text) !important; 
-    box-shadow: 0 6px 20px rgba(85, 122, 111, 0.25) !important; 
+    background: rgba(139, 184, 168, 0.25); /* Nền xanh ngọc trong suốt 25% */
+    border-color: var(--accent); 
+    color: var(--accent-text) !important; 
+    box-shadow: 0 4px 15px rgba(139, 184, 168, 0.15); 
+    backdrop-filter: blur(8px); 
+    -webkit-backdrop-filter: blur(8px);
 }
-.filter-btn:hover::before, .filter-btn.active::before { 
-    opacity: 1; 
-}
+
+/* Bỏ gradient cũ */
+.filter-btn::before { display: none; }
 
 /* Nút Xem Chi Tiết */
 .detail-btn { 
@@ -185,7 +183,7 @@
 }
 
 /* =====================================================================
-   3. THANH TÌM KIẾM (SEARCH BAR)
+   3. THANH TÌM KIẾM THÔNG MINH (SEARCH BAR)
    ===================================================================== */
 .search-container { 
     display: flex; 
@@ -281,9 +279,7 @@
     color: var(--text-muted);
     font-style: italic;
 }
-.ask-loading .spinner { 
-    margin-bottom: 20px; 
-}
+.ask-loading .spinner { margin-bottom: 20px; }
 
 .ask-result {
     background: linear-gradient(135deg, rgba(212, 196, 168, 0.08), rgba(139, 184, 168, 0.04));
@@ -423,7 +419,34 @@ mark {
 }
 
 /* =====================================================================
-   6. CÀI ĐẶT & NÚT XÓA OFFLINE (DANGER BUTTON)
+   6. NÚT HỎI AI (ASK AI BUTTON)
+   ===================================================================== */
+.btn-ask-ai {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(212, 196, 168, 0.15);
+    color: var(--accent-text);
+    border: 1px solid var(--accent-gold);
+    border-radius: var(--radius-pill);
+    padding: 10px 20px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-silk);
+}
+.btn-ask-ai:hover {
+    background: var(--accent-gold);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(212, 196, 168, 0.4);
+}
+.btn-ask-ai svg {
+    animation: spin 4s linear infinite;
+}
+
+/* =====================================================================
+   7. CÀI ĐẶT & NÚT XÓA OFFLINE (DANGER BUTTON)
    ===================================================================== */
 .offline-option-btn {
     width: 100%; 
@@ -467,7 +490,7 @@ mark {
 }
 
 /* =====================================================================
-   7. SKELETON LOADING
+   8. SKELETON LOADING
    ===================================================================== */
 .skeleton { 
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
