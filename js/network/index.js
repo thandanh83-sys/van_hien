@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO — NETWORK LAYER FACADE (js/network/index.js)
  * Vị trí: js/network/index.js
- * Version: 3.0.0 (Unified Intelligence Network)
+ * Version: 3.2.0 (Plugin Architecture)
  * ==========================================================
  * CHỨC NĂNG:
  * - Đóng vai trò là "Trạm trung chuyển" (Facade) duy nhất cho toàn bộ
@@ -10,12 +10,7 @@
  * - Gom các module cốt lõi lại và export ra ngoài:
  *   1. DataHub: Trái tim dữ liệu (Truy xuất, Cache, Knowledge Graph).
  *   2. VDBus: Đường truyền tin nhắn (Publish/Subscribe/Request).
- *   3. AgentRegistry: Sổ đăng ký năng lực của các AI Agents.
- * 
- * TRIẾT LÝ:
- * - "Một cửa ngõ, một đầu mối" (Single Source of Truth).
- * - main.js chỉ cần import từ file này, không cần quan tâm cấu trúc thư mục.
- * - MotherNode đã bị xóa. Không còn kiến trúc "Máy Mẹ - Máy Con".
+ *   3. AgentRegistry: Sổ đăng ký năng lực của các AI Agents (từ agents/index.js).
  * ==========================================================
  */
 
@@ -24,7 +19,8 @@
 // =====================================================================
 import { DataHub } from './data-hub.js';
 import { VDBus } from './bus.js';
-import { AgentRegistry } from '../ai/agent-registry.js'; // [MỚI]
+// [SỬA] Import từ agents/index.js thay vì agent-registry.js cũ
+import { AgentRegistry } from '../ai/agents/index.js'; 
 
 // =====================================================================
 // 2. RE-EXPORT (Xuất khẩu lại để main.js dễ sử dụng)
@@ -35,7 +31,7 @@ export { DataHub, VDBus, AgentRegistry };
 // 3. NETWORK LAYER FACADE (Trạm trung chuyển cấp cao)
 // =====================================================================
 export const NetworkLayer = Object.freeze({
-    version: '3.0.0',
+    version: '3.2.0',
     
     // Các module con (dùng để truy cập trực tiếp nếu cần)
     dataHub: DataHub,
@@ -50,16 +46,16 @@ export const NetworkLayer = Object.freeze({
      */
     async bootstrap() {
         try {
-            // Kiểm tra trạng thái DataHub
             const totalRecords = STATE?.GLOBAL_RECORDS?.length || 0;
             const totalWorks = APP_DATA?.WORKS_DATA?.length || 0;
             const totalAuthors = APP_DATA?.AUTHOR_DATA?.length || 0;
+            const agentCount = AgentRegistry.getAllAgentKeys().length;
 
             console.log(
                 `%c[NETWORK] Văn Đạo Network Layer v${this.version}`,
                 'color: #8bb8a8; font-weight: bold; font-size: 14px;',
                 `\n• DataHub: Sẵn sàng (${totalRecords} thực thể)`,
-                `\n• AgentRegistry: Sẵn sàng (${Object.keys(AgentRegistry.agents).length} agents)`,
+                `\n• AgentRegistry: Sẵn sàng (${agentCount} agents)`,
                 `\n• VDBus: ${VDBus.isActive ? `Hoạt động (${VDBus.adapterName})` : 'Không khả dụng'}`,
                 `\n• Tác phẩm: ${totalWorks} | Tác giả: ${totalAuthors}`
             );
@@ -73,7 +69,6 @@ export const NetworkLayer = Object.freeze({
 
     /**
      * [DEBUG] In ra trạng thái hiện tại của toàn bộ mạng lưới.
-     * Dùng trong Console để kiểm tra nhanh.
      */
     debug() {
         return {
@@ -85,8 +80,8 @@ export const NetworkLayer = Object.freeze({
                 totalGenres: APP_DATA?.THE_LOAI_DATA?.length || 0
             },
             agentRegistry: {
-                totalAgents: Object.keys(AgentRegistry.agents).length,
-                agents: Object.keys(AgentRegistry.agents)
+                totalAgents: AgentRegistry.getAllAgentKeys().length,
+                agents: AgentRegistry.getAllAgentKeys()
             },
             bus: VDBus.debug()
         };
