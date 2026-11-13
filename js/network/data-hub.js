@@ -2,27 +2,41 @@
  * ==========================================================
  * VĂN ĐẠO - DATA HUB (js/network/data-hub.js)
  * Vị trí: js/network/data-hub.js
- * Version: 2.0.0 (Knowledge Graph & Offline-First)
+ * Version: 3.0.0 (Unified Intelligence Network)
  * ==========================================================
  * CHỨC NĂNG:
  * - Trung tâm truy xuất dữ liệu duy nhất cho toàn bộ AI.
  * - Quản lý bộ nhớ đệm (RAM Cache).
- * - Tự động xây dựng Mạng lưới Tri thức (Knowledge Graph).
+ * - Xây dựng Đồ thị Tri thức có cấu trúc (Knowledge Graph).
+ * - Cho phép AI truy xuất dữ liệu theo trường (Field Selection).
  * - Đảm bảo hoạt động Offline 100% (qua Service Worker).
+ * 
+ * TRIẾT LÝ:
+ * - Mọi AI chỉ giao tiếp qua ID.
+ * - Không AI nào tự ý fetch JSON.
+ * - DataHub tự lo phần lấy dữ liệu, xử lý cache và fallback.
  * ==========================================================
  */
 
 import { APP_DATA, STATE } from '../config.js';
 import { normalizeRouteText } from '../utils.js';
 
-// Bộ nhớ đệm RAM cấp cao (Tránh việc AI hỏi đi hỏi lại 1 ID nhiều lần)
-const ramCache = new Map();
-// Bộ nhớ đệm các mối quan hệ (Graph Cache)
-const relationCache = new Map();
+// =====================================================================
+// BỘ NHỚ ĐỆM (CACHES)
+// =====================================================================
+
+// 1. Cache Metadata (Lưu trữ các record cơ bản từ Global Index)
+const metadataCache = new Map();
+
+// 2. Cache Chi tiết (Lưu trữ nội dung đầy đủ của file JSON)
+const detailCache = new Map();
+
+// 3. Cache Đồ thị (Lưu trữ các cạnh liên kết để tránh tính toán lại)
+const graphCache = new Map();
 
 export const DataHub = {
     // =================================================================
-    // PHẦN 1: TRUY XUẤT CƠ BẢN (ID RESOLUTION & METADATA)
+    // PHẦN 1: TRUY XUẤT CƠ BẢN (METADATA & ID RESOLUTION)
     // =================================================================
 
     /**
@@ -61,15 +75,19 @@ export const DataHub = {
      */
     getMetadata(id) {
         if (!id) return null;
-        if (ramCache.has(id)) return ramCache.get(id);
+        if (metadataCache.has(id)) return metadataCache.get(id);
 
         const record = STATE.GLOBAL_INDEX.get(id);
         if (record) {
-            ramCache.set(id, record);
+            metadataCache.set(id, record);
             return record;
         }
         return null;
     },
+
+    // =================================================================
+    // PHẦN 2: TRUY XUẤT NÂNG CAO (DETAIL & FIELD SELECTION)
+    // =================================================================
 
     /**
      * Lấy NỘI DUNG CHI TIẾT của một thực thể (Offline-First)
@@ -81,12 +99,11 @@ export const DataHub = {
         const meta = this.getMetadata(id);
         if (!meta) return { content: 'Không tìm thấy dữ liệu.' };
 
-        const cacheKey = `detail:${id}`;
-        if (ramCache.has(cacheKey)) return ramCache.get(cacheKey);
+        if (detailCache.has(id)) return detailCache.get(id);
 
         // Nếu là Lý thuyết hoặc Thể loại, nội dung đã có sẵn trong metadata
         if (meta.group === 'triet-thuyet' || meta.group === 'the-loai') {
-            ramCache.set(cacheKey, meta.data);
+            detailCache.set(id, meta.data);
             return meta.data;
         }
 
@@ -100,7 +117,7 @@ export const DataHub = {
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const detail = await res.json();
             
-            ramCache.set(cacheKey, detail);
+            detailCache.set(id, detail);
             return detail;
         } catch (err) {
             console.warn(`[DATAHUB] Offline: Không tải được chi tiết "${id}". Dùng tạm tóm tắt.`);
@@ -109,25 +126,137 @@ export const DataHub = {
                 ...meta.data,
                 content: meta.data.desc || meta.data.description || 'Nội dung đang được cập nhật (Offline).'
             };
-            ramCache.set(cacheKey, fallback);
+            detailCache.set(id, fallback);
             return fallback;
         }
     },
 
-    // =================================================================
-    // PHẦN 2: MẠNG LƯỚI TRI THỨC (KNOWLEDGE GRAPH)
-    // =================================================================
-
     /**
-     * Xây dựng và truy xuất mạng lưới liên kết của một thực thể
-     * @param {string} id - ID của thực thể gốc
-     * @returns {Object} Mạng lưới các mối quan hệ { author, works, genres, relatedWorks }
+     * [MỚI] Lấy dữ liệu theo các trường yêu cầu (Field Selection)
+     * Giúp AI tối ưu hóa việc lấy dữ liệu, không tải toàn bộ JSON nếu không cần.
+     * 
+     * @param {string} id - ID thực thể
+     * @param {Array<string>} fields - Mảng các trường cần lấy (VD: ['title', 'author'])
+     * @returns {Promise<Object>} Object chứa các trường được yêu cầu
      */
-    getGraph(id) {
+    async getEntity(id, fields = []) {
         const meta = this.getMetadata(id);
         if (!meta) return null;
 
-        if (relationCache.has(id)) return relationCache.get(id);
+        // Nếu không yêu cầu trường cụ thể, trả về toàn bộ metadata
+        if (fields.length === 0) return meta.data;
+
+        // Nếu yêu cầu các trường cơ bản (title, author, desc), lấy từ metadata (siêu tốc)
+        const result = {};
+        let needDetail = false;
+
+        fields.forEach(field => {
+            if (meta.data[field] !== undefined) {
+                result[field] = meta.data[field];
+            } else if (field === 'content') {
+                needDetail = true;
+            }
+        });
+
+        // Nếu yêu cầu 'content', phải tải chi tiết
+        if (needDetail) {
+            const detail = await this.getDetail(id);
+            if (detail && detail.content) {
+                result.content = detail.content;
+            }
+        }
+
+        return result;
+    },
+
+    // =================================================================
+    // PHẦN 3: MẠNG LƯỚI TRI THỨC (STRUCTURED KNOWLEDGE GRAPH)
+    // =================================================================
+
+    /**
+     * [MỚI] Truy xuất Đồ thị Tri thức có cấu trúc (Knowledge Graph Edges)
+     * Trả về danh sách các cạnh nối: { from, relation, to, source, confidence }
+     * @param {string} id - ID của thực thể gốc
+     * @returns {Array} Mảng các liên kết có cấu trúc
+     */
+    getStructuredGraph(id) {
+        const meta = this.getMetadata(id);
+        if (!meta) return [];
+
+        if (graphCache.has(id)) return graphCache.get(id);
+
+        const edges = [];
+        const item = meta.data;
+
+        // ---------------------------------------------------------
+        // A. NẾU LÀ TÁC PHẨM (TÌM TÁC GIẢ, THỂ LOẠI)
+        // ---------------------------------------------------------
+        if (meta.group === 'tinh-hoa') {
+            const authorName = (item.author || '').trim();
+            
+            // 1. Cạnh: Tác phẩm -> Tác giả (written_by)
+            if (authorName) {
+                const authorRecord = APP_DATA.AUTHOR_DATA.find(a => {
+                    const cleanTitle = a.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
+                    return cleanTitle.toLowerCase() === authorName.toLowerCase();
+                });
+                if (authorRecord) {
+                    edges.push({
+                        from: `work:${id}`,
+                        relation: 'written_by',
+                        to: `author:${authorRecord.id}`,
+                        source: 'local-data',
+                        confidence: 1.0
+                    });
+                }
+            }
+
+            // 2. Cạnh: Tác phẩm -> Thể loại (has_genre)
+            const genres = Array.isArray(item.the_loai) ? item.the_loai : (item.the_loai ? [item.the_loai] : []);
+            genres.forEach(g => {
+                edges.push({
+                    from: `work:${id}`,
+                    relation: 'has_genre',
+                    to: `genre:${normalizeRouteText(g)}`,
+                    source: 'local-data',
+                    confidence: 1.0
+                });
+            });
+        }
+
+        // ---------------------------------------------------------
+        // B. NẾU LÀ TÁC GIẢ (TÌM TÁC PHẨM)
+        // ---------------------------------------------------------
+        else if (meta.group === 'ky-tai') {
+            const authorName = item.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
+            const works = APP_DATA.WORKS_DATA.filter(w => 
+                w.author && w.author.toLowerCase().trim() === authorName.toLowerCase()
+            );
+            
+            // Cạnh: Tác giả -> Tác phẩm (wrote)
+            works.forEach(w => {
+                edges.push({
+                    from: `author:${id}`,
+                    relation: 'wrote',
+                    to: `work:${w.id}`,
+                    source: 'local-data',
+                    confidence: 1.0
+                });
+            });
+        }
+
+        graphCache.set(id, edges);
+        return edges;
+    },
+
+    /**
+     * Lấy Đồ thị Tri thức dạng rút gọn (Dùng cho UI render Related)
+     * Trả về object chứa các mảng dữ liệu thô để render.
+     */
+    getGraph(id) {
+        const edges = this.getStructuredGraph(id);
+        const meta = this.getMetadata(id);
+        if (!meta || edges.length === 0) return null;
 
         const graph = {
             author: null,
@@ -136,73 +265,42 @@ export const DataHub = {
             relatedWorks: []
         };
 
-        const item = meta.data;
-
-        // ---------------------------------------------------------
-        // A. NẾU LÀ TÁC PHẨM (TÌM TÁC GIẢ, THỂ LOẠI, TÁC PHẨM TƯƠNG TỰ)
-        // ---------------------------------------------------------
+        // Xử lý dựa trên loại thực thể
         if (meta.group === 'tinh-hoa') {
-            const authorName = (item.author || '').trim();
-            const genres = Array.isArray(item.the_loai) ? item.the_loai : (item.the_loai ? [item.the_loai] : []);
+            edges.forEach(edge => {
+                if (edge.relation === 'written_by') {
+                    const authorId = edge.to.replace('author:', '');
+                    const author = APP_DATA.AUTHOR_DATA.find(a => a.id === authorId);
+                    if (author) graph.author = author;
+                }
+                if (edge.relation === 'has_genre') {
+                    graph.genres.push(edge.to.replace('genre:', ''));
+                }
+            });
 
-            // 1. Tìm Tác giả (Dựa vào tên)
-            if (authorName) {
-                const authorRecord = APP_DATA.AUTHOR_DATA.find(a => {
-                    const cleanTitle = a.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
-                    return cleanTitle.toLowerCase() === authorName.toLowerCase();
-                });
-                if (authorRecord) graph.author = authorRecord;
-            }
-
-            // 2. Tìm các Tác phẩm khác của cùng Tác giả
-            if (authorName) {
-                graph.works = APP_DATA.WORKS_DATA.filter(w => 
-                    w.id !== id && w.author && w.author.toLowerCase().trim() === authorName.toLowerCase()
-                ).slice(0, 5);
-            }
-
-            // 3. Tìm các Tác phẩm cùng Thể loại
-            if (genres.length > 0) {
-                graph.genres = genres;
+            // Tìm các tác phẩm cùng thể loại
+            if (graph.genres.length > 0) {
                 graph.relatedWorks = APP_DATA.WORKS_DATA.filter(w => {
                     if (w.id === id) return false;
                     const wGenres = Array.isArray(w.the_loai) ? w.the_loai : (w.the_loai ? [w.the_loai] : []);
-                    // Giao thoa thể loại
-                    return wGenres.some(g => genres.includes(g));
+                    return wGenres.some(g => graph.genres.includes(normalizeRouteText(g)));
                 }).slice(0, 5);
             }
-        }
-
-        // ---------------------------------------------------------
-        // B. NẾU LÀ TÁC GIẢ (TÌM TÁC PHẨM, THỜI ĐẠI)
-        // ---------------------------------------------------------
+        } 
         else if (meta.group === 'ky-tai') {
-            const authorName = item.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
-            
-            // 1. Tìm tất cả Tác phẩm của Tác giả này
-            graph.works = APP_DATA.WORKS_DATA.filter(w => 
-                w.author && w.author.toLowerCase().trim() === authorName.toLowerCase()
-            );
-
-            // 2. Tìm các Tác giả cùng thời đại (Liên kết lỏng)
-            const eras = new Set(graph.works.map(w => w.era).filter(Boolean));
-            if (eras.size > 0) {
-                graph.relatedWorks = APP_DATA.AUTHOR_DATA.filter(a => {
-                    if (a.id === id) return false;
-                    const theirWorks = APP_DATA.WORKS_DATA.filter(w => w.author && w.author.includes(a.title.replace(/^Chân Dung Tác Giả:\s*/i, '')));
-                    return theirWorks.some(w => eras.has(w.era));
-                }).slice(0, 5);
-            }
+            graph.works = edges.filter(e => e.relation === 'wrote').map(e => {
+                const workId = e.to.replace('work:', '');
+                return APP_DATA.WORKS_DATA.find(w => w.id === workId);
+            }).filter(Boolean);
         }
 
-        relationCache.set(id, graph);
         return graph;
     },
 
     // =================================================================
-    // PHẦN 3: CÁC HÀM TIỆN ÍCH KHÁC
+    // PHẦN 4: TIỆN ÍCH KHÁC
     // =================================================================
-    
+
     /**
      * Lấy toàn bộ Tác phẩm của một Thể loại
      */
@@ -214,10 +312,11 @@ export const DataHub = {
     },
 
     /**
-     * Xóa Cache (Dùng khi cần giải phóng bộ nhớ hoặc trong lúc test)
+     * Xóa toàn bộ Cache (Dùng khi cần giải phóng bộ nhớ hoặc test)
      */
     clearCache() {
-        ramCache.clear();
-        relationCache.clear();
+        metadataCache.clear();
+        detailCache.clear();
+        graphCache.clear();
     }
 };
