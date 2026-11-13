@@ -4,7 +4,144 @@
  * Chức năng: Reset CSS, nền tảng, Sương & Sóng nước (z-index: 1)
  * ==========================================================
  */
+/**
+ * ==========================================================
+ * VĂN ĐẠO - BASE CSS (css/base.css)
+ * Chức năng: Reset CSS, nền tảng, Sương & Sóng nước (z-index: 1)
+ * Đã sửa: Màu bôi đen dễ đọc, nước/sương hiển thị đúng lớp.
+ * ==========================================================
+ */
 
+/* 1. KHAI BÁO FONT CHỮ CỤC BỘ */
+@font-face {
+    font-family: 'Alex Brush';
+    src: url('../assets/fonts/AlexBrush-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap; 
+}
+
+/* 2. RESET CSS & THIẾT LẬP CƠ BẢN */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+html { 
+    background-color: var(--bg-base); 
+    overscroll-behavior-y: none; 
+    scroll-behavior: smooth; 
+}
+
+body {
+    background-color: var(--bg-base);
+    background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.95) 0%, rgba(235, 243, 240, 0.98) 100%), url('../assets/nen.jpg');
+    background-size: cover; 
+    background-position: center; 
+    background-attachment: fixed; 
+    background-repeat: no-repeat;
+    
+    color: var(--text-main); 
+    font-family: var(--font-body); 
+    line-height: 1.6;
+    min-height: 100vh; 
+    overflow-x: hidden; 
+    
+    -webkit-font-smoothing: antialiased; 
+    text-rendering: optimizeLegibility;
+}
+
+/* Tùy chỉnh thanh cuộn */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+/* Màu nền khi bôi đen văn bản (Dễ đọc, thanh tao) */
+::selection { 
+    background: #d4ece6; /* Xanh ngọc siêu nhạt */
+    color: #1a2a22;      /* Chữ xanh rêu đậm */
+    text-shadow: none;
+}
+
+/* 3. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG */
+#water-canvas {
+    position: fixed !important; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; 
+    z-index: 1; 
+    display: block;
+}
+
+.dewdrop-container { 
+    position: fixed !important; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; 
+    z-index: 1; 
+    overflow: hidden; 
+}
+
+.dewdrop {
+    position: absolute; 
+    border-radius: 50%;
+    will-change: transform, opacity; 
+    transform: translate3d(0, 0, 0); 
+    animation: floatUp linear infinite; 
+}
+
+@keyframes floatUp {
+    0% { transform: translate3d(0, 0, 0) scale(0.5); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translate3d(0, -110vh, 0) scale(1.2); opacity: 0; }
+}
+
+/* 4. TRỢ NĂNG (A11Y) */
+.sr-only { 
+    position: absolute; width: 1px; height: 1px; 
+    padding: 0; margin: -1px; overflow: hidden; 
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; 
+}
+
+.skip-link { 
+    position: absolute; left: -9999px; top: .5rem; z-index: 10001; 
+    background: var(--accent); color: #fff; 
+    padding: .6rem 1rem; border-radius: 8px; 
+    font-family: var(--font-body); text-decoration: none; font-weight: 700; 
+}
+.skip-link:focus { left: .5rem; }
+
+:focus-visible { 
+    outline: 2px solid var(--accent); 
+    outline-offset: 3px; 
+    border-radius: 4px; 
+}
+
+/* 5. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG */
+button:active, 
+.btn:active, 
+.filter-btn:active, 
+.page-btn:active, 
+.nav-btn:active {
+    transform: scale(0.95) !important;
+    transition: transform 0.1s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { 
+        animation-duration: 0.01ms !important; 
+        transition-duration: 0.01ms !important; 
+    }
+    .heritage-card, .accordion-item { opacity: 1 !important; transform: none !important; }
+    #jade-splash, .silk-transition-overlay { display: none !important; }
+}
 /* 1. KHAI BÁO FONT CHỮ CỤC BỘ */
 @font-face {
     font-family: 'Alex Brush';
