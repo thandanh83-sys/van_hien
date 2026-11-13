@@ -1,8 +1,8 @@
 /**
  * ==========================================================
- * VĂN ĐẠO AI - FORTUNE AGENT (js/ai/agents/fortune-ai.js)
- * Vị trí: js/ai/agents/fortune-ai.js
- * Version: 3.2.0 (Plugin Architecture)
+ * VĂN ĐẠO AI - FORTUNE AGENT (js/ai/agents/fortune.js)
+ * Vị trí: js/ai/agents/fortune.js
+ * Version: 3.3.0 (Renamed from fortune-ai.js)
  * ==========================================================
  * CHỨC NĂNG:
  * - Tính toán vận khí (Bói thơ) theo thuật toán ngẫu nhiên có trọng số.
@@ -10,11 +10,20 @@
  * - Export 3 hàm tiện ích riêng (calculateFortune, getFortuneInfo,
  *   synthesizeDynamicFortune) để main.js dùng trực tiếp trong Fate Modal.
  *
- * LƯU Ý QUAN TRỌNG:
- * - File này tên `fortune-ai.js` nhưng key đăng ký là `'fortune'`
- *   (giữ nhất quán với AGENT_CONFIGS cũ và AgentMap['fortune']).
- * - Nhiều hàm export riêng (không nằm trong FortuneAgent) vì
- *   main.js gọi trực tiếp để dựng Fate Modal phức tạp.
+ * LỊCH SỬ ĐỔI TÊN (v3.3.0):
+ * - v3.2.0: File tên `fortune-ai.js` nhưng key đăng ký là `'fortune'`.
+ *   Điều này gây lệch giữa tên file (fortune-ai) và key (fortune)
+ *   trong manifest, khiến `agents-manifest.json` ghi 'fortune-ai'
+ *   trong khi `AgentRegistry.getAllAgentKeys()` trả 'fortune'.
+ * - v3.3.0: Đổi tên file thành `fortune.js` để khớp 100% với key.
+ *   Toàn bộ logic bên trong giữ nguyên — chỉ đổi tên file.
+ *
+ * TƯƠNG THÍCH NGƯỢC:
+ * - Key `'fortune'` trong agentInfo vẫn giữ nguyên → `AgentMap['fortune']`
+ *   và `AgentRegistry.agents['fortune']` không thay đổi.
+ * - Các module import `FortuneAgent`, `calculateFortune`, `getFortuneInfo`,
+ *   `synthesizeDynamicFortune` chỉ cần đổi đường dẫn import từ
+ *   `'./fortune-ai.js'` → `'./fortune.js'`.
  * ==========================================================
  */
 
@@ -120,17 +129,19 @@ export const FortuneAgent = {
 };
 
 // =====================================================================
-// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// AGENT INFO - Tự mô tả metadata cho Auto-Registry (v7.0.0)
 // =====================================================================
 /**
  * Metadata tự mô tả của FortuneAgent.
  * Chuyên trách Bói thơ, Vận khí, Nên/Tránh.
  *
- * GHI CHÚ QUAN TRỌNG:
- * - `key` là `'fortune'` (KHÔNG phải 'fortune-ai'), giữ tương thích
- *   với AgentMap['fortune'] mà master.js và fortune-ai.js đang dùng.
- * - `intentPatterns` của file này sẽ tự động gộp vào DynamicIntentPatterns,
- *   giúp InputAI nhận diện các câu như "Bói thơ", "Gieo quẻ", "Xin quẻ".
+ * GHI CHÚ:
+ * - `key` là `'fortune'` — BÂY GIỜ KHỚP 100% với tên file `fortune.js`.
+ * - Trước v3.3.0, file tên `fortune-ai.js` nhưng key `'fortune'` →
+ *   gây lệch giữa `agents-manifest.json` (ghi 'fortune-ai') và
+ *   `AgentRegistry.getAllAgentKeys()` (trả 'fortune').
+ * - Sau khi đổi tên file, `agents-manifest.json` sẽ ghi 'fortune'
+ *   khớp với Registry.
  * - File này còn export 3 hàm tiện ích riêng (calculateFortune,
  *   getFortuneInfo, synthesizeDynamicFortune) dùng cho Fate Modal.
  *   Các hàm này KHÔNG được đưa vào `capabilities` vì không phải
@@ -151,7 +162,6 @@ FortuneAgent.agentInfo = {
     canRead: ['work', 'author'],
 
     // ---- Agent được phép ủy thác ----
-    // (Fortune không ủy thác cho ai — mọi thứ đã tự tổng hợp qua 4 góc nhìn)
     canDelegate: [],
 
     // ---- Từ khóa nhận diện Intent ----
