@@ -6,7 +6,7 @@
  * ==========================================================
  */
 
-// 1. IMPORT CÁC HÀM VÀ BIẾN CẦN THIẾT
+// 1. IMPORT CÁC HÀM VÀ BIẾN CẦN THIẾT (Đã sửa lỗi chính tả renderEncyclopedia)
 import { STATE, ENCY_ITEMS_PER_PAGE } from './config.js';
 import { normalizeRouteText, normalizeRouteId, normalizeRouteGroup, getRecordTitleAlias, removeAccents } from './utils.js';
 import { renderEncyclopedia, sortEncyData, renderHeritage } from './render.js';
@@ -131,7 +131,7 @@ const highlightTimers = new WeakMap();
 let cancelPendingEncyclopediaSearch = () => {};
 export function setCancelSearch(fn) { cancelPendingEncyclopediaSearch = fn; }
 
-// Hàm trích xuất ID/URL
+// Hàm trích xuất ID/URL từ nhiều định dạng khác nhau
 export function extractRouteLocator(value) {
     const raw = String(value ?? '').trim();
     if (!raw) return '';
@@ -150,7 +150,7 @@ export function extractRouteLocator(value) {
     return raw.replace(/^#/, '');
 }
 
-// Hàm phân tích Input để tìm ra Record (bài thơ/tác giả) chính xác
+// Hàm phân tích Input để tìm ra Record (bài thơ/tác giả) chính xác nhất
 export function resolveEncyclopediaTarget(input) {
     if (!STATE.GLOBAL_RECORDS.length) return { ok: false, reason: 'not-ready' };
 
@@ -231,7 +231,7 @@ export function resolveEncyclopediaTarget(input) {
     return { ok: false, reason: 'not-found' };
 }
 
-// Hàm chính: Nhảy tới một mục trong Bách Khoa
+// Hàm chính: Nhảy tới một mục trong Bách Khoa và Highlight nó
 export async function gotoEncyclopediaById(query) {
     const resolved = resolveEncyclopediaTarget(query);
     if (!resolved.ok) {
