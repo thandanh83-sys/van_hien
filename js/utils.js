@@ -2,11 +2,12 @@
  * ==========================================================
  * VĂN ĐẠO - UTILS MODULE (js/utils.js)
  * Vị trí: js/utils.js
- * Version: 1.0.10 (Custom Modal UI)
+ * Version: 2.0.0 (Standardized Text Processing & UI Dialogs)
  * ==========================================================
  * CHỨC NĂNG:
- * - Các hàm tiện ích xử lý chuỗi, tiếng Việt.
+ * - Các hàm tiện ích xử lý chuỗi, tiếng Việt (không dấu, chuẩn hóa).
  * - Custom Modal (showAlert, showConfirm) thay thế window.alert/confirm.
+ * - Định dạng nội dung HTML.
  * ==========================================================
  */
 
@@ -24,7 +25,7 @@ export function debounce(func, wait) {
 }
 
 /**
- * 2. Xóa dấu tiếng Việt
+ * 2. Xóa dấu tiếng Việt (VD: "Nguyễn Du" -> "Nguyen Du")
  */
 export function removeAccents(str) {
     if (!str) return '';
@@ -35,7 +36,7 @@ export function removeAccents(str) {
 }
 
 /**
- * 3. Chuẩn hóa văn bản để tìm kiếm
+ * 3. Chuẩn hóa văn bản để tìm kiếm (Xóa dấu, lowercase, gộp khoảng trắng)
  */
 export function normalizeRouteText(value) {
     return removeAccents(String(value ?? '').normalize('NFKC').toLocaleLowerCase('vi'))
@@ -46,14 +47,14 @@ export function normalizeRouteText(value) {
 }
 
 /**
- * 4. Chuẩn hóa ID
+ * 4. Chuẩn hóa ID (VD: "Nguyễn Du" -> "nguyen-du")
  */
 export function normalizeRouteId(value) {
     return normalizeRouteText(value).replace(/\s+/g, '-');
 }
 
 /**
- * 5. Phân loại nhóm
+ * 5. Phân loại nhóm (Group)
  */
 export function normalizeRouteGroup(value) {
     const key = normalizeRouteId(value);
@@ -67,7 +68,7 @@ export function normalizeRouteGroup(value) {
 }
 
 /**
- * 6. Lấy tên rút gọn của tác giả
+ * 6. Lấy tên rút gọn của thực thể (VD: Bỏ "Chân Dung Tác Giả:" khỏi tiêu đề)
  */
 export function getRecordTitleAlias(item, group) {
     if (group === 'the-loai') return String(item?.name || '').trim();
@@ -91,7 +92,7 @@ export function escapeHTML(str) {
 }
 
 /**
- * 8. Highlight từ khóa tìm kiếm
+ * 8. Highlight từ khóa tìm kiếm (Bọc từ khóa trong thẻ <mark>)
  */
 export function highlightText(text, tokens) {
     if (!text || !tokens?.length) return escapeHTML(text);
@@ -105,7 +106,7 @@ export function highlightText(text, tokens) {
 }
 
 /**
- * 9. Định dạng lại nội dung HTML
+ * 9. Định dạng lại nội dung HTML (Thêm khoảng trống cho dễ đọc)
  */
 export function formatContent(html) {
     if (!html) return '';
