@@ -2,73 +2,63 @@
  * ==========================================================
  * VĂN ĐẠO AI - OUTPUT AI (js/ai/output-ai.js)
  * Vị trí: js/ai/output-ai.js
- * Version: 2.0.0 (Thiền Vị & Nho Phong)
+ * Version: 3.2.0 (Thiền Vị & Nho Phong - History Edition)
  * ==========================================================
  * CHỨC NĂNG:
  * - Định dạng kết quả từ Master AI thành HTML hiển thị.
- * - Khoác lên câu trả lời phong thái "Văn Đạo": Trang trọng, từ bi (Phật),
- *   và đậm chất trí thức/quân tử (Nho).
- * - Tự động tạo "Lời dẫn" (Intro) phù hợp với ngữ cảnh câu hỏi.
- * - Render danh sách các mục liên quan (Meta) thành các nút bấm tinh tế.
+ * - Khoác lên câu trả lời phong thái "Văn Đạo": Trang trọng, từ bi, trí thức.
+ * - Tự động tạo "Lời dẫn" phù hợp với ngữ cảnh (Đặc biệt là Lịch sử).
  * ==========================================================
  */
 
 import { escapeHTML } from '../utils.js';
 
 // =====================================================================
-// KHO TÀNG NGÔN TỪ (Lời dẫn & Kết luận mang âm hưởng Nho - Phật)
+// KHO TÀNG NGÔN TỪ (Lời dẫn & Kết luận)
 // =====================================================================
 const PHRASES = {
-    // Lời dẫn chung
     intro: [
         "Đạo là nước, tri thức là thuyền. Mời bạn bước lên chuyến đò tri thức này:",
         "Nhân duyên đưa đẩy, mời bạn cùng ta mở cuốn sách này ra:",
-        "Văn dĩ tải đạo. Mỗi câu chữ đều chuyên chở một tầng nghĩa. Đây là những gì ta tìm thấy:",
-        "Nhất tự thiên kim. Sự học là con đường sáng. Ta xin dâng lên bạn những tri thức sau:",
-        "Vạn pháp tùy duyên. Bạn đã hỏi, ta xin đáp lời bằng tất cả tấm lòng:"
+        "Văn dĩ tải đạo. Mỗi câu chữ đều chuyên chở một tầng nghĩa. Đây là những gì ta tìm thấy:"
     ],
-    // Lời dẫn khi hỏi về tác giả
     introAuthor: [
         "Thi nhân là người thắp đuốc giữa đêm trường. Về tác giả này, ta có đôi lời:",
         "Văn như kỳ nhân. Để hiểu tác phẩm, ta phải tìm về cội nguồn của sự sáng tạo:",
         "Mỗi tác giả là một vì sao trên bầu trời văn học. Đây là ánh sáng của riêng họ:"
     ],
-    // Lời dẫn khi hỏi về tác phẩm
     introWork: [
         "Văn chương là tấm gương phản chiếu hồn người. Về tác phẩm này:",
-        "Nhất thủ hảo thi, thiên cổ truyền tụng. Một áng văn hay muôn đời còn mãi:",
-        "Đọc một cuốn sách hay như trò chuyện với người xưa. Về tác phẩm này:"
+        "Nhất thủ hảo thi, thiên cổ truyền tụng. Một áng văn hay muôn đời còn mãi:"
     ],
-    // Lời dẫn khi hỏi về biểu tượng/thi pháp
     introPoetics: [
         "Thi trung hữu họa, thi trung hữu nhạc. Hình ảnh trong thơ là những ẩn ngữ của tâm hồn:",
-        "Một chữ đắt giá hơn ngàn vàng. Đằng sau những hình ảnh thơ là cả một tầng văn hóa:",
-        "Biểu tượng là cầu nối giữa hữu hình và vô hình. Đây là ý nghĩa của hình tượng bạn hỏi:"
+        "Một chữ đắt giá hơn ngàn vàng. Đằng sau những hình ảnh thơ là cả một tầng văn hóa:"
     ],
-    // Lời kết chung
+    // [MỚI] Lời dẫn cho Lịch sử
+    introHistory: [
+        "Dòng thời gian miên viễn, mỗi tác phẩm là một dấu son của thời đại. Nhìn lại quá khứ, ta thấy:",
+        "Lịch sử là tấm gương soi rọi hiện tại. Về bối cảnh này, cổ nhân có ghi chép rằng:",
+        "Thời gian trôi qua như nước chảy, nhưng dấu vết của tiền nhân vẫn còn in đậm. Đây là những gì ta tìm thấy:"
+    ],
     outro: [
         "Học rộng để có nhiều chân trời, học sâu để thấu bản chất.",
         "Trí tuệ là ngọn đèn soi rọi bóng đêm vô minh.",
         "Tri thức là hạt giống của hạnh phúc. Chúc bạn gieo được nhiều quả ngọt.",
-        "Biển học mênh mông, lấy sự khiêm nhường làm bến bờ.",
-        "Nhất tâm bất loạn, vạn sự tùy duyên. Chúc bạn an nhiên trên con đường học đạo.",
         "Tĩnh lặng là cội nguồn của mọi sáng tạo tinh thần."
     ],
-    // Thông báo lỗi (Mang tính từ bi, tránh làm người dùng hoang mang)
     error: [
         "Pháp giới bao la, duyên chưa tụ nên tri thức này hiện chưa hiển lộ. Mong bạn lượng thứ.",
-        "Vạn vật đều vô thường, đôi khi dữ liệu chưa đủ duyên để ta tìm thấy. Hãy thử một hướng khác nhé.",
-        "Trong cái rủi lại có cái may. Dữ liệu này chưa có, nhưng ta luôn sẵn lòng tìm hiểu cùng bạn."
+        "Vạn vật đều vô thường, đôi khi dữ liệu chưa đủ duyên để ta tìm thấy. Hãy thử một hướng khác nhé."
     ]
 };
 
-// Hàm chọn ngẫu nhiên một câu trong mảng
 const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-// Hàm xác định loại "Lời dẫn" dựa trên Source của Agent
 const getIntroBySource = (source) => {
     if (!source) return getRandom(PHRASES.intro);
     const s = source.toLowerCase();
+    if (s.includes('history')) return getRandom(PHRASES.introHistory); // [MỚI]
     if (s.includes('knowledge') || s.includes('author')) return getRandom(PHRASES.introAuthor);
     if (s.includes('literature') || s.includes('data')) return getRandom(PHRASES.introWork);
     if (s.includes('dictionary') || s.includes('poetics')) return getRandom(PHRASES.introPoetics);
@@ -79,17 +69,10 @@ const getIntroBySource = (source) => {
 // HÀM RENDER CHÍNH
 // =====================================================================
 export const OutputAI = {
-    /**
-     * Render câu trả lời ra màn hình với phong thái Văn Đạo
-     * 
-     * @param {HTMLElement} container - Khung chứa kết quả
-     * @param {Object} result - Dữ liệu từ Master AI { answer, detail, source, meta }
-     * @param {string} query - Câu hỏi gốc của người dùng
-     */
     render(container, result, query) {
         if (!container) return;
 
-        // 1. Xử lý khi không có câu trả lời (Lỗi hoặc Không tìm thấy)
+        // 1. Xử lý khi không có câu trả lời
         if (!result || !result.answer) {
             container.innerHTML = `
                 <div class="ask-result ask-error">
@@ -113,20 +96,16 @@ export const OutputAI = {
             
             if (validMetas.length > 0) {
                 metaList = `
-                    <div class="ask-meta-wrapper" style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed rgba(139, 184, 168, 0.3);">
-                        <div style="font-family: var(--font-body); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 0.1em;">
-                            Cơ duyên gặp gỡ (Chạm để xem chi tiết)
-                        </div>
-                        <div class="ask-meta-list" style="border: none; padding: 0;">
+                    <div class="ask-meta-wrapper">
+                        <div class="ask-meta-title">Cơ duyên gặp gỡ (Chạm để xem chi tiết)</div>
+                        <div class="ask-meta-list">
                             ${validMetas.map(m => {
                                 const title = m.title || m.name || m.id;
-                                // Xác định group (Dựa vào tiền tố ID hoặc trường _group)
                                 let group = m._group || 'tinh-hoa';
                                 if (m.id.startsWith('tac-gia')) group = 'ky-tai';
                                 else if (m.id.startsWith('quyen')) group = 'triet-thuyet';
                                 else if (m.id.startsWith('the-loai')) group = 'the-loai';
 
-                                // Lấy thông tin phụ (Tác giả hoặc Thời đại)
                                 const subText = m.author ? `Tác giả: ${m.author}` : (m.era ? `Thời kỳ: ${m.era}` : '');
 
                                 return `
@@ -136,10 +115,8 @@ export const OutputAI = {
                                         data-route-group="${escapeHTML(group)}"
                                         data-route-title="${escapeHTML(title)}"
                                         data-route-author="${escapeHTML(m.author || '')}">
-                                        <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-                                            <span style="font-weight: 700; font-size: 0.9rem; color: var(--accent-text);">${escapeHTML(title)}</span>
-                                            ${subText ? `<span style="font-size: 0.75rem; color: var(--text-muted); font-style: italic;">${escapeHTML(subText)}</span>` : ''}
-                                        </div>
+                                        <span class="meta-title">${escapeHTML(title)}</span>
+                                        ${subText ? `<span class="meta-sub">${escapeHTML(subText)}</span>` : ''}
                                     </button>
                                 `;
                             }).join('')}
@@ -149,64 +126,58 @@ export const OutputAI = {
             }
         }
 
-        // 3. Xác định nhãn Nguồn tri thức (Source Label)
+        // 3. Xác định nhãn Nguồn tri thức
         const sourceLabels = {
             'local-data': 'Nội bộ Văn Đạo',
             'dictionary': 'Từ điển Thi pháp',
             'search-engine': 'Cỗ máy Tìm kiếm',
             'analysis': 'Thiền ý Phân tích',
             'knowledge': 'Mạng lưới Tri thức',
+            'history': 'Dòng thời gian Lịch sử', // [MỚI]
             'master': 'Hệ thống Điều phối',
             'error': 'Cảnh báo'
         };
         const sourceLabel = sourceLabels[result.source] || result.source || 'Vô danh';
 
-        // 4. Tạo Lời dẫn (Intro) và Lời kết (Outro) dựa trên Source
+        // 4. Tạo Lời dẫn (Intro) và Lời kết (Outro)
         const introText = getIntroBySource(result.source);
         const outroText = getRandom(PHRASES.outro);
 
-        // 5. Định dạng lại nội dung (Nếu có thẻ HTML hoặc xuống dòng)
+        // 5. Định dạng lại nội dung
         const formattedAnswer = result.answer.replace(/\n/g, '<br>');
         const formattedDetail = result.detail ? result.detail.replace(/\n/g, '<br>') : '';
 
-        // 6. Render HTML cuối cùng
+        // 6. Render HTML cuối cùng (Sử dụng Class CSS mới)
         container.innerHTML = `
-            <div class="ask-result" style="animation: fadeInContent 0.6s var(--ease-silk) forwards;">
+            <div class="ask-result">
                 
-                <!-- Nhãn nguồn tri thức -->
                 <div class="ask-source">
                     <span class="ask-source-dot"></span>
                     ${escapeHTML(sourceLabel)}
                 </div>
                 
-                <!-- Câu hỏi của người dùng -->
                 <div class="ask-query">Hỏi: "${escapeHTML(query)}"</div>
                 
-                <!-- Lời dẫn (Nho/Phật phong) -->
-                <div style="font-family: var(--font-body); font-size: 0.9rem; color: var(--accent-text); font-style: italic; margin-bottom: 12px; opacity: 0.9;">
+                <div class="ask-intro">
                     ${introText}
                 </div>
                 
-                <!-- Câu trả lời chính -->
-                <div class="ask-answer" style="font-size: 1.25rem; line-height: 1.8; color: var(--text-main);">
+                <div class="ask-answer">
                     ${formattedAnswer}
                 </div>
                 
-                <!-- Chi tiết bổ sung (Lời bình/Tiểu dẫn) -->
                 ${formattedDetail ? `
-                <div class="ask-detail" style="background: rgba(139, 184, 168, 0.05); padding: 15px 20px; border-radius: 8px; border-left: 2px solid var(--accent); margin-top: 16px;">
-                    <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; letter-spacing: 0.05em;">Tiểu dẫn</div>
-                    <div style="font-family: var(--font-body); font-size: 1rem; color: var(--text-muted); line-height: 1.6;">
+                <div class="ask-detail-box">
+                    <div class="ask-detail-label">Tiểu dẫn</div>
+                    <div class="ask-detail-content">
                         ${formattedDetail}
                     </div>
                 </div>
                 ` : ''}
                 
-                <!-- Danh sách Meta (Tác phẩm/Tác giả liên quan) -->
                 ${metaList}
 
-                <!-- Lời kết (Nho/Phật phong) -->
-                <div style="margin-top: 24px; text-align: right; font-family: var(--font-calligraphy); font-size: 1.5rem; color: var(--accent-gold); opacity: 0.8;">
+                <div class="ask-outro">
                     — ${outroText} —
                 </div>
                 
@@ -214,9 +185,6 @@ export const OutputAI = {
         `;
     },
 
-    /**
-     * Hiển thị trạng thái đang tải (Loading) với ngôn từ thiền vị
-     */
     renderLoading(container) {
         if (!container) return;
         container.innerHTML = `
@@ -229,9 +197,6 @@ export const OutputAI = {
         `;
     },
 
-    /**
-     * Hiển thị lỗi (Đã được xử lý ở hàm render chính, nhưng giữ lại để tương thích)
-     */
     renderError(container, message) {
         if (!container) return;
         container.innerHTML = `
