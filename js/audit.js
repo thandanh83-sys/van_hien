@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - AUDIT MODULE (js/audit.js)
  * Vị trí: js/audit.js
- * Version: 4.1.0 (Manifest-Driven Diagnostics)
+ * Version: 4.1.0 (Manifest-Driven Diagnostics & Full AI Test)
  * ==========================================================
  * HƯỚNG DẪN SỬ DỤNG (Mở Console F12, gõ trực tiếp):
  * - Khám tổng quát: window.audit()
@@ -215,18 +215,30 @@ export async function auditAuthors() {
     return { issues };
 }
 
-// 2.5 Khám AI (Toàn bộ Pipeline)
+// 2.5 Khám AI (Toàn bộ Pipeline - Cập nhật 11 Agents)
 export async function auditAIPipeline() {
     logGroup('[BÁC SĨ] KHÁM SỨC KHỎE AI (Pipeline)...');
     const testCases = [
+        // Văn học & Tác giả
         { input: "Ai viết Truyện Kiều?", expectedType: "find-author-of", expectedKeyword: "Nguyễn Du" },
         { input: "Tóm tắt Chí Phèo", expectedType: "summarize-work", expectedKeyword: "Chí Phèo" },
-        { input: "Ý nghĩa của trăng", expectedType: "explain-symbol", expectedKeyword: "trăng" },
         { input: "Tiểu sử Nguyễn Du", expectedType: "find-author-info", expectedKeyword: "Nguyễn Du" },
         { input: "Nguyễn Du có những tác phẩm nào?", expectedType: "list-author-works", expectedKeyword: "Nguyễn Du" },
+        
+        // Mạng lưới & Lịch sử
         { input: "Tác phẩm nào giống Truyện Kiều?", expectedType: "find-related", expectedKeyword: "Truyện Kiều" },
         { input: "Tác phẩm thời nhà Lê", expectedType: "find-works-by-era", expectedKeyword: "Lê" },
-        { input: "Truyện Kiều viết thời nào?", expectedType: "get-historical-context", expectedKeyword: "TK 19" }
+        { input: "Truyện Kiều viết thời nào?", expectedType: "get-historical-context", expectedKeyword: "TK 19" },
+        
+        // Thi pháp
+        { input: "Ý nghĩa của trăng", expectedType: "explain-symbol", expectedKeyword: "trăng" },
+
+        // [MỚI] Các Agent mới
+        { input: "Dịch Truyện Kiều sang tiếng Anh", expectedType: "translate-work", expectedKeyword: "The Tale of Kieu" },
+        { input: "Thúy Kiều là ai?", expectedType: "get-character-info", expectedKeyword: "Truyện Kiều" },
+        { input: "So sánh Nguyễn Du và Nam Cao", expectedType: "compare-entities", expectedKeyword: "Nguyễn Du" },
+        { input: "Khen bài thơ này", expectedType: "praise-work", expectedKeyword: "Bài thơ" }, // Praiser trả về comment
+        { input: "Chê bài thơ này", expectedType: "criticize-work", expectedKeyword: "Tác phẩm" } // Critic trả về comment
     ];
 
     const results = [];
