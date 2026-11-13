@@ -1,8 +1,8 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
- * Chức năng: Khởi chạy App, Load Data, Bói Thơ, Thi Pháp, Canvas.
- * Đã sửa: Sương tinh tế, không gây trắng trang, tích hợp AI Động.
+ * Chức năng: Khởi chạy App, Load Data, Bói Thơ, Thi Pháp.
+ * Đã sửa: Xóa nút Tác giả ở Bói Thơ, sương tinh tế, AI Động.
  * ==========================================================
  */
 
@@ -20,7 +20,7 @@ import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize 
 import { calculateFortune, synthesizeDynamicFortune } from './ai.js';
 
 // =====================================================================
-// PHẦN 1: HIỆU ỨNG NỀN
+// PHẦN 1: HIỆU ỨNG NỀN (CANVAS & SƯƠNG)
 // =====================================================================
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
@@ -58,14 +58,11 @@ function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     
-    // Chỉ tạo đúng 6 hạt sương để nhẹ nhàng, không tốn data
     for (let i = 0; i < 6; i++) {
         const d = document.createElement('div');
         d.className = 'dewdrop';
-        
-        // Kích thước siêu nhỏ, thanh mảnh (4px - 7px)
-        const size = Math.random() * 3 + 4; 
-        const dur = Math.random() * 15 + 20; // Bay cực chậm (20-35s) cho tinh tế
+        const size = Math.random() * 3 + 4; // Kích thước 4-7px, siêu nhỏ
+        const dur = Math.random() * 15 + 20; // Bay chậm 20-35s
         const delay = -(Math.random() * dur);
         
         d.style.cssText = `
@@ -74,10 +71,10 @@ function initDewdrops() {
             left: ${Math.random() * 100}vw;
             animation-duration: ${dur}s;
             animation-delay: ${delay}s;
-            background: rgba(255, 255, 255, 0.6); /* Trắng trong suốt */
-            box-shadow: 0 0 8px 2px rgba(139, 184, 168, 0.4); /* Quầng sáng ngọc bích nhẹ */
-            backdrop-filter: blur(1px); /* Hiệu ứng thủy tinh */
-            opacity: ${Math.random() * 0.3 + 0.3}; /* Độ mờ ảo (0.3 - 0.6) */
+            background: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 8px 2px rgba(139, 184, 168, 0.4);
+            backdrop-filter: blur(1px);
+            opacity: ${Math.random() * 0.3 + 0.3};
         `;
         
         container.appendChild(d);
@@ -354,7 +351,7 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// PHẦN 4: GỢI Ý ĐỌC (BÓI THƠ) - SỬ DỤNG AI ĐỘNG
+// PHẦN 4: GỢI Ý ĐỌC (BÓI THƠ) - ĐÃ XÓA NÚT TÁC GIẢ THEO YÊU CẦU
 // =====================================================================
 function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && (work.desc || work.description || work.content));
@@ -414,22 +411,6 @@ function randomPoem() {
             <div style="background:rgba(139,184,168,0.05); padding:15px; border-radius:8px; border-left:3px solid ${fortuneInfo.color}; font-size:0.95rem; line-height:1.7; margin-top:20px;">
                 <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên</div>
                 ${aiResult.adviceHtml}
-            </div>
-        `;
-    }
-
-    const authorName = String(randomWork.author || '').trim();
-    const authorObj = APP_DATA.AUTHOR_DATA.find(author => {
-        const name = String(author.title || author.name || '').trim();
-        return name && authorName && (name === authorName || name.includes(authorName));
-    });
-
-    if (commentaryEl && authorObj?.id) {
-        commentaryEl.innerHTML += `
-            <div style="text-align:center; margin-top:18px; font-size:0.9rem;">
-                <button type="button" data-route-encyclopedia="true" data-route-id="${escapeHTML(authorObj.id)}" data-route-group="ky-tai" class="volume-link" style="font-size:0.9rem;">
-                    Khám phá hồ sơ tác giả ${escapeHTML(authorName)} →
-                </button>
             </div>
         `;
     }
@@ -530,7 +511,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         splash.classList.add('leaving'); 
         setTimeout(() => {
             splash.remove();
-            // Đã xóa elegant-fade-in
         }, 500); 
         setTimeout(() => {
             if (silkOverlay) silkOverlay.classList.remove('active', 'entering');
