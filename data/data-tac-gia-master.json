@@ -1,0 +1,37 @@
+[
+  {
+    "id": "tac-gia-dang-tran-con",
+    "title": "Chân Dung Tác Giả: Đặng Trần Côn",
+    "content": "<h4>Tiểu sử</h4><p>Đặng Trần Côn (chưa rõ năm sinh năm mất), sống vào khoảng nửa đầu thế kỷ XVIII, quê ở làng Nhân Mục, huyện Thanh Trì, Hà Nội. Ông đỗ Hương cống (Cử nhân) thời Lê Trung hưng. Tác phẩm nổi tiếng nhất của ông là <b>Chinh phụ ngâm</b> (Khúc ngâm của người vợ có chồng đi chinh chiến), viết bằng chữ Hán, sau đó được Đoàn Thị Điểm (hoặc Phan Huy Ích) dịch sang chữ Nôm.</p>"
+  },
+  {
+    "id": "tac-gia-tan-da",
+    "title": "Chân Dung Tác Giả: Tản Đà",
+    "content": "<h4>Tiểu sử</h4><p>Tản Đà (1889–1939), tên thật là Nguyễn Khắc Hiếu, quê ở làng Khê Thượng, huyện Bất Bạt, tỉnh Sơn Tây (nay thuộc Hà Nội). Ông là một nhà thơ, nhà văn, nhà báo và là người mở đường cho thơ ca lãng mạn Việt Nam. Phong cách thơ của ông phóng khoáng, vừa mang hồn thơ cổ điển vừa thể hiện cái tôi cá nhân mạnh mẽ. Tác phẩm tiêu biểu: <i>Khối tình con, Giấc mộng con</i>.</p>"
+  },
+  {
+    "id": "tac-gia-hans-christian-andersen",
+    "title": "Chân Dung Tác Giả: Hans Christian Andersen",
+    "content": "<h4>Tiểu sử</h4><p>Hans Christian Andersen (1805–1875) là nhà văn người Đan Mạch, nổi tiếng thế giới với những câu chuyện cổ tích dành cho thiếu nhi. Những tác phẩm của ông như <i>Cô bé bán diêm, Nàng tiên cá, Vịt con xấu xí</i> không chỉ dành cho trẻ em mà còn chứa đựng những bài học nhân sinh sâu sắc dành cho người lớn.</p>"
+  },
+  {
+    "id": "tac-gia-anh-em-grimm",
+    "title": "Chân Dung Tác Giả: Anh em Grimm",
+    "content": "<h4>Tiểu sử</h4><p>Anh em Grimm gồm Jacob Grimm (1785–1863) và Wilhelm Grimm (1786–1859), là hai nhà ngôn ngữ học, triết gia và nhà sưu tầm truyện cổ tích người Đức. Họ đã dành cả cuộc đời để sưu tầm và biên soạn những câu chuyện dân gian truyền miệng, tạo nên tuyển tập <i>Truyện cổ tích Grimm</i> nổi tiếng, bao gồm các tác phẩm kinh điển như <i>Nàng Bạch Tuyết, Cô bé quàng khăn đỏ, Hansel và Gretel</i>.</p>"
+  },
+  {
+    "id": "tac-gia-hoai-nam-tu",
+    "title": "Chân Dung Tác Giả: Hoài Nam Tử",
+    "content": "<h4>Tiểu sử</h4><p>Hoài Nam Tử (Lưu An, 179 TCN – 122 TCN) là một nhà tư tưởng, nhà văn thời Tây Hán (Trung Quốc), cháu nội của Hán Cao Tổ Lưu Bang. Ông chủ biên tác phẩm <b>Hoài Nam Tử</b> (còn gọi là <i>Hoài Nam Hồng Liệt</i>), một bộ sách triết học đồ sộ tổng hợp tư tưởng Đạo gia, Nho gia và Âm Dương gia. Trong đó có chứa điển tích nổi tiếng <i>Tái Ông thất mã</i>.</p>"
+  },
+  {
+    "id": "tac-gia-antoine-de-saint-exupery",
+    "title": "Chân Dung Tác Giả: Antoine de Saint-Exupéry",
+    "content": "<h4>Tiểu sử</h4><p>Antoine de Saint-Exupéry (1900–1944) là một phi công và nhà văn người Pháp. Những trải nghiệm bay lượn và cuộc sống của ông đã truyền cảm hứng cho các tác phẩm văn học. Ông nổi tiếng nhất với kiệt tác <b>Hoàng tử bé</b> (Le Petit Prince), một tác phẩm thiếu nhi nhưng ẩn chứa những triết lý sâu sắc về tình yêu, sự cô đơn và ý nghĩa cuộc sống.</p>"
+  },
+  {
+    "id": "tac-gia-nhieu-tac-gia",
+    "title": "Chân Dung Tác Giả: Nhiều tác giả",
+    "content": "<h4>Giới thiệu</h4><p>Mục từ này đại diện cho các tuyển tập văn học, thơ ca hoặc các tác phẩm tập thể không thuộc về một cá nhân cụ thể nào. Ví dụ: <i>Thơ Mới tuyển tập</i>, các tuyển tập ca dao tục ngữ, hoặc các tác phẩm hợp tác giữa nhiều nhà văn.</p>"
+  }
+]
