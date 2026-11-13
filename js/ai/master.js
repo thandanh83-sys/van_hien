@@ -10,7 +10,8 @@ import { OutputAI } from './output-ai.js';
 import { LiteratureAgent } from './agents/literature.js';
 import { PoeticsAgent } from './agents/poetics.js';
 import { AnalysisAgent } from './agents/analysis.js';
-import { FortuneAgent } from './agents/fortune.js';
+// [FIX] Import từ file fortune-ai.js thay vì fortune.js
+import { FortuneAgent } from './agents/fortune-ai.js';
 
 export const MasterAI = {
     /**
@@ -85,5 +86,5 @@ export const MasterAI = {
     }
 };
 
-// Xuất bí danh để tương thích với code cũ nếu chưa muốn đổi
+// Xuất bí danh để tương thích với code cũ
 export const AIDispatcher = MasterAI;
