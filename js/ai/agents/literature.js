@@ -220,3 +220,49 @@ export const LiteratureAgent = {
         return { answer: 'Thể loại không có trong từ điển.', source: 'local-data' };
     }
 };
+
+// =====================================================================
+// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// =====================================================================
+/**
+ * Metadata tự mô tả của LiteratureAgent.
+ * Được đọc tự động bởi js/ai/agents/index.js để xây dựng:
+ *   - AgentMap (bản đồ key -> class)
+ *   - AgentRegistry (sổ đăng ký năng lực)
+ *   - DynamicIntentPatterns (bộ từ khóa nhận diện cho InputAI)
+ *
+ * LƯU Ý KHI SỬA:
+ * - `key` phải là duy nhất trên toàn hệ thống (không trùng agent khác).
+ * - `capabilities` là map: tên-task -> tên-hàm-trong-Agent.
+ * - `intentPatterns` là map: tên-task -> mảng từ khóa (đã normalize, không dấu).
+ * - Từ khóa càng cụ thể, nhận diện càng chính xác; tránh từ quá ngắn (1-2 ký tự).
+ */
+LiteratureAgent.agentInfo = {
+    // ---- Định danh ----
+    key: 'literature',                          // Bắt buộc: key duy nhất
+    name: 'Văn Học AI',                         // Tên hiển thị thân thiện
+    description: 'Chuyên trách Tác phẩm, Tác giả, Tóm tắt và Thể loại.',
+
+    // ---- Năng lực (task -> method) ----
+    capabilities: {
+        'summarize-work': 'summarize',          // "Tóm tắt Truyện Kiều" -> LiteratureAgent.summarize()
+        'find-author-of': 'findAuthor',         // "Ai viết Truyện Kiều?" -> LiteratureAgent.findAuthor()
+        'recommend': 'recommend',               // "Gợi ý đọc gì?" -> LiteratureAgent.recommend()
+        'define-genre': 'defineGenre',          // "Thơ lục bát là gì?" -> LiteratureAgent.defineGenre()
+        'search': 'search'                      // Fallback tìm kiếm tự do
+    },
+
+    // ---- Loại dữ liệu có thể đọc ----
+    canRead: ['work', 'author', 'genre'],
+
+    // ---- Agent được phép ủy thác ----
+    canDelegate: ['poetics', 'knowledge', 'history', 'character'],
+
+    // ---- Từ khóa nhận diện Intent ----
+    intentPatterns: {
+        'summarize-work': ['tom tat', 'noi dung chinh', 'ke lai', 'trinh bay'],
+        'find-author-of': ['ai viet', 'tac gia cua', 'ai sang tac', 'nguoi viet', 'cua ai'],
+        'recommend': ['goi y', 'de xuat', 'nen doc', 'muon doc', 'tim truyen', 'tim tho'],
+        'define-genre': ['the loai', 'the tho', 'dinh nghia the loai']
+    }
+};
