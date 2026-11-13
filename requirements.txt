@@ -1,59 +1,134 @@
 # =====================================================================
-# VĂN ĐẠO ENGINE - TỆP KHAI BÁO MÔI TRƯỜNG PYTHON (REQUIREMENTS)
-# Mục đích: Quản lý thư viện phụ thuộc cho các công cụ (tools/)
+# VĂN ĐẠO ENGINE - TỆP KHAI BÁO MÔI TRƯỜNG PYTHON & CẨM NANG BẢO TRÌ
 # Tác giả: Văn Đạo
+# Phiên bản: 5.0.0 (Modular Architecture)
+# 
+# MỤC ĐÍCH:
+# 1. Quản lý các thư viện Python phụ thuộc cho thư mục tools/.
+# 2. Lưu trữ các "Nguyên tắc vàng" (Golden Rules) để bảo trì dự án.
+#    Đây là nơi ghi chú những lỗi đã từng xảy ra (trắng trang, mất hiệu ứng)
+#    để các lần sửa code sau không bị mù quáng.
 # =====================================================================
 
+
 # ---------------------------------------------------------------------
-# TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY)
+# PHẦN 1: THƯ VIỆN LÕI (HIỆN TẠI ĐANG DÙNG - KHÔNG CẦN CÀI ĐẶT)
 # ---------------------------------------------------------------------
 # Các script trong thư mục `tools/` được viết HOÀN TOÀN bằng Thư viện chuẩn 
-# (Standard Library) của Python như: os, sys, json, pathlib.
+# (Standard Library) của Python. Dự án này KHÔNG CẦN BẤT KỲ THƯ VIỆN BÊN THỨ BA NÀO.
 # 
-# Dự án này KHÔNG CẦN BẤT KỲ THƯ VIỆN BÊN THỨ BA NÀO.
-# Điều này giúp GitHub Actions chạy cực nhanh và không gặp lỗi xung đột.
-# Dưới đây là các thư viện để dạng COMMENT, nếu cần thì xóa dấu # để bật.
-# ---------------------------------------------------------------------
+# Lợi ích: GitHub Actions chạy cực nhanh, bảo mật tuyệt đối, 
+# không bao giờ gặp lỗi "Dependency Hell" (xung đột phiên bản).
+#
+# Các thư viện chuẩn đang được sử dụng ngầm trong code:
+# - os       : Tương tác hệ điều hành (lấy đường dẫn, tạo thư mục).
+# - sys      : Tương tác hệ thống (thoát chương trình khi có lỗi).
+# - json     : Đọc/ghi file JSON (lõi của toàn bộ hệ thống dữ liệu).
+# - pathlib  : Xử lý đường dẫn file/thư mục (hiện đại hơn os.path).
+# - re       : Xử lý biểu thức chính quy (dùng trong AI và Tìm kiếm).
+
 
 # ---------------------------------------------------------------------
-# 1. LÕI XỬ LÝ DỮ LIỆU (Dự phòng)
+# PHẦN 2: THƯ VIỆN DỰ PHÒNG (MỞ KHÓA NẾU TƯƠNG LAI CẦN NÂNG CẤP)
 # ---------------------------------------------------------------------
-# jsonschema>=4.20.0
-# requests>=2.31.0
-# underthesea>=6.8.0
+# Nếu trong tương lai bạn muốn mở rộng dự án (ví dụ: cào dữ liệu tự động, 
+# kiểm thử tự động), hãy xóa dấu `#` ở đầu dòng để kích hoạt.
 
-# ---------------------------------------------------------------------
-# 2. ĐỊNH DẠNG & KIỂM TRA CODE
-# ---------------------------------------------------------------------
-# black>=23.12.0
-# flake8>=6.1.0
-# isort>=5.13.2
+# --- Xử lý dữ liệu nâng cao ---
+# jsonschema>=4.20.0    # Kiểm tra cấu trúc file JSON theo Schema chuẩn.
+# requests>=2.31.0      # Gọi API bên ngoài (ví dụ: tự động lấy tiểu sử).
+# beautifulsoup4>=4.12  # Cào dữ liệu (Web Scraping) từ các trang văn học.
+# underthesea>=6.8.0    # Xử lý ngôn ngữ tự nhiên tiếng Việt (tách từ).
 
-# ---------------------------------------------------------------------
-# 3. KIỂM THỬ TỰ ĐỘNG
-# ---------------------------------------------------------------------
-# pytest>=7.4.0
+# --- Định dạng & Kiểm tra Code (Dành cho Dev) ---
+# black>=23.12.0        # Tự động căn lề code Python cho đẹp.
+# flake8>=6.1.0         # Kiểm tra lỗi cú pháp và style code.
+# isort>=5.13.2         # Sắp xếp các dòng import gọn gàng.
+
+# --- Kiểm thử tự động ---
+# pytest>=7.4.0         # Viết Unit Test cho các script Python.
 
 
 # =====================================================================
-# ⚠️ GHI CHÚ BẢO TRÌ QUAN TRỌNG (MAINTENANCE NOTES)
+# PHẦN 3: ⚠️ CẨM NANG BẢO TRÌ (MAINTENANCE NOTES) - ĐỌC KỸ TRƯỚC KHI SỬA
 # =====================================================================
-# Nếu bạn không muốn đọc file README.md dài dòng, hãy đọc 4 gạch đầu dòng
-# dưới đây mỗi khi có ý định sửa code. Đây là những "bẫy" phổ biến nhất:
+# Dưới đây là 6 "Nguyên tắc vàng" được đúc kết từ những lần sửa code bị lỗi.
+# Tuân thủ nghiêm ngặt để không bao giờ gặp lại cảnh "trắng trang" hay mất hiệu ứng.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 1] SỬA GIAO DIỆN (HTML/CSS/JS) -> PHẢI TĂNG VERSION TRONG sw.js
+# ---------------------------------------------------------------------
+# Vấn đề: Service Worker giữ file cũ trong ổ cứng người dùng. Sửa code mà không 
+# đổi version thì họ không thấy code mới (gây lỗi trắng trang, mất layout).
+# Cách làm: Mở file sw.js, tìm dòng: `const CACHE_VERSION = 'v5.0.2';`
+# Đổi thành: `const CACHE_VERSION = 'v5.0.3';` (hoặc bất kỳ số nào mới hơn).
+# Khi Test: F12 -> Application -> Service Workers -> Tích "Update on reload" -> Unregister -> Ctrl + F5.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 2] SỬA DỮ LIỆU TÁC PHẨM/TÁC GIẢ -> KHÔNG SỬA TAY FILE INDEX
+# ---------------------------------------------------------------------
+# Vấn đề: Sửa tay hàng ngàn file JSON sẽ dẫn đến sai lệch ID, hỏng cấu trúc.
+# Cách làm: Tạo file `data-tac-pham-master.json` hoặc `data-tac-gia-master.json`.
+# Push lên GitHub -> Bot tự động tách file, cập nhật Index và dọn dẹp.
+# Nhớ chạy `python tools/validate_data.py` để kiểm tra tính toàn vẹn trước khi Deploy.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 3] HIỆU ỨNG NƯỚC VÀ SƯƠNG -> BẮT BUỘC DÙNG position: fixed & z-index: 1
+# ---------------------------------------------------------------------
+# Vấn đề: Thẻ <canvas> và <div class="dewdrop-container"> nếu không set position
+# sẽ chiếm một khoảng trống khổng lồ (768x1024px), đẩy toàn bộ nội dung xuống dưới.
+# Nếu set z-index: -1, chúng sẽ bị chìm dưới nền và biến mất.
+# Cách làm: Trong css/base.css (hoặc inline HTML), luôn đảm bảo:
+#   #water-canvas, .dewdrop-container { position: fixed; z-index: 1; pointer-events: none; }
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 4] LỖI TRẮNG TRANG KHI DÙNG ES6 MODULES (IMPORT/EXPORT)
+# ---------------------------------------------------------------------
+# Vấn đề: Lỗi "does not provide an export named..." hoặc "Failed to fetch dynamically imported module".
+# Cách làm: 
+# - Đảm bảo mọi hàm cần dùng ở file khác đều có chữ `export` ở file gốc.
+# - Tên hàm khi import phải viết HOA/thường giống hệt file gốc (VD: renderEncyclopedia, không phải renderencyclopedia).
+# - File gốc phải gọi đúng đường dẫn tương đối (./utils.js, ./config.js).
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 5] LỖI LAYOUT KHOẢNG TRẮNG ĐẦU TRANG (MIN-HEIGHT)
+# ---------------------------------------------------------------------
+# Vấn đề: Nội dung bị đẩy xuống dưới, phải lướt lên mới thấy.
+# Cách làm: Tuyệt đối không dùng `min-height: 100vh` cho các thẻ `.view` hoặc `.hero`.
+# Chỉ dùng `min-height: auto` hoặc căn chỉnh bằng `padding-top` của `.container`.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 6] SỬA TỪ ĐIỂN (data-tu-dien.json) -> TRÁNH BẮT NHẦM TỪ
+# ---------------------------------------------------------------------
+# Vấn đề: Tooltip bắt nhầm từ trong câu (VD: "nước" trong "yêu nước").
+# Cách làm: Không thêm các từ quá phổ biến (nước, gió, mây) vào mục "symbols".
+# Chỉ thêm các từ mang tính biểu tượng đặc thù (trăng, liễu, bến đò...).
+# Nếu thêm, phải kiểm tra lại hàm `findSymbols()` trong `js/render.js` 
+# để đảm bảo Regex ranh giới từ (word boundary) hoạt động chính xác.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 7] TỦ SÁCH OFFLINE (OFFLINE LIBRARY)
+# ---------------------------------------------------------------------
+# Vấn đề: Logic tải offline nằm ở 2 nơi, nếu sửa bên này quên bên kia sẽ lỗi.
+# Cách làm: Nếu sửa logic tải trong `js/offline.js`, phải kiểm tra lại 
+# sự kiện `DOWNLOAD_BATCH` trong file `sw.js` để chúng khớp lệnh (postMessage).
+
+# =====================================================================
+# HƯỚNG DẪN CHẠY CÁC TOOL (Dành cho lập trình viên)
+# =====================================================================
+# 
+# Bước 1: Cài đặt Python 3.10+ (Nếu chưa có).
+# Bước 2: Mở Terminal/Command Prompt tại thư mục gốc dự án.
+# Bước 3: Chạy lệnh tương ứng với tool bạn muốn dùng:
+#         python tools/split_works.py
+#         python tools/split_authors.py
+#         python tools/auto_fill_content.py
+#         python tools/validate_data.py
 #
-# 1. SỬA GIAO DIỆN (HTML/CSS/JS): 
-#    Phải đổi CACHE_VERSION trong sw.js (VD: 'v4.8.0' -> 'v4.8.1'). 
-#    Nếu không, trình duyệt sẽ không tải code mới của bạn.
-#
-# 2. SỬA DỮ LIỆU TÁC PHẨM/TÁC GIẢ:
-#    Đừng sửa tay hàng ngàn file. Hãy tạo file *-master.json rồi chạy tool.
-#    Nhớ chạy: `python tools/validate_data.py` để kiểm tra.
-#
-# 3. SỬA TỪ ĐIỂN (data-tu-dien.json):
-#    Không thêm các từ quá phổ biến (nước, gió, mây) vào mục "symbols" 
-#    nếu không muốn Tooltip bắt nhầm từ trong câu (VD: "yêu nước").
-#
-# 4. TỦ SÁCH OFFLINE:
-#    Logic nằm ở 2 nơi: script.js (OfflineLibrary) và sw.js (message event).
-#    Nếu sửa bên này phải sửa bên kia để chúng khớp lệnh (postMessage).
+# LƯU Ý QUAN TRỌNG:
+# - KHÔNG chạy các tool này trực tiếp trên GitHub Pages.
+# - Chúng được thiết kế để chạy tự động thông qua GitHub Actions 
+#   (mỗi khi bạn push file master lên).
+# - Nếu bạn chạy trên máy cá nhân, hãy chắc chắn đã commit và push 
+#   các file kết quả lên GitHub.
 # =====================================================================
