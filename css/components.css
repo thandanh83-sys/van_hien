@@ -2,13 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 1.0.9 (Glassmorphism & AI Integration)
+ * Version: 2.0.0 (UI Polish & Ask Dao Refinement)
  * ==========================================================
  * CHỨC NĂNG:
- * - Định dạng Nút bấm, Thanh tìm kiếm, Phân trang.
- * - Khối kết quả Hỏi Đạo (Ask Result).
- * - Highlight & Tooltip (Biểu tượng).
- * - Nút Hỏi AI & Nút Xóa Offline.
+ * - Hệ thống Nút bấm (Glassmorphism).
+ * - Phân trang, Thanh tìm kiếm thông minh.
+ * - Khối kết quả Hỏi Đạo (Ask Dao) - Tối ưu cho khối "Cơ duyên".
+ * - Tooltip biểu tượng, Nút Hỏi AI.
  * ==========================================================
  */
 
@@ -65,28 +65,28 @@
 
 /* Nút Bộ lọc (Văn Hiến, Bách Khoa) - Glassmorphism */
 .filter-btn { 
-    background: rgba(253, 251, 247, 0.4); /* Nền trắng siêu mờ */
+    background: rgba(253, 251, 247, 0.4); 
     border: 1px solid rgba(139, 184, 168, 0.2); 
-    color: var(--text-main); /* Chữ màu đậm, rõ nét */
+    color: var(--text-main); 
     padding: 10px 24px; 
     border-radius: var(--radius-pill); 
     cursor: pointer; 
     letter-spacing: 0.05em !important; 
-    white-space: nowrap; /* Chống rớt dòng gây mất chữ */
-    flex-shrink: 0; /* Chống co rút gây mất chữ */
+    white-space: nowrap; 
+    flex-shrink: 0; 
     font-size: 0.85rem;
     font-weight: 700 !important;
     position: relative;
     overflow: hidden;
     transition: all 0.3s var(--ease-silk);
-    backdrop-filter: blur(4px); /* Làm mờ hậu cảnh */
+    backdrop-filter: blur(4px); 
     -webkit-backdrop-filter: blur(4px);
     z-index: 1;
 }
 
 /* Hiệu ứng khi Hover hoặc Active */
 .filter-btn:hover, .filter-btn.active { 
-    background: rgba(139, 184, 168, 0.25); /* Nền xanh ngọc trong suốt 25% */
+    background: rgba(139, 184, 168, 0.25); 
     border-color: var(--accent); 
     color: var(--accent-text) !important; 
     box-shadow: 0 4px 15px rgba(139, 184, 168, 0.15); 
@@ -94,7 +94,6 @@
     -webkit-backdrop-filter: blur(8px);
 }
 
-/* Bỏ gradient cũ */
 .filter-btn::before { display: none; }
 
 /* Nút Xem Chi Tiết */
@@ -195,11 +194,10 @@
     margin-bottom: 25px; 
 }
 
-/* Ô nhập liệu - Mở rộng để chứa câu hỏi dài */
 .search-wrap { 
     position: relative; 
     width: 100%; 
-    max-width: 580px; /* Tăng từ 480px lên 580px */
+    max-width: 580px; 
     margin: 0 auto; 
 }
 .search-icon { 
@@ -291,6 +289,7 @@
     animation: fadeInContent 0.5s var(--ease-silk) forwards;
 }
 
+/* Nhãn nguồn tri thức */
 .ask-source {
     display: inline-flex;
     align-items: center;
@@ -320,47 +319,119 @@
     margin-bottom: 14px;
 }
 
-.ask-answer {
+/* Lời dẫn (Nho/Phật phong) */
+.ask-intro {
     font-family: var(--font-body);
-    font-size: 1.2rem;
-    color: var(--text-main);
-    line-height: 1.7;
+    font-size: 0.9rem;
+    color: var(--accent-text);
     font-style: italic;
     margin-bottom: 12px;
+    opacity: 0.9;
 }
 
-.ask-detail {
-    font-size: 0.9rem;
-    color: var(--text-muted);
+/* Câu trả lời chính */
+.ask-answer {
+    font-family: var(--font-body);
+    font-size: 1.25rem;
+    color: var(--text-main);
+    line-height: 1.8;
+    font-style: italic;
+    margin-bottom: 16px;
+}
+
+/* Tiểu dẫn (Chi tiết bổ sung) */
+.ask-detail-box {
+    background: rgba(139, 184, 168, 0.05); 
+    padding: 15px 20px; 
+    border-radius: 8px; 
+    border-left: 2px solid var(--accent); 
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+.ask-detail-label {
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    color: var(--text-muted); 
+    margin-bottom: 8px; 
+    font-weight: 700; 
+    letter-spacing: 0.05em;
+}
+.ask-detail-content {
+    font-family: var(--font-body); 
+    font-size: 1rem; 
+    color: var(--text-muted); 
     line-height: 1.6;
-    padding-top: 14px;
-    border-top: 1px dashed rgba(139, 184, 168, 0.25);
-    margin-bottom: 12px;
+}
+
+/* Khối Meta (Cơ duyên gặp gỡ) */
+.ask-meta-wrapper {
+    margin-top: 24px; 
+    padding-top: 16px; 
+    border-top: 1px dashed rgba(139, 184, 168, 0.3);
+}
+.ask-meta-title {
+    font-family: var(--font-body); 
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    color: var(--text-muted); 
+    margin-bottom: 12px; 
+    letter-spacing: 0.1em;
 }
 
 .ask-meta-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px dashed rgba(212, 196, 168, 0.3);
+    gap: 10px; 
+    margin-top: 12px;
+    border: none;
+    padding: 0;
 }
+
+/* Nút bấm trong khối Meta (Đã sửa để chứa 2 dòng) */
 .ask-meta-item {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-pill);
-    padding: 6px 16px;
+    border-radius: 12px; /* Bo góc nhẹ thay vì pill */
+    padding: 10px 16px; 
     font-family: var(--font-body);
-    font-size: 0.82rem;
-    color: var(--accent-text);
     cursor: pointer;
     transition: all 0.25s var(--ease-silk);
+    text-align: left;
+    flex: 1 1 auto; 
+    min-width: 200px; 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
 }
+
 .ask-meta-item:hover {
     border-color: var(--accent);
     background: rgba(139, 184, 168, 0.08);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 184, 168, 0.1);
+}
+
+.ask-meta-item .meta-title {
+    font-weight: 700; 
+    font-size: 0.9rem; 
+    color: var(--accent-text);
+}
+
+.ask-meta-item .meta-sub {
+    font-size: 0.75rem; 
+    color: var(--text-muted); 
+    font-style: italic;
+}
+
+/* Lời kết (Nho/Phật phong) */
+.ask-outro {
+    margin-top: 24px; 
+    text-align: right; 
+    font-family: var(--font-calligraphy); 
+    font-size: 1.5rem; 
+    color: var(--accent-gold); 
+    opacity: 0.8;
 }
 
 .ask-error {
@@ -369,7 +440,7 @@
 }
 
 /* =====================================================================
-   5. HIGHLIGHT VÀ TOOLTIP (ĐÃ FIX LỖI ĐỨT CHỮ)
+   5. HIGHLIGHT VÀ TOOLTIP (BIỂU TƯỢNG)
    ===================================================================== */
 mark {
     background-color: #f0ead6;
@@ -379,9 +450,8 @@ mark {
     font-weight: 700; 
 }
 
-/* Highlight Biểu tượng (Dùng nền khối thay vì gạch chân) */
 .symbol-mark {
-    background: rgba(139, 184, 168, 0.25); /* Nền xanh mờ */
+    background: rgba(139, 184, 168, 0.25); 
     border-radius: 4px;
     padding: 2px 4px; 
     margin: 0 2px;
@@ -392,7 +462,6 @@ mark {
     color: inherit; 
 }
 
-/* Tooltip hiển thị nghĩa */
 .symbol-mark::after {
     content: attr(data-tooltip);
     position: absolute; 
@@ -472,7 +541,7 @@ mark {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: rgba(163, 107, 107, 0.05); /* Nền đỏ cực nhạt */
+    background: rgba(163, 107, 107, 0.05); 
     border: 1px solid rgba(163, 107, 107, 0.2);
     border-radius: 8px;
     padding: 10px 24px;
@@ -522,4 +591,24 @@ mark {
 .skeleton-line.desc { 
     height: 12px; 
     width: 100%; 
+}
+
+/* =====================================================================
+   9. RESPONSIVE (MOBILE)
+   ===================================================================== */
+@media (max-width: 850px) {
+    .ask-result {
+        padding: 20px 18px;
+    }
+    .ask-answer {
+        font-size: 1.15rem;
+    }
+    .ask-meta-item {
+        min-width: 100%; /* Trải dài toàn bộ chiều ngang trên mobile */
+    }
+    .ask-outro {
+        text-align: center;
+        font-size: 1.3rem;
+        margin-top: 20px;
+    }
 }
