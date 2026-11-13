@@ -119,3 +119,39 @@ export const AnalysisAgent = {
         };
     }
 };
+
+// =====================================================================
+// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// =====================================================================
+/**
+ * Metadata tự mô tả của AnalysisAgent.
+ * Chuyên trách phân tích văn bản: tìm chủ đề, biểu tượng, đánh giá tín hiệu.
+ *
+ * GHI CHÚ:
+ * - Hàm `analyzeWork()` được export riêng ở trên (dùng cho main.js
+ *   trong pipeline Thi Pháp Học và Bói Thơ).
+ * - Agent Object chỉ wrap lại kết quả của `analyzeWork()` thành định dạng
+ *   chuẩn `{ answer, detail, source, meta }` để MasterAI điều phối.
+ */
+AnalysisAgent.agentInfo = {
+    // ---- Định danh ----
+    key: 'analysis',
+    name: 'Phân Tích AI',
+    description: 'Chuyên trách Đọc hiểu văn bản, Tìm chủ đề, Biểu tượng.',
+
+    // ---- Năng lực ----
+    capabilities: {
+        'analyze-work': 'analyze'               // "Phân tích Truyện Kiều" -> AnalysisAgent.analyze()
+    },
+
+    // ---- Loại dữ liệu có thể đọc ----
+    canRead: ['work', 'author', 'symbol', 'allusion', 'term'],
+
+    // ---- Agent được phép ủy thác ----
+    canDelegate: ['poetics', 'literature'],
+
+    // ---- Từ khóa nhận diện Intent ----
+    intentPatterns: {
+        'analyze-work': ['phan tich', 'binh giang', 'cam nhan', 'danh gia', 'binh luan', 'mo xe']
+    }
+};
