@@ -1,8 +1,8 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
- * Chức năng: Khởi chạy App, Load Data, Bói Thơ, Thi Pháp.
- * Đã sửa: Xóa nút Tác giả ở Bói Thơ, sương tinh tế, AI Động.
+ * Chức năng: Khởi chạy App, Load Data, Bói Thơ (AI Động),
+ * Thi Pháp, Canvas, và gắn toàn bộ sự kiện giao diện.
  * ==========================================================
  */
 
@@ -18,9 +18,10 @@ import {
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
 import { calculateFortune, synthesizeDynamicFortune } from './ai.js';
+import { runFullDiagnosis } from './audit.js'; // Import Bác Sĩ
 
 // =====================================================================
-// PHẦN 1: HIỆU ỨNG NỀN (CANVAS & SƯƠNG)
+// PHẦN 1: HIỆU ỨNG NỀN (CANVAS SÓNG NƯỚC & HẠT SƯƠNG)
 // =====================================================================
 function initWaterCanvas() {
     const canvas = document.getElementById('water-canvas');
@@ -58,11 +59,14 @@ function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     
+    // Chỉ tạo đúng 6 hạt sương để nhẹ nhàng, không tốn data
     for (let i = 0; i < 6; i++) {
         const d = document.createElement('div');
         d.className = 'dewdrop';
-        const size = Math.random() * 3 + 4; // Kích thước 4-7px, siêu nhỏ
-        const dur = Math.random() * 15 + 20; // Bay chậm 20-35s
+        
+        // Kích thước siêu nhỏ, thanh mảnh (4px - 7px)
+        const size = Math.random() * 3 + 4; 
+        const dur = Math.random() * 15 + 20; // Bay cực chậm (20-35s) cho tinh tế
         const delay = -(Math.random() * dur);
         
         d.style.cssText = `
@@ -71,10 +75,10 @@ function initDewdrops() {
             left: ${Math.random() * 100}vw;
             animation-duration: ${dur}s;
             animation-delay: ${delay}s;
-            background: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 0 8px 2px rgba(139, 184, 168, 0.4);
-            backdrop-filter: blur(1px);
-            opacity: ${Math.random() * 0.3 + 0.3};
+            background: rgba(255, 255, 255, 0.6); /* Trắng trong suốt */
+            box-shadow: 0 0 8px 2px rgba(139, 184, 168, 0.4); /* Quầng sáng ngọc bích nhẹ */
+            backdrop-filter: blur(1px); /* Hiệu ứng thủy tinh */
+            opacity: ${Math.random() * 0.3 + 0.3}; /* Độ mờ ảo (0.3 - 0.6) */
         `;
         
         container.appendChild(d);
@@ -82,7 +86,7 @@ function initDewdrops() {
 }
 
 // =====================================================================
-// PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER)
+// PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER) - BẢN ĐÃ SỬA LỖI
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
@@ -90,6 +94,7 @@ const POETRY_ANALYZER = (() => {
         return (nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) ? 'T' : 'B';
     }
     
+    // SỬA LỖI: Giữ nguyên âm tiếng Việt (ă, â, ê, ô, ơ, ư), chỉ bỏ dấu thanh
     function getRhymePart(word) {
         if (!word) return '';
         const decomposed = word.toLowerCase().normalize('NFD');
@@ -108,6 +113,7 @@ const POETRY_ANALYZER = (() => {
         });
     }
 
+    // SỬA LỖI: Chỉ kết luận "có dạng", độ tin cậy trung bình khi mới dựa vào số tiếng
     function detectForm(lines) {
         const counts = lines.map(line => line.count);
         const n = counts.length;
@@ -158,6 +164,7 @@ const POETRY_ANALYZER = (() => {
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
 
+    // SỬA LỖI: Dùng .some() thay vì kiểm tra độ dài mảng
     function buildQuestions(form, rhymes, symbols) {
         const questions = [];
         if (form.confidence !== 'cao') questions.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay ngẫu nhiên?`);
@@ -415,6 +422,7 @@ function randomPoem() {
         `;
     }
 
+    // Nút đọc toàn bộ tinh gọn (Không còn link tác giả ở đây)
     if (gotoBtn) {
         gotoBtn.innerHTML = `Đọc toàn bộ tác phẩm &rarr;`;
         gotoBtn.onclick = () => {
@@ -431,7 +439,7 @@ function randomPoem() {
 }
 
 // =====================================================================
-// PHẦN 5: XUẤT CÁC HÀM RA WINDOW
+// PHẦN 5: XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
 // =====================================================================
 window.executePipeline = executePipeline;
 window.randomPoem = randomPoem;
@@ -443,6 +451,9 @@ window.filterSubGenre = filterSubGenre;
 window.filterEncyclopediaGroup = filterEncyclopediaGroup;
 window.searchEncyclopedia = searchEncyclopedia;
 window.changePage = changePage;
+
+// Bác Sĩ Audit
+window.audit = runFullDiagnosis;
 
 window.handleSearchInput = function() {
     const input = document.getElementById('encyclopedia-search');
@@ -463,9 +474,10 @@ window.clearSearch = function() {
 };
 
 // =====================================================================
-// PHẦN 6: KHỞI CHẠY
+// PHẦN 6: KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
 // =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    // 6.1. Sự kiện Bói Thơ
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
     document.getElementById('fate-close-btn')?.addEventListener('click', () => {
         const o = document.getElementById('fate-modal-overlay');
@@ -479,6 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // 6.2. Splash Screen & Load Data
     const splash = document.getElementById('jade-splash');
     const status = document.getElementById('bootStatusText');
     const qc = document.querySelector('.boot-quote');
@@ -517,6 +530,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     }
 
+    // 6.3. Khôi phục bản nháp
     const draft = localStorage.getItem('vandao_draft_poem');
     if (draft) {
         const pi = document.getElementById('poemInput');
@@ -524,6 +538,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
+    // 6.4. Sự kiện Tìm kiếm
     document.getElementById('search-input')?.addEventListener('input', debounce(() => { STATE.currentPage = 1; renderHeritage(); }, 300));
     
     const encyclopediaSearchInput = document.getElementById('encyclopedia-search');
@@ -533,6 +548,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         encyclopediaSearchInput.addEventListener('input', debouncedSearch);
     }
 
+    // 6.5. Xử lý URL params
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
     if (initialTab && ['heritage', 'encyclopedia', 'analyze'].includes(initialTab)) {
@@ -540,6 +556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
+    // 6.6. Sự kiện click toàn cục (Routing, đóng menu)
     document.addEventListener('click', e => {
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
@@ -569,6 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // 6.7. Logic cho Settings Dialog
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
@@ -592,6 +610,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // 6.8. NÚT TẢI OFFLINE
     const btnOfflineStart = document.getElementById('offline-btn-start');
     const btnOfflineCancel = document.getElementById('offline-btn-cancel');
     const btnOfflineClear = document.getElementById('offline-btn-clear');
@@ -646,5 +665,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // 6.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
     bindEncyclopediaEvents();
 });
