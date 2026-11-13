@@ -1,14 +1,17 @@
-# 🌐 VĂN ĐẠO NETWORK LAYER (v1.0.0)
+# 🌐 VĂN ĐẠO NETWORK LAYER (v3.0.0)
 
-Chào mừng bạn đến với hệ thống mạng lưới tri thức phân tán của Văn Đạo. Tài liệu này giải thích cấu trúc thư mục và cách các file giao tiếp với nhau.
+Chào mừng bạn đến với **Hệ thần kinh trung ương** của Văn Đạo. Tài liệu này giải thích kiến trúc, triết lý và cách các module trong thư mục `js/network/` vận hành để kết nối toàn bộ hệ thống tri thức.
 
-## 📁 Cấu trúc thư mục
+> **Triết lý cốt lõi:** "Một cửa ngõ, một đầu mối, một trái tim."
+> Chúng ta đã loại bỏ hoàn toàn kiến trúc "Máy Mẹ - Máy Con" (v1.0) để chuyển sang **Mạng lưới Trí tuệ Thống nhất** với `DataHub` là trung tâm duy nhất.
 
-Thư mục này (`js/network/`) đóng vai trò là "Hệ thần kinh trung ương" của ứng dụng, kết nối các thành phần dữ liệu rời rạc lại với nhau.
+---
+
+## I. CẤU TRÚC THƯ MỤC
 
 ```text
 js/network/
-├── mother.js       # 🧠 Máy Mẹ: Quản lý bản đồ định tuyến, load manifest, kiểm tra sức khỏe.
-├── bus.js          # 🔗 VDBus: Đường truyền tin nhắn (Publish/Subscribe/Request).
-├── index.js        # 📦 Trạm trung chuyển: Export tất cả ra ngoài cho main.js dễ dùng.
+├── data-hub.js     # 🧠 TRÁI TIM DỮ LIỆU: Truy xuất, Cache, Knowledge Graph.
+├── bus.js          # 🔗 HỆ THẦN KINH: Đường truyền tin nhắn (Pub/Sub, Cross-tab).
+├── index.js        # 📦 TRẠM TRUNG CHUYỂN (Facade): Xuất tất cả cho main.js.
 └── README.md       # 📖 Tài liệu bạn đang đọc.
