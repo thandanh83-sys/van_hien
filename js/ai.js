@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - MAIN ENTRY POINT (js/ai.js)
  * Vị trí: js/ai.js
- * Version: 2.0.0 (DataHub Integration & Knowledge Network)
+ * Version: 3.1.0 (Unified Intelligence Network)
  * ==========================================================
  * CHỨC NĂNG:
  * - Đóng vai trò là "Cổng giao tiếp" (Facade) duy nhất cho toàn bộ AI.
@@ -34,7 +34,14 @@ export { InputAI } from './ai/input-ai.js';
 export { OutputAI } from './ai/output-ai.js';
 
 // =====================================================================
-// 3. CÁC CHUYÊN GIA (AGENTS) - ĐỘI NGŨ TRI THỨC
+// 3. SỔ ĐĂNG KÝ AGENT (AGENT REGISTRY)
+// =====================================================================
+
+// Quản lý năng lực, quyền đọc ID và quyền ủy thác của các AI
+export { AgentRegistry } from './ai/agent-registry.js';
+
+// =====================================================================
+// 4. CÁC CHUYÊN GIA (AGENTS) - ĐỘI NGŨ TRI THỨC
 // =====================================================================
 
 // Chuyên gia Văn học (Tìm tác phẩm, tác giả, tóm tắt, thể loại)
@@ -60,11 +67,14 @@ export { PraiserAgent } from './ai/agents/praiser.js';
 // Chuyên gia Phê bình (Chỉ ra hạn chế, thiếu sót)
 export { CriticAgent } from './ai/agents/critic.js';
 
-// [MỚI] Chuyên gia Mạng lưới (Tác phẩm liên quan, Tiểu sử tác giả, Danh sách tác phẩm)
+// Chuyên gia Mạng lưới (Tác phẩm liên quan, Tiểu sử tác giả, Danh sách tác phẩm)
 export { KnowledgeAgent } from './ai/agents/knowledge.js';
 
+// [MỚI] Chuyên gia Lịch sử (Bối cảnh lịch sử, Tác phẩm/Tác giả theo thời kỳ)
+export { HistoryAgent } from './ai/agents/history.js';
+
 // =====================================================================
-// 4. HẠ TẦNG DÙNG CHUNG (CORE)
+// 5. HẠ TẦNG DÙNG CHUNG (CORE)
 // =====================================================================
 
 // Các hàm tiện ích, Cache, Từ điển, Bói toán, Xử lý văn bản
@@ -83,7 +93,7 @@ export {
 } from './ai/core.js';
 
 // =====================================================================
-// 5. TRUNG TÂM DỮ LIỆU (DATA HUB) - TRÁI TIM CỦA MẠNG LƯỚI
+// 6. TRUNG TÂM DỮ LIỆU (DATA HUB) - TRÁI TIM CỦA MẠNG LƯỚI
 // =====================================================================
 
 // DataHub: Quản lý toàn bộ truy xuất dữ liệu (Offline-First)
@@ -91,8 +101,8 @@ export {
 export { DataHub } from './network/data-hub.js';
 
 // =====================================================================
-// 6. PHIÊN BẢN & METADATA (Dùng cho Audit/Debug)
+// 7. PHIÊN BẢN & METADATA (Dùng cho Audit/Debug)
 // =====================================================================
 
-export const AI_VERSION = '2.0.0';
-export const AI_ARCHITECTURE = 'Knowledge Network (ID-Centric)';
+export const AI_VERSION = '3.1.0';
+export const AI_ARCHITECTURE = 'Unified Intelligence Network (ID-Centric)';
