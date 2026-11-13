@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - MAIN ENTRY POINT (js/ai.js)
  * Vị trí: js/ai.js
- * Version: 3.4.0 (Plugin Architecture & NLP Integration)
+ * Version: 4.0.0 (Ultimate Plugin Architecture & NLP Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Đóng vai trò là "Cổng giao tiếp" (Facade) duy nhất cho toàn bộ AI.
@@ -40,7 +40,7 @@ export { OutputAI } from './ai/output-ai.js';
 export { AgentRegistry, AgentMap } from './ai/agents/index.js';
 
 // =====================================================================
-// 4. CÁC CHUYÊN GIA (AGENTS) - ĐỘI NGŨ TRI THỨC (8 AI)
+// 4. CÁC CHUYÊN GIA (AGENTS) - ĐỘI NGŨ TRI THỨC (11 AI)
 // =====================================================================
 
 // 1. Chuyên gia Văn học (Tác phẩm, Tác giả, Tóm tắt, Thể loại)
@@ -60,23 +60,26 @@ export {
     synthesizeDynamicFortune 
 } from './ai/agents/fortune-ai.js';
 
-// 5. Chuyên gia Tán thưởng (Tìm vẻ đẹp, ca ngợi tác phẩm)
-export { PraiserAgent } from './ai/agents/praiser.js';
-
-// 6. Chuyên gia Phê bình (Chỉ ra hạn chế, thiếu sót)
-export { CriticAgent } from './ai/agents/critic.js';
-
-// 7. Chuyên gia Mạng lưới (Tác phẩm liên quan, Tiểu sử tác giả, Danh sách tác phẩm)
+// 5. Chuyên gia Tri thức (Mạng lưới liên kết, Tiểu sử tác giả)
 export { KnowledgeAgent } from './ai/agents/knowledge.js';
 
-// 8. Chuyên gia Lịch sử (Bối cảnh lịch sử, Tác phẩm/Tác giả theo thời kỳ)
+// 6. Chuyên gia Lịch sử (Bối cảnh lịch sử, Thời đại văn học)
 export { HistoryAgent } from './ai/agents/history.js';
 
-// 9. [MỚI] Chuyên gia Dịch thuật (Dịch tác phẩm, tên tác giả)
+// 7. Chuyên gia Dịch thuật (Dịch tác phẩm, tên tác giả)
 export { TranslationAgent } from './ai/agents/translation.js';
 
-// 10. [MỚI] Chuyên gia Nhân vật (Tra cứu thông tin nhân vật văn học)
+// 8. Chuyên gia Nhân vật (Tra cứu thông tin nhân vật văn học)
 export { CharacterAgent } from './ai/agents/character.js';
+
+// 9. Chuyên gia So sánh (So sánh 2 tác giả, 2 tác phẩm)
+export { ComparisonAgent } from './ai/agents/comparison.js';
+
+// 10. Chuyên gia Tán thưởng (Tìm vẻ đẹp, ca ngợi tác phẩm)
+export { PraiserAgent } from './ai/agents/praiser.js';
+
+// 11. Chuyên gia Phê bình (Chỉ ra hạn chế, thiếu sót)
+export { CriticAgent } from './ai/agents/critic.js';
 
 // =====================================================================
 // 5. HẠ TẦNG DÙNG CHUNG (CORE & UTILS)
@@ -97,11 +100,11 @@ export {
     debugCore 
 } from './ai/core.js';
 
-// [MỚI] Thư viện Xử lý Ngôn ngữ Tự nhiên (NLP)
+// Thư viện Xử lý Ngôn ngữ Tự nhiên (NLP)
 // Cho phép các module khác (như search.js) dùng chung bộ lọc Teencode
 export { preprocessText } from './ai/nlp-tools.js';
 
-// [MỚI] Thư viện Toán học (Math Utils)
+// Thư viện Toán học (Math Utils)
 // Cung cấp thuật toán Levenshtein, Dice Coefficient cho các module khác
 export { MathUtils } from './ai/math-utils.js';
 
@@ -116,8 +119,8 @@ export { DataHub } from './network/data-hub.js';
 // 7. PHIÊN BẢN & METADATA (Dùng cho Audit/Debug)
 // =====================================================================
 
-export const AI_VERSION = '3.4.0';
-export const AI_ARCHITECTURE = 'Unified Intelligence Network (10 Agents)';
+export const AI_VERSION = '4.0.0';
+export const AI_ARCHITECTURE = 'Unified Intelligence Network (11 Agents)';
 
 /**
  * Hàm debug tổng hợp: In ra trạng thái của toàn bộ hệ thống AI.
@@ -128,6 +131,7 @@ export async function debugAI() {
     const { CoreCache, safeGetArray } = await import('./ai/core.js');
     const { DataHub } = await import('./network/data-hub.js');
     const { preprocessText } = await import('./ai/nlp-tools.js');
+    const { MathUtils } = await import('./ai/math-utils.js');
     
     console.log('%c[AI SYSTEM] Trạng thái tổng quan:', 'color: #8bb8a8; font-weight: bold; font-size: 14px;');
     console.log('  • Version:', AI_VERSION);
@@ -139,6 +143,7 @@ export async function debugAI() {
     console.log('  • Tác phẩm:', safeGetArray('WORKS_DATA').length);
     console.log('  • Tác giả:', safeGetArray('AUTHOR_DATA').length);
     
-    // Test nhanh NLP
-    console.log('  • NLP Test (Teencode + Sai chính tả):', preprocessText("tg cua tp truyen keu la ai"));
+    // Test nhanh NLP & Math
+    console.log('  • NLP Test (Teencode):', preprocessText("tg cua tp truyen keu la ai"));
+    console.log('  • Math Test (Levenshtein "keu" vs "kieu"):', MathUtils.levenshteinDistance('keu', 'kieu'));
 }
