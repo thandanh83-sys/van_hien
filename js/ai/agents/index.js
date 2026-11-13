@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - AGENTS INDEX (js/ai/agents/index.js)
  * Vị trí: js/ai/agents/index.js
- * Version: 3.2.0 (Plugin Architecture)
+ * Version: 3.3.0 (Plugin Architecture - Expanded)
  * ==========================================================
  * CHỨC NĂNG:
  * - Là "Bảng điều khiển" trung tâm của toàn bộ hệ thống AI.
@@ -26,6 +26,10 @@ import { FortuneAgent } from './fortune-ai.js';
 import { KnowledgeAgent } from './knowledge.js';
 import { HistoryAgent } from './history.js';
 
+// [MỚI] Import 2 Agent vừa được bổ sung
+import { TranslationAgent } from './translation.js';
+import { CharacterAgent } from './character.js';
+
 // =====================================================================
 // 2. AGENT MAP (Bản đồ thực thể)
 // Ánh xạ key trong Registry sang Object thực tế của Agent.
@@ -37,7 +41,10 @@ export const AgentMap = {
     'analysis': AnalysisAgent,
     'fortune': FortuneAgent,
     'knowledge': KnowledgeAgent,
-    'history': HistoryAgent
+    'history': HistoryAgent,
+    // [MỚI]
+    'translation': TranslationAgent,
+    'character': CharacterAgent
 };
 
 // =====================================================================
@@ -62,7 +69,7 @@ export const AgentRegistry = {
                 'search': 'search'
             },
             canRead: ['work', 'author', 'genre'],
-            canDelegate: ['poetics', 'knowledge', 'history']
+            canDelegate: ['poetics', 'knowledge', 'history', 'character']
         },
 
         // =========================================================
@@ -127,7 +134,7 @@ export const AgentRegistry = {
         },
 
         // =========================================================
-        // 6. LỊCH SỬ AI (History) - [MỚI]
+        // 6. LỊCH SỬ AI (History)
         // =========================================================
         'history': {
             id: 'agent:history',
@@ -139,6 +146,34 @@ export const AgentRegistry = {
                 'get-historical-context': 'getHistoricalContext'
             },
             canRead: ['work', 'author', 'genre'],
+            canDelegate: ['literature', 'knowledge']
+        },
+
+        // =========================================================
+        // 7. DỊCH THUẬT AI (Translation) - [MỚI]
+        // =========================================================
+        'translation': {
+            id: 'agent:translation',
+            name: 'Dịch Thuật AI',
+            description: 'Chuyên trách dịch thuật văn bản, tác phẩm.',
+            capabilities: {
+                'translate-work': 'translate'
+            },
+            canRead: ['work', 'author'],
+            canDelegate: ['literature']
+        },
+
+        // =========================================================
+        // 8. NHÂN VẬT AI (Character) - [MỚI]
+        // =========================================================
+        'character': {
+            id: 'agent:character',
+            name: 'Nhân Vật AI',
+            description: 'Chuyên trách tra cứu nhân vật văn học.',
+            capabilities: {
+                'get-character-info': 'getCharacterInfo'
+            },
+            canRead: ['work', 'author'],
             canDelegate: ['literature', 'knowledge']
         }
     },
