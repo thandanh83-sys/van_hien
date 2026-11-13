@@ -1,27 +1,21 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
- * Chức năng: Khởi chạy App, quản lý Splash, Load Data, Bói Thơ (AI),
- * Thi Pháp, Canvas, và gắn toàn bộ sự kiện giao diện.
+ * Đã sửa: Xóa import thừa, tối ưu sự kiện Offline.
  * ==========================================================
  */
 
-// =====================================================================
-// 1. IMPORT CÁC MODULE (Đảm bảo đúng đường dẫn)
-// =====================================================================
 import { APP_DATA, STATE, ICONS } from './config.js';
-import { debounce, escapeHTML, removeAccents } from './utils.js';
+import { debounce, escapeHTML } from './utils.js';
 import { switchView, toggleMobileMenu, gotoEncyclopediaById, setCancelSearch } from './router.js';
 import { 
     initMainFilters, renderHeritage, searchEncyclopedia, 
     bindEncyclopediaEvents, filterEncyclopediaGroup, 
     filterMainCategory, filterSubGenre, renderEncyclopedia, 
-    renderPagination, changePage, findSymbols, renderEncyclopediaList,
-    PerformanceEngine
+    changePage, findSymbols 
 } from './render.js';
 import { VDSearchEngine, triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
-// Import AI Nội bộ
 import { calculateFortune, generateBridgeText, synthesizeCommentary } from './ai.js';
 
 // =====================================================================
@@ -81,7 +75,7 @@ function initDewdrops() {
 }
 
 // =====================================================================
-// PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER) - TRÍCH XUẤT NGUYÊN BẢN
+// PHẦN 2: THI PHÁP HỌC (POETRY ANALYZER)
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
@@ -246,7 +240,7 @@ function executePipeline() {
 }
 
 // =====================================================================
-// PHẦN 3: LOAD DATA & DANH NGÔN (ĐÃ XÓA NHÃN XÁC MINH)
+// PHẦN 3: LOAD DATA & DANH NGÔN
 // =====================================================================
 async function loadAllData() {
     try {
@@ -362,20 +356,16 @@ function randomPoem() {
     void overlay.offsetWidth; 
     overlay.classList.add('show');
     
-    // Ẩn loading ngay lập tức (0ms)
     loadingEl.classList.add('hidden');
     resultEl.classList.add('show');
 
-    // 1. AI chọn bài và tính vận khí
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
     const fortuneKey = calculateFortune(randomWork); 
     const fortuneInfo = APP_DATA.FORTUNE_CONFIG[fortuneKey] || { name: 'Bình Hòa', color: '#6a7c76' };
     
-    // 2. AI tổng hợp câu dẫn, lời bình, lời khuyên
     const bridgeText = generateBridgeText(randomWork, fortuneKey); 
     const { commentaryText, adviceHtml } = synthesizeCommentary(randomWork, fortuneKey); 
 
-    // 3. Hiển thị lên Giao diện
     const badge = document.getElementById('fate-badge');
     badge.textContent = `Vận Khí: ${fortuneInfo.name}`;
     badge.style.color = fortuneInfo.color;
@@ -400,7 +390,6 @@ function randomPoem() {
         ${adviceWrapper}
     `;
 
-    // 4. Liên kết mạng lưới tri thức
     const authorObj = APP_DATA.AUTHOR_DATA.find(a => a.title.includes(randomWork.author));
     if (authorObj) {
         document.getElementById('fate-commentary').innerHTML += `
@@ -412,7 +401,6 @@ function randomPoem() {
         `;
     }
 
-    // 5. Nút đọc toàn bộ
     document.getElementById('fate-goto-btn').onclick = () => {
         overlay.classList.remove('show');
         setTimeout(() => { overlay.style.display = 'none'; }, 300);
@@ -455,38 +443,6 @@ window.clearSearch = function() {
     if (clearBtn) clearBtn.classList.remove('show'); 
     input.focus(); 
     searchEncyclopedia(); 
-};
-
-window.auditWorksData = async function() {
-    console.log("%c[AUDIT] KIỂM TRA TÁC PHẨM", "color:#8bb8a8;font-weight:bold;");
-    let ok = 0, empty = 0, err = 0;
-    for (const w of APP_DATA.WORKS_DATA) {
-        try {
-            const res = await fetch(`./data/tac-pham/${encodeURIComponent(w.id)}.json`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const d = await res.json();
-            const clean = (d.content || '').replace(/<[^>]*>/g, '').trim();
-            if (clean.length > 100 && !clean.includes('đang được Văn Đạo hiệu đính')) ok++;
-            else empty++;
-        } catch { err++; }
-    }
-    console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
-};
-
-window.auditAuthorsData = async function() {
-    console.log("%c[AUDIT] KIỂM TRA TÁC GIẢ", "color:#8bb8a8;font-weight:bold;");
-    let ok = 0, empty = 0, err = 0;
-    for (const a of APP_DATA.AUTHOR_DATA) {
-        try {
-            const res = await fetch(`./data/tac-gia/${encodeURIComponent(a.id)}.json`);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            const d = await res.json();
-            const clean = (d.content || '').replace(/<[^>]*>/g, '').trim();
-            if (clean.length > 100 && !clean.includes('đang được Văn Đạo hiệu đính')) ok++;
-            else empty++;
-        } catch { err++; }
-    }
-    console.log(`[RESULT] ${ok} CÓ | ${empty} RỖNG | ${err} LỖI`);
 };
 
 // =====================================================================
@@ -540,14 +496,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         splash.classList.add('leaving'); 
         setTimeout(() => {
             splash.remove();
-            // Đã xóa hiệu ứng elegant-fade-in gây lỗi trắng trang
         }, 500); 
         setTimeout(() => {
             if (silkOverlay) silkOverlay.classList.remove('active', 'entering');
         }, 1000);
     }
 
-    // 6.3. Khôi phục bản nháp
     const draft = localStorage.getItem('vandao_draft_poem');
     if (draft) {
         const pi = document.getElementById('poemInput');
@@ -555,7 +509,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // 6.4. Gắn sự kiện Tìm kiếm
     document.getElementById('search-input')?.addEventListener('input', debounce(() => { STATE.currentPage = 1; renderHeritage(); }, 300));
     
     const encyclopediaSearchInput = document.getElementById('encyclopedia-search');
@@ -565,7 +518,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         encyclopediaSearchInput.addEventListener('input', debouncedSearch);
     }
 
-    // 6.5. Xử lý URL params
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
     if (initialTab && ['heritage', 'encyclopedia', 'analyze'].includes(initialTab)) {
@@ -573,7 +525,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // 6.6. Sự kiện click chung toàn cục
     document.addEventListener('click', e => {
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
@@ -603,7 +554,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 6.7. Settings Dialog
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
@@ -612,6 +562,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnOpenSettings.addEventListener('click', () => {
             if (typeof settingsDialog.showModal === 'function') settingsDialog.showModal();
             else settingsDialog.setAttribute('open', '');
+            checkStorageSize(); // Cập nhật dung lượng khi mở
         });
         btnCloseSettings.addEventListener('click', () => {
             if (typeof settingsDialog.close === 'function') settingsDialog.close();
@@ -626,7 +577,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 6.8. NÚT TẢI OFFLINE
     const btnOfflineStart = document.getElementById('offline-btn-start');
     const btnOfflineCancel = document.getElementById('offline-btn-cancel');
     const btnOfflineClear = document.getElementById('offline-btn-clear');
@@ -656,7 +606,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 alert(`Tải hoàn tất! Thành công: ${result.total - result.failed} file. Lỗi: ${result.failed} file.`);
                 if (progressSection) progressSection.style.display = 'none';
             } else {
-                alert("Quá trình tải bị gián đoạn hoặc gặp lỗi.");
+                alert(result.message || "Quá trình tải bị gián đoạn hoặc gặp lỗi.");
             }
         });
     }
@@ -681,6 +631,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 6.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
     bindEncyclopediaEvents();
 });
