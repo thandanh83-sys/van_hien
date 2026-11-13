@@ -1,15 +1,12 @@
 # =====================================================================
-# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG TRIỂN KHAI LÊN GITHUB PAGES
+# VĂN ĐẠO ENGINE - GITHUB ACTION: DEPLOY TO GITHUB PAGES (BULLETPROOF)
 # Tên file: .github/workflows/deploy.yml
-# Phiên bản: 4.0 (Ultimate Consolidated Edition)
+# Phiên bản: 5.0 (Peaceiris Engine - Không dùng Artifact)
 # 
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
-# - Khai thiên lập địa: Nhận lấy toàn bộ tinh hoa (code, data, assets) 
-#   và hiển thị nó ra thế giới qua GitHub Pages.
-# - Bất khả xâm phạm: Quá trình deploy không bao giờ được phép hủy ngang.
-# - Toàn vẹn: Gom TẤT CẢ các bước vào CHUNG MỘT JOB duy nhất để đảm bảo
-#   artifact được tạo ra và sử dụng trong cùng một phiên (khắc phục lỗi No artifacts).
-# - Bảo mật: Chỉ cấp các quyền tối thiểu cần thiết.
+# - Tránh xa lỗi "No artifacts named github-pages" của GitHub.
+# - Sử dụng hành động peaceiris/actions-gh-pages v3 (Tiêu chuẩn vàng).
+# - Đẩy trực tiếp toàn bộ code lên nhánh 'gh-pages'.
 # =====================================================================
 
 name: Deploy to GitHub Pages
@@ -19,86 +16,57 @@ name: Deploy to GitHub Pages
 # =====================================================================
 on:
   push:
-    branches: [ "main" ] # Chỉ chạy khi push lên nhánh main
+    branches: [ "main" ]
   
-  # Nút bấm thủ công trên tab Actions để bạn có thể deploy lại bất cứ lúc nào
+  # Cho phép chạy thủ công từ tab Actions
   workflow_dispatch:
 
 # =====================================================================
 # 2. QUYỀN HẠN CỦA BOT (PERMISSIONS)
 # =====================================================================
-# Tuân thủ nguyên tắc "Đặc quyền tối thiểu" (Principle of Least Privilege).
+# Bắt buộc phải có quyền "write" để bot có thể đẩy code lên nhánh gh-pages
 permissions:
-  contents: read  # Chỉ được phép đọc code trong kho
-  pages: write    # Được phép ghi (deploy) lên GitHub Pages
-  id-token: write # Cấp quyền tạo token xác thực (OIDC) cho Pages
+  contents: write 
 
 # =====================================================================
 # 3. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
 # =====================================================================
+# Đảm bảo các lần deploy không chạy chồng chéo lên nhau
 concurrency:
-  group: "pages"
-  
-  # TUYỆT ĐỐI KHÔNG HỦY NGANG (cancel-in-progress: false).
-  # Đảm bảo không có 2 quá trình deploy chạy song song gây lỗi file.
+  group: "gh-pages-deploy"
   cancel-in-progress: false 
 
 # =====================================================================
 # 4. CÁC BƯỚC THỰC THI (JOBS)
 # =====================================================================
 jobs:
-  # CHỈ CÓ DUY NHẤT MỘT JOB (Gộp chung mọi thứ để đảm bảo tính toàn vẹn)
   deploy:
-    # Khai báo môi trường là github-pages và lấy đường link URL sau khi deploy
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-      
     runs-on: ubuntu-latest
-    timeout-minutes: 10 # Tự động hủy nếu chạy quá 10 phút (tránh treo bot)
+    timeout-minutes: 10 
     
     steps:
       # -----------------------------------------------------------------
       # BƯỚC 1: LẤY CODE TỪ KHO VỀ MÁY ẢO
       # -----------------------------------------------------------------
-      - name: 1. Checkout (Lấy code về)
+      - name: 1. Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1 # Chỉ lấy commit mới nhất cho nhanh
+          fetch-depth: 1
 
       # -----------------------------------------------------------------
-      # BƯỚC 2: CẤU HÌNH GITHUB PAGES
+      # BƯỚC 2: TẠO FILE .NOJEKYLL
       # -----------------------------------------------------------------
-      - name: 2. Setup Pages (Cấu hình Pages)
-        uses: actions/configure-pages@v5
-        # Tự động lấy các thông số cấu hình (base path, tên miền...)
-
-      # -----------------------------------------------------------------
-      # BƯỚC 3: TẠO FILE .NOJEKYLL TỰ ĐỘNG
-      # -----------------------------------------------------------------
-      # GitHub Pages mặc định chạy Jekyll, có thể bỏ qua các file bắt đầu bằng dấu gạch dưới.
-      # Bước này tạo file .nojekyll để báo cho GitHub Pages: "Đừng can thiệp vào cấu trúc thư mục".
-      - name: 3. Create .nojekyll file (Bảo vệ cấu trúc thư mục)
+      # Ngăn GitHub Pages chạy Jekyll (giúp giữ nguyên cấu trúc thư mục)
+      - name: 2. Create .nojekyll file
         run: touch .nojekyll
 
       # -----------------------------------------------------------------
-      # BƯỚC 4: ĐÓNG GÓI DỰ ÁN (UPLOAD ARTIFACT) - BƯỚC SỐNG CÒN
+      # BƯỚC 3: DEPLOY LÊN NHÁNH GH-PAGES (TRÁI TIM CỦA FILE NÀY)
       # -----------------------------------------------------------------
-      - name: 4. Upload artifact (Đóng gói dự án)
-        uses: actions/upload-pages-artifact@v3
+      - name: 3. Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          path: '.' 
-          # Dấu chấm ('.') có nghĩa là lấy TOÀN BỘ file ở thư mục gốc 
-          # (index.html, css/, js/, data/, assets/...)
-          # Action này sẽ nén chúng lại thành một gói (artifact) tên là "github-pages"
-          # và lưu tạm trên máy chủ GitHub.
-
-      # -----------------------------------------------------------------
-      # BƯỚC 5: XUẤT BẢN LÊN WEB (DEPLOY)
-      # -----------------------------------------------------------------
-      - name: 5. Deploy to GitHub Pages (Xuất bản lên web)
-        id: deployment # Đặt ID để lấy được cái URL ở phần 'environment' phía trên
-        uses: actions/deploy-pages@v4
-        # Bung gói artifact vừa nén ở Bước 4 ra và đưa lên máy chủ GitHub Pages.
-        # Nhờ việc gộp chung vào 1 Job, bot `deploy-pages` sẽ tìm thấy artifact 
-        # ngay lập tức, khắc phục hoàn toàn lỗi "No artifacts named...".
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./ 
+          publish_branch: gh-pages
+          # force_orphan: true # Bỏ comment dòng này nếu muốn xóa lịch sử commit của nhánh gh-pages cho nhẹ
