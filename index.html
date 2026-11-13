@@ -51,9 +51,11 @@
 
     <!-- ================================================================= -->
     <!-- 7. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG (CANVAS)                   -->
+    <!-- ĐÃ THÊM INLINE STYLE ĐỂ ÉP CHÌM XUỐNG DƯỚI CÙNG, KHÔNG CHIẾM CHỖ -->
     <!-- ================================================================= -->
-    <canvas id="water-canvas" aria-hidden="true"></canvas>
-    <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true"></div>
+    <canvas id="water-canvas" aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; display: block;"></canvas>
+    
+    <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; overflow: hidden;"></div>
 
     <!-- ================================================================= -->
     <!-- 8. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC                     -->
@@ -240,7 +242,6 @@
 
     <!-- ================================================================= -->
     <!-- 12. GỢI Ý ĐỌC (FATE MODAL)                                       -->
-    <!-- KHÔNG CÒN THẺ #fate-author VÌ ĐÃ GỘP VÀO NÚT ĐỌC TOÀN BỘ        -->
     <!-- ================================================================= -->
     <div id="fate-modal-overlay" style="display: none;">
         <div id="fate-modal">
