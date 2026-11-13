@@ -1,7 +1,15 @@
+
+---
+
+### 2. `requirements.txt` — Cẩm nang Bảo trì (Đã cập nhật Quy tắc mới)
+
+Phần quan trọng nhất của file này là **8 Nguyên tắc vàng**. Tôi đã thay thế Quy tắc 8 cũ (về MotherNode) bằng Quy tắc 8 mới (về DataHub), và làm rõ các quy tắc liên quan đến AI.
+
+```text
 # =====================================================================
 # VĂN ĐẠO ENGINE - TỆP KHAI BÁO MÔI TRƯỜNG PYTHON & CẨM NANG BẢO TRÌ
 # Tác giả: Văn Đạo
-# Phiên bản: 1.0.0 (Network Edition)
+# Phiên bản: 2.0.0 (Knowledge Network Edition)
 # 
 # MỤC ĐÍCH:
 # 1. Quản lý các thư viện Python phụ thuộc cho thư mục tools/.
@@ -88,7 +96,7 @@
 # Cách làm: 
 # - Đảm bảo mọi hàm cần dùng ở file khác đều có chữ `export` ở file gốc.
 # - Tên hàm khi import phải viết HOA/thường giống hệt file gốc.
-# - File gốc phải gọi đúng đường dẫn tương đối (./utils.js, ./network/mother.js).
+# - File gốc phải gọi đúng đường dẫn tương đối (./utils.js, ./network/data-hub.js).
 
 # ---------------------------------------------------------------------
 # [QUY TẮC 5] LỖI LAYOUT KHOẢNG TRẮNG ĐẦU TRANG (MIN-HEIGHT)
@@ -111,14 +119,19 @@
 # Vấn đề: Logic tải offline nằm ở 2 nơi, nếu sửa bên này quên bên kia sẽ lỗi.
 # Cách làm: Nếu sửa logic tải trong `js/offline.js`, phải kiểm tra lại 
 # sự kiện `DOWNLOAD_BATCH` trong file `sw.js` để chúng khớp lệnh (postMessage).
+# Lưu ý: File này KHÔNG phụ thuộc MotherNode nữa, nó lấy URL trực tiếp từ APP_DATA.
 
 # ---------------------------------------------------------------------
-# [QUY TẮC 8] MẠNG LƯỚI TRI THỨC (NETWORK LAYER) - ĐỒNG BỘ MANIFEST
+# [QUY TẮC 8] MẠNG LƯỚI TRI THỨC (DATAHUB) - ID LÀ TRUNG TÂM
 # ---------------------------------------------------------------------
-# Vấn đề: Máy Mẹ (mother.js) đọc file `data/manifests/index.json` để tìm đường.
-# Nếu bạn thêm/xóa Node (Máy Con) mà không sửa file index này, hệ thống sẽ báo lỗi Fallback.
-# Cách làm: Mỗi khi thêm một file `node-xxx.json` mới, BẮT BUỘC phải khai báo
-# ID của nó vào mảng `nodes` và bảng `routing` trong file `data/manifests/index.json`.
+# Vấn đề: Các AI con (Agents) không được phép tự ý `fetch` file JSON. 
+# Mọi truy xuất dữ liệu BẮT BUỘC phải đi qua `DataHub` (js/network/data-hub.js).
+# Cách làm: 
+# - Khi cần lấy metadata: `DataHub.getMetadata(id)`.
+# - Khi cần lấy nội dung chi tiết: `await DataHub.getDetail(id)`.
+# - Khi cần tìm liên kết (Tác giả, Tác phẩm cùng thể loại): `DataHub.getGraph(id)`.
+# - Nếu bạn thêm một loại thực thể mới (ví dụ: Nhân vật), phải đảm bảo nó có 
+#   trường `id` và được đăng ký vào `STATE.GLOBAL_INDEX` trong `main.js`.
 
 # =====================================================================
 # HƯỚNG DẪN CHẠY CÁC TOOL (Dành cho lập trình viên)
