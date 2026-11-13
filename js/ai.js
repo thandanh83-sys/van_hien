@@ -2,12 +2,12 @@
  * ==========================================================
  * VĂN ĐẠO AI ENGINE (js/ai.js)
  * Vị trí: js/ai.js
- * Version: 1.1.0 (Offline-First, Weighted Themes, Smart Intent)
+ * Version: 1.1.1 (Bugfixes & Logic Hardening)
  * ==========================================================
  * CHỨC NĂNG:
- * - Phân tích văn bản dựa trên trọng số từ khóa (Không đếm thô).
+ * - Phân tích văn bản dựa trên trọng số từ khóa.
  * - AIDispatcher: Nhận diện câu hỏi tự nhiên, chạy 100% Offline.
- * - Không phụ thuộc MotherNode, không gọi API ngoài.
+ * - Tối ưu hóa truy xuất từ điển (Dictionary Index).
  * ==========================================================
  */
 
@@ -17,10 +17,11 @@ import { VDSearchEngine } from './search.js';
 import { escapeHTML, normalizeRouteText } from './utils.js';
 
 // ==========================================================
-// PHẦN 1: CACHE
+// PHẦN 1: CACHE (Có phiên bản để chống lưu kết quả cũ)
 // ==========================================================
 const CACHE_LIMIT = 120;
 const resultCache = new Map();
+const CACHE_VERSION = 'v1.1.1'; // Tăng version này khi sửa logic AI
 
 function cacheSet(key, value) {
     if (resultCache.has(key)) resultCache.delete(key);
@@ -32,7 +33,42 @@ function cacheSet(key, value) {
 }
 
 // ==========================================================
-// PHẦN 2: THEME RULES (Có trọng số)
+// PHẦN 2: DICTIONARY INDEX (Tối ưu tra cứu từ điển)
+// ==========================================================
+let dictionaryIndexCache = null;
+
+function getDictionaryIndex() {
+    if (dictionaryIndexCache) return dictionaryIndexCache;
+    
+    const dict = APP_DATA.DICTIONARY_DATA || {};
+    dictionaryIndexCache = [];
+    
+    // Danh sách 11 nhóm từ điển
+    const DICTIONARY_GROUPS = {
+        symbols: 'Biểu tượng', dienTich: 'Điển tích', hanViet: 'Hán Việt',
+        tuGoiHinh: 'Từ gợi hình', tuGoiAm: 'Từ gợi âm', tuBieuCam: 'Từ biểu cảm',
+        anDu: 'Ẩn dụ', soSanh: 'So sánh', tuTaoCanh: 'Từ tạo cảnh',
+        thanhNgu: 'Thành ngữ', thuatNguThiPhap: 'Thuật ngữ thi pháp'
+    };
+
+    for (const [key, label] of Object.entries(DICTIONARY_GROUPS)) {
+        const group = dict[key];
+        if (!group || typeof group !== 'object') continue;
+        for (const [keyword, value] of Object.entries(group)) {
+            if (!value || typeof value !== 'object') continue;
+            dictionaryIndexCache.push({
+                ...value,
+                keyword,
+                normalizedKeyword: normalizeRouteText(keyword),
+                type: label
+            });
+        }
+    }
+    return dictionaryIndexCache;
+}
+
+// ==========================================================
+// PHẦN 3: THEME RULES (Có trọng số & Fix lỗi đếm trùng)
 // ==========================================================
 const THEME_RULES = [
     { 
@@ -86,8 +122,34 @@ const THEME_RULES = [
 
 const FALLBACK_COMMENTARY = 'Tác phẩm cần được đọc từ những chi tiết cụ thể: hình ảnh nổi bật, giọng điệu, cách tổ chức câu chữ và mối liên hệ giữa các phần.';
 
+// [FIX LỖI 1] Đếm từ khóa có trọng số, xóa vùng đã đếm để tránh trùng lặp
+function countWeightedMatches(text, terms) {
+    let remaining = text;
+    let score = 0;
+    const hits = [];
+    
+    // Ưu tiên cụm dài trước để tránh đè từ ngắn (VD: "quê hương" trước "quê")
+    const sortedTerms = [...terms].sort((a, b) => b.t.length - a.t.length);
+
+    for (const item of sortedTerms) {
+        const needle = normalizeRouteText(item.t);
+        if (!needle) continue;
+        const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+        const pattern = new RegExp(`(^|[^\\p{L}\\p{N}])${escaped}(?=$|[^\\p{L}\\p{N}])`, 'giu');
+        
+        const found = [...remaining.matchAll(pattern)];
+        if (found.length > 0) { 
+            score += found.length * item.w; 
+            hits.push(item.t); 
+            // Xóa vùng đã đếm để cụm ngắn hơn không đếm lại
+            remaining = remaining.replace(pattern, ' ');
+        }
+    }
+    return { score, hits };
+}
+
 // ==========================================================
-// PHẦN 3: FORTUNE LEVELS
+// PHẦN 4: FORTUNE LEVELS
 // ==========================================================
 const FORTUNE_LEVELS = [
     { key: 'dai-cat', weight: 10, name: 'Đại cát', color: '#b89552', advice: 'Chủ động nắm bắt cơ hội, lấy lòng nhân hậu và sự khiêm nhường làm gốc. Tránh kiêu ngạo, tự mãn hoặc xem thuận lợi nhất thời là điều hiển nhiên.' },
@@ -100,92 +162,45 @@ const FORTUNE_LEVELS = [
 const FORTUNE_FALLBACK = Object.fromEntries(FORTUNE_LEVELS.map(item => [item.key, item]));
 
 // ==========================================================
-// PHẦN 4: UTILITIES
-// ==========================================================
-function normalizeText(value = '') {
-    return String(value).toLocaleLowerCase('vi').normalize('NFC').replace(/\s+/g, ' ').trim();
-}
-
-// Đếm từ khóa có trọng số, xử lý cụm từ dài trước
-function countWeightedMatches(text, terms) {
-    let score = 0;
-    const hits = [];
-    
-    // Sắp xếp từ khóa dài trước để tránh đè từ ngắn (VD: "quê hương" trước "quê")
-    const sortedTerms = [...terms].sort((a, b) => b.t.length - a.t.length);
-
-    for (const item of sortedTerms) {
-        const needle = normalizeText(item.t);
-        if (!needle) continue;
-        const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
-        // Dùng ranh giới từ (word boundary) để không bắt nhầm
-        const pattern = new RegExp(`(^|[^\\p{L}\\p{N}])${escaped}(?=$|[^\\p{L}\\p{N}])`, 'giu');
-        const found = text.match(pattern);
-        
-        if (found?.length) { 
-            score += found.length * item.w; 
-            hits.push(item.t); 
-        }
-    }
-    return { score, hits };
-}
-
-function getWorkText(work = {}) {
-    return [work.title, work.author, work.desc, work.description, work.content, work.excerpt].filter(Boolean).join('\n');
-}
-
-function selectThemes(text) {
-    const normalized = normalizeText(text);
-    const results = THEME_RULES.map(rule => {
-        const { score, hits } = countWeightedMatches(normalized, rule.terms);
-        return { rule, score, hits };
-    }).filter(item => item.score > 0);
-
-    results.sort((a, b) => b.score - a.score);
-    return results.slice(0, 2);
-}
-
-function getSymbolEvidence(text) {
-    try {
-        return findSymbols(text).slice(0, 4).map(symbol => ({
-            keyword: symbol.keyword, type: symbol.type, meaning: symbol.mean || '', volume: symbol.vol || '', section: symbol.sec || ''
-        }));
-    } catch (error) { return []; }
-}
-
-// ==========================================================
 // PHẦN 5: PUBLIC API - ANALYZE
 // ==========================================================
 export function analyzeWork(work = {}) {
-    const sourceText = getWorkText(work);
-    const cacheKey = `work:${normalizeText(sourceText)}`;
-    if (resultCache.has(cacheKey)) return resultCache.get(cacheKey);
+    const sourceText = [work.title, work.author, work.desc, work.description, work.content, work.excerpt].filter(Boolean).join('\n');
+    
+    // [FIX LỖI 7] Thêm version vào cache key
+    const cacheKey = `${CACHE_VERSION}:work:${normalizeRouteText(sourceText)}`;
+    if (resultCache.has(cacheKey)) return JSON.parse(JSON.stringify(resultCache.get(cacheKey))); // Trả bản sao
 
-    const themes = selectThemes(sourceText);
-    const symbols = getSymbolEvidence(sourceText);
+    const normalized = normalizeRouteText(sourceText);
+    const themes = THEME_RULES.map(rule => ({ rule, ...countWeightedMatches(normalized, rule.terms) }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 2);
+
+    const symbols = findSymbols(sourceText).slice(0, 4);
 
     let commentaryText = themes.length ? themes[0].rule.commentary : FALLBACK_COMMENTARY;
     if (symbols.length > 0) {
         commentaryText += ` Đáng chú ý, văn bản xuất hiện hình ảnh "${symbols[0].keyword}", cần được đặt trong ngữ cảnh để hiểu rõ tầng nghĩa sâu kín.`;
     }
 
-    // Tính độ tin cậy thực tế dựa trên điểm số
-    let confidence = 'thấp';
+    // [FIX LỖI 2] Đổi tên thành "Mức độ nhận diện" (strength)
+    let strength = 'Yếu';
     if (themes.length > 0) {
         const topScore = themes[0].score;
-        if (topScore >= 6) confidence = 'cao';
-        else if (topScore >= 3) confidence = 'trung bình';
+        if (topScore >= 6) strength = 'Mạnh';
+        else if (topScore >= 3) strength = 'Vừa';
     }
 
     const result = {
         themes: themes.map(t => t.rule.label),
         commentaryText,
         evidence: { themes, symbols },
-        confidence
+        strength
     };
 
     cacheSet(cacheKey, result);
-    return result;
+    return JSON.parse(JSON.stringify(result));
 }
 
 // ==========================================================
@@ -202,7 +217,6 @@ export function calculateFortune() {
 }
 
 export function getFortuneInfo(key = 'binh-hoa') {
-    // Chuẩn hóa key nếu không hợp lệ
     const validKey = FORTUNE_FALLBACK[key] ? key : 'binh-hoa';
     const fallback = FORTUNE_FALLBACK[validKey];
     const saved = APP_DATA.FORTUNE_CONFIG?.[validKey] || {};
@@ -210,26 +224,28 @@ export function getFortuneInfo(key = 'binh-hoa') {
 }
 
 // ==========================================================
-// PHẦN 7: PUBLIC API - TỔNG HỢP BÓI THƠ
+// PHẦN 7: PUBLIC API - TỔNG HỢP BÓI THƠ (Fix Lỗi 3)
 // ==========================================================
 export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa') {
     const fortune = getFortuneInfo(fortuneKey);
+    // [FIX LỖI 3] Sử dụng validKey thay vì fortuneKey gốc
+    const validKey = fortune.key; 
+    
     const analysis = analyzeWork(work);
-
     const title = work.title || 'trang sách';
     const author = work.author || 'tác giả';
     const mainTheme = analysis.themes.length > 0 ? analysis.themes[0] : 'nhân sinh';
     const mainSymbol = analysis.evidence.symbols.length > 0 ? `"${analysis.evidence.symbols[0].keyword}"` : null;
 
     let bridgeText = `Duyên lành đưa bạn đến với "${title}" của ${author} trong một ngày vận khí ${fortune.name.toLowerCase()}. `;
-    if (fortuneKey === 'dai-cat') bridgeText += `Trang sách mở ra như một lời chúc phúc, hãy đón nhận bằng tâm thế rộng mở.`;
-    else if (fortuneKey === 'trung-cat' || fortuneKey === 'tieu-cat') bridgeText += `Mọi sự đang diễn ra êm đềm, thật hợp để bạn tĩnh tâm chiêm nghiệm.`;
-    else if (fortuneKey === 'binh-hoa') bridgeText += `Ngày hôm nay như mặt hồ phẳng lặng, rất thích hợp để lắng lòng.`;
+    if (validKey === 'dai-cat') bridgeText += `Trang sách mở ra như một lời chúc phúc, hãy đón nhận bằng tâm thế rộng mở.`;
+    else if (validKey === 'trung-cat' || validKey === 'tieu-cat') bridgeText += `Mọi sự đang diễn ra êm đềm, thật hợp để bạn tĩnh tâm chiêm nghiệm.`;
+    else if (validKey === 'binh-hoa') bridgeText += `Ngày hôm nay như mặt hồ phẳng lặng, rất thích hợp để lắng lòng.`;
     else bridgeText += `Dẫu ngoài kia có chút gợn sóng, nhưng trang sách này sẽ là một chốn bình yên.`;
 
     let dynamicAdvice = "";
-    if (fortuneKey === 'dai-cat') dynamicAdvice = `Vận khí đang rực rỡ, hãy dùng cảm hứng từ chủ đề "${mainTheme}" của tác phẩm để chủ động gieo duyên lành.`;
-    else if (fortuneKey === 'tieu-hung' || fortuneKey === 'dai-hung') dynamicAdvice = `Khi vận khí có chút trắc trở, hãy mượn sự tĩnh tại và bài học về "${mainTheme}" trong tác phẩm để làm điểm tựa.`;
+    if (validKey === 'dai-cat') dynamicAdvice = `Vận khí đang rực rỡ, hãy dùng cảm hứng từ chủ đề "${mainTheme}" của tác phẩm để chủ động gieo duyên lành.`;
+    else if (validKey === 'tieu-hung' || validKey === 'dai-hung') dynamicAdvice = `Khi vận khí có chút trắc trở, hãy mượn sự tĩnh tại và bài học về "${mainTheme}" trong tác phẩm để làm điểm tựa.`;
     else dynamicAdvice = `Hãy kết hợp sự thong dong của vận khí ${fortune.name.toLowerCase()} với những chiêm nghiệm về "${mainTheme}" trong trang sách.`;
 
     if (mainSymbol) dynamicAdvice += ` Đặc biệt, hãy để hình ảnh ${mainSymbol} đánh thức những suy ngẫm sâu kín trong bạn.`;
@@ -249,7 +265,7 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa') {
     
     adviceHtml += `<div style="border-top:1px dashed rgba(128,128,128,0.2); padding-top:10px; margin-top:10px;"><strong style="color:var(--accent-text);">Gợi ý đọc:</strong> <span style="color:var(--text-main);">${escapeHTML(dynamicAdvice)}</span></div>`;
 
-    const commentaryData = APP_DATA.COMMENTARY_DATA?.[fortuneKey] || {};
+    const commentaryData = APP_DATA.COMMENTARY_DATA?.[validKey] || {};
     const commentaries = Array.isArray(commentaryData.commentaries) ? commentaryData.commentaries : [];
     const fortuneReflection = commentaries.length > 0 ? commentaries[Math.floor(Math.random() * commentaries.length)] : `Lời chiêm nghiệm cho vận khí ${fortune.name}: Hãy giữ tâm thế bình thản trước mọi biến động.`;
 
@@ -259,64 +275,52 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa') {
         literaryCommentary: escapeHTML(analysis.commentaryText), 
         adviceHtml, 
         fortuneInfo: fortune, 
-        confidence: analysis.confidence, 
+        strength: analysis.strength, 
         evidence: analysis.evidence 
     };
 }
 
 // ==========================================================
-// PHẦN 8: AI DISPATCHER (OFFLINE-FIRST, KHÔNG PHỤ THUỘC MOTHERNODE)
+// PHẦN 8: AI DISPATCHER (Fix Lỗi 4, 5)
 // ==========================================================
-
-const DICTIONARY_GROUPS = {
-    symbols: 'Biểu tượng',
-    dienTich: 'Điển tích',
-    hanViet: 'Hán Việt',
-    tuGoiHinh: 'Từ gợi hình',
-    tuGoiAm: 'Từ gợi âm',
-    tuBieuCam: 'Từ biểu cảm',
-    anDu: 'Ẩn dụ',
-    soSanh: 'So sánh',
-    tuTaoCanh: 'Từ tạo cảnh',
-    thanhNgu: 'Thành ngữ',
-    thuatNguThiPhap: 'Thuật ngữ thi pháp'
-};
-
 export const AIDispatcher = (() => {
 
     function parseIntent(input) {
         const t = (input || '').toLowerCase().trim();
         if (!t) return { type: 'empty', query: '' };
 
+        // [FIX LỖI 5] Cắt bỏ các từ đệm phổ biến ở đầu câu
+        let clean = t.replace(/^(hãy|giúp tôi|cho tôi biết|cho mình hỏi|xin hỏi|làm ơn)\s+/i, '');
+
         // 1. Tóm tắt
-        if (/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì)/i.test(t)) {
-            const q = t.replace(/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì|tác phẩm|bài thơ|bài)/gi, '').replace(/[?!.]/g, '').trim();
+        if (/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì)/i.test(clean)) {
+            const q = clean.replace(/(tóm tắt|nội dung|kể lại|giới thiệu|nói về gì|tác phẩm|bài thơ|bài|của)\s*/gi, '').replace(/[?!.]/g, '').trim();
             return { type: 'summarize-work', query: q };
         }
 
-        // 2. Biểu tượng / Điển tích
-        if (/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của)/i.test(t)) {
-            const keyword = t.replace(/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của|là gì|có ý nghĩa gì|trong thơ)/gi, '').replace(/[?!.]/g, '').trim();
-            if (!keyword) return { type: 'search', query: t }; // Nếu rỗng thì fallback về search
+        // 2. Tác giả (Tách riêng)
+        if (/(ai|tác giả|người nào)\s+(là|viết|sáng tác|đặt tên|tạo ra|của bài|của tác phẩm)/i.test(clean)) {
+            const q = clean.replace(/(ai là|ai viết|tác giả|người nào|đặt tên cho|viết|sáng tác|là người|của bài|của tác phẩm|của)\s*/gi, '').replace(/[?!.]/g, '').trim();
+            return { type: 'find-author-of', query: q };
+        }
+
+        // 3. Biểu tượng / Điển tích
+        if (/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của)/i.test(clean)) {
+            const keyword = clean.replace(/(biểu tượng|hình ảnh|điển tích|điển cố|ý nghĩa của|là gì|có ý nghĩa gì|trong thơ|của từ|từ)\s*/gi, '').replace(/[?!.]/g, '').trim();
+            if (!keyword) return { type: 'search', query: clean }; 
             return { type: 'explain-symbol', query: keyword };
         }
 
-        // 3. Gợi ý đọc
-        if (/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc)/i.test(t)) {
-            const genre = t.replace(/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc|cho tôi|về)/gi, '').replace(/[?!.]/g, '').trim();
+        // 4. Gợi ý đọc
+        if (/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc)/i.test(clean)) {
+            const genre = clean.replace(/(gợi ý|đề xuất|tìm truyện|tìm thơ|muốn đọc|cho tôi|về|những|tác phẩm|các)\s*/gi, '').replace(/[?!.]/g, '').trim();
             return { type: 'recommend', query: genre };
         }
 
-        // 4. Thể loại là gì
-        if (/(thể loại|định nghĩa|khái niệm).*(là gì|như thế nào)/i.test(t)) {
-            const genre = t.replace(/thể loại|là gì|như thế nào|định nghĩa|khái niệm/gi, '').replace(/[?!.]/g, '').trim();
+        // 5. Thể loại là gì
+        if (/(thể loại|định nghĩa|khái niệm).*(là gì|như thế nào)/i.test(clean)) {
+            const genre = clean.replace(/thể loại|là gì|như thế nào|định nghĩa|khái niệm/gi, '').replace(/[?!.]/g, '').trim();
             return { type: 'define-genre', query: genre };
-        }
-
-        // 5. Tác giả
-        if (/(ai|tác giả|người nào)\s+(là|viết|sáng tác|đặt tên|tạo ra|của bài|của tác phẩm)/i.test(t)) {
-            const q = t.replace(/(ai là|ai viết|tác giả|người nào|đặt tên cho|viết|sáng tác|là người|của bài|của tác phẩm)/gi, '').replace(/[?!.]/g, '').trim();
-            return { type: 'find-author-of', query: q };
         }
 
         return { type: 'search', query: input.trim() };
@@ -324,10 +328,11 @@ export const AIDispatcher = (() => {
 
     async function dispatch(intent) {
         try {
-            // Lấy dữ liệu trực tiếp từ APP_DATA (Đảm bảo Offline)
-            const works = APP_DATA.WORKS_DATA || [];
-            const authors = APP_DATA.AUTHOR_DATA || [];
-            const genres = APP_DATA.THE_LOAI_DATA || [];
+            // [FIX LỖI 4] Đảm bảo tất cả là mảng để chống crash
+            const works = Array.isArray(APP_DATA.WORKS_DATA) ? APP_DATA.WORKS_DATA : [];
+            const authors = Array.isArray(APP_DATA.AUTHOR_DATA) ? APP_DATA.AUTHOR_DATA : [];
+            const genres = Array.isArray(APP_DATA.THE_LOAI_DATA) ? APP_DATA.THE_LOAI_DATA : [];
+            const theories = Array.isArray(APP_DATA.THEORY_DATA) ? APP_DATA.THEORY_DATA : [];
 
             switch (intent.type) {
                 case 'summarize-work': {
@@ -335,26 +340,16 @@ export const AIDispatcher = (() => {
                     const topResult = results.find(r => r.group === 'tinh-hoa');
                     if (topResult) {
                         const work = works.find(w => w.id === topResult.id);
-                        if (work) return { answer: work.desc || 'Chưa có tóm tắt.', detail: `Tác phẩm: "${work.title}" của ${work.author}`, source: 'local-data', meta: [work] };
+                        if (work) return { answer: work.desc || work.description || 'Chưa có tóm tắt.', detail: `Tác phẩm: "${work.title}" của ${work.author}`, source: 'local-data', meta: [work] };
                     }
                     return { answer: `Không tìm thấy tác phẩm "${intent.query}".`, source: 'local-data' };
                 }
 
                 case 'explain-symbol': {
-                    const dict = APP_DATA.DICTIONARY_DATA || {};
-                    const allEntries = [];
-                    
-                    // Duyệt qua tất cả các nhóm từ điển
-                    for (const [key, label] of Object.entries(DICTIONARY_GROUPS)) {
-                        if (dict[key] && typeof dict[key] === 'object') {
-                            for (const [k, v] of Object.entries(dict[key])) {
-                                allEntries.push({ ...v, keyword: k, type: label });
-                            }
-                        }
-                    }
-
-                    const q = normalizeText(intent.query);
-                    const found = allEntries.find(item => normalizeText(item.keyword).includes(q));
+                    // [FIX LỖI 6] Sử dụng Dictionary Index thay vì tạo lại mảng
+                    const allEntries = getDictionaryIndex();
+                    const q = normalizeRouteText(intent.query);
+                    const found = allEntries.find(item => item.normalizedKeyword.includes(q));
                     
                     if (found) {
                         return { answer: found.mean, detail: `[${found.type}] ${found.keyword}`, source: 'dictionary', meta: [] };
@@ -364,18 +359,17 @@ export const AIDispatcher = (() => {
 
                 case 'recommend': {
                     let filteredWorks = [...works];
-                    const q = normalizeText(intent.query);
+                    const q = normalizeRouteText(intent.query);
                     
                     if (q) {
                         filteredWorks = filteredWorks.filter(w => {
-                            const title = normalizeText(w.title || '');
-                            const genre = Array.isArray(w.the_loai) ? normalizeText(w.the_loai.join(' ')) : '';
-                            const type = normalizeText(typeof w.loai_hinh === 'string' ? w.loai_hinh : '');
+                            const title = normalizeRouteText(w.title || '');
+                            const genre = Array.isArray(w.the_loai) ? normalizeRouteText(w.the_loai.join(' ')) : '';
+                            const type = normalizeRouteText(typeof w.loai_hinh === 'string' ? w.loai_hinh : '');
                             return title.includes(q) || genre.includes(q) || type.includes(q);
                         });
                     }
                     
-                    // Thuật toán xáo trộn Fisher-Yates chuẩn
                     for (let i = filteredWorks.length - 1; i > 0; i--) {
                         const j = Math.floor(Math.random() * (i + 1));
                         [filteredWorks[i], filteredWorks[j]] = [filteredWorks[j], filteredWorks[i]];
@@ -397,7 +391,7 @@ export const AIDispatcher = (() => {
                 }
 
                 case 'define-genre': {
-                    const genre = genres.find(g => normalizeText(g.name || '').includes(normalizeText(intent.query)));
+                    const genre = genres.find(g => normalizeRouteText(g.name || '').includes(normalizeRouteText(intent.query)));
                     if (genre) return { answer: genre.description || 'Không có mô tả.', detail: `Thể loại: ${genre.name}`, source: 'local-data', meta: [genre] };
                     return { answer: 'Thể loại không có trong từ điển.', source: 'local-data' };
                 }
@@ -410,7 +404,7 @@ export const AIDispatcher = (() => {
                     if (results.length > 0) {
                         const topResults = results.slice(0, 5).map(r => {
                             const record = { id: r.id, _group: r.group };
-                            const idx = works.find(w => w.id === r.id) || authors.find(a => a.id === r.id) || APP_DATA.THEORY_DATA.find(t => t.id === r.id);
+                            const idx = works.find(w => w.id === r.id) || authors.find(a => a.id === r.id) || theories.find(t => t.id === r.id);
                             if (idx) record.title = idx.title || idx.name;
                             return record;
                         });
@@ -429,6 +423,6 @@ export const AIDispatcher = (() => {
 
 export const VAN_DAO_AI = Object.freeze({
     analyzeWork, calculateFortune, getFortuneInfo, synthesizeDynamicFortune,
-    clearCache() { resultCache.clear(); }, getCacheSize() { return resultCache.size; }
+    clearCache() { resultCache.clear(); dictionaryIndexCache = null; }, getCacheSize() { return resultCache.size; }
 });
 export default VAN_DAO_AI;
