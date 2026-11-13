@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 1.0.8 (Smart Search & AI Integration)
+ * Version: 1.0.10 (Smart Search & AI Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen.
@@ -10,6 +10,7 @@
  * - Xử lý Tìm kiếm thông minh (Gộp Tra Cứu & Hỏi Đạo).
  * - Bắt sự kiện Hỏi AI Tóm tắt trong bài đọc.
  * - Tích hợp AI vào Thi Pháp Học (Tầng 4).
+ * - Sử dụng Custom Modal thay thế alert/confirm.
  * ==========================================================
  */
 
@@ -17,7 +18,7 @@
 // 1. IMPORTS
 // =====================================================================
 import { APP_DATA, STATE, ICONS } from './config.js';
-import { debounce, escapeHTML } from './utils.js';
+import { debounce, escapeHTML, showAlert, showConfirm } from './utils.js';
 import { switchView, toggleMobileMenu, gotoEncyclopediaById, setCancelSearch } from './router.js';
 import { 
     initMainFilters, renderHeritage, searchEncyclopedia, 
@@ -389,7 +390,7 @@ function renderRandomQuote() {
 // =====================================================================
 function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && (work.desc || work.description || work.content));
-    if (!validWorks.length) return alert('Kho tác phẩm chưa có nội dung đủ để tạo gợi ý đọc.');
+    if (!validWorks.length) return showAlert('Kho tác phẩm chưa có nội dung đủ để tạo gợi ý đọc.', 'Thông báo');
 
     const overlay = document.getElementById('fate-modal-overlay');
     const loadingEl = document.getElementById('fate-loading');
@@ -775,7 +776,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         refreshNetworkStatus(true);
     });
 
-    // 8.8. NÚT TẢI OFFLINE
+    // 8.8. NÚT TẢI OFFLINE (Sử dụng Custom Modal)
     const btnOfflineStart = document.getElementById('offline-btn-start');
     const btnOfflineCancel = document.getElementById('offline-btn-cancel');
     const btnOfflineClear = document.getElementById('offline-btn-clear');
@@ -802,10 +803,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (btnOfflineCancel) btnOfflineCancel.style.display = 'none';
 
             if (result.success) {
-                alert(`Tải hoàn tất! Thành công: ${result.total - result.failed} file. Lỗi: ${result.failed} file.`);
+                await showAlert(`Tải hoàn tất! Thành công: ${result.total - result.failed} file. Lỗi: ${result.failed} file.`, 'Hoàn tất');
                 if (progressSection) progressSection.style.display = 'none';
             } else {
-                alert(result.message || "Quá trình tải bị gián đoạn hoặc gặp lỗi.");
+                await showAlert(result.message || "Quá trình tải bị gián đoạn hoặc gặp lỗi.", 'Lỗi');
             }
         });
     }
@@ -821,9 +822,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (btnOfflineClear) {
         btnOfflineClear.addEventListener('click', async () => {
-            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu Offline?")) {
+            const isConfirmed = await showConfirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu Offline?", "Xóa dữ liệu");
+            if (isConfirmed) {
                 await clearOfflineData();
-                alert("Đã xóa dữ liệu Offline thành công!");
+                await showAlert("Đã xóa dữ liệu Offline thành công!", "Thành công");
                 if (progressSection) progressSection.style.display = 'none';
                 if (progressBar) progressBar.style.width = '0%';
             }
