@@ -1,8 +1,18 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - LAYOUTS CSS (css/layouts.css)
- * Chức năng: Định hình khung xương (Splash, Header, Modal, Banner).
- * Đã sửa: Lỗi trắng xóa Modal Cài đặt, làm đẹp Banner cập nhật.
+ * Vị trí: css/layouts.css
+ * Version: 1.0.0 (Network Edition)
+ * ==========================================================
+ * CHỨC NĂNG:
+ * - Khung xương: Splash, Silk Transition, Navbar, Container.
+ * - Settings Dialog (Đã tích hợp Mạng Lưới Tri Thức).
+ * - Update Banner.
+ * 
+ * ĐÃ FIX:
+ * - Xóa toàn bộ #bottom-nav (dead code P3.2).
+ * - Căn giữa Settings Dialog hoàn hảo trên PC & Mobile.
+ * - Thêm CSS cho khối Network trong Settings.
  * ==========================================================
  */
 
@@ -123,15 +133,14 @@
 @keyframes silkOverlayFadeInOut { 0% { opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
 
 /* =====================================================================
-   3. NAVBAR (THANH ĐIỀU HƯỚNG TRÊN CÙNG) & LAYOUT CHÍNH
+   3. NAVBAR & CONTAINER CHÍNH
    ===================================================================== */
 .container { 
     position: relative; 
     z-index: 10; 
     max-width: 1100px; 
     margin: 0 auto; 
-    /* Padding-top 85px để nội dung sát Header mà không bị trắng đầu trang */
-    padding: calc(85px + env(safe-area-inset-top)) 20px 40px 20px !important; 
+    padding: calc(85px + env(safe-area-inset-top)) 20px 40px 20px; 
 }
 
 .navbar {
@@ -178,14 +187,13 @@
 .mobile-menu-btn svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
-   4. SETTINGS DIALOG (CÀI ĐẶT - ĐÃ SỬA LỖI TRẮNG XÓA)
+   4. SETTINGS DIALOG (CÀI ĐẶT & MẠNG LƯỚI)
    ===================================================================== */
 dialog {
     border: none;
     padding: 0;
     background: transparent;
     outline: none;
-    /* Ép thẻ dialog bao trùm toàn màn hình để dễ căn giữa */
     position: fixed;
     inset: 0;
     width: 100vw;
@@ -198,18 +206,16 @@ dialog {
     z-index: 99999;
 }
 
-/* Khi dialog đóng thì ẩn đi */
 dialog:not([open]) { display: none; }
 
 dialog::backdrop {
-    background-color: rgba(253, 251, 247, 0.85);
+    background-color: var(--veil);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
 
-/* Khung nội dung Cài đặt */
 #settings-modal { 
-    position: relative; /* Bỏ fixed, dùng relative */
+    position: relative; 
     width: 90vw; 
     max-width: 450px; 
     max-height: 90vh; 
@@ -217,7 +223,7 @@ dialog::backdrop {
     background: var(--card-bg); 
     border: 1px solid var(--border-color); 
     border-radius: var(--radius-card); 
-    box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+    box-shadow: var(--shadow-heavy); 
     padding: 30px; 
     scrollbar-width: thin;
     animation: dialogFadeIn 0.3s ease forwards;
@@ -226,6 +232,114 @@ dialog::backdrop {
 @keyframes dialogFadeIn {
     from { opacity: 0; transform: translateY(20px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* --- CSS CHO MẠNG LƯỚI TRONG SETTINGS --- */
+.network-section {
+    background: rgba(139, 184, 168, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.network-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(139, 184, 168, 0.2);
+}
+
+.network-dots {
+    display: flex;
+    gap: 4px;
+}
+.network-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.network-dot.online {
+    background: var(--color-success);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+.network-dot.offline {
+    background: var(--color-error);
+    box-shadow: 0 0 0 2px rgba(163, 107, 107, 0.2);
+}
+.network-dot.error {
+    background: var(--color-warning);
+    box-shadow: 0 0 0 2px rgba(212, 196, 168, 0.2);
+}
+
+.network-summary-text {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-text);
+}
+
+.network-refresh {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.3s;
+}
+.network-refresh:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.network-nodes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.network-node-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 4px;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+}
+
+.network-node-label {
+    flex: 1;
+    color: var(--text-main);
+}
+
+.network-node-status {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+}
+.network-node-status.online { color: var(--color-success); }
+.network-node-status.offline { color: var(--color-error); }
+.network-node-status.error { color: var(--color-warning); }
+
+.network-timestamp {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: right;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(139, 184, 168, 0.15);
 }
 
 /* =====================================================================
@@ -283,7 +397,7 @@ dialog::backdrop {
    ===================================================================== */
 @media (max-width: 850px) {
     .container { 
-        padding: calc(70px + env(safe-area-inset-top)) 16px 40px 16px !important; 
+        padding: calc(70px + env(safe-area-inset-top)) 16px 40px 16px; 
     }
     
     .navbar { 
@@ -295,6 +409,7 @@ dialog::backdrop {
     .nav-brand { font-size: 1.3rem; letter-spacing: 3px; }
     .mobile-menu-btn { display: block; }
     
+    /* Biến Navbar thành menu sổ xuống trên Mobile */
     .nav-links { 
         display: flex; 
         position: absolute; 
