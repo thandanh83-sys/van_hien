@@ -1,302 +1,82 @@
 [
-  {
-    "id": "tac-gia-aesop",
-    "title": "Chân Dung Tác Giả: Aesop"
-  },
-  {
-    "id": "tac-gia-albert-camus",
-    "title": "Chân Dung Tác Giả: Albert Camus"
-  },
-  {
-    "id": "tac-gia-alexander-pushkin",
-    "title": "Chân Dung Tác Giả: Alexander Pushkin"
-  },
-  {
-    "id": "tac-gia-alexandre-dumas",
-    "title": "Chân Dung Tác Giả: Alexandre Dumas"
-  },
-  {
-    "id": "tac-gia-anton-chekhov",
-    "title": "Chân Dung Tác Giả: Anton Chekhov"
-  },
-  {
-    "id": "tac-gia-ba-huyen-thanh-quan",
-    "title": "Chân Dung Tác Giả: Bà Huyện Thanh Quan"
-  },
-  {
-    "id": "tac-gia-cao-van-lau",
-    "title": "Chân Dung Tác Giả: Cao Văn Lầu"
-  },
-  {
-    "id": "tac-gia-chinh-huu",
-    "title": "Chân Dung Tác Giả: Chính Hữu"
-  },
-  {
-    "id": "tac-gia-che-lan-vien",
-    "title": "Chân Dung Tác Giả: Chế Lan Viên"
-  },
-  {
-    "id": "tac-gia-dante",
-    "title": "Chân Dung Tác Giả: Dante Alighieri"
-  },
-  {
-    "id": "tac-gia-dante-alighieri",
-    "title": "Chân Dung Tác Giả: Dante Alighieri"
-  },
-  {
-    "id": "tac-gia-ernest-hemingway",
-    "title": "Chân Dung Tác Giả: Ernest Hemingway"
-  },
-  {
-    "id": "tac-gia-franz-kafka",
-    "title": "Chân Dung Tác Giả: Franz Kafka"
-  },
-  {
-    "id": "tac-gia-fyodor-dostoevsky",
-    "title": "Chân Dung Tác Giả: Fyodor Dostoevsky"
-  },
-  {
-    "id": "tac-gia-gabriel-garcia-marquez",
-    "title": "Chân Dung Tác Giả: Gabriel García Márquez"
-  },
-  {
-    "id": "tac-gia-homer",
-    "title": "Chân Dung Tác Giả: Homer"
-  },
-  {
-    "id": "tac-gia-hoang-phu-ngoc-tuong",
-    "title": "Chân Dung Tác Giả: Hoàng Phủ Ngọc Tường"
-  },
-  {
-    "id": "tac-gia-han-mac-tu",
-    "title": "Chân Dung Tác Giả: Hàn Mặc Tử"
-  },
-  {
-    "id": "tac-gia-ho-chi-minh",
-    "title": "Chân Dung Tác Giả: Hồ Chí Minh"
-  },
-  {
-    "id": "tac-gia-ho-xuan-huong",
-    "title": "Chân Dung Tác Giả: Hồ Xuân Hương"
-  },
-  {
-    "id": "tac-gia-huu-thinh",
-    "title": "Chân Dung Tác Giả: Hữu Thỉnh"
-  },
-  {
-    "id": "tac-gia-johann-wolfgang-von-goethe",
-    "title": "Chân Dung Tác Giả: Johann Wolfgang von Goethe"
-  },
-  {
-    "id": "tac-gia-khuat-nguyen",
-    "title": "Chân Dung Tác Giả: Khuất Nguyên"
-  },
-  {
-    "id": "tac-gia-khong-tu",
-    "title": "Chân Dung Tác Giả: Khổng Tử"
-  },
-  {
-    "id": "tac-gia-kim-lan",
-    "title": "Chân Dung Tác Giả: Kim Lân"
-  },
-  {
-    "id": "tac-gia-la-quan-trung",
-    "title": "Chân Dung Tác Giả: La Quán Trung"
-  },
-  {
-    "id": "tac-gia-leo-tolstoy",
-    "title": "Chân Dung Tác Giả: Leo Tolstoy"
-  },
-  {
-    "id": "tac-gia-lao-tu",
-    "title": "Chân Dung Tác Giả: Lão Tử"
-  },
-  {
-    "id": "tac-gia-le-huu-trac",
-    "title": "Chân Dung Tác Giả: Lê Hữu Trác"
-  },
-  {
-    "id": "tac-gia-le-minh-khue",
-    "title": "Chân Dung Tác Giả: Lê Minh Khuê"
-  },
-  {
-    "id": "tac-gia-ly-bach",
-    "title": "Chân Dung Tác Giả: Lý Bạch"
-  },
-  {
-    "id": "tac-gia-ly-cong-uan",
-    "title": "Chân Dung Tác Giả: Lý Công Uẩn"
-  },
-  {
-    "id": "tac-gia-ly-thuong-kiet",
-    "title": "Chân Dung Tác Giả: Lý Thường Kiệt"
-  },
-  {
-    "id": "tac-gia-luu-quang-vu",
-    "title": "Chân Dung Tác Giả: Lưu Quang Vũ"
-  },
-  {
-    "id": "tac-gia-matsuo-basho",
-    "title": "Chân Dung Tác Giả: Matsuo Basho"
-  },
-  {
-    "id": "tac-gia-nam-cao",
-    "title": "Chân Dung Tác Giả: Nam Cao"
-  },
-  {
-    "id": "tac-gia-nguyen-hong",
-    "title": "Chân Dung Tác Giả: Nguyên Hồng"
-  },
-  {
-    "id": "tac-gia-nguyen-binh",
-    "title": "Chân Dung Tác Giả: Nguyễn Bính"
-  },
-  {
-    "id": "tac-gia-nguyen-binh-khiem",
-    "title": "Chân Dung Tác Giả: Nguyễn Bỉnh Khiêm"
-  },
-  {
-    "id": "tac-gia-nguyen-cong-tru",
-    "title": "Chân Dung Tác Giả: Nguyễn Công Trứ"
-  },
-  {
-    "id": "tac-gia-nguyen-du",
-    "title": "Chân Dung Tác Giả: Nguyễn Du"
-  },
-  {
-    "id": "tac-gia-nguyen-duy",
-    "title": "Chân Dung Tác Giả: Nguyễn Duy"
-  },
-  {
-    "id": "tac-gia-nguyen-gia-thieu",
-    "title": "Chân Dung Tác Giả: Nguyễn Gia Thiều"
-  },
-  {
-    "id": "tac-gia-nguyen-huy-tuong",
-    "title": "Chân Dung Tác Giả: Nguyễn Huy Tưởng"
-  },
-  {
-    "id": "tac-gia-nguyen-khoa-diem",
-    "title": "Chân Dung Tác Giả: Nguyễn Khoa Điềm"
-  },
-  {
-    "id": "tac-gia-nguyen-khuyen",
-    "title": "Chân Dung Tác Giả: Nguyễn Khuyến"
-  },
-  {
-    "id": "tac-gia-nguyen-khai",
-    "title": "Chân Dung Tác Giả: Nguyễn Khải"
-  },
-  {
-    "id": "tac-gia-nguyen-minh-chau",
-    "title": "Chân Dung Tác Giả: Nguyễn Minh Châu"
-  },
-  {
-    "id": "tac-gia-nguyen-quang-sang",
-    "title": "Chân Dung Tác Giả: Nguyễn Quang Sáng"
-  },
-  {
-    "id": "tac-gia-nguyen-trai",
-    "title": "Chân Dung Tác Giả: Nguyễn Trãi"
-  },
-  {
-    "id": "tac-gia-nguyen-tuan",
-    "title": "Chân Dung Tác Giả: Nguyễn Tuân"
-  },
-  {
-    "id": "tac-gia-nguyen-dinh-chieu",
-    "title": "Chân Dung Tác Giả: Nguyễn Đình Chiểu"
-  },
-  {
-    "id": "tac-gia-ngo-thua-an",
-    "title": "Chân Dung Tác Giả: Ngô Thừa Ân"
-  },
-  {
-    "id": "tac-gia-ngo-tat-to",
-    "title": "Chân Dung Tác Giả: Ngô Tất Tố"
-  },
-  {
-    "id": "tac-gia-pham-tien-duat",
-    "title": "Chân Dung Tác Giả: Phạm Tiến Duật"
-  },
-  {
-    "id": "tac-gia-quang-dung",
-    "title": "Chân Dung Tác Giả: Quang Dũng"
-  },
-  {
-    "id": "tac-gia-rabindranath-tagore",
-    "title": "Chân Dung Tác Giả: Rabindranath Tagore"
-  },
-  {
-    "id": "tac-gia-thanh-hai",
-    "title": "Chân Dung Tác Giả: Thanh Hải"
-  },
-  {
-    "id": "tac-gia-thanh-tinh",
-    "title": "Chân Dung Tác Giả: Thanh Tịnh"
-  },
-  {
-    "id": "tac-gia-thach-lam",
-    "title": "Chân Dung Tác Giả: Thạch Lam"
-  },
-  {
-    "id": "tac-gia-the-lu",
-    "title": "Chân Dung Tác Giả: Thế Lữ"
-  },
-  {
-    "id": "tac-gia-tran-quoc-tuan",
-    "title": "Chân Dung Tác Giả: Trần Quốc Tuấn"
-  },
-  {
-    "id": "tac-gia-tao-tuyet-can",
-    "title": "Chân Dung Tác Giả: Tào Tuyết Cần"
-  },
-  {
-    "id": "tac-gia-to-hoai",
-    "title": "Chân Dung Tác Giả: Tô Hoài"
-  },
-  {
-    "id": "tac-gia-to-thuc",
-    "title": "Chân Dung Tác Giả: Tô Thức"
-  },
-  {
-    "id": "tac-gia-to-huu",
-    "title": "Chân Dung Tác Giả: Tố Hữu"
-  },
-  {
-    "id": "tac-gia-victor-hugo",
-    "title": "Chân Dung Tác Giả: Victor Hugo"
-  },
-  {
-    "id": "tac-gia-vien-phuong",
-    "title": "Chân Dung Tác Giả: Viễn Phương"
-  },
-  {
-    "id": "tac-gia-vu-trong-phung",
-    "title": "Chân Dung Tác Giả: Vũ Trọng Phụng"
-  },
-  {
-    "id": "tac-gia-shakespeare",
-    "title": "Chân Dung Tác Giả: William Shakespeare"
-  },
-  {
-    "id": "tac-gia-william-shakespeare",
-    "title": "Chân Dung Tác Giả: William Shakespeare"
-  },
-  {
-    "id": "tac-gia-xuan-dieu",
-    "title": "Chân Dung Tác Giả: Xuân Diệu"
-  },
-  {
-    "id": "tac-gia-xuan-quynh",
-    "title": "Chân Dung Tác Giả: Xuân Quỳnh"
-  },
-  {
-    "id": "tac-gia-y-phuong",
-    "title": "Chân Dung Tác Giả: Y Phương"
-  },
-  {
-    "id": "tac-gia-do-phu",
-    "title": "Chân Dung Tác Giả: Đỗ Phủ"
-  }
+  { "id": "tac-gia-aesop", "title": "Chân Dung Tác Giả: Aesop" },
+  { "id": "tac-gia-albert-camus", "title": "Chân Dung Tác Giả: Albert Camus" },
+  { "id": "tac-gia-alexander-pushkin", "title": "Chân Dung Tác Giả: Alexander Pushkin" },
+  { "id": "tac-gia-alexandre-dumas", "title": "Chân Dung Tác Giả: Alexandre Dumas" },
+  { "id": "tac-gia-anh-em-grimm", "title": "Chân Dung Tác Giả: Anh em Grimm" },
+  { "id": "tac-gia-antoine-de-saint-exupery", "title": "Chân Dung Tác Giả: Antoine de Saint-Exupéry" },
+  { "id": "tac-gia-anton-chekhov", "title": "Chân Dung Tác Giả: Anton Chekhov" },
+  { "id": "tac-gia-ba-huyen-thanh-quan", "title": "Chân Dung Tác Giả: Bà Huyện Thanh Quan" },
+  { "id": "tac-gia-cao-van-lau", "title": "Chân Dung Tác Giả: Cao Văn Lầu" },
+  { "id": "tac-gia-chinh-huu", "title": "Chân Dung Tác Giả: Chính Hữu" },
+  { "id": "tac-gia-che-lan-vien", "title": "Chân Dung Tác Giả: Chế Lan Viên" },
+  { "id": "tac-gia-dang-tran-con", "title": "Chân Dung Tác Giả: Đặng Trần Côn" },
+  { "id": "tac-gia-dante-alighieri", "title": "Chân Dung Tác Giả: Dante Alighieri" },
+  { "id": "tac-gia-do-phu", "title": "Chân Dung Tác Giả: Đỗ Phủ" },
+  { "id": "tac-gia-ernest-hemingway", "title": "Chân Dung Tác Giả: Ernest Hemingway" },
+  { "id": "tac-gia-franz-kafka", "title": "Chân Dung Tác Giả: Franz Kafka" },
+  { "id": "tac-gia-fyodor-dostoevsky", "title": "Chân Dung Tác Giả: Fyodor Dostoevsky" },
+  { "id": "tac-gia-gabriel-garcia-marquez", "title": "Chân Dung Tác Giả: Gabriel García Márquez" },
+  { "id": "tac-gia-hans-christian-andersen", "title": "Chân Dung Tác Giả: Hans Christian Andersen" },
+  { "id": "tac-gia-homer", "title": "Chân Dung Tác Giả: Homer" },
+  { "id": "tac-gia-hoang-phu-ngoc-tuong", "title": "Chân Dung Tác Giả: Hoàng Phủ Ngọc Tường" },
+  { "id": "tac-gia-hoai-nam-tu", "title": "Chân Dung Tác Giả: Hoài Nam Tử" },
+  { "id": "tac-gia-han-mac-tu", "title": "Chân Dung Tác Giả: Hàn Mặc Tử" },
+  { "id": "tac-gia-ho-chi-minh", "title": "Chân Dung Tác Giả: Hồ Chí Minh" },
+  { "id": "tac-gia-ho-xuan-huong", "title": "Chân Dung Tác Giả: Hồ Xuân Hương" },
+  { "id": "tac-gia-huu-thinh", "title": "Chân Dung Tác Giả: Hữu Thỉnh" },
+  { "id": "tac-gia-johann-wolfgang-von-goethe", "title": "Chân Dung Tác Giả: Johann Wolfgang von Goethe" },
+  { "id": "tac-gia-khuat-nguyen", "title": "Chân Dung Tác Giả: Khuất Nguyên" },
+  { "id": "tac-gia-khong-tu", "title": "Chân Dung Tác Giả: Khổng Tử" },
+  { "id": "tac-gia-kim-lan", "title": "Chân Dung Tác Giả: Kim Lân" },
+  { "id": "tac-gia-la-quan-trung", "title": "Chân Dung Tác Giả: La Quán Trung" },
+  { "id": "tac-gia-leo-tolstoy", "title": "Chân Dung Tác Giả: Leo Tolstoy" },
+  { "id": "tac-gia-lao-tu", "title": "Chân Dung Tác Giả: Lão Tử" },
+  { "id": "tac-gia-le-huu-trac", "title": "Chân Dung Tác Giả: Lê Hữu Trác" },
+  { "id": "tac-gia-le-minh-khue", "title": "Chân Dung Tác Giả: Lê Minh Khuê" },
+  { "id": "tac-gia-ly-bach", "title": "Chân Dung Tác Giả: Lý Bạch" },
+  { "id": "tac-gia-ly-cong-uan", "title": "Chân Dung Tác Giả: Lý Công Uẩn" },
+  { "id": "tac-gia-ly-thuong-kiet", "title": "Chân Dung Tác Giả: Lý Thường Kiệt" },
+  { "id": "tac-gia-luu-quang-vu", "title": "Chân Dung Tác Giả: Lưu Quang Vũ" },
+  { "id": "tac-gia-matsuo-basho", "title": "Chân Dung Tác Giả: Matsuo Basho" },
+  { "id": "tac-gia-nam-cao", "title": "Chân Dung Tác Giả: Nam Cao" },
+  { "id": "tac-gia-nguyen-hong", "title": "Chân Dung Tác Giả: Nguyên Hồng" },
+  { "id": "tac-gia-nguyen-binh", "title": "Chân Dung Tác Giả: Nguyễn Bính" },
+  { "id": "tac-gia-nguyen-binh-khiem", "title": "Chân Dung Tác Giả: Nguyễn Bỉnh Khiêm" },
+  { "id": "tac-gia-nguyen-cong-tru", "title": "Chân Dung Tác Giả: Nguyễn Công Trứ" },
+  { "id": "tac-gia-nguyen-du", "title": "Chân Dung Tác Giả: Nguyễn Du" },
+  { "id": "tac-gia-nguyen-duy", "title": "Chân Dung Tác Giả: Nguyễn Duy" },
+  { "id": "tac-gia-nguyen-gia-thieu", "title": "Chân Dung Tác Giả: Nguyễn Gia Thiều" },
+  { "id": "tac-gia-nguyen-huy-tuong", "title": "Chân Dung Tác Giả: Nguyễn Huy Tưởng" },
+  { "id": "tac-gia-nguyen-khoa-diem", "title": "Chân Dung Tác Giả: Nguyễn Khoa Điềm" },
+  { "id": "tac-gia-nguyen-khuyen", "title": "Chân Dung Tác Giả: Nguyễn Khuyến" },
+  { "id": "tac-gia-nguyen-khai", "title": "Chân Dung Tác Giả: Nguyễn Khải" },
+  { "id": "tac-gia-nguyen-minh-chau", "title": "Chân Dung Tác Giả: Nguyễn Minh Châu" },
+  { "id": "tac-gia-nguyen-quang-sang", "title": "Chân Dung Tác Giả: Nguyễn Quang Sáng" },
+  { "id": "tac-gia-nguyen-trai", "title": "Chân Dung Tác Giả: Nguyễn Trãi" },
+  { "id": "tac-gia-nguyen-tuan", "title": "Chân Dung Tác Giả: Nguyễn Tuân" },
+  { "id": "tac-gia-nguyen-dinh-chieu", "title": "Chân Dung Tác Giả: Nguyễn Đình Chiểu" },
+  { "id": "tac-gia-ngo-thua-an", "title": "Chân Dung Tác Giả: Ngô Thừa Ân" },
+  { "id": "tac-gia-ngo-tat-to", "title": "Chân Dung Tác Giả: Ngô Tất Tố" },
+  { "id": "tac-gia-nhieu-tac-gia", "title": "Chân Dung Tác Giả: Nhiều tác giả" },
+  { "id": "tac-gia-pham-tien-duat", "title": "Chân Dung Tác Giả: Phạm Tiến Duật" },
+  { "id": "tac-gia-quang-dung", "title": "Chân Dung Tác Giả: Quang Dũng" },
+  { "id": "tac-gia-rabindranath-tagore", "title": "Chân Dung Tác Giả: Rabindranath Tagore" },
+  { "id": "tac-gia-tan-da", "title": "Chân Dung Tác Giả: Tản Đà" },
+  { "id": "tac-gia-thanh-hai", "title": "Chân Dung Tác Giả: Thanh Hải" },
+  { "id": "tac-gia-thanh-tinh", "title": "Chân Dung Tác Giả: Thanh Tịnh" },
+  { "id": "tac-gia-thach-lam", "title": "Chân Dung Tác Giả: Thạch Lam" },
+  { "id": "tac-gia-the-lu", "title": "Chân Dung Tác Giả: Thế Lữ" },
+  { "id": "tac-gia-tran-quoc-tuan", "title": "Chân Dung Tác Giả: Trần Quốc Tuấn" },
+  { "id": "tac-gia-tao-tuyet-can", "title": "Chân Dung Tác Giả: Tào Tuyết Cần" },
+  { "id": "tac-gia-to-hoai", "title": "Chân Dung Tác Giả: Tô Hoài" },
+  { "id": "tac-gia-to-thuc", "title": "Chân Dung Tác Giả: Tô Thức" },
+  { "id": "tac-gia-to-huu", "title": "Chân Dung Tác Giả: Tố Hữu" },
+  { "id": "tac-gia-victor-hugo", "title": "Chân Dung Tác Giả: Victor Hugo" },
+  { "id": "tac-gia-vien-phuong", "title": "Chân Dung Tác Giả: Viễn Phương" },
+  { "id": "tac-gia-vu-trong-phung", "title": "Chân Dung Tác Giả: Vũ Trọng Phụng" },
+  { "id": "tac-gia-william-shakespeare", "title": "Chân Dung Tác Giả: William Shakespeare" },
+  { "id": "tac-gia-xuan-dieu", "title": "Chân Dung Tác Giả: Xuân Diệu" },
+  { "id": "tac-gia-xuan-quynh", "title": "Chân Dung Tác Giả: Xuân Quỳnh" },
+  { "id": "tac-gia-y-phuong", "title": "Chân Dung Tác Giả: Y Phương" }
 ]
