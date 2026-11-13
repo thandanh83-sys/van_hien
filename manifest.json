@@ -1,8 +1,8 @@
 {
   "name": "VĂN ĐẠO — Đại Bách Khoa Toàn Thư",
   "short_name": "Văn Đạo",
-  "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.",
-  "version": "1.0.0",
+  "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và trí tuệ nhân tạo đồng hành cùng bạn.",
+  "version": "3.2.0",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./",
@@ -84,9 +84,9 @@
       "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Đại Bách Khoa",
+      "name": "Bách Khoa & Hỏi Đạo",
       "short_name": "Bách Khoa",
-      "description": "Hệ thống tri thức lý thuyết và tác giả",
+      "description": "Hệ thống tri thức, tra cứu tác giả và Hỏi Đạo AI",
       "url": "./index.html?tab=encyclopedia",
       "icons": [{ "src": "assets/web-app-manifest-192x192.png", "sizes": "192x192" }]
     },
