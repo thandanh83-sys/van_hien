@@ -2,24 +2,21 @@
  * ==========================================================
  * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
  * Vị trí: js/ai/master.js
- * Version: 1.2.0 (Orchestrator)
+ * Version: 1.2.0 (Orchestrator & I/O)
  * ==========================================================
  * CHỨC NĂNG:
- * - Nhận câu hỏi từ người dùng.
- * - Phân tích ý định (Parse Intent).
- * - Điều phối (Dispatch) tới các Agent chuyên môn.
- * - Tổng hợp kết quả trả về cho UI.
+ * - Input Module: Nhận và chuẩn hóa câu hỏi (Intent Parser).
+ * - Orchestrator: Điều phối (Dispatch) tới các Agent chuyên môn.
+ * - Output Module: Tổng hợp kết quả trả về cho UI.
  * ==========================================================
  */
 
 import { extractEntity } from './core.js';
 import { LiteratureAgent } from './agents/literature.js';
 import { PoeticsAgent } from './agents/poetics.js';
-import { AnalysisAgent } from './agents/analysis.js';
-import { FortuneAgent } from './agents/fortune.js';
 
 // ==========================================================
-// 1. INTENT PARSER (Phân tích câu hỏi)
+// 1. INPUT MODULE (Phân tích câu hỏi)
 // ==========================================================
 function parseIntent(input) {
     const t = (input || '').toLowerCase().trim();
@@ -53,13 +50,7 @@ function parseIntent(input) {
         return { type: 'recommend', query: genre };
     }
 
-    // 5. Phân tích / Bình giảng (Dành cho AnalysisAgent)
-    if (/(phân tích|bình giảng|cảm nhận|đánh giá)/i.test(clean)) {
-        const q = extractEntity(clean, [/(phân tích|bình giảng|cảm nhận|đánh giá|tác phẩm|bài thơ|bài)/gi]);
-        return { type: 'analyze-work', query: q };
-    }
-
-    // 6. Thể loại là gì
+    // 5. Thể loại là gì
     if (/(thể loại|định nghĩa|khái niệm).*(là gì|như thế nào)/i.test(clean)) {
         const genre = extractEntity(clean, [/thể loại|là gì|như thế nào|định nghĩa|khái niệm/gi]);
         return { type: 'define-genre', query: genre };
@@ -83,12 +74,6 @@ async function dispatch(intent) {
             case 'explain-symbol':
                 return await PoeticsAgent.explainSymbol(intent.query);
 
-            case 'analyze-work':
-                // Có thể gọi kết hợp Literature + Analysis
-                const workInfo = await LiteratureAgent.getWorkInfo(intent.query);
-                if (!workInfo.ok) return workInfo;
-                return await AnalysisAgent.analyze(workInfo.data);
-
             case 'recommend':
                 return await LiteratureAgent.recommend(intent.query);
 
@@ -109,7 +94,7 @@ async function dispatch(intent) {
 }
 
 // ==========================================================
-// 3. EXPORT PUBLIC API
+// 3. EXPORT PUBLIC API (Tương thích với ask-dao.js)
 // ==========================================================
 export const MasterAI = {
     parseIntent,
@@ -121,3 +106,6 @@ export const MasterAI = {
         return await this.dispatch(intent);
     }
 };
+
+// Tương thích ngược với code cũ đang gọi AIDispatcher
+export const AIDispatcher = MasterAI;
