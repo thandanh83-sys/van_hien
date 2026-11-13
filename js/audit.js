@@ -2,15 +2,33 @@
  * ==========================================================
  * VĂN ĐẠO - AUDIT MODULE (js/audit.js)
  * Vị trí: js/audit.js
- * Version: 4.0.3 (Absolute Path Resolution)
+ * Version: 4.0.4 (Modular Testing & Path Resolved)
  * ==========================================================
  * CHỨC NĂNG:
- * - Chẩn đoán File Tĩnh (JS, CSS, JSON).
- * - Chẩn đoán Mạng lưới (DataHub, AgentRegistry, VDBus).
- * - Chẩn đoán Dữ liệu (Index vs Detail).
- * - Chẩn đoán AI (Toàn bộ Pipeline).
+ * - Chẩn đoán File Tĩnh (JS, CSS, JSON) -> Phát hiện 404, lỗi cú pháp.
+ * - Chẩn đoán Mạng lưới (DataHub, AgentRegistry, VDBus) -> Phát hiện đứt gãy.
+ * - Chẩn đoán Dữ liệu (Index vs Detail) -> Phát hiện mồ côi, thiếu file.
+ * - Chẩn đoán AI (Toàn bộ Pipeline) -> Test tất cả các Intent.
  * 
- * CÁCH DÙNG: Mở Console (F12), gõ: window.audit()
+ * HƯỚNG DẪN SỬ DỤNG (Mở Console F12, gõ):
+ * ---------------------------------------------------------
+ * 1. Khám TỔNG QUÁT toàn bộ hệ thống:
+ *    window.audit()
+ * 
+ * 2. Khám FILE TĨNH (JS, CSS, JSON):
+ *    window.auditStaticFiles()
+ * 
+ * 3. Khám MẠNG LƯỚI (DataHub, AgentRegistry):
+ *    window.auditNetwork()
+ * 
+ * 4. Khám DỮ LIỆU TÁC PHẨM (Chỉ quét file tác phẩm):
+ *    window.auditWorks()
+ * 
+ * 5. Khám DỮ LIỆU TÁC GIẢ (Chỉ quét file tác giả):
+ *    window.auditAuthors()
+ * 
+ * 6. Test AI với một câu hỏi cụ thể:
+ *    window.auditSingleQuery("Ai viết Truyện Kiều?")
  * ==========================================================
  */
 
@@ -24,7 +42,7 @@ import { DataHub, AgentRegistry, VDBus } from './network/index.js';
 const BASE_URL = new URL('../', import.meta.url).href;
 
 // =====================================================================
-// PHẦN 1: DANH SÁCH FILE TĨNH (Đường dẫn tính từ gốc dự án)
+// PHẦN 1: DANH SÁCH FILE TĨNH
 // =====================================================================
 const STATIC_ASSETS = {
     css: [
@@ -52,7 +70,7 @@ const STATIC_ASSETS = {
 };
 
 // =====================================================================
-// PHẦN 2: UTILITIES (Công cụ hỗ trợ)
+// PHẦN 2: UTILITIES & LOGGING
 // =====================================================================
 async function checkFile(relativePath) {
     const absoluteUrl = new URL(relativePath, BASE_URL).href;
@@ -79,52 +97,54 @@ async function fetchJson(relativePath) {
 function logGroup(title, color = '#2c3e38') {
     console.group(`%c${title}`, `color: ${color}; font-weight: bold; font-size: 14px;`);
 }
-function logError(msg) { console.error(`%c[LỖI] %c${msg}`, 'color: #e74c3c; font-weight: bold;', 'color: inherit;'); }
-function logWarning(msg) { console.warn(`%c[CẢNH BÁO] %c${msg}`, 'color: #f39c12; font-weight: bold;', 'color: inherit;'); }
-function logSuccess(msg) { console.log(`%c[OK] %c${msg}`, 'color: #2ecc71; font-weight: bold;', 'color: inherit;'); }
-function logAdvice(msg) { console.log(`%c[GỢI Ý] %c${msg}`, 'color: #3498db; font-weight: bold;', 'color: #7f8c8d; font-style: italic;'); }
+function logError(msg) { 
+    console.error(`%c[LỖI] %c${msg}`, 'color: #e74c3c; font-weight: bold;', 'color: inherit;'); 
+}
+function logWarning(msg) { 
+    console.warn(`%c[CẢNH BÁO] %c${msg}`, 'color: #f39c12; font-weight: bold;', 'color: inherit;'); 
+}
+function logSuccess(msg) { 
+    console.log(`%c[OK] %c${msg}`, 'color: #2ecc71; font-weight: bold;', 'color: inherit;'); 
+}
+function logAdvice(msg) {
+    console.log(`%c[GỢI Ý] %c${msg}`, 'color: #3498db; font-weight: bold;', 'color: #7f8c8d; font-style: italic;');
+}
 
 // =====================================================================
-// PHẦN 3: KHÁM FILE TĨNH
+// PHẦN 3: CÁC HÀM KHÁM CHUYÊN KHOA (Gọi riêng lẻ)
 // =====================================================================
+
+// 3.1 Khám File Tĩnh (CSS, JS, JSON)
 export async function auditStaticFiles() {
-    logGroup('[BÁC SĨ] 1. Kiểm tra File Tĩnh (CSS, JS, JSON)...');
+    logGroup('[BÁC SĨ] KHÁM FILE TĨNH (CSS, JS, JSON)...');
     console.log(`[HỆ THỐNG] Đường dẫn gốc: ${BASE_URL}`);
     
     const missingFiles = [];
-    let validFiles = 0;
-    const totalFiles = STATIC_ASSETS.css.length + STATIC_ASSETS.js.length + STATIC_ASSETS.json.length;
+    const allUrls = [...STATIC_ASSETS.css, ...STATIC_ASSETS.js, ...STATIC_ASSETS.json];
 
-    // Gộp chung CSS và JSON để check tồn tại
-    const allUrlsToCheck = [...STATIC_ASSETS.css, ...STATIC_ASSETS.json, ...STATIC_ASSETS.js];
-
-    for (const relPath of allUrlsToCheck) {
+    for (const relPath of allUrls) {
         const result = await checkFile(relPath);
         if (!result.ok) {
             missingFiles.push({ file: relPath, status: result.status || result.error });
-        } else {
-            validFiles++;
         }
     }
 
     if (missingFiles.length > 0) {
         logError(`Thiếu ${missingFiles.length} file.`);
         console.table(missingFiles);
-        logAdvice('Kiểm tra lại đường dẫn và đảm bảo file đã được push lên GitHub.');
+        logAdvice('Kiểm tra lại đường dẫn, đảm bảo file đã được push lên GitHub.');
     } else {
-        logSuccess(`Toàn bộ ${totalFiles} file tĩnh đều tồn tại trên Server.`);
+        logSuccess(`Toàn bộ ${allUrls.length} file tĩnh đều tồn tại trên Server.`);
     }
-
-    return { missingFiles, validFiles, totalFiles };
+    return { missingFiles };
 }
 
-// =====================================================================
-// PHẦN 4: KHÁM MẠNG LƯỚI
-// =====================================================================
+// 3.2 Khám Mạng Lưới (DataHub & AgentRegistry)
 export async function auditNetwork() {
-    logGroup('[BÁC SĨ] 2. Kiểm tra Mạng Lưới (DataHub & AgentRegistry)...');
+    logGroup('[BÁC SĨ] KHÁM MẠNG LƯỚI (DataHub & AgentRegistry)...');
     const errors = [];
 
+    // Kiểm tra DataHub
     try {
         const testMeta = DataHub.getMetadata('truyen-kieu');
         if (!testMeta) errors.push({ node: 'DataHub', error: 'Không lấy được Metadata của "truyen-kieu".' });
@@ -137,6 +157,7 @@ export async function auditNetwork() {
         errors.push({ node: 'DataHub', error: err.message });
     }
 
+    // Kiểm tra AgentRegistry
     try {
         const agentKeys = AgentRegistry.getAllAgentKeys();
         if (agentKeys.length === 0) {
@@ -161,74 +182,73 @@ export async function auditNetwork() {
     return { errors };
 }
 
-// =====================================================================
-// PHẦN 5: KHÁM DỮ LIỆU CHI TIẾT (TÁC GIẢ & TÁC PHẨM)
-// =====================================================================
-export async function auditDataIntegrity() {
-    logGroup('[BÁC SĨ] 3. Kiểm tra Toàn vẹn Dữ liệu (Tác giả & Tác phẩm)...');
-    const issues = { works: [], authors: [] };
-
-    // 1. Kiểm tra Tác phẩm
+// 3.3 Khám Tác Phẩm (Chỉ quét Tác phẩm)
+export async function auditWorks() {
+    logGroup('[BÁC SĨ] KHÁM DỮ LIỆU TÁC PHẨM...');
     console.log(`[ĐANG QUÉT] ${APP_DATA.WORKS_DATA.length} Tác phẩm...`);
+    const issues = [];
+
     for (const item of APP_DATA.WORKS_DATA) {
         if (!item.id) continue;
-        // Đường dẫn tới file json chi tiết
         const relPath = `data/tac-pham/${encodeURIComponent(item.id)}.json`;
         const { data, error } = await fetchJson(relPath);
         
         if (error) {
-            issues.works.push({ id: item.id, title: item.title, error });
+            issues.push({ id: item.id, title: item.title, error });
         } else {
             const cleanText = (data.content || '').replace(/<[^>]*>/g, '').trim();
-            // Kiểm tra file có nội dung thực sự không (dài hơn 50 ký tự)
             if (cleanText.length < 50) {
-                issues.works.push({ id: item.id, title: item.title, error: 'File rỗng hoặc chưa có nội dung (content).' });
+                issues.push({ id: item.id, title: item.title, error: 'File rỗng hoặc thiếu content' });
             }
         }
     }
 
-    // 2. Kiểm tra Tác giả
+    if (issues.length > 0) {
+        logError(`Có ${issues.length} Tác phẩm bị lỗi.`);
+        console.table(issues.slice(0, 10)); // Hiện 10 lỗi đầu
+        if (issues.length > 10) console.log(`... và ${issues.length - 10} lỗi khác.`);
+        logAdvice('Chạy tool auto_fill_content.py để bổ sung file rỗng.');
+    } else {
+        logSuccess('Tất cả Tác phẩm đều có file JSON chi tiết và đầy đủ nội dung.');
+    }
+    return { issues };
+}
+
+// 3.4 Khám Tác Giả (Chỉ quét Tác giả)
+export async function auditAuthors() {
+    logGroup('[BÁC SĨ] KHÁM DỮ LIỆU TÁC GIẢ...');
     console.log(`[ĐANG QUÉT] ${APP_DATA.AUTHOR_DATA.length} Tác giả...`);
+    const issues = [];
+
     for (const item of APP_DATA.AUTHOR_DATA) {
         if (!item.id) continue;
         const relPath = `data/tac-gia/${encodeURIComponent(item.id)}.json`;
         const { data, error } = await fetchJson(relPath);
         
         if (error) {
-            issues.authors.push({ id: item.id, title: item.title, error });
+            issues.push({ id: item.id, title: item.title, error });
         } else {
             const cleanText = (data.content || '').replace(/<[^>]*>/g, '').trim();
             if (cleanText.length < 50) {
-                issues.authors.push({ id: item.id, title: item.title, error: 'File rỗng hoặc chưa có nội dung (content).' });
+                issues.push({ id: item.id, title: item.title, error: 'File rỗng hoặc thiếu content' });
             }
         }
     }
 
-    // Báo cáo
-    if (issues.works.length > 0) {
-        logError(`Có ${issues.works.length} Tác phẩm bị lỗi (thiếu file hoặc rỗng).`);
-        console.table(issues.works.slice(0, 10)); // Chỉ hiện 10 lỗi đầu tiên cho đỡ rối
-        if (issues.works.length > 10) console.log(`... và ${issues.works.length - 10} lỗi khác.`);
-        logAdvice('Chạy tool auto_fill_content.py hoặc split_works.py để bổ sung file.');
-    }
-    if (issues.authors.length > 0) {
-        logError(`Có ${issues.authors.length} Tác giả bị lỗi (thiếu file hoặc rỗng).`);
-        console.table(issues.authors.slice(0, 10));
+    if (issues.length > 0) {
+        logError(`Có ${issues.length} Tác giả bị lỗi.`);
+        console.table(issues.slice(0, 10));
+        if (issues.length > 10) console.log(`... và ${issues.length - 10} lỗi khác.`);
         logAdvice('Chạy tool split_authors.py để bổ sung file.');
+    } else {
+        logSuccess('Tất cả Tác giả đều có file JSON chi tiết và đầy đủ nội dung.');
     }
-
-    if (issues.works.length === 0 && issues.authors.length === 0) {
-        logSuccess('Toàn vẹn dữ liệu: 100% file JSON chi tiết đều tồn tại và có nội dung.');
-    }
-
-    return issues;
+    return { issues };
 }
 
-// =====================================================================
-// PHẦN 6: KHÁM SỨC KHỎE AI
-// =====================================================================
+// 3.5 Khám AI (Toàn bộ Pipeline)
 export async function auditAIPipeline() {
-    logGroup('[BÁC SĨ] 4. Chạy Test AI (Input -> Master -> Agents -> Output)...');
+    logGroup('[BÁC SĨ] KHÁM SỨC KHỎE AI (Pipeline)...');
     const testCases = [
         { input: "Ai viết Truyện Kiều?", expectedType: "find-author-of", expectedKeyword: "Nguyễn Du" },
         { input: "Tóm tắt Chí Phèo", expectedType: "summarize-work", expectedKeyword: "Chí Phèo" },
@@ -278,10 +298,11 @@ export async function auditAIPipeline() {
         console.table(results);
         
         const failed = results.filter(r => r['Khớp Type'] === 'SAI' || r['Khớp Data'] === 'SAI' || r['Render HTML'] === 'SAI').length;
-        if (failed === 0) logSuccess('AI Pipeline hoạt động chính xác 100%.');
-        else {
+        if (failed === 0) {
+            logSuccess('AI Pipeline hoạt động chính xác 100%.');
+        } else {
             logError(`Có ${failed}/${results.length} test cases thất bại.`);
-            logAdvice('Kiểm tra lại InputAI, Agent tương ứng, hoặc OutputAI.');
+            logAdvice('Kiểm tra lại InputAI (nhận diện), Agent tương ứng (xử lý), hoặc OutputAI (render).');
         }
 
     } catch (err) {
@@ -292,13 +313,34 @@ export async function auditAIPipeline() {
     return results;
 }
 
+// 3.6 Test 1 câu hỏi duy nhất
+export async function auditSingleQuery(query) {
+    logGroup(`[BÁC SĨ] TEST CÂU HỎI: "${query}"`);
+    try {
+        const { MasterAI } = await import('./ai/master.js');
+        const intent = MasterAI.parseIntent(query);
+        console.log('[1] Phân tích Intent:', intent);
+        
+        if (intent.type === 'search') {
+            logWarning('Đây là câu hỏi tìm kiếm thông thường, không gọi Agent.');
+            return;
+        }
+
+        const result = await MasterAI.dispatch(intent);
+        console.log('[2] Kết quả từ Agent:', result);
+        logSuccess('Hoàn tất test.');
+    } catch (err) {
+        logError(`Lỗi test: ${err.message}`);
+    }
+}
+
 // =====================================================================
-// PHẦN 7: CHẨN ĐOÁN TOÀN DIỆN
+// PHẦN 4: KHÁM TỔNG QUÁT (Gọi tất cả)
 // =====================================================================
 export async function runFullDiagnosis() {
     console.clear();
     console.log(
-        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.0.3 ===",
+        "%c=== BỆNH VIỆN VĂN ĐẠO — CHẨN ĐOÁN TOÀN DIỆN v4.0.4 ===",
         "background: linear-gradient(135deg, #2c3e38, #557a6f); color: #d4c4a8; font-size: 16px; font-weight: bold; padding: 10px 20px; border-radius: 8px;"
     );
 
@@ -310,7 +352,10 @@ export async function runFullDiagnosis() {
     const networkResult = await auditNetwork();
     console.log("\n" + "─".repeat(60) + "\n");
 
-    const dataResult = await auditDataIntegrity();
+    const worksResult = await auditWorks();
+    console.log("\n" + "─".repeat(60) + "\n");
+
+    const authorsResult = await auditAuthors();
     console.log("\n" + "─".repeat(60) + "\n");
 
     const aiResult = await auditAIPipeline();
@@ -321,13 +366,13 @@ export async function runFullDiagnosis() {
     const totalErrors = 
         staticResult.missingFiles.length + 
         networkResult.errors.length + 
-        dataResult.works.length + 
-        dataResult.authors.length +
+        worksResult.issues.length + 
+        authorsResult.issues.length +
         aiResult.filter(r => r['Khớp Type'] === 'SAI' || r['Render HTML'] === 'SAI').length;
 
     if (totalErrors === 0) {
         console.log(
-            `%c[✓] CHẨN ĐOÁN HOÀN TẤT — Hệ thống hoàn hảo (${duration}ms)`,
+            `%c[✓] CHẨN ĐOÁN HOÀN TẤT — Hệ thống khỏe mạnh (${duration}ms)`,
             "background: #2ecc71; color: white; font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 4px;"
         );
     } else {
@@ -337,13 +382,26 @@ export async function runFullDiagnosis() {
         );
     }
 
-    return { static: staticResult, network: networkResult, data: dataResult, ai: aiResult, duration };
+    return { static: staticResult, network: networkResult, works: worksResult, authors: authorsResult, ai: aiResult, duration };
 }
 
+// =====================================================================
+// PHẦN 5: XUẤT RA WINDOW TOÀN CỤC (Để gõ trong Console)
+// =====================================================================
+window.audit = runFullDiagnosis;
+window.auditStaticFiles = auditStaticFiles;
+window.auditNetwork = auditNetwork;
+window.auditWorks = auditWorks;
+window.auditAuthors = auditAuthors;
+window.auditAIPipeline = auditAIPipeline;
+window.auditSingleQuery = auditSingleQuery;
+
 export default {
-    auditStaticFiles,
-    auditNetwork,
-    auditDataIntegrity,
-    auditAIPipeline,
-    runFullDiagnosis
+    runFullDiagnosis, 
+    auditStaticFiles, 
+    auditNetwork, 
+    auditWorks, 
+    auditAuthors, 
+    auditAIPipeline, 
+    auditSingleQuery
 };
