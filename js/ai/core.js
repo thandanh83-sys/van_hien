@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - CORE MODULE (js/ai/core.js)
  * Vị trí: js/ai/core.js
- * Version: 3.0.0 (Unified Intelligence Network)
+ * Version: 3.1.0 (Unified Intelligence Network)
  * ==========================================================
  * CHỨC NĂNG:
  * - Quản lý bộ nhớ đệm kết quả AI (CoreCache).
@@ -22,10 +22,6 @@ import { DataHub } from '../network/data-hub.js'; // Kết nối với Trái tim
 // PHẦN 1: HẰNG SỐ DÙNG CHUNG
 // =====================================================================
 
-/**
- * Danh sách 11 nhóm từ điển có sẵn trong hệ thống.
- * Dùng để phân loại khi xây dựng Dictionary Index.
- */
 export const DICTIONARY_GROUPS = Object.freeze({
     symbols:      'Biểu tượng',
     dienTich:     'Điển tích',
@@ -40,40 +36,15 @@ export const DICTIONARY_GROUPS = Object.freeze({
     thuatNguThiPhap: 'Thuật ngữ thi pháp'
 });
 
-/**
- * 6 bậc vận khí với trọng số và lời khuyên.
- * Dùng cho tính năng Bói thơ (Fortune Agent).
- */
 export const FORTUNE_LEVELS = Object.freeze([
-    { 
-        key: 'dai-cat', weight: 10, name: 'Đại cát', color: '#b89552', 
-        advice: 'Chủ động nắm bắt cơ hội, lấy lòng nhân hậu và sự khiêm nhường làm gốc. Tránh kiêu ngạo, tự mãn hoặc xem thuận lợi nhất thời là điều hiển nhiên.' 
-    },
-    { 
-        key: 'trung-cat', weight: 18, name: 'Trung cát', color: '#8eaa91', 
-        advice: 'Kiên trì, làm việc có kế hoạch và giữ chữ tín. Tránh nóng vội, chủ quan hoặc bỏ dở việc đang làm.' 
-    },
-    { 
-        key: 'tieu-cat', weight: 22, name: 'Tiểu cát', color: '#9baf85', 
-        advice: 'Trân trọng điều bình dị, chăm chút việc nhỏ và giữ tâm thế biết ơn. Tránh xem nhẹ những điều nhỏ bé.' 
-    },
-    { 
-        key: 'binh-hoa', weight: 24, name: 'Bình hòa', color: '#778c85', 
-        advice: 'Giữ sự điều độ, suy xét thấu đáo và làm tốt việc trước mắt. Tránh cố cưỡng cầu kết quả.' 
-    },
-    { 
-        key: 'tieu-hung', weight: 16, name: 'Tiểu hung', color: '#ad876d', 
-        advice: 'Kiểm tra lại kế hoạch, lắng nghe ý kiến đáng tin cậy. Tránh quyết định bốc đồng, hấp tấp.' 
-    }, 
-    { 
-        key: 'dai-hung', weight: 10, name: 'Đại hung', color: '#9c7777', 
-        advice: 'Thận trọng, rà soát những điều quan trọng và ưu tiên sự an toàn. Tránh liều lĩnh, cố chấp khi chưa đủ thông tin.' 
-    }
+    { key: 'dai-cat', weight: 10, name: 'Đại cát', color: '#b89552', advice: 'Chủ động nắm bắt cơ hội, lấy lòng nhân hậu và sự khiêm nhường làm gốc. Tránh kiêu ngạo, tự mãn hoặc xem thuận lợi nhất thời là điều hiển nhiên.' },
+    { key: 'trung-cat', weight: 18, name: 'Trung cát', color: '#8eaa91', advice: 'Kiên trì, làm việc có kế hoạch và giữ chữ tín. Tránh nóng vội, chủ quan hoặc bỏ dở việc đang làm.' },
+    { key: 'tieu-cat', weight: 22, name: 'Tiểu cát', color: '#9baf85', advice: 'Trân trọng điều bình dị, chăm chút việc nhỏ và giữ tâm thế biết ơn. Tránh xem nhẹ những điều nhỏ bé.' },
+    { key: 'binh-hoa', weight: 24, name: 'Bình hòa', color: '#778c85', advice: 'Giữ sự điều độ, suy xét thấu đáo và làm tốt việc trước mắt. Tránh cố cưỡng cầu kết quả.' },
+    { key: 'tieu-hung', weight: 16, name: 'Tiểu hung', color: '#ad876d', advice: 'Kiểm tra lại kế hoạch, lắng nghe ý kiến đáng tin cậy. Tránh quyết định bốc đồng, hấp tấp.' }, 
+    { key: 'dai-hung', weight: 10, name: 'Đại hung', color: '#9c7777', advice: 'Thận trọng, rà soát những điều quan trọng và ưu tiên sự an toàn. Tránh liều lĩnh, cố chấp khi chưa đủ thông tin.' }
 ]);
 
-/**
- * Map tra cứu nhanh Fortune theo key (O(1))
- */
 export const FORTUNE_MAP = Object.freeze(
     Object.fromEntries(FORTUNE_LEVELS.map(item => [item.key, item]))
 );
@@ -83,14 +54,9 @@ export const FORTUNE_MAP = Object.freeze(
 // =====================================================================
 const CACHE_LIMIT = 200;
 const resultCache = new Map();
-export const CACHE_VERSION = 'v3.0.0'; // Tăng version khi có thay đổi lớn
+export const CACHE_VERSION = 'v3.1.0';
 
 export const CoreCache = {
-    /**
-     * Lưu kết quả vào cache.
-     * @param {string} key - Khóa cache (thường là hash của câu hỏi)
-     * @param {*} value - Giá trị cần lưu
-     */
     set(key, value) {
         const fullKey = `${CACHE_VERSION}:${key}`;
         if (resultCache.has(fullKey)) resultCache.delete(fullKey);
@@ -100,35 +66,14 @@ export const CoreCache = {
             resultCache.delete(oldest);
         }
     },
-
-    /**
-     * Lấy kết quả từ cache.
-     * @param {string} key 
-     * @returns {*|null}
-     */
     get(key) {
         const fullKey = `${CACHE_VERSION}:${key}`;
         if (!resultCache.has(fullKey)) return null;
-        try { 
-            return JSON.parse(JSON.stringify(resultCache.get(fullKey))); 
-        } catch { 
-            return null; 
-        }
+        try { return JSON.parse(JSON.stringify(resultCache.get(fullKey))); } 
+        catch { return null; }
     },
-
-    /**
-     * Xóa toàn bộ cache.
-     */
-    clear() { 
-        resultCache.clear(); 
-    },
-
-    /**
-     * Lấy thống kê cache (dùng cho debug).
-     */
-    stats() { 
-        return { size: resultCache.size, limit: CACHE_LIMIT, version: CACHE_VERSION }; 
-    }
+    clear() { resultCache.clear(); },
+    stats() { return { size: resultCache.size, limit: CACHE_LIMIT, version: CACHE_VERSION }; }
 };
 
 // =====================================================================
@@ -136,11 +81,6 @@ export const CoreCache = {
 // =====================================================================
 let dictionaryIndexCache = null;
 
-/**
- * Xây dựng chỉ mục từ điển từ APP_DATA.DICTIONARY_DATA.
- * Chuyển đổi cấu trúc lồng nhau thành một mảng phẳng để tra cứu nhanh.
- * @returns {Array} Mảng các entry đã được chuẩn hóa.
- */
 export function getDictionaryIndex() {
     if (dictionaryIndexCache) return dictionaryIndexCache;
     
@@ -165,9 +105,6 @@ export function getDictionaryIndex() {
     return dictionaryIndexCache;
 }
 
-/**
- * Xóa cache từ điển (dùng khi dữ liệu từ điển thay đổi).
- */
 export function invalidateDictionaryIndex() {
     dictionaryIndexCache = null;
 }
@@ -176,18 +113,11 @@ export function invalidateDictionaryIndex() {
 // PHẦN 4: TEXT PROCESSING (Xử lý văn bản)
 // =====================================================================
 
-/**
- * Đếm từ khóa có trọng số, xóa vùng đã đếm để tránh trùng lặp.
- * @param {string} text - Văn bản đầu vào (đã chuẩn hóa)
- * @param {Array<{t: string, w: number}>} terms - Mảng các từ khóa và trọng số
- * @returns {{score: number, hits: string[]}}
- */
 export function countWeightedMatches(text, terms) {
     let remaining = text;
     let score = 0;
     const hits = [];
     
-    // Sắp xếp theo độ dài giảm dần để ưu tiên cụm từ dài
     const sortedTerms = [...terms].sort((a, b) => b.t.length - a.t.length);
 
     for (const item of sortedTerms) {
@@ -207,12 +137,6 @@ export function countWeightedMatches(text, terms) {
     return { score, hits };
 }
 
-/**
- * Trích xuất entity (từ khóa chính) từ câu hỏi.
- * @param {string} input - Câu hỏi gốc
- * @param {RegExp[]} patternsToRemove - Mảng các pattern cần loại bỏ
- * @returns {string} - Chuỗi đã được làm sạch
- */
 export function extractEntity(input, patternsToRemove = []) {
     let clean = input;
     patternsToRemove.forEach(p => { clean = clean.replace(p, ''); });
@@ -224,8 +148,8 @@ export function extractEntity(input, patternsToRemove = []) {
 // =====================================================================
 
 /**
- * [CỰC KỲ QUAN TRỌNG] Lấy dữ liệu chi tiết của một ID bất kỳ.
- * Hàm này giao phó hoàn toàn cho DataHub xử lý (Offline-First).
+ * Lấy dữ liệu chi tiết của một ID bất kỳ.
+ * Giao phó hoàn toàn cho DataHub xử lý (Offline-First).
  * 
  * @param {string} id - ID của tác phẩm, tác giả, quyển, thể loại...
  * @returns {Promise<Object|null>} Object chứa { group, record, detail }
@@ -259,21 +183,11 @@ export async function resolveAndFetch(id) {
 // PHẦN 6: SAFE DATA ACCESS (Truy xuất dữ liệu an toàn)
 // =====================================================================
 
-/**
- * Lấy mảng dữ liệu an toàn từ APP_DATA.
- * @param {string} key - Tên trường trong APP_DATA
- * @returns {Array}
- */
 export function safeGetArray(key) {
     const data = APP_DATA[key];
     return Array.isArray(data) ? data : [];
 }
 
-/**
- * Lấy object dữ liệu an toàn từ APP_DATA.
- * @param {string} key - Tên trường trong APP_DATA
- * @returns {Object}
- */
 export function safeGetObject(key) {
     const data = APP_DATA[key];
     return (data && typeof data === 'object' && !Array.isArray(data)) ? data : {};
@@ -283,10 +197,6 @@ export function safeGetObject(key) {
 // PHẦN 7: DEBUG HELPERS (Công cụ gỡ lỗi)
 // =====================================================================
 
-/**
- * In ra trạng thái hiện tại của Core AI.
- * Dùng trong Console: window.debugCore()
- */
 export function debugCore() {
     const dictIndex = getDictionaryIndex();
     console.log('%c[CORE AI] Trạng thái hiện tại:', 'color: #8bb8a8; font-weight: bold;');
