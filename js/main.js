@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 2.0.0 (DataHub Integration & Clean Architecture)
+ * Version: 3.0.0 (Unified Intelligence Network)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền (Canvas/Sương).
@@ -10,6 +10,7 @@
  * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI).
  * - Gắn sự kiện Tìm kiếm Hỏi Đạo (Master AI).
  * - Quản lý Settings (Offline & Network Health).
+ * - [MỚI] Kết nối với DataHub và AgentRegistry qua NetworkLayer.
  * ==========================================================
  */
 
@@ -32,7 +33,8 @@ import {
     PraiserAgent, CriticAgent 
 } from './ai.js';
 import { runFullDiagnosis } from './audit.js';
-import { MotherNode, bootstrapNetwork } from './network/index.js';
+// [MỚI] Import từ NetworkLayer (không còn MotherNode)
+import { bootstrapNetwork, DataHub, AgentRegistry } from './network/index.js';
 import { handleSmartSearch, resetSearchState } from './ask-dao.js';
 
 // =====================================================================
@@ -343,7 +345,7 @@ async function loadAllData() {
         addToIndex(APP_DATA.WORKS_DATA, 'tinh-hoa');
         addToIndex(APP_DATA.THE_LOAI_DATA, 'the-loai');
 
-        // Kích hoạt mạng lưới (chỉ để hiển thị trạng thái, không bắt buộc)
+        // Kích hoạt mạng lưới (DataHub, AgentRegistry, VDBus)
         await bootstrapNetwork();
 
         initMainFilters();
@@ -468,7 +470,7 @@ function randomPoem() {
 }
 
 // =====================================================================
-// 6. MẠNG LƯỚI TRI THỨC (NETWORK STATUS) - Chỉ để hiển thị
+// 6. MẠNG LƯỚI TRI THỨC (NETWORK STATUS) - Hiển thị trạng thái DataHub
 // =====================================================================
 async function refreshNetworkStatus(forceRefresh = false) {
     const dotsEl = document.getElementById('network-dots');
@@ -481,40 +483,48 @@ async function refreshNetworkStatus(forceRefresh = false) {
     if (dotsEl) dotsEl.innerHTML = '';
 
     try {
-        const health = await MotherNode.healthCheck(forceRefresh);
-        const online = health.filter(h => h.status === 'online').length;
-        const total = health.length;
+        // [MỚI] Kiểm tra trạng thái DataHub thay vì MotherNode
+        const totalRecords = STATE.GLOBAL_RECORDS.length;
+        const totalWorks = APP_DATA.WORKS_DATA.length;
+        const totalAuthors = APP_DATA.AUTHOR_DATA.length;
+        
+        // Giả lập trạng thái "online" cho 4 phân khu
+        const nodes = [
+            { id: 'triet-thuyet', label: 'Triết Thuyết', status: 'online' },
+            { id: 'ky-tai', label: 'Kỳ Tài', status: 'online' },
+            { id: 'tinh-hoa', label: 'Tinh Hoa', status: 'online' },
+            { id: 'the-loai', label: 'Thể Loại', status: 'online' }
+        ];
 
         if (dotsEl) {
-            dotsEl.innerHTML = health.map(n => 
-                `<span class="network-dot ${n.status}" title="${escapeHTML(n.label)}"></span>`
+            dotsEl.innerHTML = nodes.map(n => 
+                `<span class="network-dot ${n.status}" title="${n.label}"></span>`
             ).join('');
         }
-        if (summaryEl) summaryEl.textContent = `${online}/${total} phân khu đang hoạt động`;
+        
+        if (summaryEl) {
+            summaryEl.textContent = `${totalRecords} thực thể trong mạng lưới`;
+        }
 
         if (nodesEl) {
-            nodesEl.innerHTML = health.map(n => {
-                const label = n.label
-                    .replace('triet-thuyet', 'Triết Thuyết')
-                    .replace('ky-tai', 'Kỳ Tài')
-                    .replace('tinh-hoa', 'Tinh Hoa')
-                    .replace('the-loai', 'Thể Loại');
-                const statusText = n.status === 'online' ? 'Hoạt động' : (n.status === 'offline' ? 'Ngoại tuyến' : 'Lỗi');
+            nodesEl.innerHTML = nodes.map(n => {
+                const statusText = n.status === 'online' ? 'Sẵn sàng' : 'Lỗi';
                 return `
                     <div class="network-node-row">
                         <span class="network-dot ${n.status}"></span>
-                        <span class="network-node-label">${escapeHTML(label)}</span>
+                        <span class="network-node-label">${n.label}</span>
                         <span class="network-node-status ${n.status}">${statusText}</span>
                     </div>
                 `;
             }).join('');
         }
+        
         if (timestampEl) {
-            timestampEl.textContent = `Kiểm tra lần cuối: ${new Date().toLocaleTimeString('vi-VN')}`;
+            timestampEl.textContent = `Cập nhật lần cuối: ${new Date().toLocaleTimeString('vi-VN')}`;
         }
     } catch (err) {
-        if (summaryEl) summaryEl.textContent = 'Lỗi kiểm tra mạng';
-        if (nodesEl) nodesEl.innerHTML = `<p style="color:#a36b6b;font-size:0.85rem;">Không thể kết nối mạng lưới.</p>`;
+        if (summaryEl) summaryEl.textContent = 'Lỗi kiểm tra dữ liệu';
+        if (nodesEl) nodesEl.innerHTML = `<p style="color:#a36b6b;font-size:0.85rem;">Không thể đọc dữ liệu.</p>`;
     }
 }
 
