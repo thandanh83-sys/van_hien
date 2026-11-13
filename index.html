@@ -7,9 +7,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <meta name="description" content="VĂN ĐẠO - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
-    <meta name="author" content="Văn Đạo">
-    <title>VĂN ĐẠO | Đại Bách Khoa Toàn Thư</title>
+    <meta name="description" content="VĂN HỌC - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
+    <meta name="author" content="Văn Học">
+    <title>VĂN HỌC | Đại Bách Khoa Toàn Thư</title>
     
     <!-- ================================================================= -->
     <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang - LCP)       -->
@@ -73,7 +73,7 @@
         <div class="silk-layer silk-layer-3"></div>
         
         <div class="boot-content">
-            <h1 class="boot-brand">NGỌC THANH</h1>
+            <h1 class="boot-brand">VĂN HỌC</h1>
             <p class="boot-subtitle">A WORLD OF KNOWLEDGE</p>
             <div class="boot-status">
                 <span class="status-text" id="bootStatusText">Đang khởi tạo trải nghiệm...</span>
@@ -90,8 +90,8 @@
     <!-- ================================================================= -->
     <header id="app-header">
         <nav class="navbar" aria-label="Điều hướng chính">
-            <!-- Logo VĂN ĐẠO -->
-            <div class="nav-brand" onclick="window.switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
+            <!-- Logo VĂN HỌC -->
+            <div class="nav-brand" onclick="window.switchView('home')" title="Về Trang Chủ">VĂN HỌC</div>
             
             <!-- Các nút điều hướng (Desktop) -->
             <div class="nav-links" id="navMenu" role="menubar">
@@ -363,10 +363,24 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 15. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
+    <!-- 15. CUSTOM MODAL (THAY THẾ ALERT/CONFIRM)                        -->
+    <!-- ================================================================= -->
+    <div id="custom-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(253, 251, 247, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s;">
+        <div id="custom-modal" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); width: 90%; max-width: 380px; padding: 24px; text-align: center; transform: scale(0.95); transition: transform 0.3s;">
+            <h3 id="custom-modal-title" style="font-family: var(--font-calligraphy); font-size: 2rem; color: var(--accent-text); margin: 0 0 15px;"></h3>
+            <p id="custom-modal-message" style="font-family: var(--font-body); font-size: 1rem; color: var(--text-main); line-height: 1.6; margin-bottom: 25px;"></p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="custom-modal-cancel" style="flex: 1; padding: 10px; border: 1px solid var(--border-color); background: transparent; border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 0.9rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s;">Hủy</button>
+                <button id="custom-modal-confirm" style="flex: 1; padding: 10px; border: none; background: var(--accent-text); color: #fff; border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 0.9rem; cursor: pointer; transition: all 0.2s;">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 16. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
-        window.VD_APP_VERSION = '1.0.9';
+        window.VD_APP_VERSION = '1.2.0';
         window.VD_BUILD_DATE  = '2026-11-21';
     </script>
     
@@ -374,7 +388,7 @@
     <script type="module" src="js/main.js"></script>
 
     <!-- ================================================================= -->
-    <!-- 16. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
+    <!-- 17. ĐĂNG KÝ SERVICE WORKER (CHỐNG RELOAD VÔ TẬN)                  -->
     <!-- ================================================================= -->
     <script>
     (function () {
