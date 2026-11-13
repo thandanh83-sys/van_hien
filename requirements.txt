@@ -1,15 +1,7 @@
-
----
-
-### 2. `requirements.txt` — Cẩm nang Bảo trì (Đã cập nhật Quy tắc mới)
-
-Phần quan trọng nhất của file này là **8 Nguyên tắc vàng**. Tôi đã thay thế Quy tắc 8 cũ (về MotherNode) bằng Quy tắc 8 mới (về DataHub), và làm rõ các quy tắc liên quan đến AI.
-
-```text
 # =====================================================================
 # VĂN ĐẠO ENGINE - TỆP KHAI BÁO MÔI TRƯỜNG PYTHON & CẨM NANG BẢO TRÌ
 # Tác giả: Văn Đạo
-# Phiên bản: 2.0.0 (Knowledge Network Edition)
+# Phiên bản: 3.0.0 (Unified Intelligence Network)
 # 
 # MỤC ĐÍCH:
 # 1. Quản lý các thư viện Python phụ thuộc cho thư mục tools/.
@@ -130,8 +122,12 @@ Phần quan trọng nhất của file này là **8 Nguyên tắc vàng**. Tôi �
 # - Khi cần lấy metadata: `DataHub.getMetadata(id)`.
 # - Khi cần lấy nội dung chi tiết: `await DataHub.getDetail(id)`.
 # - Khi cần tìm liên kết (Tác giả, Tác phẩm cùng thể loại): `DataHub.getGraph(id)`.
+# - Khi cần lấy dữ liệu có chọn lọc: `await DataHub.getEntity(id, ['title', 'author'])`.
 # - Nếu bạn thêm một loại thực thể mới (ví dụ: Nhân vật), phải đảm bảo nó có 
 #   trường `id` và được đăng ký vào `STATE.GLOBAL_INDEX` trong `main.js`.
+# 
+# LƯU Ý: MotherNode đã bị xóa. Không còn "Máy Mẹ - Máy Con" nữa. 
+# Chỉ có DataHub là trung tâm duy nhất.
 
 # =====================================================================
 # HƯỚNG DẪN CHẠY CÁC TOOL (Dành cho lập trình viên)
