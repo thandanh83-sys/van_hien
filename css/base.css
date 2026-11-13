@@ -1,45 +1,35 @@
 /**
  * ==========================================================
  * VĂN ĐẠO - BASE CSS (css/base.css)
- * Chức năng: Khai báo Font chữ, Reset CSS, thiết lập nền tảng
- * cho toàn bộ trang web, và các thiết lập trợ năng (A11y).
- * Đã sửa: Ép Canvas và Sương hiển thị đúng lớp (z-index: 1).
+ * Chức năng: Reset CSS, nền tảng, Sương & Sóng nước (z-index: 1)
  * ==========================================================
  */
 
-/* =====================================================================
-   1. KHAI BÁO FONT CHỮ CỤC BỘ (CHỈ DÙNG WOFF2)
-   ===================================================================== */
+/* 1. KHAI BÁO FONT CHỮ CỤC BỘ */
 @font-face {
     font-family: 'Alex Brush';
-    /* Đường dẫn lùi 1 cấp (../) để ra khỏi thư mục css/ vào thư mục assets/ */
     src: url('../assets/fonts/AlexBrush-Regular.woff2') format('woff2');
     font-weight: 400;
     font-style: normal;
-    font-display: swap; /* Giúp chữ hiển thị ngay lập tức bằng font dự phòng */
+    font-display: swap; 
 }
 
-/* =====================================================================
-   2. RESET CSS & THIẾT LẬP CƠ BẢN
-   ===================================================================== */
+/* 2. RESET CSS & THIẾT LẬP CƠ BẢN */
 * { 
     margin: 0; 
     padding: 0; 
     box-sizing: border-box; 
-    /* Xóa viền xanh/xám khi chạm vào các nút trên điện thoại (Mobile) */
     -webkit-tap-highlight-color: transparent; 
 }
 
 html { 
     background-color: var(--bg-base); 
-    /* Chặn hiệu ứng kéo giãn trang (Pull-to-refresh) thừa thãi trên Mobile */
     overscroll-behavior-y: none; 
     scroll-behavior: smooth; 
 }
 
 body {
     background-color: var(--bg-base);
-    /* Sử dụng ảnh nền nen.jpg kết hợp với lớp gradient trắng ngà để chữ dễ đọc */
     background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.95) 0%, rgba(235, 243, 240, 0.98) 100%), url('../assets/nen.jpg');
     background-size: cover; 
     background-position: center; 
@@ -50,42 +40,29 @@ body {
     font-family: var(--font-body); 
     line-height: 1.6;
     min-height: 100vh; 
-    overflow-x: hidden; /* Chặn tuyệt đối hiện tượng cuộn ngang màn hình */
+    overflow-x: hidden; 
     
     -webkit-font-smoothing: antialiased; 
     text-rendering: optimizeLegibility;
 }
 
-/* Tùy chỉnh thanh cuộn (Scrollbar) */
-::-webkit-scrollbar { 
-    width: 6px; 
-}
-::-webkit-scrollbar-track { 
-    background: var(--bg-base); 
-}
-::-webkit-scrollbar-thumb { 
-    background: var(--accent); 
-    border-radius: 4px; 
-}
+/* Tùy chỉnh thanh cuộn */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
 
 /* Màu nền khi bôi đen văn bản */
-::selection { 
-    background: var(--accent); 
-    color: #fff; 
-}
+::selection { background: var(--accent); color: #fff; }
 
-/* =====================================================================
-   3. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG (ĐÃ SỬA LỖI HIỂN THỊ)
-   ===================================================================== */
+/* 3. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG */
 #water-canvas {
-    /* BẮT BUỘC: Ép hiệu ứng nổi lên trên, không chiếm diện tích HTML */
     position: fixed !important; 
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    pointer-events: none; /* Xuyên qua để click được vào nút bên dưới */
-    z-index: 1; /* Nằm trên nền body, nhưng dưới container (z-index 10) */
+    pointer-events: none; 
+    z-index: 1; /* Nằm trên nền, dưới nội dung */
     display: block;
 }
 
@@ -96,7 +73,7 @@ body {
     width: 100vw;
     height: 100vh;
     pointer-events: none; 
-    z-index: 1; /* Hiển thị sương trên nền */
+    z-index: 1; 
     overflow: hidden; 
 }
 
@@ -105,20 +82,17 @@ body {
     border-radius: 50%;
     will-change: transform, opacity; 
     transform: translate3d(0, 0, 0); 
-    animation: floatUp 20s linear infinite; 
-    opacity: 0;
+    animation: floatUp linear infinite; /* Thời gian do JS quy định */
 }
 
 @keyframes floatUp {
     0% { transform: translate3d(0, 0, 0) scale(0.5); opacity: 0; }
-    10% { opacity: 0.9; }
-    90% { opacity: 0.9; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
     100% { transform: translate3d(0, -110vh, 0) scale(1.2); opacity: 0; }
 }
 
-/* =====================================================================
-   4. TRỢ NĂNG (ACCESSIBILITY - A11Y)
-   ===================================================================== */
+/* 4. TRỢ NĂNG (A11Y) */
 .sr-only { 
     position: absolute; width: 1px; height: 1px; 
     padding: 0; margin: -1px; overflow: hidden; 
@@ -139,9 +113,7 @@ body {
     border-radius: 4px; 
 }
 
-/* =====================================================================
-   5. HIỆU ỨNG TƯƠNG TÁC TOÀN CỤC & GIẢM CHUYỂN ĐỘNG
-   ===================================================================== */
+/* 5. HIỆU ỨNG TƯƠNG TÁC & GIẢM CHUYỂN ĐỘNG */
 button:active, 
 .btn:active, 
 .filter-btn:active, 
@@ -156,12 +128,6 @@ button:active,
         animation-duration: 0.01ms !important; 
         transition-duration: 0.01ms !important; 
     }
-    .heritage-card, .accordion-item { 
-        opacity: 1 !important; 
-        transform: none !important; 
-    }
-    /* Ẩn màn hình chờ và hiệu ứng dải lụa để vào thẳng trang */
-    #jade-splash, .silk-transition-overlay { 
-        display: none !important; 
-    }
+    .heritage-card, .accordion-item { opacity: 1 !important; transform: none !important; }
+    #jade-splash, .silk-transition-overlay { display: none !important; }
 }
