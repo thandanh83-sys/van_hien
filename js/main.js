@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 1.0.10 (Smart Search & AI Integration)
+ * Version: 1.1.0 (Offline-First & AI Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen.
@@ -72,11 +72,12 @@ function initDewdrops() {
     const container = document.getElementById('dewdrop-container');
     if (!container || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     
-    for (let i = 0; i < 6; i++) {
+    // Tạo 20 hạt sương nhỏ, sáng, tinh tế
+    for (let i = 0; i < 20; i++) {
         const d = document.createElement('div');
         d.className = 'dewdrop';
-        const size = Math.random() * 3 + 4; 
-        const dur = Math.random() * 15 + 20; 
+        const size = Math.random() * 3 + 3; 
+        const dur = Math.random() * 20 + 25; 
         const delay = -(Math.random() * dur);
         
         d.style.cssText = `
@@ -84,10 +85,6 @@ function initDewdrops() {
             left: ${Math.random() * 100}vw;
             animation-duration: ${dur}s;
             animation-delay: ${delay}s;
-            background: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 0 8px 2px rgba(139, 184, 168, 0.4);
-            backdrop-filter: blur(1px);
-            opacity: ${Math.random() * 0.3 + 0.3};
         `;
         container.appendChild(d);
     }
@@ -101,7 +98,6 @@ const POETRY_ANALYZER = (() => {
         const nfd = s.normalize('NFD');
         return (nfd.includes('\u0301') || nfd.includes('\u0303') || nfd.includes('\u0309') || nfd.includes('\u0323')) ? 'T' : 'B';
     }
-    
     function getRhymePart(word) {
         if (!word) return '';
         const decomposed = word.toLowerCase().normalize('NFD');
@@ -111,7 +107,6 @@ const POETRY_ANALYZER = (() => {
         const match = clean.match(pattern);
         return match ? match[0] : clean.slice(-2);
     }
-
     function analyzeBangTrac(text) {
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length);
         return lines.map((line, i) => {
@@ -119,28 +114,23 @@ const POETRY_ANALYZER = (() => {
             return { lineNum: i + 1, text: line, count: syl.length, pattern: syl.map(getTone).join(' - '), lastSyllable: syl[syl.length - 1] || '' };
         });
     }
-
     function detectForm(lines) {
         const counts = lines.map(line => line.count);
         const n = counts.length;
         if (!n) return { form: 'Chưa xác định', confidence: 'thấp', note: 'Không có câu thơ để phân tích.' };
         const uniform = counts.every(count => count === counts[0]);
         const c = counts[0];
-
         if (n === 2 && c === 7) return { form: 'Thất ngôn (2 câu)', confidence: 'trung bình', note: '2 câu × 7 tiếng' };
-        if (n === 4 && c === 7) return { form: 'Có dạng thất ngôn tứ tuyệt', confidence: 'trung bình', note: '4 câu × 7 tiếng; cần đối chiếu thêm cách gieo vần và cấu trúc' };
-        if (n === 8 && c === 7) return { form: 'Có dạng thất ngôn bát cú', confidence: 'trung bình', note: '8 câu × 7 tiếng; cần kiểm tra niêm, luật, đối và vần trước khi kết luận là Đường luật' };
-
+        if (n === 4 && c === 7) return { form: 'Có dạng thất ngôn tứ tuyệt', confidence: 'trung bình', note: '4 câu × 7 tiếng' };
+        if (n === 8 && c === 7) return { form: 'Có dạng thất ngôn bát cú', confidence: 'trung bình', note: '8 câu × 7 tiếng' };
         if (n >= 2 && counts[0] === 6 && counts[1] === 8) {
             const strict = n % 2 === 0 && counts.every((value, index) => value === (index % 2 === 0 ? 6 : 8));
-            if (strict) return { form: 'Có dạng lục bát', confidence: 'trung bình', note: 'Luân phiên 6-8 đều; cần kiểm tra thêm cách hiệp vần' };
-            return { form: 'Hình thức sáu-tám (biến thể)', confidence: 'trung bình', note: 'Có câu 6-8 nhưng chưa luân phiên đều' };
+            if (strict) return { form: 'Có dạng lục bát', confidence: 'trung bình', note: 'Luân phiên 6-8 đều' };
+            return { form: 'Hình thức sáu-tám (biến thể)', confidence: 'trung bình', note: 'Có câu 6-8' };
         }
-
-        if (!uniform) return { form: 'Thơ tự do hoặc biến thể', confidence: 'thấp', note: `Số tiếng từng câu: ${counts.join(' - ')}` };
+        if (!uniform) return { form: 'Thơ tự do hoặc biến thể', confidence: 'thấp', note: `Số tiếng: ${counts.join(' - ')}` };
         return { form: `Thơ ${c} tiếng`, confidence: 'trung bình', note: `${n} câu × ${c} tiếng` };
     }
-
     function checkRhymeDetails(lines) {
         const result = { chan: [], lung: [], lien: [], cach: [] };
         const lastSyl = lines.map(l => l.lastSyllable);
@@ -169,17 +159,15 @@ const POETRY_ANALYZER = (() => {
         }
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
-
     function buildQuestions(form, rhymes, symbols) {
         const questions = [];
-        if (form.confidence !== 'cao') questions.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}). Đây có thể là biến thể có chủ ý hay ngẫu nhiên?`);
+        if (form.confidence !== 'cao') questions.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}).`);
         const hasChanRhyme = rhymes.details.chan.some(item => item.isMatch);
-        if (!hasChanRhyme) questions.push('Phép dò gần đúng chưa nhận diện được vần chân rõ ràng; cần nghe nhịp đọc và kiểm tra thêm ngữ âm trước khi kết luận.');
-        if (symbols.length) questions.push(`"${symbols[0].keyword}" xuất hiện — trong ngữ cảnh này gợi nghĩa nào?`);
-        questions.push('Điều gì ở bài thơ này là "của riêng" tác giả — khác với bài cùng thể?');
+        if (!hasChanRhyme) questions.push('Phép dò chưa nhận diện được vần chân rõ ràng.');
+        if (symbols.length) questions.push(`"${symbols[0].keyword}" xuất hiện — gợi nghĩa nào?`);
+        questions.push('Điều gì ở bài thơ này là "của riêng" tác giả?');
         return questions.slice(0, 5);
     }
-
     function generateReport(text) {
         const bangTrac = analyzeBangTrac(text);
         if (!bangTrac.length) return null;
@@ -219,7 +207,7 @@ function executePipeline() {
         });
         const list = Object.entries(groups).map(([r, d]) =>
             `<li style="margin-bottom:12px;display:flex;justify-content:space-between;padding:12px 16px;background:rgba(139,184,168,0.06);border-radius:10px;flex-wrap:wrap;gap:16px;">
-                <span style="flex:1;min-width:220px;line-height:1.5;">Câu ${Array.from(d.cauSet).sort((a,b)=>a-b).join(', ')} <span style="margin-left:8px;font-style:italic;color:var(--text-main);">(${Array.from(d.wordSet).map(w=>`"${escapeHTML(w)}"`).join(' - ')})</span></span>
+                <span style="flex:1;min-width:220px;line-height:1.5;">Câu ${Array.from(d.cauSet).sort((a,b)=>a-b).join(', ')}</span>
                 <span style="color:${color};font-weight:700;">${ICONS.check} cùng vần [${escapeHTML(r)}]</span>
             </li>`
         ).join('');
@@ -235,7 +223,7 @@ function executePipeline() {
     if (hLung) rhymeHtml += renderRhyme('2. Vần lưng', report.rhymes.details.lung, 'var(--accent-gold)');
     if (hLien) rhymeHtml += renderRhyme('3. Vần liền', report.rhymes.details.lien, 'var(--text-main)');
     if (hCach) rhymeHtml += renderRhyme('4. Vần cách', report.rhymes.details.cach, 'var(--text-muted)');
-    if (!hChan && !hLung && !hLien && !hCach) rhymeHtml = `<p style="font-style:italic;color:#e74c3c;padding:15px 0;text-align:center;">Phép dò chưa tìm thấy vần rõ ràng.</p>`;
+    if (!hChan && !hLung && !hLien && !hCach) rhymeHtml = `<p style="font-style:italic;color:#e74c3c;padding:15px 0;text-align:center;">Chưa tìm thấy vần rõ ràng.</p>`;
 
     const tier1 = `<div style="margin-bottom:20px;"><strong>Thể thơ:</strong> ${report.form.form} <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note}</span></div>${rhymeHtml}`;
     
@@ -244,18 +232,14 @@ function executePipeline() {
         : report.symbols.map(s => `<div class="symbol-row" style="padding:8px 0;">
             <span class="symbol-keyword">${escapeHTML(s.keyword)}</span>
             <span class="symbol-meaning"><em style="font-size:0.8rem;">[${escapeHTML(s.type)}]</em> ${escapeHTML(s.mean)}</span>
-            <button type="button" class="volume-link" data-route-encyclopedia="true" data-route-volume="${escapeHTML(s.vol)}" data-route-section="${escapeHTML(s.sec)}" data-route-group="triet-thuyet">Xem Bách Khoa</button>
         </div>`).join('');
         
     const tier3 = report.questions.map(q => {
-        const formatted = q.replace(/\(Xem Quyển ([IVXLCDM]+), mục ([\d.]+)\)/g, (_, v, sec) => 
-            `(<button type="button" class="volume-link" data-route-encyclopedia="true" data-route-volume="${escapeHTML(v)}" data-route-section="${escapeHTML(sec)}" data-route-group="triet-thuyet">Xem Bách Khoa</button>)`
-        );
-        return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${formatted}</div></div>`;
+        return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${q}</div></div>`;
     }).join('');
 
     panel.innerHTML = `
-        <div class="result-step tier-0"><div class="tier-label">TẦNG 0</div><div class="step-title">Bóc tách thanh điệu</div>${tier0}<p class="tier-note">B: không dấu, huyền. T: sắc, hỏi, ngã, nặng.</p></div>
+        <div class="result-step tier-0"><div class="tier-label">TẦNG 0</div><div class="step-title">Bóc tách thanh điệu</div>${tier0}</div>
         <div class="result-step tier-1"><div class="tier-label">TẦNG 1</div><div class="step-title">Thể thơ & Vần</div>${tier1}</div>
         <div class="result-step tier-2"><div class="tier-label">TẦNG 2</div><div class="step-title">Biểu tượng · Điển tích</div>${tier2}</div>
         <div class="result-step tier-3"><div class="tier-label">TẦNG 3</div><div class="step-title">Câu hỏi mở</div>${tier3}</div>
@@ -270,7 +254,7 @@ function executePipeline() {
         </div>
     `;
 
-    // Gọi AI phân tích
+    // Gọi AI phân tích (Tầng 4)
     import('./ai.js').then(({ analyzeWork }) => {
         const analysis = analyzeWork({ content: raw, title: 'Bài thơ chưa đặt tên', author: 'Khuyết danh' });
         const aiDiv = document.getElementById('ai-poetry-analysis');
@@ -278,7 +262,7 @@ function executePipeline() {
             aiDiv.innerHTML = `
                 <p style="margin-bottom: 10px;">${escapeHTML(analysis.commentaryText)}</p>
                 <div style="font-size: 0.85rem; color: var(--text-muted); font-style: normal;">
-                    <strong>Chủ đề nhận diện:</strong> ${analysis.themes.length ? analysis.themes.join(', ') : 'Chưa rõ'}
+                    <strong>Chủ đề:</strong> ${analysis.themes.length ? analysis.themes.join(', ') : 'Chưa rõ'}
                 </div>
             `;
         }
@@ -380,7 +364,7 @@ function renderRandomQuote() {
         STATE.currentQuoteIndex = newIndex;
         const quote = APP_DATA.QUOTES_DATA[STATE.currentQuoteIndex];
 
-        c.innerHTML = `<p class="quote-text">${quote.text}</p><p class="quote-author">— ${quote.author} —</p>`;
+        c.innerHTML = `<p class="quote-text">${quote.text}</p><p class="quote-author">${quote.author}</p>`;
         c.style.opacity = 1;
     }, 500);
 }
@@ -432,17 +416,14 @@ function randomPoem() {
             <div style="margin-bottom:18px; color:var(--accent-text); font-style:italic; line-height:1.8;">
                 ${aiResult.bridgeText}
             </div>
-            
             <div style="margin-bottom:18px; padding:15px; border-radius:10px; background:rgba(139,184,168,0.07);">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-weight:700; color:${fortuneInfo.color}; text-transform:uppercase; font-size:0.8rem;">✦ Lời chiêm nghiệm</div>
                 <p style="margin:0; line-height:1.8;">${aiResult.fortuneReflection}</p>
             </div>
-
             <div style="margin-bottom:15px;">
                 <div style="font-weight:700; color:var(--accent-text); margin-bottom:7px; text-transform:uppercase; font-size:0.8rem;">Lời bình văn học</div>
                 <p style="margin:0; line-height:1.8;">${aiResult.literaryCommentary}</p>
             </div>
-
             <div style="background:rgba(139,184,168,0.05); padding:15px; border-radius:8px; border-left:3px solid ${fortuneInfo.color}; font-size:0.95rem; line-height:1.7; margin-top:20px;">
                 <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">Lời khuyên</div>
                 ${aiResult.adviceHtml}
@@ -488,7 +469,6 @@ async function refreshNetworkStatus(forceRefresh = false) {
                 `<span class="network-dot ${n.status}" title="${escapeHTML(n.label)}"></span>`
             ).join('');
         }
-        
         if (summaryEl) summaryEl.textContent = `${online}/${total} phân khu đang hoạt động`;
 
         if (nodesEl) {
@@ -498,9 +478,7 @@ async function refreshNetworkStatus(forceRefresh = false) {
                     .replace('ky-tai', 'Kỳ Tài')
                     .replace('tinh-hoa', 'Tinh Hoa')
                     .replace('the-loai', 'Thể Loại');
-                    
                 const statusText = n.status === 'online' ? 'Hoạt động' : (n.status === 'offline' ? 'Ngoại tuyến' : 'Lỗi');
-                
                 return `
                     <div class="network-node-row">
                         <span class="network-dot ${n.status}"></span>
@@ -510,7 +488,6 @@ async function refreshNetworkStatus(forceRefresh = false) {
                 `;
             }).join('');
         }
-
         if (timestampEl) {
             timestampEl.textContent = `Kiểm tra lần cuối: ${new Date().toLocaleTimeString('vi-VN')}`;
         }
@@ -642,7 +619,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         fallbackRenderFn: () => { searchEncyclopedia(); }
     };
 
-    // Gắn sự kiện cho Văn Hiến
     const heritageInput = document.getElementById('search-input');
     if (heritageInput) {
         heritageInput.addEventListener('input', debounce(() => {
@@ -650,16 +626,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             else document.getElementById('clear-search-btn')?.classList.remove('show');
             heritageSearchConfig.fallbackRenderFn();
         }, 300));
-        
         heritageInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSmartSearch(heritageSearchConfig);
-            }
+            if (e.key === 'Enter') { e.preventDefault(); handleSmartSearch(heritageSearchConfig); }
         });
     }
 
-    // Gắn sự kiện cho Bách Khoa
     const encyclopediaInput = document.getElementById('encyclopedia-search');
     if (encyclopediaInput) {
         const debouncedSearch = debounce(() => {
@@ -668,13 +639,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             encyclopediaSearchConfig.fallbackRenderFn();
         }, 300);
         setCancelSearch(debouncedSearch.cancel);
-        
         encyclopediaInput.addEventListener('input', debouncedSearch);
         encyclopediaInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSmartSearch(encyclopediaSearchConfig);
-            }
+            if (e.key === 'Enter') { e.preventDefault(); handleSmartSearch(encyclopediaSearchConfig); }
         });
     }
 
@@ -752,12 +719,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             checkStorageSize(); 
             setTimeout(() => refreshNetworkStatus(true), 200);
         });
-        
         btnCloseSettings.addEventListener('click', () => {
             if (typeof settingsDialog.close === 'function') settingsDialog.close();
             else settingsDialog.removeAttribute('open');
         });
-        
         settingsDialog.addEventListener('click', (e) => {
             const dialogDimensions = settingsDialog.getBoundingClientRect();
             if (e.clientX < dialogDimensions.left || e.clientX > dialogDimensions.right || e.clientY < dialogDimensions.top || e.clientY > dialogDimensions.bottom) {
