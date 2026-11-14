@@ -39,7 +39,7 @@
  * ĐỔI VERSION NÀY mỗi khi bạn cập nhật code để xóa cache cũ.
  * Format khuyến nghị: 'vMAJOR.MINOR.PATCH'
  */
-const CACHE_VERSION = 'v12.0.0';
+const CACHE_VERSION = 'v12.0.1';
 
 const STATIC_CACHE  = `ngocthanh-static-${CACHE_VERSION}`;   // CSS, JS, ảnh, font
 const HTML_CACHE    = `ngocthanh-html-${CACHE_VERSION}`;     // Trang HTML
