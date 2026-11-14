@@ -1,231 +1,940 @@
 [
   {
     "id": "tac-gia-aesop",
-    "title": "Chân Dung Tác Giả: Aesop"
+    "title": "Chân Dung Tác Giả: Aesop",
+    "era": "THẾ KỶ 6",
+    "nationality": "Hy Lạp",
+    "style": [
+      "truyện ngắn gọn",
+      "súc tích",
+      "giàu tính ẩn dụ",
+      "nhân vật chính thường là các loài vật được nhân cách hóa",
+      "đại diện cho các tính cách con người"
+    ],
+    "tags": [
+      "ngụ ngôn",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-albert-camus",
-    "title": "Chân Dung Tác Giả: Albert Camus"
+    "title": "Chân Dung Tác Giả: Albert Camus",
+    "era": "NĂM 1957",
+    "nationality": "Pháp",
+    "style": [
+      "văn phong giản dị",
+      "trong sáng nhưng chứa đựng những triết lý sâu sắc về sự phi lý của cuộc sống và tinh thần nổi loạn",
+      "ông đề cao sự tự do và ý chí vươn lên của con người"
+    ],
+    "tags": [
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-alexander-pushkin",
-    "title": "Chân Dung Tác Giả: Alexander Pushkin"
+    "title": "Chân Dung Tác Giả: Alexander Pushkin",
+    "nationality": "Nga",
+    "style": [
+      "thơ ông mang đậm chất lãng mạn",
+      "giàu cảm xúc",
+      "ông có công lớn trong việc hiện đại hóa ngôn ngữ văn học nga",
+      "đưa ngôn ngữ đời thường vào thơ ca"
+    ],
+    "tags": [
+      "gia đình",
+      "cổ tích"
+    ]
   },
   {
     "id": "tac-gia-alexandre-dumas",
-    "title": "Chân Dung Tác Giả: Alexandre Dumas"
+    "title": "Chân Dung Tác Giả: Alexandre Dumas",
+    "nationality": "Pháp",
+    "style": [
+      "ông nổi tiếng với thể loại tiểu thuyết lịch sử và phiêu lưu",
+      "cốt truyện của ông thường ly kỳ",
+      "hấp dẫn",
+      "đan xen giữa các sự kiện lịch sử có thật và các nhân vật hư cấu",
+      "ông có biệt tài xây dựng tình bạn"
+    ],
+    "tags": [
+      "chiến tranh",
+      "gia đình",
+      "lịch sử"
+    ]
   },
   {
     "id": "tac-gia-anh-em-grimm",
-    "title": "Chân Dung Tác Giả: Anh em Grimm"
+    "title": "Chân Dung Tác Giả: Anh em Grimm",
+    "nationality": "Anh",
+    "tags": [
+      "gia đình",
+      "tôn giáo",
+      "cổ tích"
+    ]
   },
   {
     "id": "tac-gia-antoine-de-saint-exupery",
-    "title": "Chân Dung Tác Giả: Antoine de Saint-Exupéry"
+    "title": "Chân Dung Tác Giả: Antoine de Saint-Exupéry",
+    "nationality": "Pháp",
+    "tags": [
+      "tình yêu"
+    ]
   },
   {
     "id": "tac-gia-anton-chekhov",
-    "title": "Chân Dung Tác Giả: Anton Chekhov"
+    "title": "Chân Dung Tác Giả: Anton Chekhov",
+    "nationality": "Nga",
+    "style": [
+      "ngòi bút tinh tế",
+      "giàu chất nhân văn",
+      "ẩn chứa những triết lý sâu sắc về cuộc sống",
+      "ông ít miêu tả những biến cố lớn mà tập trung vào những chi tiết nhỏ bé để khắc họa chân dung con người và xã hội"
+    ],
+    "tags": [
+      "xã hội",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-ba-huyen-thanh-quan",
-    "title": "Chân Dung Tác Giả: Bà Huyện Thanh Quan"
+    "title": "Chân Dung Tác Giả: Bà Huyện Thanh Quan",
+    "era": "THẾ KỶ XIX",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ bà mang nét buồn",
+      "hoài cổ",
+      "tả cảnh ngụ tình rất tinh tế",
+      "ngôn ngữ trang nhã",
+      "điêu luyện"
+    ],
+    "tags": [
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-cao-van-lau",
-    "title": "Chân Dung Tác Giả: Cao Văn Lầu"
+    "title": "Chân Dung Tác Giả: Cao Văn Lầu",
+    "style": [
+      "ca từ mộc mạc",
+      "đậm chất nam bộ",
+      "thể hiện nỗi nhớ chồng da diết của người vợ khi chồng đi lính xa",
+      "bản nhạc mang âm hưởng buồn thương nhưng giàu tính nhân văn"
+    ],
+    "tags": [
+      "nông thôn",
+      "văn hóa",
+      "phụ nữ"
+    ]
   },
   {
     "id": "tac-gia-chinh-huu",
-    "title": "Chân Dung Tác Giả: Chính Hữu"
+    "title": "Chân Dung Tác Giả: Chính Hữu",
+    "nationality": "Pháp",
+    "style": [
+      "thơ ông mộc mạc",
+      "giản dị nhưng giàu cảm xúc",
+      "thể hiện tình đồng đội và tinh thần chiến đấu quả cảm",
+      "ngôn ngữ thơ chân thực",
+      "giàu hình ảnh"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "chiến tranh",
+      "nông thôn",
+      "cách mạng"
+    ]
   },
   {
     "id": "tac-gia-che-lan-vien",
-    "title": "Chân Dung Tác Giả: Chế Lan Viên"
+    "title": "Chân Dung Tác Giả: Chế Lan Viên",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ ông giàu chất suy tưởng",
+      "triết lý",
+      "ngôn ngữ độc đáo",
+      "sáng tạo",
+      "ông được mệnh danh là \"người làm vườn trong vườn thơ\" với những câu thơ mang tầm khái quát lớn"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn",
+      "cách mạng"
+    ]
   },
   {
     "id": "tac-gia-dante-alighieri",
-    "title": "Chân Dung Tác Giả: Dante Alighieri"
+    "title": "Chân Dung Tác Giả: Dante Alighieri",
+    "nationality": "Anh",
+    "style": [
+      "tác phẩm của ông mang tính triết học và thần học sâu sắc",
+      "ông sử dụng ngôn ngữ bình dân (tiếng ý) thay vì tiếng latinh",
+      "tạo nên một cuộc cách mạng văn học"
+    ],
+    "tags": [
+      "nông thôn",
+      "cách mạng",
+      "gia đình",
+      "lịch sử"
+    ]
   },
   {
     "id": "tac-gia-ernest-hemingway",
-    "title": "Chân Dung Tác Giả: Ernest Hemingway"
+    "title": "Chân Dung Tác Giả: Ernest Hemingway",
+    "era": "THẾ KỶ XX",
+    "nationality": "Anh",
+    "style": [
+      "văn phong của ông nổi tiếng với \"nguyên lý tảng băng trôi\" (iceberg theory): ngôn từ ngắn gọn",
+      "giản dị",
+      "khách quan",
+      "nhưng ẩn sâu bên dưới là những tầng ý nghĩa sâu sắc",
+      "ông ca ngợi lòng dũng cảm"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "chiến tranh",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-franz-kafka",
-    "title": "Chân Dung Tác Giả: Franz Kafka"
+    "title": "Chân Dung Tác Giả: Franz Kafka",
+    "era": "THẾ KỶ XX",
+    "nationality": "Mỹ",
+    "style": [
+      "văn phong kỳ ảo",
+      "phi lý",
+      "miêu tả sự tha hóa và nỗi lo âu của con người trong xã hội hiện đại",
+      "ông thường sử dụng những tình huống phi lý",
+      "bi kịch để phản ánh sự bế tắc của con người"
+    ],
+    "tags": [
+      "xã hội",
+      "gia đình",
+      "bi kịch"
+    ]
   },
   {
     "id": "tac-gia-fyodor-dostoevsky",
-    "title": "Chân Dung Tác Giả: Fyodor Dostoevsky"
+    "title": "Chân Dung Tác Giả: Fyodor Dostoevsky",
+    "nationality": "Nga",
+    "style": [
+      "đi sâu vào thế giới nội tâm đen tối và hành trình sám hối của con người",
+      "ông đặt ra những câu hỏi triết học lớn về thượng đế",
+      "tự do",
+      "tội ác và sự cứu rỗi",
+      "văn phong dữ dội"
+    ],
+    "tags": [
+      "gia đình",
+      "bi kịch"
+    ]
   },
   {
     "id": "tac-gia-gabriel-garcia-marquez",
-    "title": "Chân Dung Tác Giả: Gabriel García Márquez"
+    "title": "Chân Dung Tác Giả: Gabriel García Márquez",
+    "era": "THẾ KỶ XX",
+    "nationality": "Trung Quốc",
+    "style": [
+      "đại diện cho chủ nghĩa hiện thực huyền ảo",
+      "kết hợp hài hòa giữa những điều kỳ diệu",
+      "hoang đường và hiện thực cuộc sống",
+      "ông thường khai thác đề tài về số phận con người",
+      "chiến tranh và tình yêu"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "chiến tranh",
+      "tình yêu",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-hans-christian-andersen",
-    "title": "Chân Dung Tác Giả: Hans Christian Andersen"
+    "title": "Chân Dung Tác Giả: Hans Christian Andersen",
+    "nationality": "Đan Mạch",
+    "tags": [
+      "ngụ ngôn",
+      "gia đình",
+      "cổ tích"
+    ]
   },
   {
     "id": "tac-gia-homer",
-    "title": "Chân Dung Tác Giả: Homer"
+    "title": "Chân Dung Tác Giả: Homer",
+    "era": "THẾ KỶ 8",
+    "nationality": "Hy Lạp",
+    "style": [
+      "sử dụng thể thơ lục bát anh hùng (hexameter)",
+      "ngôn ngữ giàu hình ảnh",
+      "tính sử thi cao",
+      "ca ngợi vẻ đẹp của con người",
+      "lòng dũng cảm và số phận con người dưới sự chi phối của các vị thần"
+    ],
+    "tags": [
+      "cổ tích",
+      "gia đình",
+      "thành thị"
+    ]
   },
   {
     "id": "tac-gia-hoai-nam-tu",
-    "title": "Chân Dung Tác Giả: Hoài Nam Tử"
+    "title": "Chân Dung Tác Giả: Hoài Nam Tử",
+    "nationality": "Trung Quốc"
   },
   {
     "id": "tac-gia-hoang-phu-ngoc-tuong",
-    "title": "Chân Dung Tác Giả: Hoàng Phủ Ngọc Tường"
+    "title": "Chân Dung Tác Giả: Hoàng Phủ Ngọc Tường",
+    "nationality": "Việt Nam",
+    "style": [
+      "bút ký của ông giàu chất trữ tình",
+      "tài hoa và uyên bác",
+      "thể hiện tình yêu quê hương đất nước sâu đậm",
+      "sự gắn kết giữa văn hóa",
+      "lịch sử và địa lý"
+    ],
+    "tags": [
+      "văn hóa",
+      "thiên nhiên",
+      "lịch sử",
+      "tình yêu",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-han-mac-tu",
-    "title": "Chân Dung Tác Giả: Hàn Mặc Tử"
+    "title": "Chân Dung Tác Giả: Hàn Mặc Tử",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ ông là sự kết hợp kỳ lạ giữa tâm hồn trong trẻo và thế giới u uất",
+      "đau đớn",
+      "ngôn từ giàu hình ảnh và màu sắc",
+      "mang đậm phong cách tượng trưng và siêu thực"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn",
+      "bi kịch"
+    ]
   },
   {
     "id": "tac-gia-ho-chi-minh",
-    "title": "Chân Dung Tác Giả: Hồ Chí Minh"
+    "title": "Chân Dung Tác Giả: Hồ Chí Minh",
+    "nationality": "Anh",
+    "style": [
+      "đa dạng",
+      "sâu sắc",
+      "từ những áng văn chính luận hùng hồn đến những vần thơ đường luật thâm trầm",
+      "giàu triết lý",
+      "văn phong của người luôn giản dị"
+    ],
+    "tags": [
+      "văn hóa",
+      "chiến tranh",
+      "thiên nhiên",
+      "cách mạng",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-ho-xuan-huong",
-    "title": "Chân Dung Tác Giả: Hồ Xuân Hương"
+    "title": "Chân Dung Tác Giả: Hồ Xuân Hương",
+    "nationality": "Anh",
+    "style": [
+      "ngôn ngữ sắc sảo",
+      "tinh tế",
+      "sử dụng nhiều ẩn dụ",
+      "đả kích sâu cay nhưng cũng đầy trữ tình",
+      "thơ bà là tiếng nói đấu tranh mạnh mẽ cho quyền sống và khát vọng hạnh phúc của người phụ nữ trong xã hội phong kiến"
+    ],
+    "tags": [
+      "trào phúng",
+      "ngụ ngôn",
+      "xã hội",
+      "phụ nữ",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-huu-thinh",
-    "title": "Chân Dung Tác Giả: Hữu Thỉnh"
+    "title": "Chân Dung Tác Giả: Hữu Thỉnh",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ ông giàu chất triết lý",
+      "suy tư",
+      "thường khai thác những vấn đề về cuộc sống",
+      "con người và thiên nhiên",
+      "giọng thơ nhẹ nhàng"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-johann-wolfgang-von-goethe",
-    "title": "Chân Dung Tác Giả: Johann Wolfgang von Goethe"
+    "title": "Chân Dung Tác Giả: Johann Wolfgang von Goethe",
+    "nationality": "Đức",
+    "style": [
+      "tác phẩm của ông mang đậm tính triết lý",
+      "khai thác những vấn đề về con người",
+      "tự do và sự vươn lên của tinh thần",
+      "ông có ảnh hưởng sâu rộng đến văn học lãng mạn và chủ nghĩa duy tâm đức"
+    ],
+    "tags": [
+      "bi kịch",
+      "gia đình",
+      "văn hóa"
+    ]
   },
   {
     "id": "tac-gia-khuat-nguyen",
-    "title": "Chân Dung Tác Giả: Khuất Nguyên"
+    "title": "Chân Dung Tác Giả: Khuất Nguyên",
+    "nationality": "Trung Quốc",
+    "style": [
+      "thơ ông giàu cảm xúc",
+      "bi tráng",
+      "thể hiện lòng yêu nước và sự bất mãn với thời cuộc",
+      "ngôn ngữ thơ giàu hình ảnh",
+      "sử dụng nhiều điển tích và biểu tượng"
+    ],
+    "tags": [
+      "thiên nhiên"
+    ]
   },
   {
     "id": "tac-gia-khong-tu",
-    "title": "Chân Dung Tác Giả: Khổng Tử"
+    "title": "Chân Dung Tác Giả: Khổng Tử",
+    "nationality": "Trung Quốc",
+    "tags": [
+      "gia đình",
+      "văn hóa",
+      "tôn giáo",
+      "xã hội",
+      "tuổi trẻ"
+    ]
   },
   {
     "id": "tac-gia-kim-lan",
-    "title": "Chân Dung Tác Giả: Kim Lân"
+    "title": "Chân Dung Tác Giả: Kim Lân",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngòi bút tinh tế",
+      "khắc họa thành công tâm lý nhân vật và những phong tục",
+      "sinh hoạt của làng quê bắc bộ",
+      "văn ông giản dị",
+      "đậm chất khẩu ngữ"
+    ],
+    "tags": [
+      "nông thôn",
+      "văn hóa",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-la-quan-trung",
-    "title": "Chân Dung Tác Giả: La Quán Trung"
+    "title": "Chân Dung Tác Giả: La Quán Trung",
+    "nationality": "Trung Quốc",
+    "style": [
+      "ngòi bút tài hoa",
+      "khắc họa thành công các nhân vật lịch sử và những mưu mô chính trị - quân sự",
+      "tác phẩm của ông mang đậm tính sử thi và triết lý về nhân sinh",
+      "thời cuộc"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "văn hóa",
+      "lịch sử"
+    ]
   },
   {
     "id": "tac-gia-leo-tolstoy",
-    "title": "Chân Dung Tác Giả: Leo Tolstoy"
+    "title": "Chân Dung Tác Giả: Leo Tolstoy",
+    "nationality": "Nga",
+    "style": [
+      "phản ánh toàn cảnh xã hội nga với những vấn đề về chiến tranh",
+      "tình yêu và đạo đức",
+      "văn ông chân thực",
+      "tỉ mỉ",
+      "có khả năng phân tích tâm lý nhân vật cực kỳ sâu sắc"
+    ],
+    "tags": [
+      "gia đình",
+      "chiến tranh",
+      "cổ tích",
+      "xã hội",
+      "tình yêu",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-lao-tu",
-    "title": "Chân Dung Tác Giả: Lão Tử"
+    "title": "Chân Dung Tác Giả: Lão Tử",
+    "era": "THẾ KỶ 6",
+    "nationality": "Trung Quốc",
+    "tags": [
+      "tôn giáo",
+      "văn hóa",
+      "cổ tích"
+    ]
   },
   {
     "id": "tac-gia-le-huu-trac",
-    "title": "Chân Dung Tác Giả: Lê Hữu Trác"
+    "title": "Chân Dung Tác Giả: Lê Hữu Trác",
+    "nationality": "Việt Nam",
+    "style": [
+      "văn ông chân thực",
+      "sinh động",
+      "phản ánh hiện thực xã hội phong kiến thời bấy giờ và bộ mặt quan lại tham nhũng",
+      "xa hoa",
+      "lối kể chuyện hóm hỉnh"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn",
+      "tôn giáo",
+      "xã hội"
+    ]
   },
   {
     "id": "tac-gia-le-minh-khue",
-    "title": "Chân Dung Tác Giả: Lê Minh Khuê"
+    "title": "Chân Dung Tác Giả: Lê Minh Khuê",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngòi bút tinh tế",
+      "giàu chất trữ tình",
+      "bà thường viết về cuộc sống",
+      "chiến đấu của những người lính và thanh niên xung phong",
+      "đặc biệt là thế giới nội tâm của người phụ nữ"
+    ],
+    "tags": [
+      "chiến tranh",
+      "bi kịch",
+      "phụ nữ",
+      "cách mạng",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-ly-bach",
-    "title": "Chân Dung Tác Giả: Lý Bạch"
+    "title": "Chân Dung Tác Giả: Lý Bạch",
+    "nationality": "Trung Quốc",
+    "style": [
+      "thơ ông phóng khoáng",
+      "hào hùng",
+      "giàu trí tưởng tượng và cảm xúc mãnh liệt",
+      "ông thường sử dụng những hình ảnh kỳ vĩ (núi cao",
+      "sông dài"
+    ],
+    "tags": [
+      "thiên nhiên"
+    ]
   },
   {
     "id": "tac-gia-ly-cong-uan",
-    "title": "Chân Dung Tác Giả: Lý Công Uẩn"
+    "title": "Chân Dung Tác Giả: Lý Công Uẩn",
+    "era": "NHÀ LÝ",
+    "style": [
+      "văn chương của ông mang đậm tính chính luận",
+      "lập luận chặt chẽ",
+      "giọng điệu trang trọng",
+      "thể hiện tư tưởng nhân văn và tầm nhìn chiến lược"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "lịch sử"
+    ]
   },
   {
     "id": "tac-gia-ly-thuong-kiet",
-    "title": "Chân Dung Tác Giả: Lý Thường Kiệt"
+    "title": "Chân Dung Tác Giả: Lý Thường Kiệt",
+    "era": "NHÀ LÝ",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ văn của ông mang đậm tinh thần yêu nước",
+      "ý chí quyết tâm bảo vệ chủ quyền dân tộc",
+      "giọng điệu hào hùng",
+      "đanh thép"
+    ],
+    "tags": [
+      "chiến tranh",
+      "nông thôn",
+      "cách mạng"
+    ]
   },
   {
     "id": "tac-gia-luu-quang-vu",
-    "title": "Chân Dung Tác Giả: Lưu Quang Vũ"
+    "title": "Chân Dung Tác Giả: Lưu Quang Vũ",
+    "nationality": "Việt Nam",
+    "style": [
+      "kịch của ông mang tính triết lý sâu sắc",
+      "đề cập đến những vấn đề nóng bỏng của xã hội đương thời",
+      "thơ ông nồng nàn",
+      "tha thiết",
+      "giàu hình ảnh"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn",
+      "xã hội",
+      "cách mạng"
+    ]
   },
   {
     "id": "tac-gia-matsuo-basho",
-    "title": "Chân Dung Tác Giả: Matsuo Basho"
+    "title": "Chân Dung Tác Giả: Matsuo Basho",
+    "nationality": "Nhật Bản",
+    "style": [
+      "thơ ông cô đọng",
+      "hàm súc",
+      "giàu triết lý thiền học",
+      "ông thường sử dụng các hình ảnh thiên nhiên nhỏ bé (con ếch",
+      "giọt sương"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "gia đình",
+      "tôn giáo"
+    ]
   },
   {
     "id": "tac-gia-nam-cao",
-    "title": "Chân Dung Tác Giả: Nam Cao"
+    "title": "Chân Dung Tác Giả: Nam Cao",
+    "era": "NĂM 1951",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngòi bút lạnh lùng",
+      "tỉnh táo nhưng ẩn chứa tình yêu thương sâu sắc",
+      "luôn trăn trở về nhân phẩm và khát vọng làm người",
+      "ông được coi là bậc thầy của truyện ngắn hiện thực và tâm lý"
+    ],
+    "tags": [
+      "gia đình",
+      "chiến tranh",
+      "xã hội",
+      "cách mạng",
+      "tình yêu",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-hong",
-    "title": "Chân Dung Tác Giả: Nguyên Hồng"
+    "title": "Chân Dung Tác Giả: Nguyên Hồng",
+    "style": [
+      "văn phong tràn đầy cảm xúc",
+      "mãnh liệt",
+      "đôi khi dữ dội",
+      "ông có biệt tài miêu tả những rung động tinh tế trong tâm hồn con người",
+      "đặc biệt là trẻ em và phụ nữ"
+    ],
+    "tags": [
+      "gia đình",
+      "thiên nhiên",
+      "xã hội",
+      "phụ nữ",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-binh",
-    "title": "Chân Dung Tác Giả: Nguyễn Bính"
+    "title": "Chân Dung Tác Giả: Nguyễn Bính",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ ông đậm chất dân gian",
+      "mộc mạc",
+      "chân tình",
+      "gắn liền với hình ảnh làng quê",
+      "cây đa"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-nguyen-binh-khiem",
-    "title": "Chân Dung Tác Giả: Nguyễn Bỉnh Khiêm"
+    "title": "Chân Dung Tác Giả: Nguyễn Bỉnh Khiêm",
+    "era": "THẾ KỶ XVI",
+    "nationality": "Anh",
+    "style": [
+      "thơ ông mang đậm tính triết lý",
+      "thể hiện tư tưởng nhập thế và xuất thế của nho gia",
+      "sự am hiểu sâu sắc về thời cuộc và tấm lòng yêu mến cuộc sống thanh bạch",
+      "hòa hợp với thiên nhiên"
+    ],
+    "tags": [
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-cong-tru",
-    "title": "Chân Dung Tác Giả: Nguyễn Công Trứ"
+    "title": "Chân Dung Tác Giả: Nguyễn Công Trứ",
+    "era": "NHÀ NGUYỄN",
+    "nationality": "Nga",
+    "style": [
+      "thơ ông thể hiện triết lý sống phóng khoáng",
+      "ý chí lập công danh",
+      "nợ tang bồng và chí nam nhi phụng sự đất nước",
+      "giọng điệu hào sảng",
+      "ngang tàng"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-du",
-    "title": "Chân Dung Tác Giả: Nguyễn Du"
+    "title": "Chân Dung Tác Giả: Nguyễn Du",
+    "era": "NHÀ TÂY SƠN",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ nguyễn du mang nặng tư tưởng nhân đạo sâu sắc",
+      "ông được mệnh danh là người có \"con mắt trông thấy sáu cõi\" và \"tấm lòng nghĩ suốt nghìn đời\"",
+      "ông có biệt tài về nghệ thuật tả cảnh ngụ tình và phân tích tâm lý nhân vật xuất sắc",
+      "ngôn từ vô cùng tinh tế",
+      "điêu luyện"
+    ],
+    "tags": [
+      "gia đình",
+      "văn hóa",
+      "xã hội",
+      "lịch sử",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-duy",
-    "title": "Chân Dung Tác Giả: Nguyễn Duy"
+    "title": "Chân Dung Tác Giả: Nguyễn Duy",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ ông mộc mạc",
+      "giản dị",
+      "đậm chất dân gian",
+      "ông thường viết về tình cảm gia đình",
+      "quê hương và những ký ức tuổi thơ"
+    ],
+    "tags": [
+      "gia đình",
+      "chiến tranh",
+      "thiên nhiên",
+      "cách mạng",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-gia-thieu",
-    "title": "Chân Dung Tác Giả: Nguyễn Gia Thiều"
+    "title": "Chân Dung Tác Giả: Nguyễn Gia Thiều",
+    "era": "NHÀ LÊ",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngôn từ giàu cảm xúc",
+      "thể hiện sự đồng cảm sâu sắc với số phận người phụ nữ trong xã hội phong kiến",
+      "thể thơ song thất lục bát được vận dụng điêu luyện",
+      "giàu nhạc điệu"
+    ],
+    "tags": [
+      "gia đình",
+      "xã hội",
+      "phụ nữ",
+      "lịch sử",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-huy-tuong",
-    "title": "Chân Dung Tác Giả: Nguyễn Huy Tưởng"
+    "title": "Chân Dung Tác Giả: Nguyễn Huy Tưởng",
+    "nationality": "Việt Nam",
+    "style": [
+      "tác phẩm của ông thường khai thác đề tài lịch sử",
+      "ca ngợi lòng yêu nước và đức hy sinh",
+      "ông có biệt tài xây dựng những xung đột kịch căng thẳng",
+      "giàu tính triết lý và nhân văn"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn",
+      "gia đình",
+      "lịch sử"
+    ]
   },
   {
     "id": "tac-gia-nguyen-khoa-diem",
-    "title": "Chân Dung Tác Giả: Nguyễn Khoa Điềm"
+    "title": "Chân Dung Tác Giả: Nguyễn Khoa Điềm",
+    "nationality": "Mỹ",
+    "style": [
+      "thơ ông giàu chất suy tư",
+      "triết lý",
+      "kết hợp hài hòa giữa cảm xúc và lý trí",
+      "ông có nhiều đóng góp quan trọng trong việc thể hiện tư tưởng \"đất nước của nhân dân\""
+    ],
+    "tags": [
+      "gia đình",
+      "chiến tranh",
+      "thiên nhiên",
+      "cách mạng",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-khuyen",
-    "title": "Chân Dung Tác Giả: Nguyễn Khuyến"
+    "title": "Chân Dung Tác Giả: Nguyễn Khuyến",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngôn từ giản dị",
+      "tinh tế",
+      "thơ ông thể hiện tình yêu thiên nhiên và tâm hồn thanh cao",
+      "đồng thời phản ánh hiện thực xã hội nông thôn việt nam thời thuộc pháp",
+      "ông có biệt tài về thơ trào phúng"
+    ],
+    "tags": [
+      "xã hội",
+      "tình yêu",
+      "nông thôn",
+      "trào phúng"
+    ]
   },
   {
     "id": "tac-gia-nguyen-khai",
-    "title": "Chân Dung Tác Giả: Nguyễn Khải"
+    "title": "Chân Dung Tác Giả: Nguyễn Khải",
+    "era": "THẾ KỶ XX",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngòi bút sắc sảo",
+      "luôn khám phá những vẻ đẹp bình dị của con người trong cuộc sống đời thường",
+      "văn ông giàu tính triết lý",
+      "chiêm nghiệm"
+    ],
+    "tags": [
+      "nông thôn",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-nguyen-minh-chau",
-    "title": "Chân Dung Tác Giả: Nguyễn Minh Châu"
+    "title": "Chân Dung Tác Giả: Nguyễn Minh Châu",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngòi bút luôn trăn trở về con người",
+      "đi sâu vào những vấn đề đạo đức và nhân sinh",
+      "văn ông giàu tính triết lý",
+      "đa chiều và luôn hướng tới những giá trị nhân bản"
+    ],
+    "tags": [
+      "gia đình",
+      "chiến tranh",
+      "thiên nhiên",
+      "cách mạng",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-quang-sang",
-    "title": "Chân Dung Tác Giả: Nguyễn Quang Sáng"
+    "title": "Chân Dung Tác Giả: Nguyễn Quang Sáng",
+    "nationality": "Pháp",
+    "style": [
+      "văn ông mộc mạc",
+      "giản dị",
+      "đậm chất nam bộ",
+      "ông thường viết về cuộc sống",
+      "con người và chiến tranh ở miền nam"
+    ],
+    "tags": [
+      "gia đình",
+      "chiến tranh",
+      "thiên nhiên",
+      "cách mạng",
+      "tình yêu",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-trai",
-    "title": "Chân Dung Tác Giả: Nguyễn Trãi"
+    "title": "Chân Dung Tác Giả: Nguyễn Trãi",
+    "nationality": "Anh",
+    "style": [
+      "văn chương nguyễn trãi kết hợp nhuần nhuyễn giữa tư tưởng nhân nghĩa nho giáo và tình yêu thiên nhiên",
+      "quê hương",
+      "ngôn ngữ vừa hùng hồn",
+      "biện luận sắc bén (văn chính luận) vừa thâm trầm",
+      "tinh tế (thơ trữ tình)"
+    ],
+    "tags": [
+      "gia đình",
+      "văn hóa",
+      "thiên nhiên",
+      "lịch sử",
+      "tình yêu",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-tuan",
-    "title": "Chân Dung Tác Giả: Nguyễn Tuân"
+    "title": "Chân Dung Tác Giả: Nguyễn Tuân",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngòi bút tài hoa",
+      "luôn khám phá con người ở phương diện tài năng và nghệ sĩ",
+      "ngôn ngữ phong phú",
+      "giàu chất tạo hình",
+      "ông là bậc thầy của thể loại tùy bút"
+    ],
+    "tags": [
+      "gia đình",
+      "chiến tranh",
+      "thiên nhiên",
+      "cách mạng",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-nguyen-dinh-chieu",
-    "title": "Chân Dung Tác Giả: Nguyễn Đình Chiểu"
+    "title": "Chân Dung Tác Giả: Nguyễn Đình Chiểu",
+    "era": "THẾ KỶ XIX",
+    "nationality": "Pháp",
+    "style": [
+      "thơ văn ông mang đậm tính nhân đạo",
+      "ca ngợi đạo lý làm người và lòng yêu nước",
+      "ngôn ngữ mộc mạc",
+      "bình dị nhưng đầy cảm xúc và sức mạnh",
+      "dễ đi vào lòng người dân nam bộ"
+    ],
+    "tags": [
+      "nông thôn",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-ngo-thua-an",
-    "title": "Chân Dung Tác Giả: Ngô Thừa Ân"
+    "title": "Chân Dung Tác Giả: Ngô Thừa Ân",
+    "nationality": "Trung Quốc",
+    "style": [
+      "ngòi bút phong phú",
+      "giàu trí tưởng tượng",
+      "tác phẩm mang đậm triết lý nhân sinh",
+      "ca ngợi trí tuệ",
+      "lòng dũng cảm và tinh thần đoàn kết"
+    ],
+    "tags": [
+      "văn hóa",
+      "gia đình",
+      "tôn giáo"
+    ]
   },
   {
     "id": "tac-gia-ngo-tat-to",
-    "title": "Chân Dung Tác Giả: Ngô Tất Tố"
+    "title": "Chân Dung Tác Giả: Ngô Tất Tố",
+    "nationality": "Anh",
+    "style": [
+      "ngòi bút hiện thực sắc sảo",
+      "phơi bày bộ mặt tàn ác của giai cấp thống trị phong kiến và nỗi khổ của người nông dân dưới chế độ sưu thuế hà khắc"
+    ],
+    "tags": [
+      "xã hội",
+      "nông thôn",
+      "văn hóa"
+    ]
   },
   {
     "id": "tac-gia-nhieu-tac-gia",
@@ -233,90 +942,361 @@
   },
   {
     "id": "tac-gia-pham-tien-duat",
-    "title": "Chân Dung Tác Giả: Phạm Tiến Duật"
+    "title": "Chân Dung Tác Giả: Phạm Tiến Duật",
+    "nationality": "Nga",
+    "style": [
+      "thơ ông giàu chất hiện thực",
+      "tinh nghịch và ngang tàng",
+      "đậm chất lính",
+      "ông có biệt tài sử dụng ngôn ngữ đời thường",
+      "khẩu ngữ để khắc họa chân thực cuộc sống chiến trường"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "chiến tranh",
+      "nông thôn",
+      "cách mạng"
+    ]
   },
   {
     "id": "tac-gia-quang-dung",
-    "title": "Chân Dung Tác Giả: Quang Dũng"
+    "title": "Chân Dung Tác Giả: Quang Dũng",
+    "nationality": "Pháp",
+    "style": [
+      "thơ ông vừa lãng mạn hào hoa",
+      "vừa bi tráng",
+      "ngôn ngữ giàu hình ảnh và nhạc điệu",
+      "mang đậm phong cách tài hoa của một nghệ sĩ đa tài"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "chiến tranh",
+      "nông thôn",
+      "cách mạng"
+    ]
   },
   {
     "id": "tac-gia-rabindranath-tagore",
-    "title": "Chân Dung Tác Giả: Rabindranath Tagore"
+    "title": "Chân Dung Tác Giả: Rabindranath Tagore",
+    "nationality": "Anh",
+    "style": [
+      "thơ ông giàu chất trữ tình",
+      "kết hợp hài hòa giữa triết lý phương đông và tình yêu nhân loại",
+      "ngôn ngữ trong sáng",
+      "giàu hình ảnh",
+      "gợi cảm giác thanh tao"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "tình yêu",
+      "văn hóa"
+    ]
   },
   {
     "id": "tac-gia-thanh-hai",
-    "title": "Chân Dung Tác Giả: Thanh Hải"
+    "title": "Chân Dung Tác Giả: Thanh Hải",
+    "nationality": "Pháp",
+    "style": [
+      "thơ ông giàu cảm xúc",
+      "tha thiết",
+      "thể hiện tình yêu quê hương",
+      "đất nước và khát vọng cống hiến",
+      "giọng thơ trong sáng"
+    ],
+    "tags": [
+      "chiến tranh",
+      "tình yêu",
+      "nông thôn",
+      "cách mạng"
+    ]
   },
   {
     "id": "tac-gia-thanh-tinh",
-    "title": "Chân Dung Tác Giả: Thanh Tịnh"
+    "title": "Chân Dung Tác Giả: Thanh Tịnh",
+    "nationality": "Việt Nam",
+    "style": [
+      "văn phong của ông nhẹ nhàng",
+      "trong sáng",
+      "giàu chất thơ và giàu cảm xúc",
+      "ông thường viết về những kỷ niệm tuổi thơ",
+      "tình cảm gia đình và vẻ đẹp của quê hương"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-thach-lam",
-    "title": "Chân Dung Tác Giả: Thạch Lam"
+    "title": "Chân Dung Tác Giả: Thạch Lam",
+    "nationality": "Việt Nam",
+    "style": [
+      "văn phong nhẹ nhàng",
+      "tinh tế",
+      "giàu chất thơ",
+      "ông đi sâu vào thế giới nội tâm của những con người nhỏ bé",
+      "nghèo khổ nhưng giàu lòng tự trọng"
+    ],
+    "tags": [
+      "nông thôn",
+      "gia đình",
+      "thành thị"
+    ]
   },
   {
     "id": "tac-gia-the-lu",
-    "title": "Chân Dung Tác Giả: Thế Lữ"
+    "title": "Chân Dung Tác Giả: Thế Lữ",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ ông mang đậm cảm hứng lãng mạn",
+      "khát vọng tự do và chút hoài cổ",
+      "ông có công lớn trong việc hiện đại hóa thơ ca và sân khấu việt nam"
+    ],
+    "tags": [
+      "nông thôn",
+      "lịch sử"
+    ]
   },
   {
     "id": "tac-gia-tran-quoc-tuan",
-    "title": "Chân Dung Tác Giả: Trần Quốc Tuấn"
+    "title": "Chân Dung Tác Giả: Trần Quốc Tuấn",
+    "era": "NHÀ TRẦN",
+    "nationality": "Việt Nam",
+    "style": [
+      "văn chương của ông mang đậm tính chính luận",
+      "lập luận sắc bén",
+      "giọng điệu thống thiết và hùng hồn",
+      "ông có biệt tài khích lệ tinh thần chiến đấu và khơi dậy lòng tự hào dân tộc"
+    ],
+    "tags": [
+      "gia đình",
+      "văn hóa",
+      "lịch sử"
+    ]
   },
   {
     "id": "tac-gia-tao-tuyet-can",
-    "title": "Chân Dung Tác Giả: Tào Tuyết Cần"
+    "title": "Chân Dung Tác Giả: Tào Tuyết Cần",
+    "nationality": "Trung Quốc",
+    "style": [
+      "ngòi bút tinh tế",
+      "đi sâu vào tâm lý nhân vật và phản ánh sự suy vong của xã hội phong kiến",
+      "tác phẩm của ông được đánh giá là một \"bách khoa toàn thư\" về đời sống văn hóa",
+      "xã hội thời bấy giờ"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "gia đình",
+      "văn hóa",
+      "xã hội"
+    ]
   },
   {
     "id": "tac-gia-to-hoai",
-    "title": "Chân Dung Tác Giả: Tô Hoài"
+    "title": "Chân Dung Tác Giả: Tô Hoài",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngòi bút tinh tế",
+      "giàu chất thơ",
+      "ông đặc biệt thành công khi viết về đề tài miền núi và thiếu nhi",
+      "với khả năng quan sát và miêu tả tâm lý nhân vật độc đáo"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-to-thuc",
-    "title": "Chân Dung Tác Giả: Tô Thức"
+    "title": "Chân Dung Tác Giả: Tô Thức",
+    "nationality": "Trung Quốc",
+    "style": [
+      "thơ ông bay bổng",
+      "giàu triết lý nhân sinh",
+      "thể hiện tâm hồn phóng khoáng",
+      "ông là đại diện tiêu biểu cho phái thơ hào phóng",
+      "với những vần thơ mang tầm vũ trụ và tư tưởng tự do"
+    ],
+    "tags": [
+      "văn hóa"
+    ]
   },
   {
     "id": "tac-gia-tan-da",
-    "title": "Chân Dung Tác Giả: Tản Đà"
+    "title": "Chân Dung Tác Giả: Tản Đà",
+    "nationality": "Việt Nam",
+    "tags": [
+      "nông thôn",
+      "gia đình"
+    ]
   },
   {
     "id": "tac-gia-to-huu",
-    "title": "Chân Dung Tác Giả: Tố Hữu"
+    "title": "Chân Dung Tác Giả: Tố Hữu",
+    "era": "THẾ KỶ XX",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ ông mang đậm tính chính trị và khuynh hướng sử thi",
+      "thể hiện lý tưởng cộng sản và tình yêu quê hương tha thiết",
+      "giọng thơ vừa hào hùng vừa trữ tình"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "tình yêu",
+      "nông thôn",
+      "cách mạng"
+    ]
   },
   {
     "id": "tac-gia-victor-hugo",
-    "title": "Chân Dung Tác Giả: Victor Hugo"
+    "title": "Chân Dung Tác Giả: Victor Hugo",
+    "nationality": "Pháp",
+    "style": [
+      "văn chương của ông phản ánh sâu sắc những bất công xã hội",
+      "ca ngợi tình yêu thương",
+      "lòng nhân đạo và khát vọng vươn tới ánh sáng",
+      "ngôn ngữ vừa hùng tráng",
+      "vừa giàu hình ảnh và cảm xúc"
+    ],
+    "tags": [
+      "tình yêu",
+      "xã hội"
+    ]
   },
   {
     "id": "tac-gia-vien-phuong",
-    "title": "Chân Dung Tác Giả: Viễn Phương"
+    "title": "Chân Dung Tác Giả: Viễn Phương",
+    "nationality": "Pháp",
+    "style": [
+      "thơ ông giàu cảm xúc",
+      "tha thiết",
+      "thể hiện tình yêu quê hương",
+      "đất nước và lòng kính trọng đối với bác hồ",
+      "giọng thơ trong sáng"
+    ],
+    "tags": [
+      "chiến tranh",
+      "thiên nhiên",
+      "tuổi trẻ",
+      "cách mạng",
+      "tình yêu",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-vu-trong-phung",
-    "title": "Chân Dung Tác Giả: Vũ Trọng Phụng"
+    "title": "Chân Dung Tác Giả: Vũ Trọng Phụng",
+    "nationality": "Việt Nam",
+    "style": [
+      "ngòi bút trào phúng",
+      "châm biếm sắc lạnh",
+      "phơi bày bộ mặt thật của xã hội tư sản thành thị thời kỳ âu hóa với đầy rẫy những thói hư tật xấu",
+      "lố lăng và giả dối"
+    ],
+    "tags": [
+      "trào phúng",
+      "thành thị",
+      "xã hội",
+      "lịch sử",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-william-shakespeare",
-    "title": "Chân Dung Tác Giả: William Shakespeare"
+    "title": "Chân Dung Tác Giả: William Shakespeare",
+    "nationality": "Anh",
+    "style": [
+      "ngôn ngữ của shakespeare vô cùng phong phú",
+      "sáng tạo",
+      "ông đã đóng góp hàng ngàn từ mới vào tiếng anh",
+      "ông là bậc thầy trong việc khắc họa tâm lý con người",
+      "đi sâu vào những góc tối của lòng tham"
+    ],
+    "tags": [
+      "tình yêu",
+      "gia đình",
+      "bi kịch",
+      "lịch sử"
+    ]
   },
   {
     "id": "tac-gia-xuan-dieu",
-    "title": "Chân Dung Tác Giả: Xuân Diệu"
+    "title": "Chân Dung Tác Giả: Xuân Diệu",
+    "nationality": "Việt Nam",
+    "style": [
+      "đề cao khát vọng sống mãnh liệt",
+      "giao cảm với thiên nhiên và tình yêu cuồng nhiệt",
+      "ông đem đến một quan niệm sống mới mẻ",
+      "hiện đại cho thơ ca việt nam"
+    ],
+    "tags": [
+      "thiên nhiên",
+      "tình yêu",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-xuan-quynh",
-    "title": "Chân Dung Tác Giả: Xuân Quỳnh"
+    "title": "Chân Dung Tác Giả: Xuân Quỳnh",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ bà luôn trăn trở về tình yêu",
+      "hạnh phúc gia đình và khát vọng sống của người phụ nữ",
+      "giọng thơ vừa hồn nhiên",
+      "vừa sâu lắng",
+      "day dứt"
+    ],
+    "tags": [
+      "gia đình",
+      "thiên nhiên",
+      "phụ nữ",
+      "tình yêu",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-y-phuong",
-    "title": "Chân Dung Tác Giả: Y Phương"
+    "title": "Chân Dung Tác Giả: Y Phương",
+    "nationality": "Việt Nam",
+    "style": [
+      "thơ ông mang đậm bản sắc dân tộc tày",
+      "giàu hình ảnh và nhạc điệu",
+      "ông thường khai thác đề tài về tình cảm gia đình",
+      "quê hương và lòng tự hào dân tộc"
+    ],
+    "tags": [
+      "gia đình",
+      "văn hóa",
+      "chiến tranh",
+      "thiên nhiên",
+      "cách mạng",
+      "nông thôn"
+    ]
   },
   {
     "id": "tac-gia-dang-tran-con",
-    "title": "Chân Dung Tác Giả: Đặng Trần Côn"
+    "title": "Chân Dung Tác Giả: Đặng Trần Côn",
+    "era": "THẾ KỶ XVIII",
+    "nationality": "Anh",
+    "tags": [
+      "nông thôn",
+      "phụ nữ"
+    ]
   },
   {
     "id": "tac-gia-do-phu",
-    "title": "Chân Dung Tác Giả: Đỗ Phủ"
+    "title": "Chân Dung Tác Giả: Đỗ Phủ",
+    "nationality": "Trung Quốc",
+    "style": [
+      "thơ ông hiện thực sâu sắc",
+      "phản ánh nỗi khổ của nhân dân và sự suy vong của xã hội phong kiến",
+      "ông được xem là nhà thơ của nhân dân",
+      "luôn đồng cảm với những mảnh đời bất hạnh"
+    ],
+    "tags": [
+      "xã hội",
+      "lịch sử"
+    ]
   }
 ]
