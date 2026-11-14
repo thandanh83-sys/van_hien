@@ -36,7 +36,8 @@
     "./js/ai/nlp/entity-extractor.js",
     "./js/ai/nlp/intent-definitions.js",
     "./js/ai/nlp/language-signals.js",
-    "./js/ai/output-ai.js"
+    "./js/ai/output-ai.js",
+    "./js/ai/smart-input-parser.js"
   ],
   "js_agents": [
     "./js/ai/agents/analysis.js",
