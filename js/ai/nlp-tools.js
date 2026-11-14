@@ -2,13 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO AI - NLP TOOLS (js/ai/nlp-tools.js)
  * Vị trí: js/ai/nlp-tools.js
- * Version: 3.0.0 (Deep Cleaning & Stopwords Integration)
+ * Version: 3.1.0 (Deep Cleaning & Stopwords Integration)
  * ==========================================================
  * TRIẾT LÝ THIẾT KẾ:
  * 1. Không để AI bắt nhầm "từ rác": Bổ sung bộ lọc STOPWORDS (Từ dừng)
  *    để loại bỏ các đại từ, liên từ, trợ từ vô nghĩa (như "ai", "là", "gì").
- *    Điều này cực kỳ quan trọng để các Agent (Praiser, Critic) không
- *    lấy nhầm chữ "ai" trong câu hỏi "ai viết truyện kiều" để làm câu thơ.
+ *    Điều này cực kỳ quan trọng để các Agent (Praiser, Critic, LiteraryEngine) 
+ *    không lấy nhầm chữ "ai" trong câu hỏi "ai viết truyện kiều" để làm câu thơ.
  * 2. Sửa lỗi chính tả an toàn: Dùng thuật toán Dice Coefficient.
  * 3. Tách từ dính thông minh: Dựa vào vốn từ đã học từ DataHub.
  * ==========================================================
@@ -29,10 +29,12 @@ export function buildVocabulary() {
 
     const tempSet = new Set();
 
+    // Fallback nếu DataHub chưa sẵn sàng
     if (!STATE.GLOBAL_RECORDS || STATE.GLOBAL_RECORDS.length === 0) {
         const fallback = ['tac gia', 'tac pham', 'truyen kieu', 'nguyen du', 'tom tat', 'phan tich'];
         fallback.forEach(w => tempSet.add(w));
     } else {
+        // Trích xuất tự động từ DataHub
         STATE.GLOBAL_RECORDS.forEach(record => {
             const item = record.data;
             if (item.title) tempSet.add(basicNormalize(item.title));
@@ -166,17 +168,18 @@ function fuzzyCorrect(text) {
 /**
  * Danh sách các từ vô nghĩa (đại từ, liên từ, trợ từ, giới từ).
  * AI KHÔNG ĐƯỢC PHÉP lấy những từ này làm trọng tâm phân tích.
- * Khi Praiser/Critic cần trích xuất câu thơ, phải gọi hàm này để lọc.
+ * Khi LiteraryEngine cần trích xuất câu thơ, phải gọi hàm isStopword.
  */
 const STOPWORDS = new Set([
     "ai", "la", "gi", "the", "nao", "tai", "sao", "cua", "va", "co", "trong", 
     "cho", "nhung", "cac", "mot", "duoc", "voi", "da", "de", "khi", "ra", 
     "ve", "tu", "nhu", "nguoi", "thi", "ma", "nay", "do", "cung", "se", 
     "dang", "toi", "ban", "minh", "ho", "chung", "no", "cac", "nhung",
-    "phai", "khong", "roi", "nhe", "nha", "a", "oi", "hich", "ha"
+    "phai", "khong", "roi", "nhe", "nha", "a", "oi", "hich", "ha", "vay", "day"
 ]);
 
 export function isStopword(word) {
+    if (!word) return true;
     return STOPWORDS.has(word.toLowerCase().trim());
 }
 
