@@ -2,40 +2,49 @@
  * ==========================================================
  * VĂN ĐẠO AI - OUTPUT AI (js/ai/output-ai.js)
  * Vị trí: js/ai/output-ai.js
- * Version: 3.2.0 (Thiền Vị & Nho Phong - History Edition)
+ * Version: 4.2.0 (Soul Edition & Smart Rendering)
  * ==========================================================
- * CHỨC NĂNG:
- * - Định dạng kết quả từ Master AI thành HTML hiển thị.
- * - Khoác lên câu trả lời phong thái "Văn Đạo": Trang trọng, từ bi, trí thức.
- * - Tự động tạo "Lời dẫn" phù hợp với ngữ cảnh (Đặc biệt là Lịch sử).
+ * TRIẾT LÝ THIẾT KẾ:
+ * 1. Ngôn từ có hồn: Lời dẫn (Intro) và Lời kết (Outro) được chia theo
+ *    ngữ cảnh (Tác giả, Tác phẩm, Thi pháp, Lịch sử) với giọng văn
+ *    Nho - Đạo - Phật, tao nhã và sâu sắc.
+ * 2. Trực quan: Tự động phát hiện nếu câu trả lời chứa HTML (như từ
+ *    AnalysisAgent) để render đúng cách, không bị lỗi hiển thị.
+ * 3. Kết nối: Hiển thị lại các thẻ Meta (Cơ duyên gặp gỡ) để người
+ *    dùng có thể click chuyển thẳng đến Bách Khoa để đọc tiếp.
  * ==========================================================
  */
 
 import { escapeHTML } from '../utils.js';
 
 // =====================================================================
-// KHO TÀNG NGÔN TỪ (Lời dẫn & Kết luận)
+// KHO TÀNG NGÔN TỪ (Lời dẫn & Kết luận) - ĐA DẠNG NGỮ CẢNH
 // =====================================================================
 const PHRASES = {
     intro: [
-        "Đạo là nước, tri thức là thuyền. Mời bạn bước lên chuyến đò tri thức này:",
-        "Nhân duyên đưa đẩy, mời bạn cùng ta mở cuốn sách này ra:",
-        "Văn dĩ tải đạo. Mỗi câu chữ đều chuyên chở một tầng nghĩa. Đây là những gì ta tìm thấy:"
+        "Càn khôn bao la, tri thức là hạt cát. Mời bạn cùng ta mở cuốn sách này:",
+        "Có những câu hỏi không cần câu trả lời tuyệt đối, chỉ cần một tia sáng để tự thấu hiểu. Đây là những gì ta tìm thấy:",
+        "Văn dĩ tải đạo. Mỗi câu chữ đều là một nhịp thở của tiền nhân. Mời bạn chiêm nghiệm:",
+        "Nhân duyên đưa đẩy, mời bạn cùng ta lật mở trang sách này:"
     ],
     introAuthor: [
-        "Thi nhân là người thắp đuốc giữa đêm trường. Về tác giả này, ta có đôi lời:",
-        "Văn như kỳ nhân. Để hiểu tác phẩm, ta phải tìm về cội nguồn của sự sáng tạo:",
-        "Mỗi tác giả là một vì sao trên bầu trời văn học. Đây là ánh sáng của riêng họ:"
+        "Thi nhân là người thắp đuốc giữa đêm trường. Về tác giả này, cổ nhân có ghi chép rằng:",
+        "Văn như kỳ nhân. Để hiểu tác phẩm, ta phải tìm về cội nguồn của sự sáng tạo. Đôi dòng về tác giả:",
+        "Mỗi tác giả là một vì sao trên bầu trời văn học. Đây là ánh sáng của riêng họ:",
+        "Hồ sơ của một con người cũng chính là hồ sơ của một thời đại. Mời bạn xem qua:"
     ],
     introWork: [
-        "Văn chương là tấm gương phản chiếu hồn người. Về tác phẩm này:",
-        "Nhất thủ hảo thi, thiên cổ truyền tụng. Một áng văn hay muôn đời còn mãi:"
+        "Một áng văn hay tựa như dòng suối mát, gột rửa bụi trần. Về tác phẩm này:",
+        "Nhất thủ hảo thi, thiên cổ truyền tụng. Một tác phẩm chạm đến triệu trái tim:",
+        "Đứng trước cái đẹp, ngôn từ đôi khi trở nên bất lực. Nhưng xin mượn lời để giãi bày:",
+        "Tác phẩm không chỉ phản ánh hiện thực mà còn là ngọn đuốc soi đường. Đây là những tầng nghĩa:"
     ],
     introPoetics: [
         "Thi trung hữu họa, thi trung hữu nhạc. Hình ảnh trong thơ là những ẩn ngữ của tâm hồn:",
-        "Một chữ đắt giá hơn ngàn vàng. Đằng sau những hình ảnh thơ là cả một tầng văn hóa:"
+        "Một chữ đắt giá hơn ngàn vàng. Đằng sau những hình ảnh thơ là cả một tầng văn hóa:",
+        "Ngôn ngữ là nhà của hiện hữu. Cùng bóc tách những lớp nghĩa sâu kín:",
+        "Thi pháp không phải là khuôn vàng thước ngọc, mà là nghệ thuật chạm khắc tâm hồn:"
     ],
-    // [MỚI] Lời dẫn cho Lịch sử
     introHistory: [
         "Dòng thời gian miên viễn, mỗi tác phẩm là một dấu son của thời đại. Nhìn lại quá khứ, ta thấy:",
         "Lịch sử là tấm gương soi rọi hiện tại. Về bối cảnh này, cổ nhân có ghi chép rằng:",
@@ -43,9 +52,9 @@ const PHRASES = {
     ],
     outro: [
         "Học rộng để có nhiều chân trời, học sâu để thấu bản chất.",
-        "Trí tuệ là ngọn đèn soi rọi bóng đêm vô minh.",
         "Tri thức là hạt giống của hạnh phúc. Chúc bạn gieo được nhiều quả ngọt.",
-        "Tĩnh lặng là cội nguồn của mọi sáng tạo tinh thần."
+        "Tĩnh lặng là cội nguồn của mọi sáng tạo tinh thần.",
+        "Vạn sự tùy duyên, nhưng tri thức thì phải do chính mình cầu lấy."
     ],
     error: [
         "Pháp giới bao la, duyên chưa tụ nên tri thức này hiện chưa hiển lộ. Mong bạn lượng thứ.",
@@ -55,10 +64,11 @@ const PHRASES = {
 
 const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+// Chọn lời dẫn thông minh dựa vào Nguồn (Source) của dữ liệu
 const getIntroBySource = (source) => {
     if (!source) return getRandom(PHRASES.intro);
     const s = source.toLowerCase();
-    if (s.includes('history')) return getRandom(PHRASES.introHistory); // [MỚI]
+    if (s.includes('history')) return getRandom(PHRASES.introHistory); 
     if (s.includes('knowledge') || s.includes('author')) return getRandom(PHRASES.introAuthor);
     if (s.includes('literature') || s.includes('data')) return getRandom(PHRASES.introWork);
     if (s.includes('dictionary') || s.includes('poetics')) return getRandom(PHRASES.introPoetics);
@@ -92,7 +102,7 @@ export const OutputAI = {
         // 2. Xây dựng danh sách Meta (Các tác phẩm/tác giả liên quan)
         let metaList = '';
         if (result.meta && Array.isArray(result.meta) && result.meta.length > 0) {
-            const validMetas = result.meta.filter(m => m.id && (m.title || m.name));
+            const validMetas = result.meta.filter(m => m && m.id && (m.title || m.name));
             
             if (validMetas.length > 0) {
                 metaList = `
@@ -102,6 +112,7 @@ export const OutputAI = {
                             ${validMetas.map(m => {
                                 const title = m.title || m.name || m.id;
                                 let group = m._group || 'tinh-hoa';
+                                // Đoán group nếu thiếu
                                 if (m.id.startsWith('tac-gia')) group = 'ky-tai';
                                 else if (m.id.startsWith('quyen')) group = 'triet-thuyet';
                                 else if (m.id.startsWith('the-loai')) group = 'the-loai';
@@ -133,8 +144,11 @@ export const OutputAI = {
             'search-engine': 'Cỗ máy Tìm kiếm',
             'analysis': 'Thiền ý Phân tích',
             'knowledge': 'Mạng lưới Tri thức',
-            'history': 'Dòng thời gian Lịch sử', // [MỚI]
+            'history': 'Dòng thời gian Lịch sử',
             'master': 'Hệ thống Điều phối',
+            'translation': 'Chuyển ngữ',
+            'character': 'Nhân vật',
+            'comparison': 'Đối chiếu',
             'error': 'Cảnh báo'
         };
         const sourceLabel = sourceLabels[result.source] || result.source || 'Vô danh';
@@ -143,11 +157,17 @@ export const OutputAI = {
         const introText = getIntroBySource(result.source);
         const outroText = getRandom(PHRASES.outro);
 
-        // 5. Định dạng lại nội dung
-        const formattedAnswer = result.answer.replace(/\n/g, '<br>');
-        const formattedDetail = result.detail ? result.detail.replace(/\n/g, '<br>') : '';
+        // 5. Định dạng lại nội dung (Hỗ trợ HTML nếu có)
+        // Nếu answer chứa thẻ HTML (như <div>, <strong>, <i>), ta giữ nguyên.
+        // Nếu là văn bản thuần, ta thay \n bằng <br>.
+        const isHtml = /<[a-z][\s\S]*>/i.test(result.answer);
+        const formattedAnswer = isHtml ? result.answer : result.answer.replace(/\n/g, '<br>');
+        
+        const formattedDetail = result.detail 
+            ? (isHtml ? result.detail : result.detail.replace(/\n/g, '<br>')) 
+            : '';
 
-        // 6. Render HTML cuối cùng (Sử dụng Class CSS mới)
+        // 6. Render HTML cuối cùng
         container.innerHTML = `
             <div class="ask-result">
                 
