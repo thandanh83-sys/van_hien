@@ -2,12 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - UTILS MODULE (js/utils.js)
  * Vị trí: js/utils.js
- * Version: 2.0.0 (Standardized Text Processing & UI Dialogs)
+ * Version: 2.1.0 (Standardized Text Processing & Dialog Modals)
  * ==========================================================
  * CHỨC NĂNG:
  * - Các hàm tiện ích xử lý chuỗi, tiếng Việt (không dấu, chuẩn hóa).
- * - Custom Modal (showAlert, showConfirm) thay thế window.alert/confirm.
- * - Định dạng nội dung HTML.
+ * - Custom Modal (showAlert, showConfirm) sử dụng thẻ <dialog> HTML5
+ *   để đảm bảo luôn nổi lên trên cùng (Top Layer), không bị kẹt dưới
+ *   các thành phần khác như Settings Dialog.
+ * - Hỗ trợ tự động đóng (auto-close) cho showAlert.
  * ==========================================================
  */
 
@@ -82,7 +84,7 @@ export function getRecordTitleAlias(item, group) {
  */
 export function escapeHTML(str) {
     if (!str) return '';
-    return str.replace(/[&<>'"]/g, tag => ({ 
+    return String(str).replace(/[&<>'"]/g, tag => ({ 
         '&': '&amp;', 
         '<': '&lt;', 
         '>': '&gt;', 
@@ -117,37 +119,32 @@ export function formatContent(html) {
 }
 
 // ==========================================================
-// 10. CUSTOM MODAL (Thay thế alert/confirm mặc định)
+// 10. CUSTOM MODAL (Sử dụng thẻ <dialog> HTML5)
 // ==========================================================
 
 /**
  * Hiển thị hộp thoại xác nhận (Trả về Promise<boolean>)
+ * Sử dụng <dialog>.showModal() để đảm bảo luôn nằm trên Top Layer.
  */
 export function showConfirm(message, title = 'Xác nhận') {
     return new Promise((resolve) => {
-        const overlay = document.getElementById('custom-modal-overlay');
-        const modal = document.getElementById('custom-modal');
+        const dialog = document.getElementById('custom-modal-overlay');
         const titleEl = document.getElementById('custom-modal-title');
         const msgEl = document.getElementById('custom-modal-message');
         const btnCancel = document.getElementById('custom-modal-cancel');
         const btnConfirm = document.getElementById('custom-modal-confirm');
 
-        if (!overlay) return resolve(window.confirm(message));
+        if (!dialog) return resolve(window.confirm(message));
 
         titleEl.textContent = title;
         msgEl.textContent = message;
         btnCancel.style.display = 'block';
-        btnConfirm.textContent = 'Đồng ý'; // Reset text
+        btnConfirm.textContent = 'Đồng ý'; 
         
-        overlay.style.display = 'flex';
-        void overlay.offsetWidth;
-        overlay.style.opacity = '1';
-        modal.style.transform = 'scale(1)';
+        dialog.showModal();
 
         const close = (result) => {
-            overlay.style.opacity = '0';
-            modal.style.transform = 'scale(0.95)';
-            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+            dialog.close();
             btnConfirm.onclick = null;
             btnCancel.onclick = null;
             resolve(result);
@@ -160,32 +157,35 @@ export function showConfirm(message, title = 'Xác nhận') {
 
 /**
  * Hiển thị hộp thoại thông báo
+ * @param {string} message - Nội dung
+ * @param {string} title - Tiêu đề
+ * @param {number} autoCloseMs - Thời gian tự động đóng (ms). Mặc định 0 là không đóng.
  */
-export function showAlert(message, title = 'Thông báo') {
+export function showAlert(message, title = 'Thông báo', autoCloseMs = 0) {
     return new Promise((resolve) => {
-        const overlay = document.getElementById('custom-modal-overlay');
-        const modal = document.getElementById('custom-modal');
+        const dialog = document.getElementById('custom-modal-overlay');
         const titleEl = document.getElementById('custom-modal-title');
         const msgEl = document.getElementById('custom-modal-message');
         const btnCancel = document.getElementById('custom-modal-cancel');
         const btnConfirm = document.getElementById('custom-modal-confirm');
 
-        if (!overlay) return resolve(window.alert(message));
+        if (!dialog) return resolve(window.alert(message));
 
         titleEl.textContent = title;
         msgEl.textContent = message;
         btnCancel.style.display = 'none';
         btnConfirm.textContent = 'Đóng';
         
-        overlay.style.display = 'flex';
-        void overlay.offsetWidth;
-        overlay.style.opacity = '1';
-        modal.style.transform = 'scale(1)';
+        dialog.showModal();
+
+        let timer;
+        if (autoCloseMs > 0) {
+            timer = setTimeout(() => close(), autoCloseMs);
+        }
 
         const close = () => {
-            overlay.style.opacity = '0';
-            modal.style.transform = 'scale(0.95)';
-            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+            clearTimeout(timer);
+            dialog.close();
             btnConfirm.onclick = null;
             resolve();
         };
