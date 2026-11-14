@@ -1,19 +1,18 @@
 /**
  * ==========================================================
- * VĂN ĐẠO AI - SMART INPUT PARSER (BỘ GIẢI MÃ NGỮ NGHĨA)
+ * VĂN ĐẠO AI - SMART INPUT PARSER (js/ai/smart-input-parser.js)
  * Vị trí: js/ai/smart-input-parser.js
- * Version: 1.0.0 (Unified Semantic Parser)
+ * Version: 2.0.0 (Omnibox Auto-Routing)
  * ==========================================================
- * CHỨC NĂNG:
- * - Hiểu ý định (Intent), Cảm xúc ẩn (Mood), và Thể loại từ câu hỏi.
- * - Làm sạch từ khóa (coreKeyword) để tra cứu chính xác hơn.
- * - Tự động phân luồng: Gõ từ khóa ngắn -> Search, Gõ câu dài -> Ask Dạo.
+ * TRIẾT LÝ:
+ * - Phân biệt: Người dùng đang gõ "từ khóa" hay đang "đặt câu hỏi"?
+ * - Nếu gõ 1-2 từ ngắn -> Search Mode (Tìm kiếm nhanh).
+ * - Nếu gõ câu dài, có dấu '?' hoặc động từ ("phân tích", "cảm nhận") -> Ask Mode (Pipeline).
  * ==========================================================
  */
 
 import { normalizeRouteText } from '../utils.js';
 
-// Từ điển ánh xạ ngữ nghĩa đời thường -> Dữ liệu Tàng thư
 const SEMANTIC_DICTIONARY = {
   moods: {
     'buon': ['buồn', 'sầu', 'cô đơn', 'nhớ', 'khóc', 'bi thương', 'hoài niệm', 'tâm trạng'],
@@ -35,8 +34,7 @@ export const SmartInputParser = {
     const normText = normalizeRouteText(cleanText);
     const wordCount = cleanText.split(/\s+/).filter(Boolean).length;
 
-    // 1. Nhận diện Ý định (Intent)
-    let detectedIntent = 'search'; // Mặc định là tìm kiếm nhanh
+    let detectedIntent = 'search';
     for (const [intent, keywords] of Object.entries(SEMANTIC_DICTIONARY.intents)) {
       if (keywords.some(kw => normText.includes(normalizeRouteText(kw)))) {
         detectedIntent = intent;
@@ -44,12 +42,11 @@ export const SmartInputParser = {
       }
     }
 
-    // Nếu câu dài (>= 5 từ) hoặc có dấu hỏi '?' -> Tự động nâng cấp thành Ask Dạo
+    // Omnibox Logic: Nếu câu dài (>= 5 từ) hoặc có dấu '?' -> Tự động kích hoạt Pipeline
     if (detectedIntent === 'search' && (wordCount >= 5 || cleanText.includes('?'))) {
       detectedIntent = 'analyze';
     }
 
-    // 2. Nhận diện Cảm xúc ẩn (Mood)
     let detectedMood = null;
     for (const [moodKey, synonyms] of Object.entries(SEMANTIC_DICTIONARY.moods)) {
       if (synonyms.some(syn => normText.includes(normalizeRouteText(syn)))) {
@@ -58,7 +55,6 @@ export const SmartInputParser = {
       }
     }
 
-    // 3. Làm sạch từ khóa cốt lõi (Loại bỏ từ thừa để Search chính xác hơn)
     const stopWords = ['phan tich', 'cam nhan', 'tim giup', 'co bai nao', 've', 'cua', 'tac pham', 'bai tho', 'goi y', 'hay', 'cho toi'];
     let coreKeyword = normText;
     stopWords.forEach(sw => {
@@ -68,9 +64,9 @@ export const SmartInputParser = {
     return {
       raw: cleanText,
       normalized: normText,
-      coreKeyword: coreKeyword || normText, // Từ khóa tinh gọn để tra DataHub
-      intent: detectedIntent,               // 'search' | 'analyze' | 'compare' | 'recommend' | 'fortune'
-      mood: detectedMood,                   // 'buon' | 'hao-hung' | 'vui' | 'tinh-yeu' | null
+      coreKeyword: coreKeyword || normText,
+      intent: detectedIntent,
+      mood: detectedMood,
       isDeepQuery: detectedIntent !== 'search'
     };
   }
