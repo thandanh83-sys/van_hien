@@ -6,6 +6,7 @@
   ],
   "css": [
     "./css/base.css",
+    "./css/components-bach-ngoc.css",
     "./css/components.css",
     "./css/layouts.css",
     "./css/reader.css",
