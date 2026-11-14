@@ -2,16 +2,18 @@
  * ==========================================================
  * VĂN ĐẠO AI - CHARACTER AGENT (js/ai/agents/character.js)
  * Vị trí: js/ai/agents/character.js
- * Version: 1.0.0 (Plugin Architecture)
+ * Version: 1.1.0 (Special Detector for Character)
  * ==========================================================
  * CHỨC NĂNG:
  * - Tìm kiếm thông tin về nhân vật văn học (Thúy Kiều, Chí Phèo, Tấm, Cám...).
  * - Xác định nhân vật xuất hiện trong tác phẩm nào.
- * - Sử dụng thuật toán quét văn bản (Text Scanning) trên kho dữ liệu hiện có.
+ * - Nhận diện câu hỏi dạng "X là ai" nếu X là Nhân vật.
  * 
- * TRIẾT LÝ:
- * - Không tự ý fetch dữ liệu. Mọi thứ đi qua DataHub/APP_DATA.
- * - Kết quả trả về phải có cấu trúc chuẩn (answer, detail, source, meta).
+ * LỊCH SỬ PHIÊN BẢN:
+ * - v1.0.0: Plugin Architecture.
+ * - v1.1.0: Thêm `specialDetector` để nhận diện intent `get-character-info`
+ *           từ câu hỏi tự nhiên (VD: "Thúy Kiều là ai?").
+ *           Giúp IntentRouter phân biệt giữa Tác giả và Nhân vật.
  * ==========================================================
  */
 
@@ -95,9 +97,6 @@ export const CharacterAgent = {
                 context = `Nhân vật xuất hiện trong tác phẩm "${work.title}".`;
             }
 
-            // 3. (Tùy chọn) Kiểm tra trong nội dung chi tiết nếu có thể (Cần fetch từ DataHub)
-            // Để tối ưu hiệu năng, chúng ta tạm dừng ở đây. Nếu tìm thấy trong Tiêu đề hoặc Desc là đủ.
-
             if (matched) {
                 findings.push({
                     work: work,
@@ -158,26 +157,11 @@ export const CharacterAgent = {
 };
 
 // =====================================================================
-// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// AGENT INFO - Tự mô tả metadata cho Auto-Registry (v7.0.0+)
 // =====================================================================
 /**
  * Metadata tự mô tả của CharacterAgent.
- * Chuyên trách tra cứu nhân vật văn học (Thúy Kiều, Chí Phèo, Tấm, Cám...).
- *
- * CƠ CHẾ HOẠT ĐỘNG (Text Scanning):
- * - Duyệt qua `APP_DATA.WORKS_DATA` (kho tác phẩm trong RAM).
- * - Tìm nhân vật trong 2 nguồn:
- *     1. Tiêu đề tác phẩm (VD: "Chí Phèo" -> tên tác phẩm).
- *     2. Trường mô tả (desc) của tác phẩm.
- * - KHÔNG fetch nội dung chi tiết (content) để tối ưu hiệu năng,
- *   vì nội dung chi tiết thường rất dài và ít khi chứa tên nhân vật
- *   dạng đủ rõ để match chuẩn xác.
- *
- * NÂNG CẤP TRONG TƯƠNG LAI:
- * - Có thể thêm quét `content` (chi tiết) hoặc dùng DataHub để
- *   lấy nội dung đã cache offline, giúp tăng độ chính xác.
- * - Có thể mở rộng danh sách nhân vật được index sẵn (characters
- *   dictionary) để tăng tốc tra cứu.
+ * Chuyên trách tra cứu nhân vật văn học.
  */
 CharacterAgent.agentInfo = {
     // ---- Định danh ----
@@ -198,10 +182,57 @@ CharacterAgent.agentInfo = {
 
     // ---- Từ khóa nhận diện Intent ----
     intentPatterns: {
-        // 'la ai' rất dễ trùng với các intent khác (VD: 'find-author-of'
-        // cũng có 'la ai' trong câu "ai là tác giả của..."), nhưng
-        // InputAI sẽ ưu tiên theo thứ tự đăng ký trong DynamicIntentPatterns.
-        // Trong thực tế, cần kết hợp thêm context (VD: có 'nhan vat' đi kèm).
-        'get-character-info': ['nhan vat', 'character', 'la ai', 'nhan vat nao']
+        // Đã xóa 'la ai' để tránh xung đột với KnowledgeAgent.
+        // Việc nhận diện 'la ai' sẽ do specialDetector đảm nhận.
+        'get-character-info': ['nhan vat', 'character', 'nhan vat nao']
+    },
+
+    // =================================================================
+    // [v1.1.0 - THÊM MỚI] SPECIAL DETECTOR
+    // =================================================================
+    /**
+     * Nhận diện câu hỏi dạng "X là ai" nếu X là Nhân vật.
+     * 
+     * Cơ chế:
+     * - Kiểm tra mẫu câu "X là ai" hoặc "X là gì".
+     * - Trích xuất tên thực thể X.
+     * - Quét trong kho tác phẩm (APP_DATA.WORKS_DATA).
+     * - Nếu tìm thấy X xuất hiện trong tác phẩm -> Trả về intent 'get-character-info'.
+     * - Nếu không tìm thấy (VD: là Tác giả, Thuật ngữ), trả về null để Agent khác xử lý.
+     * 
+     * Lưu ý: Logic này chạy SAU KnowledgeAgent (do thứ tự trong AGENT_CLASSES).
+     * Nếu KnowledgeAgent đã nhận diện là Tác giả, CharacterAgent sẽ không được gọi.
+     * Nếu KnowledgeAgent trả về null (không phải Tác giả), CharacterAgent sẽ thử sức.
+     * 
+     * @param {string} text - Câu đã chuẩn hóa (không dấu, không dấu câu).
+     * @returns {string|null} 
+     */
+    specialDetector: (text) => {
+        if (!text || typeof text !== 'string') return null;
+
+        // 1. Kiểm tra mẫu câu kết thúc bằng "la ai" hoặc "la gi"
+        if (!/\b(la ai|la gi)\b/.test(text)) return null;
+        
+        const match = text.match(/^(.+?)\s+(la ai|la gi)$/);
+        if (!match) return null;
+        
+        // 2. Làm sạch tên thực thể
+        const entityName = match[1]
+            .replace(/\b(nhan vat|character|thong tin ve)\b/g, '')
+            .trim();
+            
+        if (!entityName) return null;
+
+        // 3. Quét trong kho tác phẩm để tìm nhân vật
+        const normalizedQuery = normalizeRouteText(entityName);
+        const findings = CharacterAgent._scanWorksForCharacter(normalizedQuery);
+        
+        // 4. Nếu tìm thấy nhân vật -> Nhận diện
+        if (findings.length > 0) {
+            return 'get-character-info';
+        }
+        
+        // Nếu không tìm thấy -> Nhường cho Agent khác (PoeticsAgent, ...)
+        return null;
     }
 };
