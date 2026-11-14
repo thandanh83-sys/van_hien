@@ -2,92 +2,89 @@
  * ==========================================================
  * VĂN ĐẠO AI - LITERARY REASONING ENGINE
  * Vị trí: js/ai/literary-engine.js
- * Version: 1.0.0 (Context-Aware Analysis)
+ * Version: 2.0.0 (Deep Context & Prosody Analysis)
  * ==========================================================
  * TRIẾT LÝ THIẾT KẾ:
- * 1. Không cắt chuỗi vô hồn: Thay vì lấy 40 ký tự đầu tiên, Engine này
- *    phân tích cấu trúc bài thơ để tìm ra "Câu thơ trung tâm" (câu dài nhất
- *    và có ý nghĩa nhất).
- * 2. Bóc tách ngữ cảnh (Context): Cung cấp thông tin về câu trước, câu sau,
- *    vị trí của câu thơ trong bài để Agent có cái nhìn toàn cảnh.
- * 3. Phân tích Thanh điệu (Prosody): Đếm số lượng Bằng/Trắc để đưa ra
- *    nhận xét về nhịp điệu (êm đềm hay dồn nén).
- * 4. Hoàn toàn Đồng bộ (Sync): Chạy bằng Regex và JS thuần, không gọi
- *    mạng, không dùng async/await, giúp tích hợp dễ dàng mọi nơi.
+ * 1. Không cắt chuỗi vô hồn: Sử dụng bộ lọc Stopwords để loại bỏ
+ *    các từ rác (ai, là, gì, thế nào). Chỉ chọn câu thơ thực sự.
+ * 2. Phân tích Thanh điệu (Prosody): Đếm số lượng Bằng (Ngang, Huyền)
+ *    và Trắc (Sắc, Hỏi, Ngã, Nặng) để hiểu nhịp điệu cảm xúc.
+ * 3. Phân tích Ngữ cảnh (Context): Lấy câu trước, câu sau để AI
+ *    có cái nhìn toàn cảnh, không đánh giá câu thơ một cách cục bộ.
  * ==========================================================
  */
 
+import { isStopword } from './nlp-tools.js';
+
 export const LiteraryEngine = {
     /**
-     * Phân tích văn bản thô và trả về Gói ngữ cảnh (Context Package).
+     * Bóc tách gói ngữ cảnh từ văn bản thô.
      * 
-     * @param {string} rawText - Văn bản người dùng nhập (bài thơ, đoạn văn).
-     * @returns {Object} Gói ngữ cảnh bao gồm coreLine, context, prosody.
+     * @param {string} rawText - Văn bản người dùng nhập.
+     * @param {string} workTitle - Tên tác phẩm (nếu có).
+     * @returns {Object} Gói ngữ cảnh (Context Package).
      */
-    analyzeContext(rawText) {
+    analyzeContext(rawText, workTitle = '') {
         if (!rawText || typeof rawText !== 'string') {
             return this._getEmptyPackage();
         }
 
-        // 1. Tách dòng, loại bỏ dòng trống
-        const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        // 1. Tách dòng và làm sạch
+        const rawLines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         
-        if (lines.length === 0) {
-            return this._getEmptyPackage();
-        }
+        // 2. Lọc bỏ các dòng rác (quá ngắn hoặc chứa toàn stopwords)
+        const validLines = rawLines.filter(line => {
+            if (line.length < 5) return false; // Quá ngắn (như "ai")
+            const words = line.split(/\s+/);
+            const meaningfulWords = words.filter(w => !isStopword(w) && w.length > 1);
+            return meaningfulWords.length > 0; // Phải có ít nhất 1 từ có nghĩa
+        });
 
-        // 2. Tìm "Câu thơ trung tâm" (Core Line)
-        // Ưu tiên câu dài nhất (trên 10 ký tự) để tránh lấy nhầm tiêu đề hoặc từ đơn lẻ
+        // Nếu không có dòng nào hợp lệ, lấy tạm dòng dài nhất bất chấp
+        const linesToUse = validLines.length > 0 ? validLines : [rawLines.reduce((a, b) => a.length > b.length ? a : b, '')];
+
+        // 3. Tìm "Câu thơ trung tâm" (Core Line)
+        // Ưu tiên câu dài nhất trong các dòng hợp lệ
         let coreIndex = 0;
         let maxLength = 0;
-        
-        lines.forEach((line, idx) => {
-            // Loại bỏ các dòng có vẻ như là tiêu đề (chứa ít từ, toàn viết hoa)
-            const isTitle = line === line.toUpperCase() && line.length < 30;
-            if (!isTitle && line.length > maxLength) {
+        linesToUse.forEach((line, idx) => {
+            if (line.length > maxLength) {
                 maxLength = line.length;
                 coreIndex = idx;
             }
         });
 
-        // Fallback: Nếu không tìm thấy câu nào > 10 ký tự, lấy câu đầu tiên
-        if (maxLength < 10 && lines.length > 0) {
-            coreIndex = 0;
-        }
+        const coreLine = linesToUse[coreIndex];
 
-        const coreLine = lines[coreIndex];
+        // 4. Lấy ngữ cảnh (câu trước, câu sau)
+        const prevLine = coreIndex > 0 ? linesToUse[coreIndex - 1] : null;
+        const nextLine = coreIndex < linesToUse.length - 1 ? linesToUse[coreIndex + 1] : null;
 
-        // 3. Lấy ngữ cảnh (câu trước, câu sau)
-        const prevLine = coreIndex > 0 ? lines[coreIndex - 1] : null;
-        const nextLine = coreIndex < lines.length - 1 ? lines[coreIndex + 1] : null;
-
-        // 4. Phân tích Thanh điệu (Bằng/Trắc) của câu trung tâm
+        // 5. Phân tích Thanh điệu và Vần
         const prosody = this._analyzeProsody(coreLine);
+        const rhyme = this._findRhyme(coreLine, nextLine);
 
         return {
             isValid: true,
-            rawText,
+            workTitle,
             coreLine,
             coreIndex,
-            totalLines: lines.length,
+            totalLines: linesToUse.length,
             context: {
                 prevLine,
                 nextLine,
-                positionText: `câu ${coreIndex + 1}/${lines.length}`
+                positionText: `câu ${coreIndex + 1}/${linesToUse.length}`
             },
-            prosody
+            prosody,
+            rhyme
         };
     },
 
     /**
-     * Phân tích thanh điệu của một câu thơ.
-     * Trả về số lượng chữ Bằng, Trắc và nhận xét sơ bộ.
-     * 
-     * @param {string} line - Câu thơ cần phân tích.
-     * @returns {Object} { bang, trac, rhythmType, description }
+     * Phân tích thanh điệu (Bằng/Trắc) của một câu thơ.
      */
     _analyzeProsody(line) {
-        if (!line) return { bang: 0, trac: 0, rhythmType: 'unknown', description: '' };
+        if (!line) return { bang: 0, trac: 0, rhythmType: 'unknown' };
 
         // Tách thành các từ (chữ)
         const words = line.match(/[\p{L}\p{N}]+/gu) || [];
@@ -95,48 +92,58 @@ export const LiteraryEngine = {
         let trac = 0;
 
         words.forEach(word => {
-            // Chuẩn hóa NFD để kiểm tra dấu thanh
             const nfd = word.normalize('NFD');
-            
-            // Thanh Huyền (\u0300) và Không dấu là Bằng
             // Thanh Sắc (\u0301), Hỏi (\u0309), Ngã (\u0303), Nặng (\u0323) là Trắc
             if (nfd.includes('\u0301') || nfd.includes('\u0309') || nfd.includes('\u0303') || nfd.includes('\u0323')) {
                 trac++;
             } else {
-                bang++;
+                bang++; // Ngang hoặc Huyền
             }
         });
 
-        // Nhận xét nhịp điệu dựa trên tỷ lệ Bằng/Trắc
         let rhythmType = 'balanced';
-        let description = '';
+        if (bang > trac * 1.5) rhythmType = 'gentle';
+        else if (trac > bang * 1.5) rhythmType = 'intense';
 
-        if (bang > trac * 1.5) {
-            rhythmType = 'gentle';
-            description = 'Câu thơ nghiêng về thanh Bằng, tạo cảm giác êm đềm, trải dài và tĩnh tại.';
-        } else if (trac > bang * 1.5) {
-            rhythmType = 'intense';
-            description = 'Câu thơ nặng về thanh Trắc, dồn nén cảm xúc, tạo ra những nhịp gấp gáp, trăn trở.';
-        } else {
-            rhythmType = 'balanced';
-            description = 'Sự đan xen hài hòa giữa Bằng và Trắc tạo nên một nhịp điệu cân bằng, uyển chuyển.';
-        }
-
-        return { bang, trac, total: words.length, rhythmType, description };
+        return { bang, trac, total: words.length, rhythmType };
     },
 
     /**
-     * Trả về gói ngữ cảnh rỗng (an toàn) khi không có dữ liệu.
+     * Tìm vần điệu sơ bộ (chỉ kiểm tra âm cuối).
      */
+    _findRhyme(line1, line2) {
+        if (!line1 || !line2) return { hasRhyme: false, details: '' };
+        
+        const getLastSyllable = (l) => {
+            const words = l.match(/[\p{L}\p{N}]+/gu) || [];
+            return words[words.length - 1] || '';
+        };
+
+        const w1 = getLastSyllable(line1);
+        const w2 = getLastSyllable(line2);
+        
+        if (!w1 || !w2) return { hasRhyme: false, details: '' };
+
+        // So sánh âm tiết cuối (đơn giản hóa, không cần chính xác tuyệt đối)
+        const normalize = (w) => w.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const hasRhyme = normalize(w1) === normalize(w2) || normalize(w1).slice(-1) === normalize(w2).slice(-1);
+
+        return { 
+            hasRhyme, 
+            details: hasRhyme ? `Âm "${w1}" vần với "${w2}"` : '' 
+        };
+    },
+
     _getEmptyPackage() {
         return {
             isValid: false,
-            rawText: '',
+            workTitle: '',
             coreLine: '',
             coreIndex: -1,
             totalLines: 0,
             context: { prevLine: null, nextLine: null, positionText: '' },
-            prosody: { bang: 0, trac: 0, rhythmType: 'unknown', description: '' }
+            prosody: { bang: 0, trac: 0, rhythmType: 'unknown' },
+            rhyme: { hasRhyme: false, details: '' }
         };
     }
 };
