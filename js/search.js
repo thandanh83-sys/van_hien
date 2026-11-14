@@ -2,12 +2,19 @@
  * ==========================================================
  * VĂN ĐẠO - SEARCH MODULE (js/search.js)
  * Vị trí: js/search.js
- * Version: 3.0.0 (Semantic TF-IDF & Mood Search)
+ * Version: 4.0.0 (Semantic Search & TF-IDF)
+ * ==========================================================
+ * CHỨC NĂNG:
+ * - Xây dựng Inverted Index (Chỉ mục ngược) từ STATE.GLOBAL_RECORDS.
+ * - [MỚI] Áp dụng MathUtils.calculateSimilarity (Cosine Similarity) 
+ *   để tìm kiếm mờ theo ngữ nghĩa (Fuzzy Search).
+ * - Xử lý mượt mà với Tiếng Việt (không phân biệt dấu, viết hoa/thường).
  * ==========================================================
  */
 
 import { STATE } from './config.js';
 import { normalizeRouteText, getRecordTitleAlias } from './utils.js';
+import { MathUtils } from './ai/math-utils.js';
 
 export const VDSearchEngine = (() => {
     let invertedIndex = Object.create(null); 
@@ -39,12 +46,10 @@ export const VDSearchEngine = (() => {
         
         for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
             const chunk = entries.slice(i, i + CHUNK_SIZE);
-            
             chunk.forEach(record => {
                 const item = record.data;
                 const key = record.key;
                 
-                // Gom TẤT CẢ các trường có thể tìm kiếm (bao gồm cả tags và cam_xuc)
                 const titleText = item.title || item.name || '';
                 const authorText = item.author || '';
                 const descText = item.desc || item.description || '';
@@ -52,7 +57,6 @@ export const VDSearchEngine = (() => {
                 const moodText = Array.isArray(item.cam_xuc) ? item.cam_xuc.join(' ') : '';
                 
                 const words = tokenize([titleText, authorText, descText, tagsText, moodText].join(' '));
-                
                 docLengths[key] = Math.max(words.length, 1);
                 
                 words.forEach(w => {
@@ -60,10 +64,8 @@ export const VDSearchEngine = (() => {
                     invertedIndex[w][key] = (invertedIndex[w][key] || 0) + 1;
                 });
             });
-            
             await new Promise(r => setTimeout(r, 0));
         }
-        
         isIndexed = true;
         console.log(`[SEARCH] Đã xây dựng xong Inverted Index cho ${totalDocs} tài liệu.`);
     }
@@ -93,7 +95,6 @@ export const VDSearchEngine = (() => {
             if (author && author === qNorm) score += (record.group === 'ky-tai' ? 700 : 300);
             else if (author && author.includes(qNorm)) score += 150;
 
-            // Ưu tiên Tags và Mood
             if (tags.includes(qNorm)) score += 500;
             if (mood.includes(qNorm)) score += 500;
 
@@ -134,6 +135,21 @@ export const VDSearchEngine = (() => {
                     scores.set(key, (scores.get(key) || 0) + score);
                 }
             });
+        }
+
+        // TẦNG 3: [MỚI] SEMANTIC MATH FALLBACK (Cosine Similarity)
+        // Nếu không tìm thấy kết quả nào, dùng thuật toán để tìm gần nghĩa
+        if (scores.size === 0 && tokens.length > 0) {
+            for (const record of STATE.GLOBAL_RECORDS) {
+                const item = record.data;
+                const docText = [item.title, item.desc, item.tags?.join(' '), item.cam_xuc?.join(' ')].filter(Boolean).join(' ');
+                const docTokens = tokenize(docText);
+                
+                const simScore = MathUtils.calculateSimilarity(tokens, docTokens);
+                if (simScore > 0.15) { // Ngưỡng tương đồng tối thiểu 15%
+                    scores.set(record.key, simScore * 1000); // Nhân 1000 để cân bằng điểm
+                }
+            }
         }
 
         return Array.from(scores, ([key, score]) => {
