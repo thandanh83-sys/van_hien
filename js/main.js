@@ -2,15 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 3.4.0 (Intent Router & Global AI Integration)
+ * Version: 3.5.0 (Clean UI & Context-Aware AI)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
  * - Nạp dữ liệu vào APP_DATA và xây dựng STATE.GLOBAL_INDEX.
- * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI).
- * - Gắn sự kiện Tìm kiếm / Hỏi Đạo thông qua Intent Router.
- * - Quản lý Settings (Offline & Network Health).
- * - [MỚI] Xử lý Global AI Modal cho các nút Hỏi AI (Bách Khoa, Thi Pháp...).
+ * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI, giao diện mới mềm mại).
+ * - [MỚI] Xóa bỏ các nút "Hỏi AI" tự động (tránh tự hỏi tự trả lời).
  * ==========================================================
  */
 
@@ -195,10 +193,17 @@ function executePipeline() {
     const report = POETRY_ANALYZER.generateReport(raw);
     if (!report) { panel.innerHTML = ''; return; }
 
-    const tier0 = report.bangTrac.map(l =>
+    // TẦNG 0: Hiển thị lại bài thơ người dùng nhập
+    const tier0 = `
+        <div style="margin-bottom: 20px; padding: 15px; background: rgba(139,184,168,0.05); border-radius: 8px; border: 1px dashed var(--border-color);">
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-family: var(--font-body); font-weight: bold;">Bài thơ của bạn</div>
+            <div style="font-style: italic; line-height: 1.8; white-space: pre-wrap; color: var(--text-main); font-size: 1.1rem;">${escapeHTML(raw)}</div>
+        </div>
+    ` + report.bangTrac.map(l =>
         `<div class="line-row" style="border-bottom:none!important;padding:8px 0;"><span style="color:var(--text-muted);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${escapeHTML(l.text)}</span><span class="pattern-text">${escapeHTML(l.pattern)}</span></div>`
     ).join('');
 
+    // Vần
     const renderRhyme = (title, arr, color) => {
         const matches = arr.filter(i => i.isMatch);
         const groups = {};
@@ -229,6 +234,7 @@ function executePipeline() {
 
     const tier1 = `<div style="margin-bottom:20px;"><strong>Thể thơ:</strong> ${report.form.form} <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note}</span></div>${rhymeHtml}`;
     
+    // Biểu tượng
     const tier2 = !report.symbols.length
         ? `<p style="font-style:italic;color:var(--text-muted);">Không phát hiện biểu tượng đặc biệt.</p>`
         : report.symbols.map(s => `<div class="symbol-row" style="padding:8px 0;">
@@ -236,58 +242,57 @@ function executePipeline() {
             <span class="symbol-meaning"><em style="font-size:0.8rem;">[${escapeHTML(s.type)}]</em> ${escapeHTML(s.mean)}</span>
         </div>`).join('');
         
+    // Câu hỏi gợi mở
     const tier3 = report.questions.map(q => {
         return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${q}</div></div>`;
     }).join('');
 
+    // Render giao diện mới mềm mại (Không dùng chữ TẦNG)
     panel.innerHTML = `
-        <div class="result-step tier-0"><div class="tier-label">TẦNG 0</div><div class="step-title">Bóc tách thanh điệu</div>${tier0}</div>
-        <div class="result-step tier-1"><div class="tier-label">TẦNG 1</div><div class="step-title">Thể thơ & Vần</div>${tier1}</div>
-        <div class="result-step tier-2"><div class="tier-label">TẦNG 2</div><div class="step-title">Biểu tượng · Điển tích</div>${tier2}</div>
-        <div class="result-step tier-3"><div class="tier-label">TẦNG 3</div><div class="step-title">Câu hỏi mở</div>${tier3}</div>
+        <div class="result-step" style="border-left-color: var(--text-muted);">
+            <div class="step-title">Thanh điệu & Nhịp điệu</div>
+            ${tier0}
+        </div>
         
-        <div class="result-step tier-4" style="border-left-color: var(--accent-gold);">
-            <div class="tier-label" style="color: var(--accent-text); border-color: var(--accent-text);">TẦNG 4</div>
-            <div class="step-title">Hai Góc Nhìn Từ AI</div>
+        <div class="result-step" style="border-left-color: var(--accent);">
+            <div class="step-title">Thể thơ & Vần</div>
+            ${tier1}
+        </div>
+        
+        <div class="result-step" style="border-left-color: var(--accent-gold);">
+            <div class="step-title">Biểu tượng & Điển tích</div>
+            ${tier2}
+        </div>
+        
+        <div class="result-step" style="border-left-color: #8b5a2b;">
+            <div class="step-title">Gợi mở chiêm nghiệm</div>
+            ${tier3}
+        </div>
+        
+        <div class="result-step" style="border-left-color: var(--accent-text); background: #f2f7f4;">
+            <div class="step-title">Cảm nhận từ AI</div>
             
             <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
-                <div style="background: rgba(139, 184, 168, 0.05); padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
+                <div style="background: #fff; padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                     <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700; color: var(--accent-text); text-transform:uppercase; font-size:0.8rem;">
-                        ${sparkleSvg(12, 'var(--accent-text)')} Góc Nhìn Tán Thưởng
+                        ${sparkleSvg(12, 'var(--accent-text)')} Điểm sáng
                     </div>
                     ${(() => {
                         const praise = PraiserAgent.analyze(raw);
-                        return `
-                            <p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 8px;">${praise.commentary}</p>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); font-style: normal;">
-                                <strong>Điểm sáng:</strong> ${praise.theme} | ${praise.symbol}
-                            </div>
-                        `;
+                        return `<p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 0;">${praise.commentary}</p>`;
                     })()}
                 </div>
 
-                <div style="background: rgba(163, 107, 107, 0.05); padding: 15px; border-radius: 8px; border-left: 3px solid #a36b6b;">
+                <div style="background: #fff; padding: 15px; border-radius: 8px; border-left: 3px solid #a36b6b; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                     <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700; color: #a36b6b; text-transform:uppercase; font-size:0.8rem;">
-                        ${sparkleSvg(12, '#a36b6b')} Góc Nhìn Phê Bình
+                        ${sparkleSvg(12, '#a36b6b')} Điểm cần lưu ý
                     </div>
                     ${(() => {
                         const critique = CriticAgent.analyze(raw);
-                        return `
-                            <p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 8px;">${critique.commentary}</p>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); font-style: normal;">
-                                <strong>Điểm cần lưu ý:</strong> ${critique.theme} | ${critique.symbol}
-                            </div>
-                        `;
+                        return `<p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 0;">${critique.commentary}</p>`;
                     })()}
                 </div>
             </div>
-        </div>
-
-        <!-- [MỚI] NÚT HỎI AI CHUYÊN SÂU -->
-        <div class="result-step tier-4" style="border-left-color: var(--accent-text); text-align: center; margin-top: 20px; background: transparent; box-shadow: none;">
-            <button class="btn-ask-ai" onclick="window.askAIAboutPoem()" style="font-size: 1rem; padding: 10px 20px;">
-                ${ICONS.sparkle} Hỏi Đạo AI Phân Tích Sâu Bài Thơ Này
-            </button>
         </div>
     `;
 }
@@ -393,7 +398,7 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// 6. BÓI THƠ (FATE MODAL) - NÂNG CẤP AI
+// 6. BÓI THƠ (FATE MODAL)
 // =====================================================================
 async function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && work.id);
@@ -419,7 +424,7 @@ async function randomPoem() {
 
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
     
-    // [AI UPGRADE] Fetch full content để AI phân tích sâu hơn
+    // Fetch full content để AI phân tích sâu hơn
     let fullContent = randomWork.content || '';
     try {
         const detail = await DataHub.getDetail(randomWork.id);
@@ -444,7 +449,14 @@ async function randomPoem() {
         badge.style.borderColor = fortuneInfo.color;
     }
 
-    if (titleEl) titleEl.textContent = randomWork.title || 'Tác phẩm';
+    // Hiển thị rõ Bạn đã bốc được bài gì
+    if (titleEl) {
+        titleEl.innerHTML = `
+            <span style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 8px; font-family: var(--font-body); text-transform: uppercase; letter-spacing: 2px;">Bạn đã bốc được</span>
+            ${randomWork.title}
+            <span style="font-size: 1rem; color: var(--accent-text); display: block; margin-top: 5px; font-family: var(--font-body); font-style: italic;">— ${randomWork.author} —</span>
+        `;
+    }
 
     if (excerptEl) {
         const excerpt = randomWork.desc || randomWork.description || (fullContent ? fullContent.substring(0, 100) + '...' : '');
@@ -458,27 +470,27 @@ async function randomPoem() {
             </div>
             <div style="margin-bottom:18px; padding:15px; border-radius:10px; background:rgba(139,184,168,0.07);">
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px; font-weight:700; color:${fortuneInfo.color}; text-transform:uppercase; font-size:0.8rem;">
-                    ${sparkleSvg(12, fortuneInfo.color)} Lời chiêm nghiệm
+                    ${sparkleSvg(12, fortuneInfo.color)} Lời bình
                 </div>
                 <p style="margin:0; line-height:1.8;">${aiResult.fortuneReflection}</p>
             </div>
             <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
                 <div style="background: rgba(139, 184, 168, 0.05); padding: 12px 15px; border-radius: 8px; border-left: 3px solid var(--accent);">
                     <div style="font-weight:700; color: var(--accent-text); margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">
-                        ${sparkleSvg(11, 'var(--accent-text)')} Góc Nhìn Tán Thưởng
+                        ${sparkleSvg(11, 'var(--accent-text)')} Điểm sáng
                     </div>
                     <p style="margin:0; line-height:1.6; font-size:0.95rem;">${aiResult.praiseCommentary}</p>
                 </div>
                 <div style="background: rgba(163, 107, 107, 0.05); padding: 12px 15px; border-radius: 8px; border-left: 3px solid #a36b6b;">
                     <div style="font-weight:700; color: #a36b6b; margin-bottom:5px; text-transform:uppercase; font-size:0.75rem;">
-                        ${sparkleSvg(11, '#a36b6b')} Góc Nhìn Phê Bình
+                        ${sparkleSvg(11, '#a36b6b')} Điểm cần lưu ý
                     </div>
                     <p style="margin:0; line-height:1.6; font-size:0.95rem;">${aiResult.criticCommentary}</p>
                 </div>
             </div>
             <div style="background:rgba(139,184,168,0.05); padding:15px; border-radius:8px; border-left:3px solid ${fortuneInfo.color}; font-size:0.95rem; line-height:1.7;">
                 <div style="font-weight:700; color:var(--accent-text); margin-bottom:10px; text-transform:uppercase; font-size:0.8rem;">
-                    ${sparkleSvg(12, 'var(--accent-text)')} Lời khuyên (Nên / Tránh)
+                    ${sparkleSvg(12, 'var(--accent-text)')} Lời khuyên
                 </div>
                 ${aiResult.adviceHtml}
             </div>
@@ -501,132 +513,14 @@ async function randomPoem() {
 }
 
 // =====================================================================
-// 7. GLOBAL AI HANDLERS (Xử lý tập trung các nút Hỏi AI)
+// 7. TRIGGER SMART SEARCH (Dùng cho nút trong render.js)
 // =====================================================================
-window.askAIAboutPoem = async function() {
-    const raw = document.getElementById('poemInput').value.trim();
-    if (!raw) return alert('Vui lòng nhập bài thơ trước!');
-
-    const btn = event.target;
-    if (btn) { btn.disabled = true; btn.textContent = 'Đang phân tích...'; }
-
-    // Mở Modal AI
-    let modal = document.getElementById('ai-global-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'ai-global-modal';
-        modal.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-        modal.innerHTML = `
-            <div style="background:var(--bg-card); width:100%; max-width:800px; max-height:90vh; overflow-y:auto; border-radius:12px; padding:20px; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                <button id="ai-modal-close" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">&times;</button>
-                <div id="ai-global-content"></div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        document.getElementById('ai-modal-close').onclick = () => modal.style.display = 'none';
-        modal.onclick = (ev) => { if (ev.target === modal) modal.style.display = 'none'; };
-    }
-
-    modal.style.display = 'flex';
-    const content = document.getElementById('ai-global-content');
-    content.innerHTML = `<div class="ask-loading" style="padding: 40px;"><div class="spinner"></div><p>Đạo đang chiêm nghiệm bài thơ...</p></div>`;
-
-    // Gọi AI
-    try {
-        const intent = { type: 'analyze-work', query: { content: raw, title: 'Bài thơ tự do' }, mode: 'command' };
-        const result = await MasterAI.dispatch(intent);
-        OutputAI.render(content, result, 'Phân tích bài thơ của bạn');
-    } catch (err) {
-        content.innerHTML = `<p style="color:red;">Lỗi AI: ${err.message}</p>`;
-    } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'Hỏi Đạo AI Phân Tích Sâu'; }
-    }
-};
-
-// Expose hàm xử lý tìm kiếm để nút trong render.js có thể gọi
 window.triggerSmartSearch = (inputId, containerId, filterBarId, paginationId) => {
     const config = {
         inputId, containerId, filterBarId, paginationId,
         fallbackRenderFn: () => { STATE.currentPage = 1; renderHeritage(); }
     };
     handleSmartSearch(config);
-};
-
-// Xử lý Click toàn cục cho các nút data-ai-action
-document.addEventListener('click', e => {
-    const aiBtn = e.target.closest('[data-ai-action]');
-    if (aiBtn) {
-        e.preventDefault();
-        const action = aiBtn.dataset.aiAction;
-        const query = aiBtn.dataset.query || aiBtn.dataset.workTitle;
-        
-        if (action === 'summarize-work' && aiBtn.dataset.workTitle) {
-            const target = DataHub.resolveIdFromQuery(aiBtn.dataset.workTitle);
-            if (target) {
-                window.askAIAboutWork(target.id);
-                return;
-            }
-        }
-
-        // Xử lý các action khác (VD: hỏi tiểu sử tác giả)
-        let modal = document.getElementById('ai-global-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'ai-global-modal';
-            modal.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-            modal.innerHTML = `
-                <div style="background:var(--bg-card); width:100%; max-width:800px; max-height:90vh; overflow-y:auto; border-radius:12px; padding:20px; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                    <button id="ai-modal-close" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">&times;</button>
-                    <div id="ai-global-content"></div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            document.getElementById('ai-modal-close').onclick = () => modal.style.display = 'none';
-            modal.onclick = (ev) => { if (ev.target === modal) modal.style.display = 'none'; };
-        }
-        
-        modal.style.display = 'flex';
-        const content = document.getElementById('ai-global-content');
-        content.innerHTML = `<div class="ask-loading" style="padding: 40px;"><div class="spinner"></div><p>Đang kết nối...</p></div>`;
-        
-        import('./ai.js').then(async ({ MasterAI, OutputAI }) => {
-            const intent = { type: action, query: query, mode: 'command' };
-            const result = await MasterAI.dispatch(intent);
-            OutputAI.render(content, result, query);
-        });
-        return;
-    }
-});
-
-// Hàm mở AI cho 1 tác phẩm cụ thể
-window.askAIAboutWork = async function(workId) {
-    let modal = document.getElementById('ai-global-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'ai-global-modal';
-        modal.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-        modal.innerHTML = `
-            <div style="background:var(--bg-card); width:100%; max-width:800px; max-height:90vh; overflow-y:auto; border-radius:12px; padding:20px; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                <button id="ai-modal-close" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">&times;</button>
-                <div id="ai-global-content"></div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        document.getElementById('ai-modal-close').onclick = () => modal.style.display = 'none';
-        modal.onclick = (ev) => { if (ev.target === modal) modal.style.display = 'none'; };
-    }
-    
-    modal.style.display = 'flex';
-    const content = document.getElementById('ai-global-content');
-    content.innerHTML = `<div class="ask-loading" style="padding: 40px;"><div class="spinner"></div><p>Đạo đang đọc và chiêm nghiệm...</p></div>`;
-    
-    try {
-        const intent = { type: 'analyze-work', query: workId, mode: 'command' };
-        const result = await MasterAI.dispatch(intent);
-        OutputAI.render(content, result, workId);
-    } catch (err) {
-        content.innerHTML = `<p style="color:red;">Lỗi AI: ${err.message}</p>`;
-    }
 };
 
 // =====================================================================
@@ -644,8 +538,6 @@ async function refreshNetworkStatus(forceRefresh = false) {
 
     try {
         const totalRecords = STATE.GLOBAL_RECORDS.length;
-        const totalWorks = APP_DATA.WORKS_DATA.length;
-        const totalAuthors = APP_DATA.AUTHOR_DATA.length;
         
         const nodes = [
             { id: 'triet-thuyet', label: 'Triết Thuyết', status: 'online' },
@@ -836,7 +728,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // 10.6. Xử lý click điều hướng (Giữ nguyên)
+    // 10.6. Xử lý click điều hướng (Chỉ còn Data-route)
     document.addEventListener('click', e => {
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
@@ -927,7 +819,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (btnOfflineCancel) btnOfflineCancel.style.display = 'none';
 
             if (result.success) {
-                await showAlert(`Tải hoàn tất! Thành công: ${result.total - result.failed} file. Lỗi: ${result.failed} file.`, 'Hoàn tất');
+                await showAlert(`Tải hoàn tất! Thành công: ${result.total - result.failed} file. Lỗi: ${result.failed} file.`, 'Hoàn tất', 3000);
                 if (progressSection) progressSection.style.display = 'none';
             } else {
                 await showAlert(result.message || "Quá trình tải bị gián đoạn hoặc gặp lỗi.", 'Lỗi');
@@ -949,7 +841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isConfirmed = await showConfirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu Offline?", "Xóa dữ liệu");
             if (isConfirmed) {
                 await clearOfflineData();
-                await showAlert("Đã xóa dữ liệu Offline thành công!", "Thành công");
+                await showAlert("Đã xóa dữ liệu Offline thành công!", "Thành công", 2000); // Tự đóng sau 2s
                 if (progressSection) progressSection.style.display = 'none';
                 if (progressBar) progressBar.style.width = '0%';
             }
