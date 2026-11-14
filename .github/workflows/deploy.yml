@@ -1,12 +1,56 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - GITHUB ACTION: DEPLOY TO GITHUB PAGES (BULLETPROOF)
 # Tên file: .github/workflows/deploy.yml
-# Phiên bản: 5.0 (Peaceiris Engine - Không dùng Artifact)
-# 
+# Version: 6.0.0 (Preflight + Cancel-In-Progress + Summary)
+# =====================================================================
+# Tác giả: Văn Đạo
+#
 # TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
-# - Tránh xa lỗi "No artifacts named github-pages" của GitHub.
-# - Sử dụng hành động peaceiris/actions-gh-pages v3 (Tiêu chuẩn vàng).
-# - Đẩy trực tiếp toàn bộ code lên nhánh 'gh-pages'.
+#
+# 1. TRÁNH LỖI "No artifacts named github-pages":
+#    KHÔNG dùng official `actions/deploy-pages` (dễ fail nếu
+#    artifact build sai hoặc bị dọn giữa chừng). Thay vào đó dùng
+#    `peaceiris/actions-gh-pages@v3` — "Tiêu chuẩn vàng" đã được
+#    chứng minh ổn định trên hàng chục nghìn repo.
+#
+# 2. XẾP HÀNG + HỦY THÔNG MINH (Concurrency - v6.0.0):
+#    Dùng group RIÊNG "gh-pages-deploy" với `cancel-in-progress: true`.
+#    LÝ DO (khác với bot commit):
+#      - Deploy chỉ build từ code mới nhất → hủy deploy cũ AN TOÀN
+#        (không mất dữ liệu, chỉ tốn compute).
+#      - Nếu dùng chung "git-push-group" với bot commit, deploy sẽ
+#        phải đợi mọi bot commit xong. Nhưng user có thể push code
+#        trong lúc deploy đang chạy → bot commit mới sẽ PHẢI ĐỢI
+#        deploy (2 phút) → trì hoãn phát triển.
+#      - Với group riêng + cancel: nếu có commit mới, deploy cũ tự
+#        hủy và deploy mới chạy → luôn có web mới nhất, không đợi.
+#
+# 3. PRE-FLIGHT CHECK (v6.0.0):
+#    Trước khi deploy, verify các file tối thiểu tồn tại:
+#      - index.html (bắt buộc)
+#      - manifest.json (PWA, khuyến nghị)
+#      - sw.js (offline, khuyến nghị)
+#      - data/manifests/static-assets.json (precache list)
+#      - data/manifests/agents-manifest.json (AI agents)
+#    Nếu thiếu index.html → FAIL (không deploy).
+#    Nếu thiếu file khác → WARNING (vẫn deploy, nhưng ghi log).
+#    Mục đích: tránh deploy trang trắng do quên file.
+#
+# 4. TỐI THIỂU QUYỀN (Least Privilege):
+#    Chỉ cần `contents: write` để push lên nhánh gh-pages.
+#    Không cần pages, issues, packages...
+#
+# 5. SUMMARY (v6.0.0):
+#    Ghi báo cáo lên $GITHUB_STEP_SUMMARY để xem trực quan trên UI
+#    Actions: commit SHA, file đã deploy, link web, cảnh báo preflight.
+#
+# LỊCH SỬ PHIÊN BẢN:
+#   v5.0: Peaceiris engine, bulletproof, không dùng artifact.
+#   v6.0: + Preflight check (verify file tối thiểu)
+#         + cancel-in-progress: true (luôn deploy bản mới nhất)
+#         + Summary trên UI Actions
+#         + Verify environment trước khi deploy
+#         + Comment giải thích kỹ chiến lược concurrency
 # =====================================================================
 
 name: Deploy to GitHub Pages
@@ -15,58 +59,272 @@ name: Deploy to GitHub Pages
 # 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
 # =====================================================================
 on:
+  # Trigger mỗi khi push lên nhánh main (kể cả commit của bot).
+  # Các bot commit (`auto-split-*`, `auto-update-manifests`) đã BỎ
+  # `[skip ci]` trong message → deploy sẽ trigger sau mỗi lần bot
+  # commit → web luôn có dữ liệu mới nhất.
   push:
-    branches: [ "main" ]
-  
-  # Cho phép chạy thủ công từ tab Actions
+    branches: ["main"]
+
+  # Cho phép chạy thủ công từ tab Actions (để test, hoặc redeploy
+  # khi cần mà không muốn tạo commit giả).
   workflow_dispatch:
 
 # =====================================================================
 # 2. QUYỀN HẠN CỦA BOT (PERMISSIONS)
 # =====================================================================
-# Bắt buộc phải có quyền "write" để bot có thể đẩy code lên nhánh gh-pages
+# Bắt buộc phải có `contents: write` để peaceiris push lên nhánh
+# gh-pages. Đây là quyền tối thiểu cần thiết — không cần thêm.
 permissions:
-  contents: write 
+  contents: write
 
 # =====================================================================
-# 3. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# 3. QUẢN LÝ XUNG ĐỘT (CONCURRENCY) — v6.0.0 NÂNG CẤP
 # =====================================================================
-# Đảm bảo các lần deploy không chạy chồng chéo lên nhau
+# Dùng group RIÊNG "gh-pages-deploy", KHÔNG dùng chung "git-push-group".
+#
+# LÝ DO CHỌN GROUP RIÊNG + cancel-in-progress: true:
+#
+#   KỊCH BẢN A — Nếu dùng chung "git-push-group" (cancel=false):
+#     - User push code → deploy trigger.
+#     - Deploy đang chạy (2 phút).
+#     - Bot auto-split muốn commit → PHẢI ĐỢI deploy xong (2 phút).
+#     - User push code lần 2 → deploy 2 PHẢI ĐỢI deploy 1 + bot commit.
+#     → Trải nghiệm KÉM: dev push xong phải chờ rất lâu mới thấy web.
+#
+#   KỊCH BẢN B — Dùng group riêng "gh-pages-deploy" + cancel=true:
+#     - User push code → deploy 1 trigger.
+#     - Deploy 1 đang chạy (2 phút).
+#     - User push code lần 2 → deploy 2 trigger → HỦY deploy 1.
+#     - Deploy 2 build từ code mới nhất (gồm cả 2 commit) → web đúng.
+#     - Bot auto-split commit trong lúc deploy chạy → KHÔNG bị cản
+#       (khác group) → bot nhanh như bình thường.
+#     → Trải nghiệm TỐT: luôn có web mới nhất, không đợi chéo.
+#
+#   TẠI SAO cancel=true AN TOÀN CHO DEPLOY:
+#     - Deploy chỉ đọc code và build static → hủy giữa chừng KHÔNG
+#       làm hỏng dữ liệu (chỉ tốn 2 phút compute đã bỏ).
+#     - Nhánh gh-pages chỉ được ghi ở BƯỚC CUỐI của peaceiris →
+#       nếu hủy trước bước cuối, nhánh gh-pages KHÔNG bị đụng.
+#     - Ngược lại, với bot commit (auto-split-*), cancel=true sẽ
+#       NGUY HIỂM vì có thể commit dở dang → dữ liệu rác.
+#
+#   TẠI SAO KHÔNG DÙNG cancel=false CHO DEPLOY:
+#     - Sẽ tạo ra "hàng đợi deploy" dài vô tận nếu user push nhiều
+#       lần liên tiếp → deploy N+1 luôn chạy sau deploy N → trễ.
+#     - Với cancel=true, deploy N+1 hủy deploy N và chạy ngay →
+#       luôn có web mới nhất trong ~2 phút.
 concurrency:
   group: "gh-pages-deploy"
-  cancel-in-progress: false 
+  cancel-in-progress: true
 
 # =====================================================================
-# 4. CÁC BƯỚC THỰC THI (JOBS)
+# 4. BIẾN MÔI TRƯỜNG DÙNG CHUNG
+# =====================================================================
+env:
+  PUBLISH_BRANCH: 'gh-pages'
+  PUBLISH_DIR: './'
+
+# =====================================================================
+# 5. CÁC BƯỚC THỰC THI (JOBS)
 # =====================================================================
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 10 
-    
+
+    # KỶ LUẬT THỜI GIAN: Deploy thường mất 30 giây - 1 phút. Nếu quá
+    # 10 phút, chắc chắn có lỗi mạng hoặc peaceiris bị treo.
+    timeout-minutes: 10
+
     steps:
       # -----------------------------------------------------------------
       # BƯỚC 1: LẤY CODE TỪ KHO VỀ MÁY ẢO
       # -----------------------------------------------------------------
-      - name: 1. Checkout
+      - name: '1. Checkout (Lấy code)'
         uses: actions/checkout@v4
         with:
+          # Chỉ cần code mới nhất — deploy không cần lịch sử commit.
           fetch-depth: 1
 
       # -----------------------------------------------------------------
-      # BƯỚC 2: TẠO FILE .NOJEKYLL
+      # BƯỚC 2: VERIFY ENVIRONMENT (v6.0.0)
       # -----------------------------------------------------------------
-      # Ngăn GitHub Pages chạy Jekyll (giúp giữ nguyên cấu trúc thư mục)
-      - name: 2. Create .nojekyll file
-        run: touch .nojekyll
+      - name: '2. Verify environment (Kiểm tra môi trường)'
+        run: |
+          echo "=== Thông tin môi trường ==="
+          echo "Workspace: ${{ github.workspace }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo ""
+          echo "=== Cấu trúc thư mục gốc (tóm tắt) ==="
+          ls -la | head -n 25
 
       # -----------------------------------------------------------------
-      # BƯỚC 3: DEPLOY LÊN NHÁNH GH-PAGES (TRÁI TIM CỦA FILE NÀY)
+      # BƯỚC 3: PRE-FLIGHT CHECK (v6.0.0) — Kiểm tra file tối thiểu
       # -----------------------------------------------------------------
-      - name: 3. Deploy to gh-pages branch
+      # Đây là "van an toàn" chống deploy trang trắng. Nếu thiếu file
+      # quan trọng, cảnh báo rõ ràng để dev biết.
+      #
+      # Quy tắc:
+      #   - index.html       → FAIL nếu thiếu (không deploy được).
+      #   - Các file khác    → WARNING (vẫn deploy, ghi log).
+      - name: '3. Preflight check (Kiểm tra file tối thiểu)'
+        id: preflight
+        run: |
+          echo "=== Preflight check ==="
+          MISSING_CRITICAL=0
+          MISSING_WARN=0
+
+          # ---------- 3.1. File bắt buộc (FAIL nếu thiếu) ----------
+          if [ ! -f "index.html" ]; then
+            echo "❌ CRITICAL: Thiếu index.html — KHÔNG THỂ deploy."
+            MISSING_CRITICAL=$((MISSING_CRITICAL + 1))
+          else
+            echo "✅ index.html tồn tại."
+          fi
+
+          # ---------- 3.2. File khuyến nghị (WARNING nếu thiếu) ----------
+          for FILE in "manifest.json" "sw.js" ".nojekyll" \
+                      "data/manifests/static-assets.json" \
+                      "data/manifests/agents-manifest.json"; do
+            if [ ! -f "$FILE" ]; then
+              echo "⚠️  WARNING: Thiếu $FILE (không chặn deploy, nhưng có thể ảnh hưởng tính năng)."
+              MISSING_WARN=$((MISSING_WARN + 1))
+            else
+              echo "✅ $FILE tồn tại."
+            fi
+          done
+
+          # ---------- 3.3. Ghi kết quả ----------
+          echo "missing_critical=$MISSING_CRITICAL" >> $GITHUB_OUTPUT
+          echo "missing_warn=$MISSING_WARN" >> $GITHUB_OUTPUT
+
+          if [ $MISSING_CRITICAL -gt 0 ]; then
+            echo ""
+            echo "❌ PREFLIGHT FAIL: Thiếu $MISSING_CRITICAL file bắt buộc."
+            exit 1
+          fi
+
+          if [ $MISSING_WARN -gt 0 ]; then
+            echo ""
+            echo "⚠️  PREFLIGHT WARNING: Thiếu $MISSING_WARN file khuyến nghị (không chặn deploy)."
+          else
+            echo ""
+            echo "✅ PREFLIGHT OK: Tất cả file cần thiết đều tồn tại."
+          fi
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: TẠO FILE .NOJEKYLL
+      # -----------------------------------------------------------------
+      # Ngăn GitHub Pages chạy Jekyll (giữ nguyên cấu trúc thư mục).
+      # Nếu không có .nojekyll, các file/thư mục bắt đầu bằng "_" sẽ
+      # bị Jekyll bỏ qua → hỏng cấu trúc.
+      #
+      # Dùng `touch` để tạo file rỗng — nhanh và idempotent (không
+      # báo lỗi nếu file đã tồn tại).
+      - name: '4. Create .nojekyll file (Tạo file .nojekyll)'
+        run: |
+          touch .nojekyll
+          echo "✅ Đã tạo file .nojekyll (rỗng)."
+
+      # -----------------------------------------------------------------
+      # BƯỚC 5: DEPLOY LÊN NHÁNH GH-PAGES (TRÁI TIM CỦA FILE NÀY)
+      # -----------------------------------------------------------------
+      # peaceiris/actions-gh-pages@v3 sẽ:
+      #   1. Tạo worktree tạm cho nhánh gh-pages.
+      #   2. Copy toàn bộ nội dung publish_dir (./) vào đó.
+      #   3. Commit + push lên nhánh gh-pages.
+      #   4. GitHub Pages tự động build từ nhánh gh-pages.
+      #
+      # Ưu điểm so với official `actions/deploy-pages`:
+      #   - Không phụ thuộc artifact (tránh lỗi "No artifacts named
+      #     github-pages").
+      #   - Không cần cấu hình `actions/configure-pages`.
+      #   - Hoạt động ngay cả khi repo mới setup Pages lần đầu.
+      - name: '5. Deploy to gh-pages branch (Deploy lên nhánh gh-pages)'
         uses: peaceiris/actions-gh-pages@v3
         with:
+          # Token dùng để push lên nhánh gh-pages. `secrets.GITHUB_TOKEN`
+          # là token tự động của Actions, không cần khai báo thêm.
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./ 
-          publish_branch: gh-pages
-          # force_orphan: true # Bỏ comment dòng này nếu muốn xóa lịch sử commit của nhánh gh-pages cho nhẹ
+
+          # Thư mục nguồn cần deploy. `./` = toàn bộ repo.
+          # Nếu sau này có build step (VD: Vite, Webpack), đổi thành
+          # `./dist` hoặc `./build`.
+          publish_dir: ${{ env.PUBLISH_DIR }}
+
+          # Nhánh đích trên GitHub Pages.
+          publish_branch: ${{ env.PUBLISH_BRANCH }}
+
+          # Message commit trên nhánh gh-pages.
+          # Có thể tùy chỉnh để dễ trace: "deploy: <SHA> <date>".
+          commit_message: "deploy: ${{ github.event.head_commit.message || 'manual deploy' }}"
+
+          # force_orphan: true → XÓA toàn bộ lịch sử commit của nhánh
+          # gh-pages, mỗi lần deploy là 1 commit duy nhất.
+          #
+          # KHI NÀO NÊN BẬT:
+          #   - Nhánh gh-pages phình to do nhiều lần deploy (mỗi deploy
+          #     ~10-50MB vì có toàn bộ data) → repo nặng, clone chậm.
+          #   - Không cần lịch sử deploy (chỉ cần bản mới nhất).
+          #
+          # KHI NÀO NÊN TẮT (false):
+          #   - Muốn rollback nhanh về bản deploy cũ (git revert).
+          #   - Muốn xem lịch sử deploy.
+          #
+          # Mặc định: comment out, dev tự bật khi repo phình to.
+          # force_orphan: true
+
+          # user_name / user_email: Tác giả commit trên nhánh gh-pages.
+          # Mặc định peaceiris dùng `github-actions[bot]`. Không cần
+          # đổi trừ khi muốn tác giả khác.
+          # user_name: 'github-actions[bot]'
+          # user_email: 'github-actions[bot]@users.noreply.github.com'
+
+      # -----------------------------------------------------------------
+      # BƯỚC 6: SUMMARY (v6.0.0) — Báo cáo trên giao diện Actions
+      # -----------------------------------------------------------------
+      - name: '6. Summary (Báo cáo trên giao diện Actions)'
+        if: always()
+        run: |
+          REPO="${{ github.repository }}"
+          OWNER=$(echo "$REPO" | cut -d'/' -f1)
+          REPO_NAME=$(echo "$REPO" | cut -d'/' -f2)
+          PAGES_URL="https://${OWNER}.github.io/${REPO_NAME}/"
+
+          {
+            echo "## 🚀 Văn Đạo Deploy to GitHub Pages"
+            echo ""
+            echo "| Hạng mục | Giá trị |"
+            echo "|---|---|"
+            echo "| Trạng thái | \`${{ job.status }}\` |"
+            echo "| Commit SHA | \`${{ github.sha }}\` |"
+            echo "| Nhánh nguồn | \`${{ github.ref_name }}\` |"
+            echo "| Nhánh đích | \`${{ env.PUBLISH_BRANCH }}\` |"
+            echo "| Người kích hoạt | @${{ github.actor }} |"
+            echo "| Trigger bởi | \`${{ github.event_name }}\` |"
+            echo "| URL dự kiến | [$PAGES_URL]($PAGES_URL) |"
+            echo ""
+            echo "### Preflight check"
+            echo ""
+            echo "- File bắt buộc thiếu: \`${{ steps.preflight.outputs.missing_critical || 'N/A' }}\`"
+            echo "- File khuyến nghị thiếu: \`${{ steps.preflight.outputs.missing_warn || 'N/A' }}\`"
+            echo ""
+            if [ "${{ job.status }}" = "success" ]; then
+              echo "### ✅ Deploy thành công"
+              echo ""
+              echo "Web mới nhất đã có tại: **[$PAGES_URL]($PAGES_URL)**"
+              echo ""
+              echo "> ⏱️ GitHub Pages có thể mất 30-60 giây để CDN cập nhật. Nếu thấy bản cũ, thử **Ctrl+F5** để xóa cache."
+            else
+              echo "### ❌ Deploy thất bại"
+              echo ""
+              echo "**Hành động cần làm:**"
+              echo "1. Kiểm tra log bước 5 (Deploy) để xem lỗi."
+              echo "2. Đảm bảo repo đã bật GitHub Pages (Settings → Pages → Source: gh-pages branch)."
+              echo "3. Đảm bảo `permissions: contents: write` còn hiệu lực."
+              echo "4. Thử chạy lại bằng nút **Re-run jobs**."
+            fi
+          } >> $GITHUB_STEP_SUMMARY
