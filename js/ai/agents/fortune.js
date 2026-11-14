@@ -2,13 +2,12 @@
  * ==========================================================
  * VĂN ĐẠO AI - FORTUNE AGENT (js/ai/agents/fortune.js)
  * Vị trí: js/ai/agents/fortune.js
- * Version: 3.5.0 (Quick Comment Integration)
+ * Version: 3.6.0 (Deep Poetic Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Tính toán vận khí (Bói thơ) theo thuật toán ngẫu nhiên có trọng số.
  * - Tổng hợp 4 góc nhìn: Phân tích + Tán thưởng + Phê bình + Chiêm nghiệm.
- * - [MỚI] Sử dụng hàm getQuickComment() thay vì analyze() để câu trả lời
- *   ngắn gọn, vui vẻ, phù hợp với tính năng gieo quẻ.
+ * - [NÂNG CẤP] Tự động lấy văn bản chiêm nghiệm từ mảng fortune_texts trong core.js
  * ==========================================================
  */
 
@@ -45,15 +44,23 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa', ana
     const fortune = getFortuneInfo(fortuneKey);
     const validKey = fortune.key; 
     
-    // [SỬA] Dùng hàm nhận xét nhanh thay vì phân tích sâu để giao diện gọn gàng
+    // Dùng hàm nhận xét nhanh thay vì phân tích sâu để giao diện gọn gàng
     const praiseCommentary = PraiserAgent.getQuickComment(work);
     const criticCommentary = CriticAgent.getQuickComment(work);
 
+    // Lấy dữ liệu Nên/Tránh cũ (nếu có) làm fallback
     const commentaryData = APP_DATA.COMMENTARY_DATA[validKey] || {};
-    const nen = commentaryData.nen || 'Thuận theo tự nhiên.';
+    const nen = commentaryData.nen || fortune.advice || 'Thuận theo tự nhiên.';
     const tranh = commentaryData.tranh || 'Tránh nóng vội.';
-    const commentaries = commentaryData.commentaries || [];
-    const randomCommentary = commentaries.length > 0 ? commentaries[Math.floor(Math.random() * commentaries.length)] : 'Vạn sự tùy duyên.';
+
+    // [NÂNG CẤP] Ưu tiên lấy từ mảng fortune_texts (trong core.js), nếu không có mới lấy từ data-loi-binh.json
+    let commentaries = (fortune.fortune_texts && fortune.fortune_texts.length > 0) 
+        ? fortune.fortune_texts 
+        : (commentaryData.commentaries || []);
+
+    const randomCommentary = commentaries.length > 0 
+        ? commentaries[Math.floor(Math.random() * commentaries.length)] 
+        : 'Vạn sự tùy duyên.';
 
     const bridgeText = `Trong kho tàng văn học, bạn gặp được tác phẩm "${work.title}". Đây là một cơ duyên. Dưới đây là lời chiêm nghiệm dành riêng cho bạn hôm nay:`;
 
