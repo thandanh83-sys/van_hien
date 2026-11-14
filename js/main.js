@@ -1,8 +1,8 @@
 /**
  * ==========================================================
- * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
+ * NGỌC THANH - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 5.0.0 (Ultimate Integration & Dual Search)
+ * Version: 5.1.0 (Ultimate Omnibox & Dual Search)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
@@ -194,7 +194,6 @@ function executePipeline() {
     const report = POETRY_ANALYZER.generateReport(raw);
     if (!report) { panel.innerHTML = ''; return; }
 
-    // TẦNG 0: Hiển thị lại bài thơ người dùng nhập
     const tier0 = `
         <div style="margin-bottom: 20px; padding: 15px; background: rgba(139,184,168,0.05); border-radius: 8px; border: 1px dashed var(--border-color);">
             <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-family: var(--font-body); font-weight: bold;">Bài thơ của bạn</div>
@@ -459,7 +458,6 @@ async function randomPoem() {
     }
 
     if (commentaryEl) {
-        // Sử dụng Quick Comment ngắn gọn thay vì phân tích dài dòng
         commentaryEl.innerHTML = `
             <div style="margin-bottom:18px; color:var(--accent-text); font-style:italic; line-height:1.8;">
                 ${aiResult.bridgeText}
@@ -610,6 +608,8 @@ window.clearSearch = function(inputId = 'encyclopedia-search', btnId = 'clear-se
         if (type === 'heritage') {
             m.resetSearchState({
                 inputId: inputId,
+                containerId: 'heritage-grid',
+                btnId: btnId,
                 filterBarId: 'main-filter-bar',
                 paginationId: 'pagination-container',
                 fallbackRenderFn: () => { STATE.currentPage = 1; renderHeritage(); }
@@ -617,6 +617,8 @@ window.clearSearch = function(inputId = 'encyclopedia-search', btnId = 'clear-se
         } else {
             m.resetSearchState({
                 inputId: inputId,
+                containerId: 'encyclopedia-container',
+                btnId: btnId,
                 filterBarId: 'encyclopedia-filter-bar',
                 paginationId: 'encyclopedia-pagination',
                 fallbackRenderFn: renderEncyclopedia
@@ -698,7 +700,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const input = document.getElementById(inputId);
         if (!input) return;
 
-        const config = { inputId, containerId, filterBarId, paginationId, fallbackRenderFn: fallbackFn };
+        const config = { 
+            inputId, 
+            containerId, 
+            btnId, 
+            filterBarId, 
+            paginationId, 
+            fallbackRenderFn: fallbackFn 
+        };
 
         input.addEventListener('input', debounce(() => {
             if (!input.value.trim()) {
