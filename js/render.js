@@ -1,16 +1,41 @@
 /**
  * ==========================================================
- * VĂN ĐẠO - RENDER MODULE (js/render.js)
+ * VĂN ĐẠO — RENDER MODULE
  * Vị trí: js/render.js
- * Version: 2.3.0 (Clean UI & Intent Router UX)
+ * Version: 3.0.0 (Contemplative UI — No Scoring)
  * ==========================================================
- * CHỨC NĂNG:
- * - Hiển thị Văn Hiến (Tác phẩm), Bách Khoa (Tác giả, Lý thuyết).
- * - Tự động tạo liên kết Tác giả/Tác phẩm liên quan qua DataHub.
- * - Quản lý Lazy Load, Phân trang, và Tooltip biểu tượng.
- * - [MỚI] Đã xóa nút "Hỏi AI Tóm Tắt" ở phần Related Section để 
- *   giao diện gọn gàng hơn, tránh việc AI tự hỏi tự trả lời.
- * - [MỚI] Thêm gợi ý Hỏi AI khi tìm kiếm không có kết quả (nếu là câu hỏi).
+ *
+ * TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
+ *
+ * 1. KHÔNG CHẤM ĐIỂM (No Scoring):
+ *    - Không có hàm nào render điểm số.
+ *    - Không có UI nào hiển thị "8.5/10".
+ *    - Chỉ có câu hỏi chiêm nghiệm và lời gợi mở.
+ *
+ * 2. TÁCH BIỆT RENDER LOGIC:
+ *    - renderHeritage:       Văn Hiến (danh sách tác phẩm)
+ *    - renderEncyclopedia:   Bách Khoa (accordion)
+ *    - renderPagination:     Phân trang
+ *    - renderContemplativeQuestions: [MỚI] Câu hỏi chiêm nghiệm
+ *    - renderCopyButton:     [MỚI] Nút copy từng tầng
+ *    - showToast:            [MỚI] Thông báo Bạch Ngọc
+ *    - renderSkeleton:       [MỚI] Skeleton loading
+ *
+ * 3. UI BẠCH NGỌC:
+ *    - Không gradient neon.
+ *    - Không emoji.
+ *    - Chỉ dùng CSS variables (--accent, --accent-gold, --text-main...).
+ *
+ * 4. TƯƠNG THÍCH NGƯỢC:
+ *    - Tất cả export cũ vẫn giữ nguyên.
+ *    - main.js cũ vẫn chạy được nếu chưa cập nhật.
+ *    - Chỉ THÊM các hàm mới, không XÓA hàm cũ.
+ *
+ * LỊCH SỬ PHIÊN BẢN:
+ * - v2.3.0: (tiền thân) Clean UI & Intent Router UX.
+ * - v3.0.0: Thêm Contemplative UI (không chấm điểm), Toast, Skeleton,
+ *           Copy button. Giữ nguyên tất cả chức năng cũ.
+ *
  * ==========================================================
  */
 
@@ -31,15 +56,215 @@ export const PerformanceEngine = (() => {
             }
         });
     }, { rootMargin: "0px 0px 400px 0px", threshold: 0.01 });
-    return { observe: (sel) => document.querySelectorAll(sel).forEach(el => observer.observe(el)) };
+
+    return {
+        observe: (sel) => document.querySelectorAll(sel).forEach(el => observer.observe(el))
+    };
 })();
 
 // =====================================================================
-// MODULE 2: VĂN HIẾN (DANH SÁCH TÁC PHẨM)
+// MODULE 2: BẠCH NGỌC UI HELPERS (MỚI)
 // =====================================================================
+
+/**
+ * Hiển thị Toast thông báo (style Bạch Ngọc — không emoji, không neon).
+ *
+ * @param {string} message - Nội dung thông báo
+ * @param {string} type    - 'success' | 'error' | 'info'
+ * @param {number} duration - Thời gian hiển thị (ms), mặc định 2500
+ */
+export function showToast(message, type = 'success', duration = 2500) {
+    // Tạo container nếu chưa có
+    let container = document.getElementById('vd-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'vd-toast-container';
+        container.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        `;
+        document.body.appendChild(container);
+    }
+
+    // Icon SVG theo type
+    const icons = {
+        success: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+        error:   `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
+        info:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
+    };
+
+    // Tạo toast element
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        background: #ffffff;
+        color: var(--text-main);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        font-style: italic;
+        padding: 14px 24px;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--border-color);
+        border-left: 3px solid ${type === 'error' ? 'var(--color-error)' : 'var(--accent)'};
+        box-shadow: var(--shadow-solid);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.3s var(--ease-silk);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        pointer-events: auto;
+        max-width: 90vw;
+    `;
+
+    toast.innerHTML = `
+        <span style="color: ${type === 'error' ? 'var(--color-error)' : 'var(--accent)'}; flex-shrink: 0;">
+            ${icons[type] || icons.info}
+        </span>
+        <span>${escapeHTML(message)}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Hiện toast
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+    });
+
+    // Tự động ẩn
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+/**
+ * Render câu hỏi chiêm nghiệm (thay thế hoàn toàn điểm số).
+ *
+ * @param {Array} questions - Mảng câu hỏi từ ContemplativeEngine
+ * @returns {string} HTML
+ */
+export function renderContemplativeQuestions(questions) {
+    if (!Array.isArray(questions) || questions.length === 0) {
+        return `<p style="font-style: italic; color: var(--text-muted); text-align: center; padding: 20px 0;">
+            Chưa có gợi mở nào. Mời Bạn đọc chậm lại và tự cảm nhận.
+        </p>`;
+    }
+
+    // Biểu tượng hoa văn (SVG, không emoji)
+    const fleuronSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-gold); flex-shrink: 0;"><path d="M12 2C9 5 6 8 6 12s3 7 6 10c3-3 6-6 6-10s-3-7-6-10z"></path><path d="M12 2v20"></path></svg>`;
+
+    return questions.map(q => `
+        <div class="contemplative-question" style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px dashed rgba(46, 139, 87, 0.15); line-height: 1.7;">
+            ${fleuronSvg}
+            <div style="flex: 1;">
+                ${q.quote ? `<div style="font-style: italic; color: var(--accent-text); margin-bottom: 6px;">“${escapeHTML(q.quote)}”</div>` : ''}
+                <div>${q.question}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Render nút copy từng tầng (chỉ hiện khi hover).
+ *
+ * @param {string} textToCopy - Nội dung cần copy
+ * @param {string} label      - Nhãn (mặc định: 'Chép')
+ * @returns {string} HTML
+ */
+export function renderCopyButton(textToCopy, label = 'Chép') {
+    const penSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+
+    // Mã hóa nội dung để tránh lỗi HTML
+    const encoded = encodeURIComponent(textToCopy);
+
+    return `
+        <button type="button"
+                class="btn-copy-section"
+                data-copy-content="${encoded}"
+                onclick="(function(btn){
+                    const content = decodeURIComponent(btn.getAttribute('data-copy-content'));
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(content).then(function(){
+                            btn.classList.add('copied');
+                            const original = btn.innerHTML;
+                            btn.innerHTML = '${penSvg} Đã chép';
+                            setTimeout(function(){
+                                btn.classList.remove('copied');
+                                btn.innerHTML = original;
+                            }, 1800);
+                        });
+                    } else {
+                        const ta = document.createElement('textarea');
+                        ta.value = content;
+                        ta.style.position = 'fixed';
+                        ta.style.opacity = '0';
+                        document.body.appendChild(ta);
+                        ta.select();
+                        try { document.execCommand('copy'); } catch(e) {}
+                        document.body.removeChild(ta);
+                        btn.classList.add('copied');
+                        const original = btn.innerHTML;
+                        btn.innerHTML = '${penSvg} Đã chép';
+                        setTimeout(function(){
+                            btn.classList.remove('copied');
+                            btn.innerHTML = original;
+                        }, 1800);
+                    }
+                })(this)"
+                title="Chép nội dung này"
+                style="
+                    background: rgba(255, 255, 255, 0.9);
+                    border: 1px solid var(--border-color);
+                    border-radius: var(--radius-sm);
+                    padding: 4px 10px;
+                    font-family: var(--font-body);
+                    font-size: 0.75rem;
+                    font-style: italic;
+                    color: var(--text-muted);
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: all 0.3s var(--ease-silk);
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    float: right;
+                ">
+            ${penSvg} ${label}
+        </button>
+    `;
+}
+
+/**
+ * Render Skeleton loading (style Bạch Ngọc).
+ *
+ * @param {number} count - Số item skeleton
+ * @returns {string} HTML
+ */
+export function renderSkeleton(count = 3) {
+    const items = Array.from({ length: count }, () => `
+        <div class="skeleton-bach-ngoc" style="height: 180px; border-radius: var(--radius-card); margin-bottom: 12px;"></div>
+    `).join('');
+
+    return `<div class="skeleton-wrapper">${items}</div>`;
+}
+
+// =====================================================================
+// MODULE 3: VĂN HIẾN (DANH SÁCH TÁC PHẨM)
+// =====================================================================
+
 export function initMainFilters() {
     const mainBar = document.getElementById('main-filter-bar');
     if (!mainBar || !APP_DATA.WORKS_DATA.length) return;
+
     let html = `<button class="filter-btn active" onclick="window.filterMainCategory('all', this)">Tất cả</button>`;
     Object.keys(APP_DATA.CATEGORY_NAMES).forEach(cat => {
         html += `<button class="filter-btn" onclick="window.filterMainCategory('${cat}', this)">${APP_DATA.CATEGORY_NAMES[cat]}</button>`;
@@ -48,23 +273,30 @@ export function initMainFilters() {
 }
 
 export function filterMainCategory(category, btnElement) {
-    STATE.currentMainCat = category; STATE.currentGenre = 'all'; STATE.currentPage = 1;
+    STATE.currentMainCat = category;
+    STATE.currentGenre = 'all';
+    STATE.currentPage = 1;
+
     document.querySelectorAll('#main-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
 
     const subBar = document.getElementById('sub-filter-bar');
     if (!subBar) return;
 
-    if (category === 'all') { subBar.style.display = 'none'; renderHeritage(); return; }
-    
+    if (category === 'all') {
+        subBar.style.display = 'none';
+        renderHeritage();
+        return;
+    }
+
     const itemsInCat = APP_DATA.WORKS_DATA.filter(i => i.loai_hinh === category);
     const uniqueGenres = new Set();
-    itemsInCat.forEach(i => { 
-        if (Array.isArray(i.the_loai)) i.the_loai.forEach(g => uniqueGenres.add(g)); 
+    itemsInCat.forEach(i => {
+        if (Array.isArray(i.the_loai)) i.the_loai.forEach(g => uniqueGenres.add(g));
     });
 
-    if (!uniqueGenres.size) { 
-        subBar.style.display = 'none'; 
+    if (!uniqueGenres.size) {
+        subBar.style.display = 'none';
     } else {
         subBar.style.display = 'flex';
         let html = `<button class="filter-btn active" onclick="window.filterSubGenre('all', this)" style="padding:6px 16px;font-size:0.8rem;">Tất cả thể loại</button>`;
@@ -77,7 +309,8 @@ export function filterMainCategory(category, btnElement) {
 }
 
 export function filterSubGenre(genre, btnElement) {
-    STATE.currentGenre = genre; STATE.currentPage = 1;
+    STATE.currentGenre = genre;
+    STATE.currentPage = 1;
     document.querySelectorAll('#sub-filter-bar .filter-btn').forEach(b => b.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
     renderHeritage();
@@ -93,9 +326,9 @@ export function renderHeritage() {
     if (STATE.currentMainCat !== 'all') data = data.filter(i => i.loai_hinh === STATE.currentMainCat);
     if (STATE.currentGenre !== 'all') data = data.filter(i => i.the_loai?.includes(STATE.currentGenre));
     if (keyword) {
-        data = data.filter(i => 
-            i.title.toLowerCase().includes(keyword) || 
-            i.author.toLowerCase().includes(keyword) || 
+        data = data.filter(i =>
+            i.title.toLowerCase().includes(keyword) ||
+            i.author.toLowerCase().includes(keyword) ||
             (i.desc && i.desc.toLowerCase().includes(keyword))
         );
     }
@@ -103,12 +336,12 @@ export function renderHeritage() {
     // === XỬ LÝ KHI KHÔNG CÓ KẾT QUẢ (INTENT ROUTER UX) ===
     if (!data.length) {
         const isQuestion = /[?]|\b(la ai|la gi|the nao|tai sao|nhu the nao|ai viet)\b/i.test(keyword);
-        
+
         if (isQuestion) {
             grid.innerHTML = `
                 <div style="grid-column:1/-1;text-align:center;padding:40px;">
                     <p style="font-size:1.1rem; color:var(--text-main); margin-bottom:15px; font-family:var(--font-body);">
-                        Có vẻ bạn đang đặt một câu hỏi?
+                        Có vẻ Bạn đang đặt một câu hỏi?
                     </p>
                     <p style="color:var(--text-muted);font-style:italic;margin-bottom:20px;">
                         Nhấn <strong>Enter</strong> hoặc click nút bên dưới để Hỏi Đạo AI.
@@ -157,8 +390,9 @@ export function renderHeritage() {
 }
 
 // =====================================================================
-// MODULE 3: CONTENT MANAGER (QUẢN LÝ NỘI DUNG QUA DATAHUB)
+// MODULE 4: CONTENT MANAGER (QUẢN LÝ NỘI DUNG QUA DATAHUB)
 // =====================================================================
+
 export const ContentManager = (() => {
     async function load(item, group, signal) {
         try {
@@ -185,16 +419,16 @@ export async function ensureAccordionContent(details) {
     const group = details.dataset.group;
     const cacheKey = `${group}:${itemId}`;
     const contentDiv = details.querySelector('.accordion-content');
-    
+
     if (!itemId || !group || !contentDiv || contentDiv.dataset.contentLoaded === 'true' || contentDiv.dataset.loading === 'true') return;
 
     const controller = new AbortController();
     accordionAbortControllers.set(cacheKey, controller);
     const item = findEncyclopediaItem(itemId, group);
-    
-    if (!item) { 
-        if (accordionAbortControllers.get(cacheKey) === controller) accordionAbortControllers.delete(cacheKey); 
-        return; 
+
+    if (!item) {
+        if (accordionAbortControllers.get(cacheKey) === controller) accordionAbortControllers.delete(cacheKey);
+        return;
     }
 
     contentDiv.dataset.loading = 'true';
@@ -202,7 +436,7 @@ export async function ensureAccordionContent(details) {
 
     try {
         const data = await ContentManager.load(item, group, controller.signal);
-        
+
         if (!details.isConnected || !details.open || details.dataset.id !== itemId) return;
 
         if (data.content && data.content.trim()) {
@@ -224,16 +458,20 @@ export async function ensureAccordionContent(details) {
 }
 
 export function clearAccordionContent(details) {
-    const itemId = details.dataset.id; const group = details.dataset.group;
+    const itemId = details.dataset.id;
+    const group = details.dataset.group;
     const cacheKey = `${group}:${itemId}`;
-    if (accordionAbortControllers.has(cacheKey)) { 
-        accordionAbortControllers.get(cacheKey).abort(); 
-        accordionAbortControllers.delete(cacheKey); 
+
+    if (accordionAbortControllers.has(cacheKey)) {
+        accordionAbortControllers.get(cacheKey).abort();
+        accordionAbortControllers.delete(cacheKey);
     }
+
     const content = details.querySelector('.accordion-content');
     if (!content) return;
-    content.replaceChildren(); 
-    delete content.dataset.contentLoaded; 
+
+    content.replaceChildren();
+    delete content.dataset.contentLoaded;
     delete content.dataset.loading;
 }
 
@@ -241,28 +479,35 @@ export function bindEncyclopediaEvents() {
     const container = document.getElementById('encyclopedia-container');
     if (!container || container.dataset.eventBound === 'true') return;
     container.dataset.eventBound = 'true';
+
     container.addEventListener('toggle', (e) => {
         const details = e.target;
         if (!(details instanceof HTMLDetailsElement)) return;
         if (!details.matches('details[data-id][data-group]')) return;
+
         if (details.open) {
-            container.querySelectorAll('details[open]').forEach(other => { 
-                if (other !== details) { other.open = false; clearAccordionContent(other); } 
+            container.querySelectorAll('details[open]').forEach(other => {
+                if (other !== details) {
+                    other.open = false;
+                    clearAccordionContent(other);
+                }
             });
             ensureAccordionContent(details);
-        } else { 
-            clearAccordionContent(details); 
+        } else {
+            clearAccordionContent(details);
         }
     }, true);
 }
 
 // =====================================================================
-// MODULE 4: BÁCH KHOA (SẮP XẾP & HIỂN THỊ)
+// MODULE 5: BÁCH KHOA (SẮP XẾP & HIỂN THỊ)
 // =====================================================================
+
 export function romanToInt(roman) {
     if (roman === '0') return 0;
     const map = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
-    let num = 0; const s = roman.toLowerCase();
+    let num = 0;
+    const s = roman.toLowerCase();
     for (let i = 0; i < s.length; i++) {
         const cur = map[s[i]], nxt = map[s[i + 1]];
         if (nxt && cur < nxt) { num += nxt - cur; i++; } else num += cur;
@@ -273,7 +518,10 @@ export function romanToInt(roman) {
 export function sortEncyData(data, group) {
     return data.sort((a, b) => {
         if (group === 'triet-thuyet') {
-            const getNum = id => { const m = id.match(/quyen-([ivxlcdm0-9]+)/i); return m ? romanToInt(m[1]) : 999; };
+            const getNum = id => {
+                const m = id.match(/quyen-([ivxlcdm0-9]+)/i);
+                return m ? romanToInt(m[1]) : 999;
+            };
             return getNum(a.id) - getNum(b.id);
         }
         const clean = t => t.replace(/^(Quyển [IVXLCDM]+\.|Chân Dung Tác Giả:)\s*/i, '').toLowerCase();
@@ -282,15 +530,18 @@ export function sortEncyData(data, group) {
 }
 
 export function filterEncyclopediaGroup(group, btnElement) {
-    STATE.currentEncyGroup = group; STATE.currentEncyPage = 1;
-    document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => { 
-        b.classList.remove('active'); 
-        b.setAttribute('aria-pressed', 'false'); 
+    STATE.currentEncyGroup = group;
+    STATE.currentEncyPage = 1;
+
+    document.querySelectorAll('#encyclopedia-filter-bar .filter-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
     });
-    if (btnElement) { 
-        btnElement.classList.add('active'); 
-        btnElement.setAttribute('aria-pressed', 'true'); 
+    if (btnElement) {
+        btnElement.classList.add('active');
+        btnElement.setAttribute('aria-pressed', 'true');
     }
+
     const si = document.getElementById('encyclopedia-search');
     if (si) si.value = '';
     document.getElementById('clear-search-btn')?.classList.remove('show');
@@ -320,6 +571,7 @@ export function renderEncyclopediaList(dataToRender, isSearchMode = false, token
         const group = item._group || STATE.currentEncyGroup;
         let displayTitle = item.title || item.name;
         let badge = '';
+
         if (isSearchMode) {
             displayTitle = highlightText(displayTitle, tokens);
             let bt = group === 'triet-thuyet' ? 'Lý Thuyết' : (group === 'ky-tai' ? 'Tác Giả' : 'Tác Phẩm');
@@ -327,6 +579,7 @@ export function renderEncyclopediaList(dataToRender, isSearchMode = false, token
             if (group === 'the-loai') { bt = 'Thể Loại'; bc = '#b89a64'; }
             badge = `<span style="font-size:0.65em;opacity:0.9;color:#fff;background-color:${bc};padding:2px 6px;border-radius:4px;margin-left:8px;white-space:nowrap;font-family:var(--font-body);">${bt}</span>`;
         }
+
         const safeDomId = `ency-${group}-${normalizeRouteId(item.id).replace(/[^a-z0-9_-]/g, '-')}`;
         return `
         <div class="accordion-item" id="${escapeHTML(safeDomId)}" data-id="${escapeHTML(item.id)}" data-item-id="${escapeHTML(item.id)}" data-group="${escapeHTML(group)}">
@@ -373,15 +626,14 @@ export function searchEncyclopedia() {
     if (!results.length) {
         const emptyContainer = document.getElementById('encyclopedia-container');
         emptyContainer.dataset.searchMode = 'true';
-        
-        // Kiểm tra xem người dùng có đang hỏi câu hỏi không
+
         const isQuestion = /[?]|\b(la ai|la gi|the nao|tai sao|nhu the nao|ai viet)\b/i.test(kw);
-        
+
         if (isQuestion) {
             emptyContainer.innerHTML = `
                 <div style="text-align:center;padding:40px;">
                     <p style="font-size:1.1rem; color:var(--text-main); margin-bottom:15px; font-family:var(--font-body);">
-                        Có vẻ bạn đang tìm kiếm câu trả lời cho câu hỏi này?
+                        Có vẻ Bạn đang tìm kiếm câu trả lời cho câu hỏi này?
                     </p>
                     <p style="color:var(--text-muted);font-style:italic;margin-bottom:20px;">
                         Hãy nhấn <strong>Enter</strong> hoặc click nút bên dưới để Hỏi Đạo AI.
@@ -394,19 +646,20 @@ export function searchEncyclopedia() {
         } else {
             emptyContainer.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy kết quả nào cho "${escapeHTML(kw)}".</p>`;
         }
-        
+
         const countEl = document.getElementById('encyclopedia-count');
         if (countEl) countEl.textContent = `Tìm thấy 0 mục`;
         const pagEl = document.getElementById('encyclopedia-pagination');
         if (pagEl) pagEl.innerHTML = '';
         return;
     }
+
     const tokens = removeAccents(kw.toLowerCase()).split(/\s+/).filter(t => t.length);
     const data = results.map(r => {
         const idx = STATE.GLOBAL_INDEX_BY_KEY.get(r.key);
         return idx ? { ...idx.data, _group: idx.group || idx.type } : null;
     }).filter(Boolean);
-    
+
     STATE.currentEncyPage = 1;
     renderEncyclopediaList(data, true, tokens);
     const countEl = document.getElementById('encyclopedia-count');
@@ -414,7 +667,7 @@ export function searchEncyclopedia() {
 }
 
 // =====================================================================
-// MODULE 5: LIÊN KẾT (DÙNG DATAHUB THAY VÌ TỰ TÍNH TOÁN)
+// MODULE 6: LIÊN KẾT (DÙNG DATAHUB THAY VÌ TỰ TÍNH TOÁN)
 // =====================================================================
 
 export function findSymbols(text) {
@@ -426,6 +679,7 @@ export function findSymbols(text) {
         ['Điển tích', dictionary.dienTich || {}],
         ['Hán Việt', dictionary.hanViet || {}]
     ];
+
     const candidates = [];
     for (const [type, entries] of groups) {
         for (const [keyword, info] of Object.entries(entries)) {
@@ -463,7 +717,8 @@ export function highlightSymbolsInContent(container) {
         }
     });
     const textNodes = [];
-    let n; while ((n = walker.nextNode())) textNodes.push(n);
+    let n;
+    while ((n = walker.nextNode())) textNodes.push(n);
     textNodes.forEach(tn => {
         const text = tn.nodeValue;
         if (!pattern.test(text)) return;
@@ -517,16 +772,16 @@ export function findRelatedAuthors(current, limit = 4) {
 
 export function appendRelatedSection(container, item, group) {
     if (container.querySelector('.related-section')) return;
-    
+
     const relatedWorks = findRelatedWorks(item, 5);
     const relatedAuthors = findRelatedAuthors(item, 4);
     if (!relatedWorks.length && !relatedAuthors.length) return;
-    
+
     const section = document.createElement('div');
     section.className = 'related-section';
-    
+
     let html = '';
-    
+
     if (relatedAuthors.length > 0) {
         html += `
             <div class="related-block">
@@ -549,7 +804,7 @@ export function appendRelatedSection(container, item, group) {
             </div>
         `;
     }
-    
+
     if (relatedWorks.length > 0) {
         html += `
             <div class="related-block">
@@ -581,15 +836,14 @@ export function appendRelatedSection(container, item, group) {
         `;
     }
 
-    // ĐÃ XÓA NÚT HỎI AI TÓM TẮT THEO YÊU CẦU
-    
     section.innerHTML = html;
     container.appendChild(section);
 }
 
 // =====================================================================
-// MODULE 6: PHÂN TRANG
+// MODULE 7: PHÂN TRANG
 // =====================================================================
+
 export function renderPagination(totalPages, containerId = 'pagination-container', pageType = 'heritage') {
     const pagContainer = document.getElementById(containerId);
     if (!pagContainer) return;
@@ -597,6 +851,7 @@ export function renderPagination(totalPages, containerId = 'pagination-container
 
     const page = pageType === 'encyclopedia' ? STATE.currentEncyPage : STATE.currentPage;
     let html = `<button class="page-btn arrow-btn" onclick="window.changePage(${page - 1}, '${containerId}', '${pageType}')" ${page === 1 ? 'disabled' : ''}>←</button>`;
+
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
             html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="window.changePage(${i}, '${containerId}', '${pageType}')">${i}</button>`;
@@ -604,6 +859,7 @@ export function renderPagination(totalPages, containerId = 'pagination-container
             html += `<span class="page-ellipsis">...</span>`;
         }
     }
+
     html += `<button class="page-btn arrow-btn" onclick="window.changePage(${page + 1}, '${containerId}', '${pageType}')" ${page === totalPages ? 'disabled' : ''}>→</button>`;
     pagContainer.innerHTML = html;
 }
@@ -619,3 +875,27 @@ export function changePage(page, containerId = 'pagination-container', pageType 
         document.getElementById('search-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 }
+
+// =====================================================================
+// GHI CHÚ CHO NGƯỜI BẢO TRÌ
+// =====================================================================
+/**
+ * SAU KHI DÙNG render.js v3.0.0, BẠN CẦN:
+ *
+ * 1. main.js:
+ *    - Sửa `executePipeline` để dùng `renderContemplativeQuestions`
+ *      thay cho tier chấm điểm (nếu có).
+ *    - Dùng `showToast` khi copy thành công.
+ *    - Dùng `renderSkeleton` khi đang tải.
+ *    - Dùng `renderCopyButton` cho mỗi tầng phân tích.
+ *
+ * 2. css/components.css:
+ *    - Thêm CSS cho `.btn-copy-section`, `.contemplative-question`,
+ *      `.skeleton-bach-ngoc` (xem MASTER PLAN Phần 1.6).
+ *
+ * 3. sw.js:
+ *    - Tăng CACHE_VERSION vì có file JS mới.
+ *
+ * 4. data/manifests/static-assets.json:
+ *    - Chạy `python tools/update_manifests.py` (nếu cần).
+ */
