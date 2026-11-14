@@ -2,13 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - LAYOUTS CSS (css/layouts.css)
  * Vị trí: css/layouts.css
- * Version: 1.2.0 (Dialog Standardization & Z-Index Fix)
+ * Version: 2.0.0 (HTML5 Dialog Standardization & Footer)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khung xương: Splash, Silk Transition, Navbar, Container.
  * - Settings Dialog (Offline & Network).
  * - Custom Modal (Sử dụng chuẩn <dialog> HTML5).
- * - Update Banner.
+ * - Update Banner & Footer.
  * ==========================================================
  */
 
@@ -86,7 +86,7 @@
 .mobile-menu-btn svg { width: 26px; height: 26px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
 /* =====================================================================
-   4. SETTINGS DIALOG (CÀI ĐẶT & MẠNG LƯỚI)
+   4. SETTINGS DIALOG & CUSTOM MODAL (CHUẨN HTML5 <DIALOG>)
    ===================================================================== */
 dialog { 
     border: none; padding: 0; background: transparent; outline: none; 
@@ -97,46 +97,22 @@ dialog {
 }
 dialog:not([open]) { display: none; }
 dialog::backdrop { 
-    background-color: rgba(253, 251, 247, 0.75); 
+    background-color: rgba(253, 251, 247, 0.85); 
     backdrop-filter: blur(8px); 
     -webkit-backdrop-filter: blur(8px); 
 }
 
+/* --- Settings Modal --- */
 #settings-modal { 
     position: relative; width: 90vw; max-width: 450px; max-height: 90vh; 
-    overflow-y: auto; background: #fdfbf7; border: 1px solid var(--border-color); 
+    overflow-y: auto; background: #ffffff; border: 1px solid var(--border-color); 
     border-radius: var(--radius-card); box-shadow: var(--shadow-heavy); padding: 30px; 
     scrollbar-width: thin; animation: dialogFadeIn 0.3s ease forwards; 
 }
 
-@keyframes dialogFadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-/* CSS MẠNG LƯỚI TRONG SETTINGS */
-.network-section { background: rgba(139, 184, 168, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
-.network-summary { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed rgba(139, 184, 168, 0.2); }
-.network-dots { display: flex; gap: 4px; }
-.network-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
-.network-dot.online { background: var(--color-success); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
-.network-dot.offline { background: var(--color-error); box-shadow: 0 0 0 2px rgba(163, 107, 107, 0.2); }
-.network-dot.error { background: var(--color-warning); box-shadow: 0 0 0 2px rgba(212, 196, 168, 0.2); }
-.network-summary-text { flex: 1; font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; color: var(--accent-text); }
-.network-refresh { background: transparent; border: 1px solid var(--border-color); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.3s; }
-.network-refresh:hover { border-color: var(--accent); color: var(--accent); }
-.network-nodes { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-.network-node-row { display: flex; align-items: center; gap: 10px; padding: 6px 4px; font-family: var(--font-body); font-size: 0.85rem; }
-.network-node-label { flex: 1; color: var(--text-main); }
-.network-node-status { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
-.network-node-status.online { color: var(--color-success); }
-.network-node-status.offline { color: var(--color-error); }
-.network-node-status.error { color: var(--color-warning); }
-.network-timestamp { font-family: var(--font-body); font-size: 0.72rem; color: var(--text-muted); font-style: italic; text-align: right; padding-top: 8px; border-top: 1px dashed rgba(139, 184, 168, 0.15); }
-
-/* =====================================================================
-   5. CUSTOM MODAL (THAY THẾ ALERT/CONFIRM - CHUẨN DIALOG)
-   ===================================================================== */
-/* Không cần định nghĩa lại #custom-modal-overlay vì đã dùng thẻ <dialog> chung ở trên */
+/* --- Custom Alert/Confirm Modal --- */
 #custom-modal {
-    background: #fdfbf7; 
+    background: #ffffff; 
     border: 1px solid var(--border-color);
     border-radius: 16px; 
     box-shadow: 0 20px 50px rgba(0,0,0,0.15);
@@ -144,6 +120,7 @@ dialog::backdrop {
     max-width: 380px; 
     padding: 24px; 
     text-align: center;
+    animation: dialogFadeIn 0.3s ease forwards;
 }
 
 #custom-modal-title {
@@ -168,8 +145,30 @@ dialog::backdrop {
 }
 #custom-modal-confirm:hover { background: var(--accent-hover); }
 
+@keyframes dialogFadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* CSS MẠNG LƯỚI TRONG SETTINGS */
+.network-section { background: rgba(139, 184, 168, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; }
+.network-summary { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed rgba(139, 184, 168, 0.2); }
+.network-dots { display: flex; gap: 4px; }
+.network-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.network-dot.online { background: var(--color-success); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+.network-dot.offline { background: var(--color-error); box-shadow: 0 0 0 2px rgba(163, 107, 107, 0.2); }
+.network-dot.error { background: var(--color-warning); box-shadow: 0 0 0 2px rgba(212, 196, 168, 0.2); }
+.network-summary-text { flex: 1; font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; color: var(--accent-text); }
+.network-refresh { background: transparent; border: 1px solid var(--border-color); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.3s; }
+.network-refresh:hover { border-color: var(--accent); color: var(--accent); }
+.network-nodes { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.network-node-row { display: flex; align-items: center; gap: 10px; padding: 6px 4px; font-family: var(--font-body); font-size: 0.85rem; }
+.network-node-label { flex: 1; color: var(--text-main); }
+.network-node-status { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
+.network-node-status.online { color: var(--color-success); }
+.network-node-status.offline { color: var(--color-error); }
+.network-node-status.error { color: var(--color-warning); }
+.network-timestamp { font-family: var(--font-body); font-size: 0.72rem; color: var(--text-muted); font-style: italic; text-align: right; padding-top: 8px; border-top: 1px dashed rgba(139, 184, 168, 0.15); }
+
 /* =====================================================================
-   6. UPDATE BANNER
+   5. UPDATE BANNER
    ===================================================================== */
 #update-banner {
     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(120px);
@@ -197,6 +196,27 @@ dialog::backdrop {
     transition: all 0.3s;
 }
 #dismiss-btn:hover { color: #fff; transform: rotate(90deg); }
+
+/* =====================================================================
+   6. FOOTER (CHÂN TRANG)
+   ===================================================================== */
+.app-footer {
+    text-align: center;
+    padding: 30px 20px;
+    margin-top: 40px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(139, 184, 168, 0.15);
+    width: 100%;
+    position: relative;
+    z-index: 10;
+}
+
+.app-footer p {
+    margin: 0;
+    opacity: 0.8;
+}
 
 /* =====================================================================
    7. RESPONSIVE (MOBILE)
