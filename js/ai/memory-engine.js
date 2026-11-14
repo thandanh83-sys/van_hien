@@ -1,62 +1,70 @@
 /**
  * ==========================================================
- * VĂN ĐẠO AI - MEMORY ENGINE
+ * VĂN ĐẠO AI - MEMORY ENGINE (KÝ ỨC & HỌC HỎI)
  * Vị trí: js/ai/memory-engine.js
- * Version: 1.0.0 (Contextual Memory)
- * ==========================================================
- * TRIẾT LÝ:
- * - Ghi nhớ những gì người dùng vừa nói để tạo mạch hội thoại.
- * - Sử dụng localStorage (Offline-First).
+ * Version: 2.0.0 (Long-term Memory & Learning)
  * ==========================================================
  */
 
-const MEMORY_KEY = 'vandao_ai_memory';
-const MAX_HISTORY = 5; // Lưu tối đa 5 lượt hội thoại gần nhất
+const MEMORY_KEY = 'vandao_memory_v2';
+const MAX_HISTORY = 10; 
+const MAX_LESSONS = 50;
 
 export const MemoryEngine = {
-    // Lưu lại lượt hội thoại
+    // 1. Lưu lượt hội thoại
     saveTurn(query, result) {
-        const history = this.getHistory();
+        const data = this._loadData();
         
-        // Trích xuất thực thể chính (nếu có) để làm ngữ cảnh
-        const contextEntities = result.meta ? result.meta.map(m => m.id) : [];
+        // Trích xuất thực thể chính (để nhớ ngữ cảnh)
+        const entities = result.meta ? result.meta.map(m => m.id) : [];
         
-        history.push({
-            query: query,
+        data.history.push({
+            query,
             answer: result.answer,
-            entities: contextEntities,
+            entities,
             timestamp: Date.now()
         });
 
-        if (history.length > MAX_HISTORY) {
-            history.shift(); // Xóa cái cũ nhất
-        }
-
-        localStorage.setItem(MEMORY_KEY, JSON.stringify(history));
-    },
-
-    // Lấy lịch sử
-    getHistory() {
-        try {
-            return JSON.parse(localStorage.getItem(MEMORY_KEY)) || [];
-        } catch {
-            return [];
-        }
-    },
-
-    // Tìm ngữ cảnh từ câu hỏi trước đó (Giải quyết đại từ)
-    resolveContext(cleanQuery) {
-        const history = this.getHistory();
-        if (history.length === 0) return null;
-
-        const lastTurn = history[history.length - 1];
+        if (data.history.length > MAX_HISTORY) data.history.shift();
         
-        // Nếu câu hỏi hiện tại chứa đại từ chỉ định ("nó", "ông ấy", "tác phẩm này")
-        // và câu hỏi trước đó có chứa thực thể (ví dụ: "truyen-kieu")
-        if (/(no|ong ay|ba ay|tac pham nay|tac gia nay|bai tho nay)/.test(cleanQuery)) {
+        this._saveData(data);
+    },
+
+    // 2. Ghi nhận bài học (Khi người dùng sửa lỗi hoặc cung cấp kiến thức mới)
+    learnLesson(topic, lessonContent) {
+        const data = this._loadData();
+        data.lessons.push({
+            topic,
+            content: lessonContent,
+            timestamp: Date.now()
+        });
+        if (data.lessons.length > MAX_LESSONS) data.lessons.shift();
+        this._saveData(data);
+        console.log(`[LEARNING] Ta đã ghi nhớ bài học về: ${topic}`);
+    },
+
+    // 3. Ghi nhận khoảng trống tri thức (Khi AI không trả lời được)
+    logKnowledgeGap(query) {
+        const data = this._loadData();
+        if (!data.gaps.includes(query)) {
+            data.gaps.push(query);
+            this._saveData(data);
+            console.log(`[LEARNING] Ta đã ghi nhận câu hỏi chưa có đáp án: "${query}"`);
+        }
+    },
+
+    // 4. Lấy ngữ cảnh (Giải quyết đại từ: "nó", "ông ấy", "tác phẩm này")
+    resolveContext(cleanQuery) {
+        const data = this._loadData();
+        if (data.history.length === 0) return null;
+
+        const lastTurn = data.history[data.history.length - 1];
+        
+        // Nếu có đại từ chỉ định
+        if (/(no|ong ay|ba ay|tac pham nay|tac gia nay|bai tho nay|noi dung do)/.test(cleanQuery)) {
             if (lastTurn.entities && lastTurn.entities.length > 0) {
                 return {
-                    targetEntity: lastTurn.entities[0], // Lấy thực thể chính của câu trước
+                    targetEntity: lastTurn.entities[0],
                     previousQuery: lastTurn.query
                 };
             }
@@ -64,8 +72,20 @@ export const MemoryEngine = {
         return null;
     },
 
-    // Xóa bộ nhớ
-    clear() {
-        localStorage.removeItem(MEMORY_KEY);
+    // Truy xuất toàn bộ dữ liệu (dùng cho debug/audit)
+    getData() { return this._loadData(); },
+
+    _loadData() {
+        try {
+            const raw = localStorage.getItem(MEMORY_KEY);
+            if (!raw) return { history: [], lessons: [], gaps: [] };
+            return JSON.parse(raw);
+        } catch {
+            return { history: [], lessons: [], gaps: [] };
+        }
+    },
+
+    _saveData(data) {
+        localStorage.setItem(MEMORY_KEY, JSON.stringify(data));
     }
 };
