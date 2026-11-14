@@ -14,14 +14,16 @@
  * ==========================================================
  */
 
-import { OutputAI } from './output-ai.js';
-import { AgentMap, AgentRegistry } from './agents/index.js';
-import { MemoryEngine } from './memory-engine.js';
-import { Identity } from './identity.js';
-import { DataHub } from '../network/data-hub.js';
-import { escapeHTML } from '../utils.js';
-import { VDSearchEngine } from '../search.js';
-import { SmartInputParser } from './smart-input-parser.js';
+// Sửa lại các đường dẫn import cho chính xác
+import { MasterAI } from './ai/master.js';
+import { AgentMap, AgentRegistry } from './ai/agents/index.js';
+import { MemoryEngine } from './ai/memory-engine.js';
+import { Identity } from './ai/identity.js';
+import { DataHub } from './network/data-hub.js';
+import { escapeHTML } from './utils.js';
+import { VDSearchEngine } from './search.js';
+import { SmartInputParser } from './ai/smart-input-parser.js';
+import { preprocessText } from './ai/nlp-tools.js';
 
 // =====================================================================
 // PHẦN 1: PHIÊN BẢN & LOG TIỆN ÍCH
