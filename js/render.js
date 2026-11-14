@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
  * Vị trí: js/render.js
- * Version: 2.2.0 (Clean UI & Intent Router UX)
+ * Version: 2.3.0 (Clean UI & Intent Router UX)
  * ==========================================================
  * CHỨC NĂNG:
  * - Hiển thị Văn Hiến (Tác phẩm), Bách Khoa (Tác giả, Lý thuyết).
@@ -10,6 +10,7 @@
  * - Quản lý Lazy Load, Phân trang, và Tooltip biểu tượng.
  * - [MỚI] Đã xóa nút "Hỏi AI Tóm Tắt" ở phần Related Section để 
  *   giao diện gọn gàng hơn, tránh việc AI tự hỏi tự trả lời.
+ * - [MỚI] Thêm gợi ý Hỏi AI khi tìm kiếm không có kết quả (nếu là câu hỏi).
  * ==========================================================
  */
 
@@ -101,12 +102,12 @@ export function renderHeritage() {
 
     // === XỬ LÝ KHI KHÔNG CÓ KẾT QUẢ (INTENT ROUTER UX) ===
     if (!data.length) {
-        const isQuestion = /[?]|\b(la ai|la gi|the nao|tai sao|nhu the nao)\b/i.test(keyword);
+        const isQuestion = /[?]|\b(la ai|la gi|the nao|tai sao|nhu the nao|ai viet)\b/i.test(keyword);
         
         if (isQuestion) {
             grid.innerHTML = `
                 <div style="grid-column:1/-1;text-align:center;padding:40px;">
-                    <p style="font-size:1.1rem; color:var(--text-main); margin-bottom:15px; font-family:var(--font-heading);">
+                    <p style="font-size:1.1rem; color:var(--text-main); margin-bottom:15px; font-family:var(--font-body);">
                         Có vẻ bạn đang đặt một câu hỏi?
                     </p>
                     <p style="color:var(--text-muted);font-style:italic;margin-bottom:20px;">
@@ -372,7 +373,28 @@ export function searchEncyclopedia() {
     if (!results.length) {
         const emptyContainer = document.getElementById('encyclopedia-container');
         emptyContainer.dataset.searchMode = 'true';
-        emptyContainer.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy kết quả nào cho "${escapeHTML(kw)}".</p>`;
+        
+        // Kiểm tra xem người dùng có đang hỏi câu hỏi không
+        const isQuestion = /[?]|\b(la ai|la gi|the nao|tai sao|nhu the nao|ai viet)\b/i.test(kw);
+        
+        if (isQuestion) {
+            emptyContainer.innerHTML = `
+                <div style="text-align:center;padding:40px;">
+                    <p style="font-size:1.1rem; color:var(--text-main); margin-bottom:15px; font-family:var(--font-body);">
+                        Có vẻ bạn đang tìm kiếm câu trả lời cho câu hỏi này?
+                    </p>
+                    <p style="color:var(--text-muted);font-style:italic;margin-bottom:20px;">
+                        Hãy nhấn <strong>Enter</strong> hoặc click nút bên dưới để Hỏi Đạo AI.
+                    </p>
+                    <button class="btn-ask-ai" onclick="window.triggerSmartSearch('encyclopedia-search', 'encyclopedia-container', 'encyclopedia-filter-bar', 'encyclopedia-pagination')">
+                        Hỏi Đạo AI ngay
+                    </button>
+                </div>
+            `;
+        } else {
+            emptyContainer.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy kết quả nào cho "${escapeHTML(kw)}".</p>`;
+        }
+        
         const countEl = document.getElementById('encyclopedia-count');
         if (countEl) countEl.textContent = `Tìm thấy 0 mục`;
         const pagEl = document.getElementById('encyclopedia-pagination');
@@ -559,7 +581,7 @@ export function appendRelatedSection(container, item, group) {
         `;
     }
 
-    // ĐÃ XÓA NÚT HỎI AI THEO YÊU CẦU
+    // ĐÃ XÓA NÚT HỎI AI TÓM TẮT THEO YÊU CẦU
     
     section.innerHTML = html;
     container.appendChild(section);
