@@ -2,12 +2,12 @@
  * ==========================================================
  * VĂN ĐẠO - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 2.0.0 (UI Polish & Ask Dao Refinement)
+ * Version: 2.2.0 (Clean UI & Ask Dao Refinement)
  * ==========================================================
  * CHỨC NĂNG:
  * - Hệ thống Nút bấm (Glassmorphism).
- * - Phân trang, Thanh tìm kiếm thông minh.
- * - Khối kết quả Hỏi Đạo (Ask Dao) - Tối ưu cho khối "Cơ duyên".
+ * - Phân trang, Thanh tìm kiếm thông minh (Đã ẩn nút X mặc định).
+ * - Khối kết quả Hỏi Đạo (Ask Dao) - Nền đục chống xuyên thấu.
  * - Tooltip biểu tượng, Nút Hỏi AI.
  * ==========================================================
  */
@@ -65,7 +65,7 @@
 
 /* Nút Bộ lọc (Văn Hiến, Bách Khoa) - Glassmorphism */
 .filter-btn { 
-    background: rgba(253, 251, 247, 0.4); 
+    background: rgba(253, 251, 247, 0.6); 
     border: 1px solid rgba(139, 184, 168, 0.2); 
     color: var(--text-main); 
     padding: 10px 24px; 
@@ -236,7 +236,17 @@
     padding-right: 45px !important; 
 }
 
-/* Nút Xóa nhanh */
+/* Ẩn nút X mặc định của trình duyệt để tránh bị 2 nút X */
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+}
+
+/* Nút Xóa nhanh (Custom) */
 .clear-btn {
     position: absolute; 
     right: 15px; 
@@ -279,14 +289,18 @@
 }
 .ask-loading .spinner { margin-bottom: 20px; }
 
+/* Nền đục hoàn toàn (Chống xuyên thấu) */
 .ask-result {
-    background: linear-gradient(135deg, rgba(212, 196, 168, 0.08), rgba(139, 184, 168, 0.04));
-    border: 1px solid rgba(212, 196, 168, 0.25);
-    border-left: 3px solid var(--accent-gold);
+    background: #fdfbf7;
+    border: 1px solid rgba(212, 196, 168, 0.4);
+    border-left: 4px solid var(--accent-gold);
     border-radius: 14px;
     padding: 24px 28px;
     margin-top: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.06);
     animation: fadeInContent 0.5s var(--ease-silk) forwards;
+    position: relative;
+    z-index: 10;
 }
 
 /* Nhãn nguồn tri thức */
@@ -301,7 +315,7 @@
     font-weight: 700;
     margin-bottom: 12px;
     padding: 4px 10px;
-    background: rgba(139, 184, 168, 0.1);
+    background: rgba(139, 184, 168, 0.15);
     border-radius: 12px;
 }
 .ask-source-dot {
@@ -322,7 +336,7 @@
 /* Lời dẫn (Nho/Phật phong) */
 .ask-intro {
     font-family: var(--font-body);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--accent-text);
     font-style: italic;
     margin-bottom: 12px;
@@ -341,7 +355,7 @@
 
 /* Tiểu dẫn (Chi tiết bổ sung) */
 .ask-detail-box {
-    background: rgba(139, 184, 168, 0.05); 
+    background: rgba(139, 184, 168, 0.08); 
     padding: 15px 20px; 
     border-radius: 8px; 
     border-left: 2px solid var(--accent); 
@@ -367,7 +381,7 @@
 .ask-meta-wrapper {
     margin-top: 24px; 
     padding-top: 16px; 
-    border-top: 1px dashed rgba(139, 184, 168, 0.3);
+    border-top: 1px dashed rgba(139, 184, 168, 0.4);
 }
 .ask-meta-title {
     font-family: var(--font-body); 
@@ -387,11 +401,11 @@
     padding: 0;
 }
 
-/* Nút bấm trong khối Meta (Đã sửa để chứa 2 dòng) */
+/* Nút bấm trong khối Meta */
 .ask-meta-item {
-    background: var(--card-bg);
+    background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: 12px; /* Bo góc nhẹ thay vì pill */
+    border-radius: 12px;
     padding: 10px 16px; 
     font-family: var(--font-body);
     cursor: pointer;
@@ -403,13 +417,14 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
 .ask-meta-item:hover {
     border-color: var(--accent);
     background: rgba(139, 184, 168, 0.08);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 184, 168, 0.1);
+    box-shadow: 0 4px 12px rgba(139, 184, 168, 0.15);
 }
 
 .ask-meta-item .meta-title {
@@ -604,7 +619,7 @@ mark {
         font-size: 1.15rem;
     }
     .ask-meta-item {
-        min-width: 100%; /* Trải dài toàn bộ chiều ngang trên mobile */
+        min-width: 100%;
     }
     .ask-outro {
         text-align: center;
