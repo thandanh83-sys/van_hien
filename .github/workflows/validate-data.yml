@@ -1,48 +1,26 @@
-# =====================================================================
-# VĂN ĐẠO ENGINE - GITHUB ACTION: KIỂM TRA TOÀN VẸN DỮ LIỆU
-# Tên file: .github/workflows/validate-data.yml
-# Version: 3.1.0 (Read-Only Guard + Fixed Paths Ignore)
-# =====================================================================
-name: Validate Data Integrity
+name: Validate Data
 
 on:
   push:
-    paths:
-      - 'data/data-*.json'
-      - 'data/tac-pham/**'
-      - 'data/tac-gia/**'
-      - 'tools/validate_data.py'
-    # Bỏ qua các file do bot tự sinh ra để tránh chạy thừa
-    paths-ignore:
-      - 'data/manifests/**'
-  workflow_dispatch:
-
-concurrency:
-  group: validate-data
-  cancel-in-progress: true
-
-# Cấp quyền đọc tường minh (Bắt buộc với repo mới của GitHub)
-permissions:
-  contents: read
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Cho phép chạy thủ công từ tab Actions
 
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    
+
     steps:
-      - name: '1. Checkout code'
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-        
-      - name: '2. Set up Python'
+
+      - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: '3. Check Python syntax'
-        run: python -m py_compile tools/validate_data.py
-
-      - name: '4. Run Data Integrity Check'
-        run: python tools/validate_data.py
+      - name: 🛡️ Run Data Validation Script
+        run: |
+          echo "Bắt đầu kiểm tra tính toàn vẹn dữ liệu..."
+          python tools/validate_data.py
