@@ -2,17 +2,12 @@
  * ==========================================================
  * NGỌC THANH - VARIABLES CSS (css/variables.css)
  * Vị trí: css/variables.css
- * Version: 2.0.0 (Ngọc Thanh Core Theme)
+ * Version: 2.1.0 (Ngọc Thanh Core Theme - Solid Fix)
  * ==========================================================
  * CHỨC NĂNG:
  * Chứa toàn bộ biến số thiết kế (Design Tokens).
  * Đây là "nguồn chân lý duy nhất" (Single Source of Truth) cho
  * màu sắc, font chữ, kích thước và hiệu ứng chuyển động.
- * 
- * TRIẾT LÝ THIẾT KẾ:
- * "Ngọc Thanh" — Xanh ngọc bích trong trẻo, sâu thẳm và thanh tịnh.
- * Sự kết hợp giữa màu xanh của thiên nhiên, đá quý và màu vàng cát 
- * của ánh nắng, tạo nên một không gian tri thức uyên bác, tĩnh tại.
  * ==========================================================
  */
 
@@ -37,7 +32,8 @@
     --gold-deep: #a88b52;         /* Vàng đậm (Hover, Text) */
     
     /* Nền & Viền của các khối */
-    --card-bg: rgba(255, 255, 255, 0.95); 
+    --card-bg: rgba(255, 255, 255, 0.95); /* Nền thẻ (Dùng cho Navbar, Card) */
+    --card-bg-solid: #ffffff;     /* Nền trắng đục hoàn toàn (Dùng cho khối AI) */
     --veil: rgba(247, 252, 249, 0.88);    /* Lớp mờ cho Modal/Backdrop */
     --border-color: rgba(46, 139, 87, 0.25); /* Viền xanh ngọc */
     --line-hairline: 1px solid rgba(46, 139, 87, 0.15); /* Viền siêu mảnh */
@@ -51,6 +47,7 @@
     --shadow: 0 10px 30px rgba(26, 82, 50, 0.08);       
     --shadow-heavy: 0 20px 50px rgba(0, 0, 0, 0.15);       
     --shadow-glow: 0 0 15px rgba(46, 139, 87, 0.3);      
+    --shadow-solid: 0 8px 25px rgba(26, 82, 50, 0.12); /* Bóng đổ đậm hơn cho khối trắng đục */
 
     /* =================================================================
        2. HỆ THỐNG FONT CHỮ (TYPOGRAPHY)
