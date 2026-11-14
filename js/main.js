@@ -2,19 +2,15 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 3.3.0 (Pure SVG Icons & Plugin Architecture)
+ * Version: 3.4.0 (Intent Router & Global AI Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
  * - Nạp dữ liệu vào APP_DATA và xây dựng STATE.GLOBAL_INDEX.
  * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI).
- * - Gắn sự kiện Tìm kiếm Hỏi Đạo (Master AI).
+ * - Gắn sự kiện Tìm kiếm / Hỏi Đạo thông qua Intent Router.
  * - Quản lý Settings (Offline & Network Health).
- * - Kết nối với DataHub và AgentRegistry qua NetworkLayer.
- *
- * TRIẾT LÝ:
- * - Không dùng emoji/unicode icon. Mọi icon đều là SVG thuần.
- * - Mọi thao tác dữ liệu đều đi qua DataHub (Offline-First).
+ * - [MỚI] Xử lý Global AI Modal cho các nút Hỏi AI (Bách Khoa, Thi Pháp...).
  * ==========================================================
  */
 
@@ -34,7 +30,7 @@ import { triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
 import { 
     AIDispatcher, analyzeWork, calculateFortune, synthesizeDynamicFortune, 
-    PraiserAgent, CriticAgent 
+    PraiserAgent, CriticAgent, MasterAI, OutputAI 
 } from './ai.js';
 import { runFullDiagnosis } from './audit.js';
 import { bootstrapNetwork, DataHub, AgentRegistry } from './network/index.js';
@@ -43,14 +39,6 @@ import { handleSmartSearch, resetSearchState } from './ask-dao.js';
 // =====================================================================
 // 2. HELPER: SVG SPARKLE ICON (Thay thế ký tự "✦")
 // =====================================================================
-/**
- * Sinh SVG tia sáng (sparkle) với kích thước và màu tuỳ biến.
- * Dùng để thay thế ký tự unicode "✦" trong các tiêu đề nhỏ.
- *
- * @param {number} size - Kích thước (px), mặc định 12.
- * @param {string} color - Màu stroke, mặc định kế thừa currentColor.
- * @returns {string} Chuỗi HTML của thẻ <svg>.
- */
 function sparkleSvg(size = 12, color = 'currentColor') {
     return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:6px; flex-shrink:0;" aria-hidden="true" focusable="false"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>`;
 }
@@ -252,7 +240,6 @@ function executePipeline() {
         return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${q}</div></div>`;
     }).join('');
 
-    // [ĐÃ THAY ĐỔI] Thay ký tự "✦" bằng SVG sparkle thuần.
     panel.innerHTML = `
         <div class="result-step tier-0"><div class="tier-label">TẦNG 0</div><div class="step-title">Bóc tách thanh điệu</div>${tier0}</div>
         <div class="result-step tier-1"><div class="tier-label">TẦNG 1</div><div class="step-title">Thể thơ & Vần</div>${tier1}</div>
@@ -294,6 +281,13 @@ function executePipeline() {
                     })()}
                 </div>
             </div>
+        </div>
+
+        <!-- [MỚI] NÚT HỎI AI CHUYÊN SÂU -->
+        <div class="result-step tier-4" style="border-left-color: var(--accent-text); text-align: center; margin-top: 20px; background: transparent; box-shadow: none;">
+            <button class="btn-ask-ai" onclick="window.askAIAboutPoem()" style="font-size: 1rem; padding: 10px 20px;">
+                ${ICONS.sparkle} Hỏi Đạo AI Phân Tích Sâu Bài Thơ Này
+            </button>
         </div>
     `;
 }
@@ -399,9 +393,9 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// 6. BÓI THƠ (FATE MODAL) - 4 KHỐI ĐÁNH GIÁ
+// 6. BÓI THƠ (FATE MODAL) - NÂNG CẤP AI
 // =====================================================================
-function randomPoem() {
+async function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && work.id);
     if (!validWorks.length) return showAlert('Kho tác phẩm chưa có nội dung đủ để tạo gợi ý đọc.', 'Thông báo');
 
@@ -419,15 +413,30 @@ function randomPoem() {
     overlay.style.display = 'flex';
     void overlay.offsetWidth;
     overlay.classList.add('show');
-    loadingEl?.classList.add('hidden');
-    resultEl.classList.add('show');
+    
+    loadingEl?.classList.remove('hidden');
+    resultEl.classList.remove('show');
 
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
     
-    const analysis = analyzeWork(randomWork);
+    // [AI UPGRADE] Fetch full content để AI phân tích sâu hơn
+    let fullContent = randomWork.content || '';
+    try {
+        const detail = await DataHub.getDetail(randomWork.id);
+        if (detail && detail.content) {
+            fullContent = detail.content.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+    } catch(e) { console.warn("Không tải được chi tiết:", e); }
+
+    const enhancedWork = { ...randomWork, content: fullContent };
+    
+    const analysis = analyzeWork(enhancedWork);
     const fortuneKey = calculateFortune();
-    const aiResult = synthesizeDynamicFortune(randomWork, fortuneKey, analysis);
+    const aiResult = synthesizeDynamicFortune(enhancedWork, fortuneKey, analysis);
     const fortuneInfo = aiResult.fortuneInfo;
+
+    loadingEl?.classList.add('hidden');
+    resultEl.classList.add('show');
 
     if (badge) {
         badge.textContent = `Vận khí: ${fortuneInfo.name}`;
@@ -438,11 +447,10 @@ function randomPoem() {
     if (titleEl) titleEl.textContent = randomWork.title || 'Tác phẩm';
 
     if (excerptEl) {
-        const excerpt = randomWork.desc || randomWork.description || randomWork.content || '';
+        const excerpt = randomWork.desc || randomWork.description || (fullContent ? fullContent.substring(0, 100) + '...' : '');
         excerptEl.textContent = `“${excerpt}”`;
     }
 
-    // [ĐÃ THAY ĐỔI] Toàn bộ ký tự "✦" được thay bằng SVG sparkle.
     if (commentaryEl) {
         commentaryEl.innerHTML = `
             <div style="margin-bottom:18px; color:var(--accent-text); font-style:italic; line-height:1.8;">
@@ -477,7 +485,6 @@ function randomPoem() {
         `;
     }
 
-    // [ĐÃ THAY ĐỔI] Thay "&rarr;" bằng SVG arrowRight có sẵn trong ICONS.
     if (gotoBtn) {
         gotoBtn.innerHTML = `Đọc toàn bộ tác phẩm ${ICONS.arrowRight}`;
         gotoBtn.onclick = () => {
@@ -494,7 +501,136 @@ function randomPoem() {
 }
 
 // =====================================================================
-// 7. MẠNG LƯỚI TRI THỨC (NETWORK STATUS)
+// 7. GLOBAL AI HANDLERS (Xử lý tập trung các nút Hỏi AI)
+// =====================================================================
+window.askAIAboutPoem = async function() {
+    const raw = document.getElementById('poemInput').value.trim();
+    if (!raw) return alert('Vui lòng nhập bài thơ trước!');
+
+    const btn = event.target;
+    if (btn) { btn.disabled = true; btn.textContent = 'Đang phân tích...'; }
+
+    // Mở Modal AI
+    let modal = document.getElementById('ai-global-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'ai-global-modal';
+        modal.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+        modal.innerHTML = `
+            <div style="background:var(--bg-card); width:100%; max-width:800px; max-height:90vh; overflow-y:auto; border-radius:12px; padding:20px; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <button id="ai-modal-close" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">&times;</button>
+                <div id="ai-global-content"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('ai-modal-close').onclick = () => modal.style.display = 'none';
+        modal.onclick = (ev) => { if (ev.target === modal) modal.style.display = 'none'; };
+    }
+
+    modal.style.display = 'flex';
+    const content = document.getElementById('ai-global-content');
+    content.innerHTML = `<div class="ask-loading" style="padding: 40px;"><div class="spinner"></div><p>Đạo đang chiêm nghiệm bài thơ...</p></div>`;
+
+    // Gọi AI
+    try {
+        const intent = { type: 'analyze-work', query: { content: raw, title: 'Bài thơ tự do' }, mode: 'command' };
+        const result = await MasterAI.dispatch(intent);
+        OutputAI.render(content, result, 'Phân tích bài thơ của bạn');
+    } catch (err) {
+        content.innerHTML = `<p style="color:red;">Lỗi AI: ${err.message}</p>`;
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Hỏi Đạo AI Phân Tích Sâu'; }
+    }
+};
+
+// Expose hàm xử lý tìm kiếm để nút trong render.js có thể gọi
+window.triggerSmartSearch = (inputId, containerId, filterBarId, paginationId) => {
+    const config = {
+        inputId, containerId, filterBarId, paginationId,
+        fallbackRenderFn: () => { STATE.currentPage = 1; renderHeritage(); }
+    };
+    handleSmartSearch(config);
+};
+
+// Xử lý Click toàn cục cho các nút data-ai-action
+document.addEventListener('click', e => {
+    const aiBtn = e.target.closest('[data-ai-action]');
+    if (aiBtn) {
+        e.preventDefault();
+        const action = aiBtn.dataset.aiAction;
+        const query = aiBtn.dataset.query || aiBtn.dataset.workTitle;
+        
+        if (action === 'summarize-work' && aiBtn.dataset.workTitle) {
+            const target = DataHub.resolveIdFromQuery(aiBtn.dataset.workTitle);
+            if (target) {
+                window.askAIAboutWork(target.id);
+                return;
+            }
+        }
+
+        // Xử lý các action khác (VD: hỏi tiểu sử tác giả)
+        let modal = document.getElementById('ai-global-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'ai-global-modal';
+            modal.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            modal.innerHTML = `
+                <div style="background:var(--bg-card); width:100%; max-width:800px; max-height:90vh; overflow-y:auto; border-radius:12px; padding:20px; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <button id="ai-modal-close" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">&times;</button>
+                    <div id="ai-global-content"></div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            document.getElementById('ai-modal-close').onclick = () => modal.style.display = 'none';
+            modal.onclick = (ev) => { if (ev.target === modal) modal.style.display = 'none'; };
+        }
+        
+        modal.style.display = 'flex';
+        const content = document.getElementById('ai-global-content');
+        content.innerHTML = `<div class="ask-loading" style="padding: 40px;"><div class="spinner"></div><p>Đang kết nối...</p></div>`;
+        
+        import('./ai.js').then(async ({ MasterAI, OutputAI }) => {
+            const intent = { type: action, query: query, mode: 'command' };
+            const result = await MasterAI.dispatch(intent);
+            OutputAI.render(content, result, query);
+        });
+        return;
+    }
+});
+
+// Hàm mở AI cho 1 tác phẩm cụ thể
+window.askAIAboutWork = async function(workId) {
+    let modal = document.getElementById('ai-global-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'ai-global-modal';
+        modal.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+        modal.innerHTML = `
+            <div style="background:var(--bg-card); width:100%; max-width:800px; max-height:90vh; overflow-y:auto; border-radius:12px; padding:20px; position:relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <button id="ai-modal-close" style="position:absolute;top:10px;right:10px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text-muted);">&times;</button>
+                <div id="ai-global-content"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('ai-modal-close').onclick = () => modal.style.display = 'none';
+        modal.onclick = (ev) => { if (ev.target === modal) modal.style.display = 'none'; };
+    }
+    
+    modal.style.display = 'flex';
+    const content = document.getElementById('ai-global-content');
+    content.innerHTML = `<div class="ask-loading" style="padding: 40px;"><div class="spinner"></div><p>Đạo đang đọc và chiêm nghiệm...</p></div>`;
+    
+    try {
+        const intent = { type: 'analyze-work', query: workId, mode: 'command' };
+        const result = await MasterAI.dispatch(intent);
+        OutputAI.render(content, result, workId);
+    } catch (err) {
+        content.innerHTML = `<p style="color:red;">Lỗi AI: ${err.message}</p>`;
+    }
+};
+
+// =====================================================================
+// 8. MẠNG LƯỚI TRI THỨC (NETWORK STATUS)
 // =====================================================================
 async function refreshNetworkStatus(forceRefresh = false) {
     const dotsEl = document.getElementById('network-dots');
@@ -551,7 +687,7 @@ async function refreshNetworkStatus(forceRefresh = false) {
 }
 
 // =====================================================================
-// 8. XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
+// 9. XUẤT CÁC HÀM RA WINDOW TOÀN CỤC
 // =====================================================================
 window.executePipeline = executePipeline;
 window.randomPoem = randomPoem;
@@ -592,10 +728,10 @@ window.clearSearch = function() {
 };
 
 // =====================================================================
-// 9. KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
+// 10. KHỞI CHẠY (BOOTSTRAP) VÀ GẮN SỰ KIỆN
 // =====================================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // 9.1. Sự kiện Bói Thơ
+    // 10.1. Sự kiện Bói Thơ
     document.getElementById('draw-literary-fate-btn')?.addEventListener('click', randomPoem);
     document.getElementById('fate-close-btn')?.addEventListener('click', () => {
         const o = document.getElementById('fate-modal-overlay');
@@ -609,7 +745,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 9.2. Splash Screen & Load Data
+    // 10.2. Splash Screen & Load Data
     const splash = document.getElementById('jade-splash');
     const status = document.getElementById('bootStatusText');
     const qc = document.querySelector('.boot-quote');
@@ -651,7 +787,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 1000);
     }
 
-    // 9.3. Khôi phục bản nháp
+    // 10.3. Khôi phục bản nháp
     const draft = localStorage.getItem('vandao_draft_poem');
     if (draft) {
         const pi = document.getElementById('poemInput');
@@ -659,50 +795,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('vandao_draft_poem');
     }
 
-    // 9.4. Sự kiện Tìm kiếm (Gộp Hỏi Đạo cho cả 2 View)
-    const heritageSearchConfig = {
-        inputId: 'search-input',
-        containerId: 'heritage-grid',
-        filterBarId: 'main-filter-bar',
-        paginationId: 'pagination-container',
-        fallbackRenderFn: () => { STATE.currentPage = 1; renderHeritage(); }
-    };
+    // 10.4. Sự kiện Tìm kiếm / Hỏi Đạo (Thống nhất qua Intent Router)
+    const setupSearchEvents = (inputId, containerId, filterBarId, paginationId, fallbackFn) => {
+        const input = document.getElementById(inputId);
+        if (!input) return;
 
-    const encyclopediaSearchConfig = {
-        inputId: 'encyclopedia-search',
-        containerId: 'encyclopedia-container',
-        filterBarId: 'encyclopedia-filter-bar',
-        paginationId: 'encyclopedia-pagination',
-        fallbackRenderFn: () => { searchEncyclopedia(); }
-    };
+        const config = { inputId, containerId, filterBarId, paginationId, fallbackRenderFn: fallbackFn };
 
-    const heritageInput = document.getElementById('search-input');
-    if (heritageInput) {
-        heritageInput.addEventListener('input', debounce(() => {
-            if (heritageInput.value.length > 0) document.getElementById('clear-search-btn')?.classList.add('show');
-            else document.getElementById('clear-search-btn')?.classList.remove('show');
-            heritageSearchConfig.fallbackRenderFn();
+        input.addEventListener('input', debounce(() => {
+            if (!input.value.trim()) {
+                resetSearchState(config);
+            } else {
+                fallbackFn(); // Render danh sách tạm khi đang gõ
+            }
         }, 300));
-        heritageInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); handleSmartSearch(heritageSearchConfig); }
-        });
-    }
 
-    const encyclopediaInput = document.getElementById('encyclopedia-search');
-    if (encyclopediaInput) {
-        const debouncedSearch = debounce(() => {
-            if (encyclopediaInput.value.length > 0) document.getElementById('clear-search-btn')?.classList.add('show');
-            else document.getElementById('clear-search-btn')?.classList.remove('show');
-            encyclopediaSearchConfig.fallbackRenderFn();
-        }, 300);
-        setCancelSearch(debouncedSearch.cancel);
-        encyclopediaInput.addEventListener('input', debouncedSearch);
-        encyclopediaInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); handleSmartSearch(encyclopediaSearchConfig); }
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSmartSearch(config); // Intent Router quyết định Search hay Ask
+            }
         });
-    }
+    };
 
-    // 9.5. Xử lý URL params
+    setupSearchEvents(
+        'search-input', 'heritage-grid', 'main-filter-bar', 'pagination-container',
+        () => { STATE.currentPage = 1; renderHeritage(); }
+    );
+
+    setupSearchEvents(
+        'encyclopedia-search', 'encyclopedia-container', 'encyclopedia-filter-bar', 'encyclopedia-pagination',
+        () => { searchEncyclopedia(); }
+    );
+
+    // 10.5. Xử lý URL params
     const urlParams = new URLSearchParams(window.location.search);
     const initialTab = urlParams.get('tab');
     if (initialTab && ['heritage', 'encyclopedia', 'analyze'].includes(initialTab)) {
@@ -710,31 +836,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // 9.6. Sự kiện click toàn cục
+    // 10.6. Xử lý click điều hướng (Giữ nguyên)
     document.addEventListener('click', e => {
-        const aiBtn = e.target.closest('[data-ai-action="summarize-work"]');
-        if (aiBtn) {
-            e.preventDefault();
-            const title = aiBtn.dataset.workTitle;
-            const resultDiv = document.getElementById('ai-inline-result');
-            
-            if (resultDiv) {
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = `<div class="ask-loading" style="padding: 20px;"><div class="spinner"></div><p>AI đang đọc tác phẩm...</p></div>`;
-                
-                import('./ai.js').then(async ({ AIDispatcher }) => {
-                    const result = await AIDispatcher.dispatch({ type: 'summarize-work', query: title });
-                    resultDiv.innerHTML = `
-                        <div class="ask-result" style="margin-top: 0;">
-                            <div class="ask-answer" style="font-size: 1rem;">${escapeHTML(result.answer)}</div>
-                            ${result.detail ? `<div class="ask-detail">${escapeHTML(result.detail)}</div>` : ''}
-                        </div>
-                    `;
-                });
-            }
-            return;
-        }
-
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
             e.preventDefault();
@@ -763,7 +866,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 9.7. Settings Dialog & Network
+    // 10.7. Settings Dialog & Network
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
@@ -797,7 +900,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         refreshNetworkStatus(true);
     });
 
-    // 9.8. NÚT TẢI OFFLINE
+    // 10.8. NÚT TẢI OFFLINE
     const btnOfflineStart = document.getElementById('offline-btn-start');
     const btnOfflineCancel = document.getElementById('offline-btn-cancel');
     const btnOfflineClear = document.getElementById('offline-btn-clear');
@@ -853,6 +956,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // 9.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
+    // 10.9. Khởi tạo sự kiện cho Bách Khoa (Accordion)
     bindEncyclopediaEvents();
 });
