@@ -439,7 +439,7 @@
     <script type="module" src="js/main.js"></script>
 
     <!-- ================================================================= -->
-    <!-- 21. ĐĂNG KÝ SERVICE WORKER (CHỐNG TỰ ĐỘNG RELOAD)                 -->
+    <!-- 21. ĐĂNG KÝ SERVICE WORKER (CHỐNG TỰ ĐỘNG RELOAD & FIX CACHE)      -->
     <!-- ================================================================= -->
     <script>
     (function () {
@@ -480,9 +480,14 @@
         }
 
         window.addEventListener('load', () => {
-            const swUrl = './sw.js';
+            // [FIX LỖI CACHE] Ép trình duyệt coi đây là file mới bằng tham số ?v=13.0.0
+            const swUrl = './sw.js?v=13.0.0';
 
-            navigator.serviceWorker.register(swUrl).then(reg => {
+            // [FIX LỖI CACHE] updateViaCache: 'none' cấm trình duyệt dùng HTTP cache cho file sw.js
+            navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' }).then(reg => {
+                // Ép trình duyệt kiểm tra file sw.js mới ngay lập tức
+                reg.update().catch(() => {});
+                
                 // Kiểm tra cập nhật ngầm (giãn thời gian ra 1 tiếng để đỡ làm phiền)
                 setInterval(() => {
                     if (document.visibilityState === 'visible') {
