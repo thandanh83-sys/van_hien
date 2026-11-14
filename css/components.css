@@ -2,13 +2,14 @@
  * ==========================================================
  * NGỌC THANH - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 3.5.0 (Ngọc Thanh Theme & Layout Fixes)
+ * Version: 4.0.0 (Ngọc Thanh Tinh Tế & Đồng Bộ)
  * ==========================================================
  * CHỨC NĂNG:
- * - Hệ thống Nút bấm (Glassmorphism với màu Ngọc Thanh).
- * - Phân trang, Thanh tìm kiếm thông minh (Đồng bộ Văn Hiến & Bách Khoa).
- * - Khối kết quả Hỏi Đạo (Ask Dao) - Fix lỗi bóp méo Layout, tăng tương phản.
+ * - Hệ thống Nút bấm (Glassmorphism).
+ * - Thanh tìm kiếm thông minh (Đồng bộ Văn Hiến & Bách Khoa).
+ * - Khối kết quả Hỏi Đạo (Ask Dao).
  * - Tooltip biểu tượng, Nút Hỏi AI.
+ * - Khung Cài đặt (Settings) siêu tinh tế với các Badge.
  * ==========================================================
  */
 
@@ -156,7 +157,7 @@
 .page-ellipsis { color: var(--text-muted); font-weight: bold; letter-spacing: 2px; }
 
 /* =====================================================================
-   3. THANH TÌM KIẾM THÔNG MINH (SEARCH BAR) - ĐỒNG BỘ
+   3. THANH TÌM KIẾM THÔNG MINH (SEARCH BAR)
    ===================================================================== */
 .search-container { 
     display: flex; 
@@ -248,7 +249,7 @@ input[type="search"]::-webkit-search-results-decoration {
 .clear-btn svg { width: 20px; height: 20px; stroke: currentColor; }
 
 /* =====================================================================
-   4. KẾT QUẢ HỎI ĐẠO (ASK DAO RESULT) - FIX LỖI VỠ LAYOUT & TƯƠNG PHẢN
+   4. KẾT QUẢ HỎI ĐẠO (ASK DAO RESULT)
    ===================================================================== */
 .ask-loading {
     display: flex;
@@ -260,23 +261,21 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 .ask-loading .spinner { margin-bottom: 20px; }
 
-/* FIX: Tự động căn giữa, giới hạn chiều rộng, không bị bóp méo */
 .ask-result {
     background: #ffffff;
     border: 1px solid var(--border-color);
     border-left: 4px solid var(--accent-gold);
     border-radius: 16px;
     padding: 30px;
-    margin: 20px auto; /* Tự động căn giữa màn hình */
+    margin: 20px auto; 
     width: 100%;
-    max-width: 800px; /* Giới hạn chiều rộng để dễ đọc */
+    max-width: 800px; 
     box-shadow: 0 8px 30px rgba(26, 82, 50, 0.08);
     animation: fadeInContent 0.5s var(--ease-silk) forwards;
     position: relative;
     z-index: 10;
 }
 
-/* Nhãn nguồn tri thức */
 .ask-source {
     display: inline-flex;
     align-items: center;
@@ -317,7 +316,6 @@ input[type="search"]::-webkit-search-results-decoration {
     line-height: 1.6;
 }
 
-/* Câu trả lời chính */
 .ask-answer {
     font-family: var(--font-body);
     font-size: 1.25rem;
@@ -327,7 +325,6 @@ input[type="search"]::-webkit-search-results-decoration {
     font-weight: 500;
 }
 
-/* Tiểu dẫn */
 .ask-detail-box {
     background: rgba(46, 139, 87, 0.04); 
     padding: 18px 22px; 
@@ -351,7 +348,6 @@ input[type="search"]::-webkit-search-results-decoration {
     line-height: 1.7;
 }
 
-/* Khối Meta (Cơ duyên gặp gỡ) */
 .ask-meta-wrapper {
     margin-top: 25px; 
     padding-top: 20px; 
@@ -365,7 +361,6 @@ input[type="search"]::-webkit-search-results-decoration {
     margin-bottom: 15px; 
     letter-spacing: 0.1em;
 }
-
 .ask-meta-list {
     display: flex;
     flex-wrap: wrap;
@@ -374,7 +369,6 @@ input[type="search"]::-webkit-search-results-decoration {
     border: none;
     padding: 0;
 }
-
 .ask-meta-item {
     background: #ffffff;
     border: 1px solid var(--border-color);
@@ -392,27 +386,23 @@ input[type="search"]::-webkit-search-results-decoration {
     gap: 4px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
-
 .ask-meta-item:hover {
     border-color: var(--accent);
     background: rgba(46, 139, 87, 0.04);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(46, 139, 87, 0.1);
 }
-
 .ask-meta-item .meta-title {
     font-weight: 700; 
     font-size: 0.95rem; 
     color: var(--accent-text);
 }
-
 .ask-meta-item .meta-sub {
     font-size: 0.8rem; 
     color: var(--text-muted); 
     font-style: italic;
 }
 
-/* Lời kết */
 .ask-outro {
     margin-top: 30px; 
     text-align: right; 
@@ -421,7 +411,6 @@ input[type="search"]::-webkit-search-results-decoration {
     color: var(--accent-gold); 
     opacity: 0.9;
 }
-
 .ask-error {
     border-left-color: var(--color-error);
     background: rgba(192, 57, 43, 0.03);
@@ -431,7 +420,7 @@ input[type="search"]::-webkit-search-results-decoration {
    5. HIGHLIGHT VÀ TOOLTIP (BIỂU TƯỢNG)
    ===================================================================== */
 mark {
-    background-color: #d1f2e5; /* Xanh mint nhạt cho highlight */
+    background-color: #d1f2e5; 
     color: var(--text-main);
     padding: 0 4px;
     border-radius: 4px; 
@@ -449,7 +438,6 @@ mark {
     -webkit-box-decoration-break: clone;
     color: inherit; 
 }
-
 .symbol-mark::after {
     content: attr(data-tooltip);
     position: absolute; 
@@ -522,25 +510,24 @@ mark {
 }
 
 .offline-text-btn {
-    display: inline-flex;
-    align-items: center;
+    background: rgba(192, 57, 43, 0.04) !important;
+    border: 1px solid rgba(192, 57, 43, 0.2) !important;
+    color: #c0392b !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    width: 100%;
+    max-width: 250px;
+    display: flex;
     justify-content: center;
-    gap: 8px;
-    background: rgba(192, 57, 43, 0.05); 
-    border: 1px solid rgba(192, 57, 43, 0.2);
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-family: var(--font-body);
-    font-size: 0.9rem;
-    color: var(--color-error);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin: 0 auto;
+    margin: 10px auto 0 auto;
 }
 .offline-text-btn:hover {
-    background: rgba(192, 57, 43, 0.1);
-    border-color: var(--color-error);
-    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.15);
+    background: #c0392b !important;
+    color: #fff !important;
+    box-shadow: 0 6px 15px rgba(192, 57, 43, 0.25) !important;
+    border-color: #c0392b !important;
 }
 
 /* =====================================================================
