@@ -2,13 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 3.5.0 (Clean UI & Context-Aware AI)
+ * Version: 4.0.0 (Clean UI & Literary Soul)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
  * - Nạp dữ liệu vào APP_DATA và xây dựng STATE.GLOBAL_INDEX.
- * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI, giao diện mới mềm mại).
- * - [MỚI] Xóa bỏ các nút "Hỏi AI" tự động (tránh tự hỏi tự trả lời).
+ * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI, giao diện mềm mại).
+ * - [MỚI] Xóa bỏ các nút "Hỏi AI" tự động, tự động đóng thông báo,
+ *   và tối ưu hóa giao diện Thi Pháp/Bói Thơ.
  * ==========================================================
  */
 
@@ -35,7 +36,7 @@ import { bootstrapNetwork, DataHub, AgentRegistry } from './network/index.js';
 import { handleSmartSearch, resetSearchState } from './ask-dao.js';
 
 // =====================================================================
-// 2. HELPER: SVG SPARKLE ICON (Thay thế ký tự "✦")
+// 2. HELPER: SVG SPARKLE ICON
 // =====================================================================
 function sparkleSvg(size = 12, color = 'currentColor') {
     return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:6px; flex-shrink:0;" aria-hidden="true" focusable="false"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>`;
@@ -278,7 +279,7 @@ function executePipeline() {
                         ${sparkleSvg(12, 'var(--accent-text)')} Điểm sáng
                     </div>
                     ${(() => {
-                        const praise = PraiserAgent.analyze(raw);
+                        const praise = PraiserAgent.analyze(raw, 'Bài thơ của bạn');
                         return `<p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 0;">${praise.commentary}</p>`;
                     })()}
                 </div>
@@ -288,7 +289,7 @@ function executePipeline() {
                         ${sparkleSvg(12, '#a36b6b')} Điểm cần lưu ý
                     </div>
                     ${(() => {
-                        const critique = CriticAgent.analyze(raw);
+                        const critique = CriticAgent.analyze(raw, 'Bài thơ của bạn');
                         return `<p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 0;">${critique.commentary}</p>`;
                     })()}
                 </div>
