@@ -2,19 +2,20 @@
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
  * Vị trí: js/render.js
- * Version: 2.0.0 (DataHub Integration & UI Polish)
+ * Version: 2.1.0 (Intent Router UX & AI Buttons)
  * ==========================================================
  * CHỨC NĂNG:
  * - Hiển thị Văn Hiến (Tác phẩm), Bách Khoa (Tác giả, Lý thuyết).
  * - Tự động tạo liên kết Tác giả/Tác phẩm liên quan qua DataHub.
  * - Quản lý Lazy Load, Phân trang, và Tooltip biểu tượng.
+ * - [MỚI] Gợi ý chuyển sang Hỏi Đạo AI nếu người dùng gõ câu hỏi vào ô tìm kiếm.
  * ==========================================================
  */
 
 import { APP_DATA, STATE, ICONS, ITEMS_PER_PAGE, ENCY_ITEMS_PER_PAGE } from './config.js';
 import { escapeHTML, normalizeRouteId, highlightText, formatContent, removeAccents } from './utils.js';
 import { VDSearchEngine } from './search.js';
-import { DataHub } from './network/data-hub.js'; // [MỚI] Trái tim dữ liệu
+import { DataHub } from './network/data-hub.js';
 
 // =====================================================================
 // MODULE 1: LAZY LOAD (TỐI ƯU HIỆU NĂNG CUỘN)
@@ -89,10 +90,37 @@ export function renderHeritage() {
     let data = APP_DATA.WORKS_DATA;
     if (STATE.currentMainCat !== 'all') data = data.filter(i => i.loai_hinh === STATE.currentMainCat);
     if (STATE.currentGenre !== 'all') data = data.filter(i => i.the_loai?.includes(STATE.currentGenre));
-    if (keyword) data = data.filter(i => i.title.toLowerCase().includes(keyword) || i.author.toLowerCase().includes(keyword) || (i.desc && i.desc.toLowerCase().includes(keyword)));
+    if (keyword) {
+        data = data.filter(i => 
+            i.title.toLowerCase().includes(keyword) || 
+            i.author.toLowerCase().includes(keyword) || 
+            (i.desc && i.desc.toLowerCase().includes(keyword))
+        );
+    }
 
+    // === [MỚI] XỬ LÝ KHI KHÔNG CÓ KẾT QUẢ (INTENT ROUTER UX) ===
     if (!data.length) {
-        grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy mục từ nào phù hợp.</p>`;
+        // Kiểm tra xem người dùng có đang đặt câu hỏi không
+        const isQuestion = /[?]|\b(la ai|la gi|the nao|tai sao|nhu the nao)\b/i.test(keyword);
+        
+        if (isQuestion) {
+            grid.innerHTML = `
+                <div style="grid-column:1/-1;text-align:center;padding:40px;">
+                    <p style="font-size:1.1rem; color:var(--text-main); margin-bottom:15px; font-family:var(--font-heading);">
+                        Có vẻ bạn đang đặt một câu hỏi?
+                    </p>
+                    <p style="color:var(--text-muted);font-style:italic;margin-bottom:20px;">
+                        Nhấn <strong>Enter</strong> hoặc click nút bên dưới để Hỏi Đạo AI.
+                    </p>
+                    <!-- Nút này gọi hàm toàn cục, không giả lập phím Enter -->
+                    <button class="btn-ask-ai" onclick="window.triggerSmartSearch('search-input', 'heritage-grid', 'main-filter-bar', 'pagination-container')">
+                        Hỏi Đạo AI ngay
+                    </button>
+                </div>
+            `;
+        } else {
+            grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy mục từ nào phù hợp.</p>`;
+        }
         document.getElementById('pagination-container').innerHTML = '';
         return;
     }
@@ -131,13 +159,9 @@ export function renderHeritage() {
 // MODULE 3: CONTENT MANAGER (QUẢN LÝ NỘI DUNG QUA DATAHUB)
 // =====================================================================
 export const ContentManager = (() => {
-    // Hàm load giờ đây giao phó hoàn toàn cho DataHub
     async function load(item, group, signal) {
         try {
-            // DataHub tự lo việc lấy từ RAM, Cache, hay Fetch
             const detail = await DataHub.getDetail(item.id);
-            
-            // DataHub trả về object detail, ta bọc lại cho đồng bộ cấu trúc cũ
             return { content: detail.content || detail.description || '' };
         } catch (err) {
             if (err.name === 'AbortError') console.log(`[CONTENT] Huỷ tải: ${item.id}`);
@@ -438,46 +462,31 @@ export function highlightSymbolsInContent(container) {
     });
 }
 
-/**
- * [MỚI] Tìm tác phẩm liên quan (Giao phó cho DataHub)
- */
 export function findRelatedWorks(current, limit = 5) {
     if (!current || !current.id) return [];
-    
     const graph = DataHub.getGraph(current.id);
     if (!graph) return [];
 
     let related = graph.relatedWorks || [];
-    
-    // Nếu rỗng, lấy gợi ý ngẫu nhiên
     if (related.length === 0) {
         const others = APP_DATA.WORKS_DATA.filter(w => w.id !== current.id);
         others.sort(() => 0.5 - Math.random());
         related = others.slice(0, limit).map(w => ({ ...w, _reason: "Gợi ý ngẫu nhiên" }));
     }
-
     return related.slice(0, limit);
 }
 
-/**
- * [MỚI] Tìm tác giả liên quan (Giao phó cho DataHub)
- */
 export function findRelatedAuthors(current, limit = 4) {
     if (!current || !current.id) return [];
-
     const graph = DataHub.getGraph(current.id);
     if (!graph) return [];
 
-    // Nếu là Tác phẩm, trả về Tác giả của nó
     if (graph.author) {
         return [{ ...graph.author, _reason: "Tác giả của tác phẩm" }];
     }
-
-    // Nếu là Tác giả, trả về các Tác giả cùng thời đại
     if (graph.relatedWorks && graph.relatedWorks.length > 0) {
         return graph.relatedWorks.slice(0, limit).map(a => ({ ...a, _reason: "Đồng thời đại" }));
     }
-
     return [];
 }
 
@@ -547,7 +556,7 @@ export function appendRelatedSection(container, item, group) {
         `;
     }
 
-    // Nút Hỏi AI
+    // Nút Hỏi AI (Được xử lý toàn cục ở main.js)
     html += `
         <div style="margin-top: 30px; text-align: center; border-top: 1px dashed rgba(139,184,168,0.3); padding-top: 20px;">
             <button type="button" class="btn-ask-ai"
