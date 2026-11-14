@@ -50,6 +50,7 @@
     "./js/ai/agents/goi-mo.js",
     "./js/ai/agents/history.js",
     "./js/ai/agents/index.js",
+    "./js/ai/agents/khuc-tan-thuong.js",
     "./js/ai/agents/knowledge.js",
     "./js/ai/agents/literature.js",
     "./js/ai/agents/poetics.js",
