@@ -1,0 +1,97 @@
+/* ==========================================================
+   BẠCH NGỌC UI COMPONENTS
+   Từ dự án cũ (Prompt Evaluator) — chưng cất lại
+   ========================================================== */
+
+/* 1. TOAST NOTIFICATION (Bạch Ngọc style) */
+.toast-bach-ngoc {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #ffffff;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    padding: 14px 24px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent);
+    box-shadow: var(--shadow-solid);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s var(--ease-silk);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.toast-bach-ngoc.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+.toast-bach-ngoc.toast-error {
+    border-left-color: var(--color-error);
+}
+.toast-bach-ngoc svg {
+    flex-shrink: 0;
+    color: var(--accent);
+}
+.toast-bach-ngoc.toast-error svg {
+    color: var(--color-error);
+}
+
+/* 2. SKELETON LOADING (Bạch Ngọc shimmer) */
+.skeleton-bach-ngoc {
+    background: linear-gradient(
+        90deg,
+        rgba(247, 252, 249, 0.5) 25%,
+        rgba(220, 240, 230, 0.8) 50%,
+        rgba(247, 252, 249, 0.5) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeletonShimmer 2s infinite linear;
+    border-radius: var(--radius-sm);
+}
+@keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* 3. COPY BUTTON (hover reveal, bút lông icon) */
+.section-copy-wrapper {
+    position: relative;
+}
+.btn-copy-section-bach-ngoc {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s var(--ease-silk);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.section-copy-wrapper:hover .btn-copy-section-bach-ngoc {
+    opacity: 1;
+}
+.btn-copy-section-bach-ngoc:hover {
+    color: var(--accent-text);
+    border-color: var(--accent);
+    background: #ffffff;
+}
+.btn-copy-section-bach-ngoc.copied {
+    color: var(--accent);
+    border-color: var(--accent);
+}
