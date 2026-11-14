@@ -2,14 +2,8 @@
  * ==========================================================
  * VĂN ĐẠO - HỎI ĐẠO UI CONTROLLER (js/ask-dao.js)
  * Vị trí: js/ask-dao.js
- * Version: 2.0.0 (Master AI & DataHub Integration)
+ * Version: 3.0.0 (Unified Semantic Routing)
  * ==========================================================
- * CHỨC NĂNG:
- * - Lắng nghe sự kiện từ người dùng (Enter hoặc Click).
- * - Chuyển giao câu hỏi cho Master AI xử lý.
- * - Điều khiển trạng thái UI (Ẩn/Hiện thanh Filter, Phân trang)
- *   tùy thuộc vào việc Master AI trả về kết quả Tìm kiếm hay Câu trả lời.
- * 
  * TRIẾT LÝ:
  * - Không xử lý dữ liệu ở đây. Mọi thứ giao phó cho MasterAI.
  * - UI chỉ phản ứng với kết quả trả về (type: 'search' hoặc 'answered').
@@ -18,16 +12,6 @@
 
 import { MasterAI } from './ai/master.js';
 
-/**
- * Hàm xử lý hợp nhất: Tự động phát hiện Tra cứu hay Hỏi Đạo
- * 
- * @param {Object} options - Cấu hình cho từng view (Văn Hiến hoặc Bách Khoa)
- * @param {string} options.inputId - ID ô tìm kiếm
- * @param {string} options.containerId - ID khung chứa kết quả
- * @param {string} options.filterBarId - ID thanh lọc (để ẩn/hiện)
- * @param {string} options.paginationId - ID khung phân trang (để ẩn/hiện)
- * @param {Function} options.fallbackRenderFn - Hàm render danh sách mặc định nếu là tìm kiếm
- */
 export async function handleSmartSearch(options) {
     const { inputId, containerId, filterBarId, paginationId, fallbackRenderFn } = options;
     
@@ -37,7 +21,6 @@ export async function handleSmartSearch(options) {
 
     const text = input.value.trim();
     
-    // Nếu ô trống, khôi phục giao diện mặc định
     if (!text) {
         if (fallbackRenderFn) fallbackRenderFn();
         return;
@@ -47,64 +30,44 @@ export async function handleSmartSearch(options) {
     const pagination = document.getElementById(paginationId);
 
     try {
-        // Giao phó toàn bộ cho Master AI (Input -> Agents -> Output)
-        // Master AI sẽ tự động hiển thị Loading và render kết quả vào container
+        // MasterAI.processQuery sẽ tự động dùng SmartInputParser để quyết định
+        // xem đây là Search hay Ask Dạo.
         const resultType = await MasterAI.processQuery(input, container);
 
-        // ĐIỀU KHIỂN UI DỰA TRÊN KẾT QUẢ
         if (resultType && resultType.type === 'search') {
-            // Nếu là Tìm kiếm thông thường (gõ từ khóa, không phải câu hỏi)
-            // -> Hiện lại bộ lọc và phân trang
             if (filterBar) filterBar.style.display = 'flex';
             if (pagination) pagination.style.display = 'flex';
-            
-            // Gọi hàm render danh sách (từ render.js)
             if (fallbackRenderFn) fallbackRenderFn();
         } else {
-            // Nếu là câu hỏi (Hỏi Đạo AI đã trả lời)
-            // -> Ẩn bộ lọc và phân trang để có không gian rộng rãi cho câu trả lời
+            // Đã trả lời bằng Ask Dạo (Pipeline/Search dẫn dắt)
             if (filterBar) filterBar.style.display = 'none';
             if (pagination) pagination.style.display = 'none';
         }
 
     } catch (err) {
         console.error('[SMART SEARCH UI] Lỗi:', err);
-        // Nếu có lỗi xảy ra ở tầng UI (không phải tầng AI), hiển thị thông báo an toàn
         container.innerHTML = `
             <div class="ask-result ask-error">
                 <div class="ask-answer">Đã xảy ra lỗi giao diện: ${err.message}</div>
             </div>
         `;
-        // Ẩn filter/pagination để thông báo lỗi hiển thị rõ ràng
         if (filterBar) filterBar.style.display = 'none';
         if (pagination) pagination.style.display = 'none';
     }
 }
 
-/**
- * Khôi phục giao diện tìm kiếm mặc định khi người dùng xóa chữ
- * (Hoặc khi bấm nút X)
- */
 export function resetSearchState(options) {
     const { inputId, filterBarId, paginationId, fallbackRenderFn } = options;
     const input = document.getElementById(inputId);
-    const clearBtn = document.getElementById('clear-search-btn'); // Dùng chung nút X
+    const clearBtn = document.getElementById('clear-search-btn'); 
     
-    // 1. Reset ô input
-    if (input) { 
-        input.value = ''; 
-        input.focus(); 
-    }
-    
-    // 2. Ẩn nút X
+    if (input) { input.value = ''; input.focus(); }
     if (clearBtn) clearBtn.classList.remove('show');
 
-    // 3. Hiện lại bộ lọc và phân trang
     const filterBar = document.getElementById(filterBarId);
     const pagination = document.getElementById(paginationId);
     if (filterBar) filterBar.style.display = 'flex';
     if (pagination) pagination.style.display = 'flex';
     
-    // 4. Render lại danh sách mặc định
     if (fallbackRenderFn) fallbackRenderFn();
 }
