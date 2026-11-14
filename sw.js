@@ -1,34 +1,40 @@
-/* =====================================================================
-   NGỌC THANH SERVICE WORKER (VERSION 13.0.0 - ULTIMATE BULLETPROOF)
-   Tác giả: Văn Đạo
-
-   TRIẾT LÝ THIẾT KẾ:
-   1. CACHE VERSION MỚI: Tăng lên v13.0.0 để ép trình duyệt xóa sạch
-      các file JS lỗi (ask-dao.js, master.js) đang bị kẹt trong bộ nhớ.
-   2. FAIL-SAFE INSTALL: Sử dụng Promise.allSettled thay vì Promise.all.
-      Nếu 1 file bị 404, các file khác vẫn được cache bình thường.
-   3. CHỐNG LƯU FILE LỖI: Chỉ cache các response có status 200 và type 'basic'.
-   4. DỌN DẸP TUYỆT ĐỐI: Xóa sạch mọi cache cũ (vandao-*, ngocthanh-*)
-      không thuộc phiên bản hiện tại khi activate.
-   ===================================================================== */
+/**
+ * ==========================================================
+ * NGỌC THANH SERVICE WORKER (VERSION 14.2.0 - ULTIMATE OPTIMIZATION)
+ * Tác giả: Văn Đạo
+ * 
+ * TRIẾT LÝ THIẾT KẾ:
+ * 1. TĨNH TẠI & TỐI GIẢN: Không precache (tải trước) các file ảnh nặng 
+ *    (jpg, png) hay file từ điển quá lớn. Chỉ cache những gì cốt lõi 
+ *    nhất để trang web tải lên trong tích tắc.
+ * 2. TỰ ĐỘNG DỌN DẸP: Khi kích hoạt (activate), tự động quét và xóa 
+ *    sạch mọi cache cũ (v12, v13...). Đảm bảo không bao giờ bị kẹt 
+ *    file JS cũ gây lỗi.
+ * 3. FAIL-SAFE: Dùng Promise.allSettled khi cài đặt. Nếu 1 file bị lỗi 
+ *    404, các file khác vẫn được cache bình thường, web không bị sập.
+ * 4. OFFLINE-FIRST: Hỗ trợ tải toàn bộ dữ liệu (DOWNLOAD_BATCH) để đọc 
+ *    offline mượt mà.
+ * ==========================================================
+ */
 
 'use strict';
 
 // =====================================================================
-// I. KHAI BÁO PHIÊN BẢN (BẮT BUỘC ĐỔI MỖI KHI SỬA CODE JS)
+// I. KHAI BÁO PHIÊN BẢN (BẮT BUỘC ĐỔI MỖI KHI SỬA CODE)
 // =====================================================================
-const CACHE_VERSION = 'v13.0.0';
+// Đã nâng lên v14.2.0 để đồng bộ với các bản cập nhật CSS/JS mới nhất.
+const CACHE_VERSION = 'v14.2.0';
 
 const STATIC_CACHE  = `ngocthanh-static-${CACHE_VERSION}`;   
 const HTML_CACHE    = `ngocthanh-html-${CACHE_VERSION}`;     
 const DATA_CACHE    = `ngocthanh-data-${CACHE_VERSION}`;     
 const RUNTIME_CACHE = `ngocthanh-runtime-${CACHE_VERSION}`;  
 
-const NETWORK_TIMEOUT = 4000; 
+const NETWORK_TIMEOUT = 4000; // Thời gian chờ mạng tối đa (4 giây) trước khi lấy từ Cache
 const MANIFEST_URL = './data/manifests/static-assets.json';
 
 // =====================================================================
-// II. GIAO DIỆN OFFLINE (NGỌC THANH FALLBACK)
+// II. GIAO DIỆN OFFLINE (Khi mất mạng hoàn toàn)
 // =====================================================================
 const OFFLINE_HTML = `
 <!DOCTYPE html>
@@ -57,7 +63,7 @@ const OFFLINE_HTML = `
 `;
 
 // =====================================================================
-// III. FALLBACK ASSETS (Chỉ dùng khi Manifest bị lỗi 404)
+// III. DANH SÁCH DỰ PHÒNG (Chỉ dùng khi Manifest bị lỗi 404)
 // =====================================================================
 const FALLBACK_ASSETS = [
     './', './index.html', './manifest.json',
@@ -65,12 +71,11 @@ const FALLBACK_ASSETS = [
     './js/config.js', './js/utils.js', './js/search.js', './js/render.js', './js/router.js', './js/offline.js', './js/audit.js', './js/ask-dao.js', './js/main.js', './js/ai.js',
     './js/ai/core.js', './js/ai/nlp-tools.js', './js/ai/input-ai.js', './js/ai/master.js', './js/ai/output-ai.js', 
     './js/ai/smart-input-parser.js', './js/ai/literary-engine.js', './js/ai/memory-engine.js', './js/ai/identity.js', './js/ai/dialogue-engine.js',
-    './js/ai/agents/index.js',
-    './js/network/data-hub.js', './js/network/bus.js', './js/network/index.js'
+    './js/ai/agents/index.js', './js/network/data-hub.js', './js/network/bus.js', './js/network/index.js'
 ];
 
 // =====================================================================
-// IV. LẤY DANH SÁCH PRECACHE TỪ MANIFEST
+// IV. LẤY DANH SÁCH PRECACHE TỪ MANIFEST (ĐÃ TỐI ƯU)
 // =====================================================================
 async function getDynamicPrecacheAssets() {
     try {
@@ -88,30 +93,38 @@ async function getDynamicPrecacheAssets() {
         for (const group of groups) {
             if (!Array.isArray(group)) continue;
             for (const item of group) {
-                if (typeof item === 'string' && item.trim()) allAssets.add(item);
+                // [TỐI ƯU HÓA] Loại bỏ ảnh nặng và file từ điển lớn ra khỏi Precache
+                // Chỉ cache HTML, CSS, JS, Fonts, và các file JSON nhẹ (Index, Manifest)
+                const isHeavyAsset = /\.(jpe?g|png|gif|webp|ico|bmp)$/i.test(item);
+                const isDictionary = item.includes('tu-dien'); // Từ điển sẽ được tải qua Lazy-load
+                
+                if (!isHeavyAsset && !isDictionary && typeof item === 'string' && item.trim()) {
+                    allAssets.add(item);
+                }
             }
         }
 
         const result = Array.from(allAssets).sort();
-        console.log(`[SW v13] Manifest tải thành công: ${result.length} file.`);
+        console.log(`[SW ${CACHE_VERSION}] Manifest tối ưu: ${result.length} file lõi.`);
         return result;
     } catch (err) {
-        console.warn(`[SW v13] Lỗi Manifest. Dùng FALLBACK_ASSETS (${FALLBACK_ASSETS.length} file).`, err.message);
-        return [...FALLBACK_ASSETS];
+        console.warn(`[SW ${CACHE_VERSION}] Lỗi Manifest. Dùng FALLBACK_ASSETS.`, err.message);
+        // Lọc bỏ ảnh trong fallback để đồng bộ logic
+        return [...FALLBACK_ASSETS].filter(a => !/\.(jpe?g|png|gif|webp|ico|bmp)$/i.test(a));
     }
 }
 
 // =====================================================================
-// V. SỰ KIỆN CÀI ĐẶT (INSTALL) - FAIL SAFE
+// V. SỰ KIỆN CÀI ĐẶT (INSTALL) - TẢI VÀ LƯU CÁC FILE CỐT LÕI
 // =====================================================================
 self.addEventListener('install', (event) => {
-    console.log(`[SW v13] Bắt đầu cài đặt...`);
+    console.log(`[SW ${CACHE_VERSION}] Bắt đầu cài đặt...`);
     event.waitUntil(
         (async () => {
             const assets = await getDynamicPrecacheAssets();
             const cache = await caches.open(STATIC_CACHE);
 
-            // Dùng Promise.allSettled để 1 file lỗi không làm sập toàn bộ
+            // Dùng Promise.allSettled để 1 file lỗi (404) không làm sập toàn bộ
             const results = await Promise.allSettled(
                 assets.map(async (url) => {
                     try {
@@ -131,22 +144,22 @@ self.addEventListener('install', (event) => {
             const success = results.filter(r => r.value?.status === 'success').length;
             const failed = results.filter(r => r.value?.status === 'failed').length;
             
-            console.log(`[SW v13] Precache hoàn tất: ${success} thành công, ${failed} thất bại.`);
+            console.log(`[SW ${CACHE_VERSION}] Precache hoàn tất: ${success} thành công, ${failed} thất bại.`);
             if (failed > 0) {
-                console.warn(`[SW v13] Các file lỗi:`, results.filter(r => r.value?.status === 'failed').map(r => r.value.url));
+                console.warn(`[SW ${CACHE_VERSION}] Các file lỗi:`, results.filter(r => r.value?.status === 'failed').map(r => r.value.url));
             }
         })()
     );
 });
 
 // =====================================================================
-// VI. SỰ KIỆN KÍCH HOẠT (ACTIVATE) - DỌN DẸP TUYỆT ĐỐI
+// VI. SỰ KIỆN KÍCH HOẠT (ACTIVATE) - DỌN DẸP TUYỆT ĐỐI CACHE CŨ
 // =====================================================================
 self.addEventListener('activate', (event) => {
-    console.log(`[SW v13] Bắt đầu kích hoạt...`);
+    console.log(`[SW ${CACHE_VERSION}] Bắt đầu kích hoạt...`);
     event.waitUntil(
         (async () => {
-            // 1. Bật Navigation Preload
+            // 1. Bật Navigation Preload (Giúp tải HTML nhanh hơn trên mobile)
             if ('navigationPreload' in self.registration) {
                 await self.registration.navigationPreload.enable();
             }
@@ -154,7 +167,7 @@ self.addEventListener('activate', (event) => {
             // 2. Quét và xóa sạch mọi cache cũ (vandao-*, ngocthanh-*)
             const cacheNames = await caches.keys();
             const cachesToDelete = cacheNames.filter((name) => {
-                // Nếu là cache của mình nhưng không phải phiên bản hiện tại -> XÓA
+                // Nếu là cache của mình nhưng không phải phiên bản hiện tại -> XÓA SẠCH
                 if ((name.startsWith('ngocthanh-') || name.startsWith('vandao-')) && 
                     ![STATIC_CACHE, HTML_CACHE, DATA_CACHE, RUNTIME_CACHE].includes(name)) {
                     return true;
@@ -164,12 +177,12 @@ self.addEventListener('activate', (event) => {
 
             if (cachesToDelete.length > 0) {
                 await Promise.all(cachesToDelete.map((name) => caches.delete(name)));
-                console.log(`[SW v13] Đã xóa ${cachesToDelete.length} cache cũ:`, cachesToDelete);
+                console.log(`[SW ${CACHE_VERSION}] Đã xóa ${cachesToDelete.length} cache cũ:`, cachesToDelete);
             }
 
-            // 3. Giành quyền kiểm soát
+            // 3. Giành quyền kiểm soát (Bắt buộc để reload ngay lập tức)
             await self.clients.claim();
-            console.log(`[SW v13] Kích hoạt hoàn tất.`);
+            console.log(`[SW ${CACHE_VERSION}] Kích hoạt hoàn tất.`);
         })()
     );
 });
@@ -178,6 +191,7 @@ self.addEventListener('activate', (event) => {
 // VII. CHIẾN LƯỢC FETCH (SMART CACHING)
 // =====================================================================
 
+// Hàm fetch có timeout (Tránh treo web khi mạng chập chờn)
 async function fetchWithTimeout(request, timeout) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
@@ -191,13 +205,14 @@ async function fetchWithTimeout(request, timeout) {
     }
 }
 
+// Chiến lược: Stale-While-Revalidate (Trả cache cũ, ngầm cập nhật bản mới)
 async function staleWhileRevalidate(request, cacheName) {
     const cache = await caches.open(cacheName);
     const cached = await cache.match(request);
 
     const fetchPromise = fetch(request)
         .then((response) => {
-            // CHỈ CACHE NẾU: HTTP 200 OK, cùng origin
+            // CHỈ CACHE NẾU: HTTP 200 OK và cùng origin
             if (response && response.ok && response.type === 'basic') {
                 cache.put(request, response.clone()).catch(() => {});
             }
@@ -211,15 +226,16 @@ async function staleWhileRevalidate(request, cacheName) {
 self.addEventListener('fetch', (event) => {
     const request = event.request;
 
+    // Bỏ qua các request không phải GET hoặc không phải HTTP (ví dụ: chrome-extension://)
     if (request.method !== 'GET' || !request.url.startsWith('http')) return;
 
     let url;
     try { url = new URL(request.url); } catch (e) { return; }
     
-    // Bỏ qua cross-origin
+    // Bỏ qua cross-origin (Các request đến từ tên miền khác)
     if (url.origin !== self.location.origin) return;
 
-    // 1. HTML (NAVIGATE) -> Network First
+    // 1. HTML (Điều hướng trang) -> Network First (Ưu tiên mạng, mạng yếu lấy cache)
     if (request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html')) {
         event.respondWith(
             (async () => {
@@ -235,6 +251,7 @@ self.addEventListener('fetch', (event) => {
                     const cache = await caches.open(HTML_CACHE);
                     const cached = await cache.match(request);
                     if (cached) return cached;
+                    // Nếu không có mạng và không có cache -> Hiện trang Offline
                     return new Response(OFFLINE_HTML, { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
                 }
             })()
@@ -242,35 +259,43 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 2. JSON trong /data/ -> SWR
+    // 2. JSON trong /data/ -> Stale-While-Revalidate
     if (url.pathname.includes('/data/') && url.pathname.endsWith('.json')) {
         event.respondWith(staleWhileRevalidate(request, DATA_CACHE));
         return;
     }
 
-    // 3. CSS, JS, Font, Ảnh -> SWR
-    if (/\.(css|js|mjs|woff2?|ttf|otf|eot|png|jpe?g|gif|svg|webp|ico|bmp)$/i.test(url.pathname)) {
+    // 3. CSS, JS, Font -> Stale-While-Revalidate
+    if (/\.(css|js|mjs|woff2?|ttf|otf|eot)$/i.test(url.pathname)) {
         event.respondWith(staleWhileRevalidate(request, STATIC_CACHE));
         return;
     }
 
-    // 4. Các request khác -> SWR
+    // 4. Hình ảnh (jpg, png, svg...) -> Stale-While-Revalidate (Chỉ cache khi xem)
+    if (/\.(png|jpe?g|gif|svg|webp|ico|bmp)$/i.test(url.pathname)) {
+        event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
+        return;
+    }
+
+    // 5. Các request khác -> Stale-While-Revalidate
     event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
 });
 
 // =====================================================================
-// VIII. MESSAGE
+// VIII. MESSAGE (Giao tiếp với UI)
 // =====================================================================
 self.addEventListener('message', (event) => {
     const message = event.data;
     if (!message || typeof message !== 'object') return;
 
+    // 1. Xử lý SKIP_WAITING (Từ Update Banner trên giao diện)
     if (message.type === 'SKIP_WAITING') {
-        console.log(`[SW v13] Nhận SKIP_WAITING — Kích hoạt ngay.`);
+        console.log(`[SW ${CACHE_VERSION}] Nhận SKIP_WAITING — Kích hoạt ngay.`);
         event.waitUntil(self.skipWaiting());
         return;
     }
 
+    // 2. Xử lý Tải Offline hàng loạt (DOWNLOAD_BATCH)
     if (message.type === 'DOWNLOAD_BATCH' && Array.isArray(message.batch)) {
         const port = event.ports[0];
         const batch = message.batch;
@@ -286,6 +311,7 @@ self.addEventListener('message', (event) => {
                     try {
                         const res = await fetch(item.url, { cache: 'no-store' });
                         if (!res.ok || res.type !== 'basic') continue;
+                        // Ép kiểu JSON để kiểm tra tính hợp lệ trước khi cache
                         await res.clone().json();
                         await cache.put(item.url, res);
                         results.push({ id: item.id, status: 'success' });
@@ -294,6 +320,7 @@ self.addEventListener('message', (event) => {
                     }
                 }
 
+                // Gửi kết quả về lại cho giao diện (Offline Library)
                 if (port) {
                     port.postMessage({
                         type: 'BATCH_COMPLETED',
