@@ -1,0 +1,160 @@
+# =====================================================================
+# VĂN ĐẠO ENGINE - GITHUB ACTION: TỰ ĐỘNG LÀM GIÀU DỮ LIỆU
+# Tên file: .github/workflows/auto-enrich-data.yml
+# Version: 1.0.0 (Automated Metadata Enrichment)
+# =====================================================================
+# Tác giả: Văn Đạo
+#
+# TRIẾT LÝ THIẾT KẾ:
+# 1. Kỷ luật: Bot chạy tự động mỗi khi có tác phẩm/tác giả mới được thêm vào.
+# 2. Tự động hóa: Tự động trích xuất cam_xuc, tags, era, nationality, style.
+# 3. An toàn: Không ghi đè dữ liệu thật, chỉ thêm trường mới nếu thiếu.
+# 4. Xếp hàng: Dùng chung group "git-push-group" để không dẫm đạp lên
+#    các bot tách dữ liệu (split-works, split-authors).
+# =====================================================================
+
+name: Auto Enrich Data
+
+# =====================================================================
+# 1. ĐIỀU KIỆN KÍCH HOẠT (TRIGGERS)
+# =====================================================================
+on:
+  push:
+    paths:
+      # Chỉ chạy khi có thay đổi trong thư mục chi tiết
+      - 'data/tac-pham/**'
+      - 'data/tac-gia/**'
+      
+      # Hoặc khi bản thân script bị thay đổi (để test)
+      - 'tools/enrich_metadata.py'
+      
+  # Cho phép chạy thủ công từ tab Actions
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Chế độ Dry-run (chỉ xem, không ghi file)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+# =====================================================================
+# 2. QUẢN LÝ XUNG ĐỘT (CONCURRENCY)
+# =====================================================================
+concurrency:
+  group: git-push-group
+  cancel-in-progress: false
+
+# =====================================================================
+# 3. QUYỀN HẠN (PERMISSIONS)
+# =====================================================================
+permissions:
+  contents: write
+
+# =====================================================================
+# 4. CÁC BƯỚC THỰC THI (JOBS)
+# =====================================================================
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # -----------------------------------------------------------------
+      # BƯỚC 1: LẤY CODE MỚI NHẤT
+      # -----------------------------------------------------------------
+      - name: '1. Checkout code'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # -----------------------------------------------------------------
+      # BƯỚC 2: CÀI ĐẶT PYTHON
+      # -----------------------------------------------------------------
+      - name: '2. Set up Python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # -----------------------------------------------------------------
+      # BƯỚC 3: KIỂM TRA CÚ PHÁP
+      # -----------------------------------------------------------------
+      - name: '3. Check Python syntax'
+        run: python -m py_compile tools/enrich_metadata.py
+
+      # -----------------------------------------------------------------
+      # BƯỚC 4: CHẠY SCRIPT LÀM GIÀU DỮ LIỆU
+      # -----------------------------------------------------------------
+      - name: '4. Run Enrich Metadata Script'
+        id: run-enrich
+        run: |
+          DRY_RUN="${{ github.event.inputs.dry_run || 'false' }}"
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "=== CHẾ ĐỘ DRY-RUN: Sẽ KHÔNG ghi file ==="
+            python tools/enrich_metadata.py --dry-run
+          else
+            echo "=== CHẾ ĐỘ THẬT: Ghi file ==="
+            python tools/enrich_metadata.py
+          fi
+
+      # -----------------------------------------------------------------
+      # BƯỚC 5: KIỂM TRA XEM CÓ SỰ THAY ĐỔI NÀO KHÔNG
+      # -----------------------------------------------------------------
+      - name: '5. Check for changes'
+        id: git-check
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          if git diff --quiet; then
+            echo "Không có thay đổi nào."
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Phát hiện thay đổi."
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      # -----------------------------------------------------------------
+      # BƯỚC 6: IN DIFF ĐỂ DEBUG
+      # -----------------------------------------------------------------
+      - name: '6. Print diff for debugging'
+        if: |
+          github.event.inputs.dry_run != 'true' &&
+          steps.git-check.outputs.changes == 'true'
+        run: |
+          echo "===== Các file đã thay đổi ====="
+          git diff --stat
+          echo ""
+          echo "===== Nội dung thay đổi (tóm tắt) ====="
+          git diff | head -n 100 || echo "(diff quá dài, chỉ hiện 100 dòng đầu)"
+
+      # -----------------------------------------------------------------
+      # BƯỚC 7: COMMIT VÀ PUSH
+      # -----------------------------------------------------------------
+      - name: '7. Commit and Push'
+        if: |
+          github.event.inputs.dry_run != 'true' &&
+          steps.git-check.outputs.changes == 'true'
+        uses: EndBug/add-and-commit@v11
+        with:
+          message: "chore: auto-enrich metadata for AI (moods, tags, era)"
+          push_attempts: 5
+          default_author: github_actions
+          add: |
+            data/tac-pham/
+            data/tac-gia/
+            data/data-tac-pham.json
+            data/data-tac-gia.json
+
+      # -----------------------------------------------------------------
+      # BƯỚC 8: TÓM TẮT
+      # -----------------------------------------------------------------
+      - name: '8. Summary'
+        if: always()
+        run: |
+          {
+            echo "## 🧠 Văn Đạo Metadata Enrichment"
+            echo "| Hạng mục | Giá trị |"
+            echo "|---|---|"
+            echo "| Trạng thái | \`${{ job.status }}\` |"
+            echo "| Có thay đổi | \`${{ steps.git-check.outputs.changes || 'false' }}\` |"
+            echo "| Dry-run | \`${{ github.event.inputs.dry_run || 'false' }}\` |"
+          } >> $GITHUB_STEP_SUMMARY
