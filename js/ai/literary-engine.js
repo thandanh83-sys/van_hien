@@ -2,15 +2,15 @@
  * ==========================================================
  * VĂN ĐẠO AI - LITERARY REASONING ENGINE
  * Vị trí: js/ai/literary-engine.js
- * Version: 2.0.0 (Deep Context & Prosody Analysis)
+ * Version: 2.1.0 (Length Filtering & Context Isolation)
  * ==========================================================
  * TRIẾT LÝ THIẾT KẾ:
  * 1. Không cắt chuỗi vô hồn: Sử dụng bộ lọc Stopwords để loại bỏ
  *    các từ rác (ai, là, gì, thế nào). Chỉ chọn câu thơ thực sự.
- * 2. Phân tích Thanh điệu (Prosody): Đếm số lượng Bằng (Ngang, Huyền)
+ * 2. [MỚI v2.1.0] Lọc độ dài (Length Filter): Tuyệt đối không chọn 
+ *    những câu quá dài (như đoạn văn xuôi) làm câu thơ trung tâm.
+ * 3. Phân tích Thanh điệu (Prosody): Đếm số lượng Bằng (Ngang, Huyền)
  *    và Trắc (Sắc, Hỏi, Ngã, Nặng) để hiểu nhịp điệu cảm xúc.
- * 3. Phân tích Ngữ cảnh (Context): Lấy câu trước, câu sau để AI
- *    có cái nhìn toàn cảnh, không đánh giá câu thơ một cách cục bộ.
  * ==========================================================
  */
 
@@ -44,17 +44,26 @@ export const LiteraryEngine = {
         const linesToUse = validLines.length > 0 ? validLines : [rawLines.reduce((a, b) => a.length > b.length ? a : b, '')];
 
         // 3. Tìm "Câu thơ trung tâm" (Core Line)
-        // Ưu tiên câu dài nhất trong các dòng hợp lệ
+        // [FIX v2.1.0] Ưu tiên câu có độ dài vừa phải (10 - 50 ký tự) 
+        // để tránh lấy cả đoạn văn dài (như phần phân tích I, II, III).
         let coreIndex = 0;
-        let maxLength = 0;
+        let bestLength = 0;
+        
         linesToUse.forEach((line, idx) => {
-            if (line.length > maxLength) {
-                maxLength = line.length;
-                coreIndex = idx;
+            if (line.length >= 10 && line.length <= 50) {
+                if (line.length > bestLength) {
+                    bestLength = line.length;
+                    coreIndex = idx;
+                }
             }
         });
 
-        const coreLine = linesToUse[coreIndex];
+        let coreLine = linesToUse[coreIndex];
+        
+        // Nếu không tìm được câu nào phù hợp độ dài, lấy tạm câu đầu và cắt ngắn
+        if (bestLength === 0) {
+            coreLine = linesToUse[0].substring(0, 45).trim() + '...';
+        }
 
         // 4. Lấy ngữ cảnh (câu trước, câu sau)
         const prevLine = coreIndex > 0 ? linesToUse[coreIndex - 1] : null;
@@ -86,7 +95,6 @@ export const LiteraryEngine = {
     _analyzeProsody(line) {
         if (!line) return { bang: 0, trac: 0, rhythmType: 'unknown' };
 
-        // Tách thành các từ (chữ)
         const words = line.match(/[\p{L}\p{N}]+/gu) || [];
         let bang = 0;
         let trac = 0;
@@ -124,7 +132,6 @@ export const LiteraryEngine = {
         
         if (!w1 || !w2) return { hasRhyme: false, details: '' };
 
-        // So sánh âm tiết cuối (đơn giản hóa, không cần chính xác tuyệt đối)
         const normalize = (w) => w.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
         const hasRhyme = normalize(w1) === normalize(w2) || normalize(w1).slice(-1) === normalize(w2).slice(-1);
 
