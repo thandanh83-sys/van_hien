@@ -2,169 +2,189 @@
  * ==========================================================
  * VĂN ĐẠO AI - NLP TOOLS (js/ai/nlp-tools.js)
  * Vị trí: js/ai/nlp-tools.js
- * Version: 1.3.0 (Intent Router Compatible)
+ * Version: 2.0.0 (Dynamic Vocabulary & Fuzzy Correction)
  * ==========================================================
  * CHỨC NĂNG:
- * - Cung cấp các công cụ xử lý văn bản thô (Tiếng Việt).
- * - Xử lý Teencode, viết tắt, lỗi chính tả, gõ dính chữ, ký tự lặp.
- * - Tự động tách biệt logic này khỏi InputAI để dễ bảo trì.
+ * - Tự động xây dựng vốn từ (Vocabulary) từ kho dữ liệu DataHub.
+ * - Sửa lỗi chính tả thông minh (Fuzzy Matching) thay vì hardcode.
+ * - Chuẩn hóa văn bản (bỏ dấu, xóa dấu câu) phục vụ Intent Router.
  * 
- * LỊCH SỬ PHIÊN BẢN:
- * - v1.2.0: Chuyển NFC sang NFD để bỏ dấu tiếng Việt.
- * - v1.3.0: 
- *   - Bổ sung `removeSpecialChars` để loại bỏ hoàn toàn dấu câu (?, !, ., ...).
- *   - Điều này đảm bảo IntentRouter có thể so khớp chính xác các cụm từ
- *     (VD: "la ai?" sẽ thành "la ai") trước khi đưa vào Regex.
- *   - Chuẩn hóa khoảng trắng sau khi bỏ dấu câu.
+ * TRIẾT LÝ:
+ * - "Không sửa nội dung người dùng khi chưa chắc chắn".
+ * - Chỉ sửa từ nếu độ tin cậy > 0.8 (80%).
+ * - Tự học từ vựng từ chính dữ liệu của dự án.
  * ==========================================================
  */
 
 import { MathUtils } from './math-utils.js';
+import { STATE } from '../config.js';
 
 // =====================================================================
-// 1. TỪ ĐIỂN TEENCODE & TỪ KHÓA HỆ THỐNG
+// PHẦN 1: DYNAMIC VOCABULARY ENGINE (Bộ máy Từ vựng Động)
 // =====================================================================
+let vocabularyCache = null;
+let vocabularyList = [];
 
-// Từ điển Teencode mở rộng
-const TEENCODE_MAP = {
-    'ko': 'khong', 'k': 'khong', 'hok': 'khong', 'hem': 'khong', 'kg': 'khong',
-    'dc': 'duoc', 'dk': 'duoc', 'đc': 'duoc', 'dkm': 'duoc',
-    'sp': 'san pham', 'bt': 'binh thuong', 'bth': 'binh thuong',
-    'tks': 'cam on', 'thanks': 'cam on', 'thank': 'cam on',
-    'ntn': 'nhu the nao', 'mn': 'moi nguoi', 'cx': 'cung', 'cg': 'cung',
-    'vs': 'voi', 'j': 'gi', 'z': 'vay', 'bit': 'biet', 'ns': 'nhan xet',
-    'ct': 'chi tiet', 'tp': 'tac pham', 'tg': 'tac gia', 'nk': 'truyen kieu',
-    'nd': 'nguyen du', 'nc': 'nam cao', 'tk': 'tac pham', 'nv': 'nhan vat'
-};
+/**
+ * Xây dựng vốn từ từ các bản ghi trong DataHub (STATE.GLOBAL_RECORDS).
+ * Bao gồm: Tên tác phẩm, Tên tác giả, Tên thể loại, Thuật ngữ hệ thống.
+ */
+function buildVocabulary() {
+    if (vocabularyCache) return;
 
-// Từ điển từ khóa cấu trúc (Dùng cho việc tách chữ dính & sửa lỗi chính tả)
-const STRUCTURAL_KEYWORDS = [
-    'tac pham', 'tac gia', 'truyen', 'bai tho', 'tieu thuyet', 'nhan vat',
-    'tom tat', 'phan tich', 'binh giang', 'danh gia', 'dich thuat',
-    'lien quan', 'giong', 'tuong tu', 'cung',
-    'thoi', 'ky', 'trieu', 'nha', 'viet', 'sang tac',
-    'y nghia', 'bieu tuong', 'dien tich', 'dinh nghia', 'the loai'
-];
+    const vocabSet = new Set();
+
+    // 1. Từ khóa hệ thống cốt lõi (Chỉ giữ những từ thực sự cần thiết)
+    const systemKeywords = [
+        'tac gia', 'tac pham', 'tom tat', 'phan tich', 'nhan vat', 
+        'the loai', 'y nghia', 'dien tich', 'dinh nghia', 'tieu su',
+        'la ai', 'la gi', 'the nao', 'tai sao', 'vi sao', 'bao nhieu'
+    ];
+    systemKeywords.forEach(k => vocabSet.add(k));
+
+    // 2. Tự động trích xuất từ dữ liệu thực tế
+    if (STATE.GLOBAL_RECORDS && STATE.GLOBAL_RECORDS.length > 0) {
+        STATE.GLOBAL_RECORDS.forEach(record => {
+            const item = record.data;
+            
+            // Tên tác phẩm / thể loại
+            if (item.title) vocabSet.add(item.title);
+            if (item.name) vocabSet.add(item.name);
+            
+            // Tên tác giả
+            if (item.author) vocabSet.add(item.author);
+            
+            // Thể loại (nếu là mảng)
+            if (Array.isArray(item.the_loai)) {
+                item.the_loai.forEach(g => vocabSet.add(g));
+            }
+        });
+    }
+
+    // Chuyển thành mảng và chuẩn hóa (bỏ dấu) để so khớp
+    vocabularyList = Array.from(vocabSet).map(term => ({
+        original: term,
+        normalized: basicNormalize(term)
+    }));
+
+    vocabularyCache = true;
+    console.log(`[NLP] Đã xây dựng bộ từ vựng động: ${vocabularyList.length} mục.`);
+}
+
+/**
+ * Xóa cache để xây dựng lại vốn từ (dùng khi reload dữ liệu).
+ */
+export function invalidateVocabulary() {
+    vocabularyCache = null;
+    vocabularyList = [];
+}
 
 // =====================================================================
-// 2. CÁC HÀM XỬ LÝ LÕI (PRIVATE FUNCTIONS)
+// PHẦN 2: CHUẨN HÓA VĂN BẢN (TEXT NORMALIZER)
 // =====================================================================
 
 /**
- * 1. Chuẩn hóa cơ bản: Lowercase, bỏ dấu tiếng Việt.
- * [QUAN TRỌNG] Phải dùng NFD để phân rã ký tự (VD: "ế" -> "e" + dấu mũ + dấu sắc).
- * Sau đó dùng regex xóa các dấu (combining marks).
+ * 1. Chuẩn hóa cơ bản: Lowercase, bỏ dấu tiếng Việt (NFD).
  */
 function basicNormalize(text) {
     return String(text)
-        .normalize('NFD') 
-        .replace(/[\u0300-\u036f]/g, '') 
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
         .replace(/đ/g, 'd')
         .toLowerCase();
 }
 
 /**
- * 2. Xử lý ký tự lặp (Ví dụ: "đẹppp" -> "đẹp", "xinhhh" -> "xinh").
- */
-function normalizeRepeatedChars(text) {
-    return text.replace(/(.)\1{2,}/g, '$1');
-}
-
-/**
- * 3. Xóa ký tự đặc biệt và dấu câu.
- * [QUAN TRỌNG] Chuyển mọi dấu câu (?, !, ., ,, ...) thành khoảng trắng.
- * Ví dụ: "Nguyễn Du là ai?" -> "Nguyen Du la ai ".
- * Điều này giúp Regex `hasPhrase` ở InputAI hoạt động chính xác.
+ * 2. Xóa dấu câu và ký tự đặc biệt (Chuyển thành khoảng trắng).
  */
 function removeSpecialChars(text) {
     return text.replace(/[^a-z0-9\s]/g, ' ');
 }
 
 /**
- * 4. Dịch Teencode.
+ * 3. Xử lý ký tự lặp (VD: "đẹppp" -> "đẹp").
  */
-function expandTeencode(text) {
-    return text.split(/\s+/).map(word => TEENCODE_MAP[word] || word).join(' ');
-}
-
-/**
- * 5. Sửa lỗi chính tả (Fuzzy Matching).
- */
-function fuzzyCorrect(text) {
-    const words = text.split(/\s+/);
-    return words.map(word => {
-        if (word.length < 4) return word;
-        let bestMatch = word;
-        let minDistance = Infinity;
-
-        for (const keyword of STRUCTURAL_KEYWORDS) {
-            const distance = MathUtils.levenshteinDistance(word, keyword);
-            if (distance < minDistance) {
-                minDistance = distance;
-                bestMatch = keyword;
-            }
-        }
-        return minDistance <= 1 ? bestMatch : word;
-    }).join(' ');
-}
-
-/**
- * 6. Tách từ dính (Word Segmentation).
- * Ví dụ: "truyenkieu" -> "truyen kieu".
- */
-function segmentWords(text) {
-    const words = text.split(/\s+/);
-    const result = [];
-
-    for (const word of words) {
-        if (word.length < 5) { result.push(word); continue; }
-        let found = false;
-
-        for (let i = 2; i < word.length - 1; i++) {
-            const part1 = word.substring(0, i);
-            const part2 = word.substring(i);
-            if (STRUCTURAL_KEYWORDS.includes(part1) && STRUCTURAL_KEYWORDS.includes(part2)) {
-                result.push(part1, part2);
-                found = true;
-                break;
-            }
-        }
-        if (!found) result.push(word);
-    }
-    return result.join(' ');
+function normalizeRepeatedChars(text) {
+    return text.replace(/(.)\1{2,}/g, '$1');
 }
 
 // =====================================================================
-// 3. HÀM PIPELINE CÔNG KHAI (PUBLIC API)
+// PHẦN 3: FUZZY CORRECTOR (Tự sửa lỗi chính tả)
+// =====================================================================
+
+/**
+ * Sửa lỗi chính tả dựa trên vốn từ động.
+ * Sử dụng thuật toán Dice Coefficient để đo độ tương đồng.
+ * 
+ * @param {string} token - Từ cần kiểm tra (đã bỏ dấu).
+ * @returns {string} - Từ đã sửa (đã bỏ dấu) hoặc giữ nguyên nếu không chắc chắn.
+ */
+function fuzzyCorrectToken(token) {
+    // Bỏ qua các từ quá ngắn (1-2 ký tự) để tránh sửa bừa
+    if (token.length < 3) return token;
+
+    let bestMatch = token;
+    let highestScore = 0.0;
+
+    for (const vocab of vocabularyList) {
+        // Bỏ qua nếu độ dài lệch quá nhiều (tối ưu hiệu năng)
+        if (Math.abs(vocab.normalized.length - token.length) > 3) continue;
+
+        // Tính điểm tương đồng
+        const score = MathUtils.diceCoefficient(token, vocab.normalized);
+        
+        if (score > highestScore) {
+            highestScore = score;
+            bestMatch = vocab.normalized;
+        }
+    }
+
+    // NGƯỠNG AN TOÀN: Chỉ sửa nếu độ tương đồng > 80%
+    // Nguyên tắc: Thà giữ nguyên từ sai còn hơn sửa sai thành từ khác.
+    if (highestScore >= 0.80) {
+        return bestMatch;
+    }
+
+    return token;
+}
+
+/**
+ * Áp dụng Fuzzy Correction cho toàn bộ câu.
+ */
+function fuzzyCorrectSentence(text) {
+    const tokens = text.split(/\s+/);
+    const correctedTokens = tokens.map(t => fuzzyCorrectToken(t));
+    return correctedTokens.join(' ');
+}
+
+// =====================================================================
+// PHẦN 4: PIPELINE CÔNG KHAI
 // =====================================================================
 
 /**
  * Hàm tổng hợp: Làm sạch văn bản thô từ người dùng.
  * 
  * @param {string} rawText - Câu gốc người dùng nhập.
- * @returns {string} - Câu đã được chuẩn hóa (bỏ dấu, sửa teencode, xóa dấu câu...).
+ * @returns {string} - Câu đã được chuẩn hóa, sửa lỗi và bỏ dấu câu.
  */
 export function preprocessText(rawText) {
     if (!rawText) return '';
 
-    // 1. Chuẩn hóa cơ bản (Lowercase, bỏ dấu bằng NFD)
+    // Đảm bảo vốn từ đã được nạp
+    buildVocabulary();
+
+    // 1. Chuẩn hóa cơ bản (Lowercase, bỏ dấu)
     let clean = basicNormalize(rawText);
     
-    // 2. Nén ký tự lặp (đẹppp -> đẹp)
+    // 2. Nén ký tự lặp
     clean = normalizeRepeatedChars(clean);
     
-    // 3. Xóa dấu câu và ký tự đặc biệt (Chuyển thành khoảng trắng)
+    // 3. Xóa dấu câu
     clean = removeSpecialChars(clean);
     
-    // 4. Dịch Teencode (ko -> khong, tp -> tac pham)
-    clean = expandTeencode(clean);
+    // 4. Sửa lỗi chính tả (Fuzzy Matching) - Chỉ sửa khi chắc chắn
+    clean = fuzzyCorrectSentence(clean);
     
-    // 5. Tách từ dính (truyenkieu -> truyen kieu)
-    clean = segmentWords(clean);
-    
-    // 6. Sửa lỗi chính tả (Fuzzy Matching)
-    clean = fuzzyCorrect(clean);
-    
-    // 7. Dọn dẹp khoảng trắng thừa (Quan trọng: đảm bảo đầu/cuối không có space)
+    // 5. Dọn dẹp khoảng trắng
     return clean.replace(/\s+/g, ' ').trim();
 }
