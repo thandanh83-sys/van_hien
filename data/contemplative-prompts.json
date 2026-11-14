@@ -1,0 +1,45 @@
+{
+  "hinh_tuong": {
+    "name": "Hình tượng",
+    "questions": [
+      "Hình ảnh nào trong bài khiến Bạn dừng lại lâu nhất?",
+      "Nếu hình ảnh ấy được thay bằng một hình ảnh khác, cảm xúc có đổi không?",
+      "Có hình ảnh nào xuất hiện hai lần không? Nếu có, nó có ý nghĩa gì?"
+    ]
+  },
+  "nhac_dieu": {
+    "name": "Nhạc điệu",
+    "questions": [
+      "Khi đọc lên, bài thơ có chỗ nào khiến Bạn ngắt nhịp tự nhiên không?",
+      "Nhịp nhanh hay chậm? Nó có khớp với cảm xúc không?"
+    ]
+  },
+  "ham_suc": {
+    "name": "Hàm súc",
+    "questions": [
+      "Có chỗ nào ý tại ngôn ngoại — lời ít mà ý nhiều?",
+      "Có chỗ nào nói hơi nhiều, khiến ý bị 'lộ' quá sớm?"
+    ]
+  },
+  "dau_an": {
+    "name": "Dấu ấn cá nhân",
+    "questions": [
+      "Điều gì ở bài thơ này là 'của riêng' tác giả, không thể nhầm với ai khác?",
+      "Nếu bài thơ này được ký tên một tác giả khác, Bạn có tin không?"
+    ]
+  },
+  "boi_canh": {
+    "name": "Bối cảnh nghệ thuật",
+    "questions": [
+      "Bài thơ diễn ra ở đâu, lúc nào? Bạn có hình dung được không?",
+      "Không gian ấy có giúp cảm xúc được neo vào một chỗ không?"
+    ]
+  },
+  "chuyen_hoa": {
+    "name": "Sự chuyển hóa cảm xúc",
+    "questions": [
+      "Cảm xúc có thay đổi từ đầu đến cuối bài không?",
+      "Nếu có, sự chuyển hóa ấy có tự nhiên không?"
+    ]
+  }
+}
