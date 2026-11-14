@@ -2,14 +2,13 @@
  * ==========================================================
  * NGỌC THANH - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 5.1.0 (Ultimate Omnibox & Dual Search)
+ * Version: 6.0.0 (Progressive Loading & Ultimate Performance)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
+ * - [MỚI] Progressive Loading: Tải dữ liệu theo 2 tầng (Critical & Non-critical).
  * - Nạp dữ liệu vào APP_DATA và xây dựng STATE.GLOBAL_INDEX.
- * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI, giao diện mềm mại).
- * - Quản lý Settings (Offline & Network Health).
- * - Tương thích hoàn toàn với 2 thanh tìm kiếm (Văn Hiến & Bách Khoa).
+ * - Xử lý Thi Pháp Học, Bói Thơ, Settings, Offline.
  * ==========================================================
  */
 
@@ -294,72 +293,64 @@ function executePipeline() {
 }
 
 // =====================================================================
-// 5. LOAD DATA & KHỞI TẠO MẠNG LƯỚI
+// 5. LOAD DATA (PROGRESSIVE LOADING) & KHỞI TẠO MẠNG LƯỚI
 // =====================================================================
+
+// Hàm hỗ trợ fetch an toàn
+const safeFetch = async (url, fallback = []) => {
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch (e) {
+        console.warn(`[SYSTEM] Lỗi tải file ${url}:`, e);
+        return fallback; 
+    }
+};
+
+// Xây dựng Chỉ mục Toàn cục (Chỉ chạy khi đã có đủ dữ liệu cần thiết)
+function buildGlobalIndex() {
+    STATE.GLOBAL_INDEX.clear(); 
+    STATE.GLOBAL_INDEX_BY_KEY.clear(); 
+    STATE.GLOBAL_RECORDS.length = 0;
+    
+    const addToIndex = (arr, group) => {
+        if (!Array.isArray(arr)) return;
+        arr.forEach(item => {
+            if (!item?.id) return;
+            if (!item?.title && !item?.name) return; 
+            
+            const key = `${group}:${item.id}`;
+            const record = { key, id: item.id, group, type: group, data: item };
+            if (STATE.GLOBAL_INDEX_BY_KEY.has(key)) return;
+            STATE.GLOBAL_INDEX_BY_KEY.set(key, record);
+            STATE.GLOBAL_RECORDS.push(record);
+            if (!STATE.GLOBAL_INDEX.has(item.id)) STATE.GLOBAL_INDEX.set(item.id, record);
+        });
+    };
+
+    addToIndex(APP_DATA.THEORY_DATA, 'triet-thuyet');
+    addToIndex(APP_DATA.AUTHOR_DATA, 'ky-tai');
+    addToIndex(APP_DATA.WORKS_DATA, 'tinh-hoa');
+    addToIndex(APP_DATA.THE_LOAI_DATA, 'the-loai');
+}
+
 async function loadAllData() {
     try {
-        const safeFetch = async (url, fallback = []) => {
-            try {
-                const res = await fetch(url);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return await res.json();
-            } catch (e) {
-                console.warn(`[SYSTEM] Lỗi tải file ${url}:`, e);
-                return fallback; 
-            }
-        };
-
-        const results = await Promise.all([
-            safeFetch('./data/data-ly-thuyet.json', []),
-            safeFetch('./data/data-tac-gia.json', []),
-            safeFetch('./data/data-tac-pham.json', []),
-            safeFetch('./data/data-danh-ngon.json', []), 
-            safeFetch('./data/data-loi-binh.json', {}),
-            safeFetch('./data/data-tu-dien.json', { symbols: {}, dienTich: {}, hanViet: {} }),
-            safeFetch('./data/data-the-loai.json', {}),
-            safeFetch('./data/data-van-khi.json', { config: {}, advice: {} }),
-            safeFetch('./data/data-tu-dien-the-loai.json', [])
+        // -------------------------------------------------------------
+        // TẦNG 1: CRITICAL (Tải ngay lập tức để hiển thị UI)
+        // -------------------------------------------------------------
+        const [quotes, works] = await Promise.all([
+            safeFetch('./data/data-danh-ngon.json', []),
+            safeFetch('./data/data-tac-pham.json', [])
         ]);
 
-        APP_DATA.THEORY_DATA = results[0];
-        APP_DATA.AUTHOR_DATA = results[1];
-        APP_DATA.WORKS_DATA  = results[2];
-        APP_DATA.QUOTES_DATA = results[3];
-        APP_DATA.COMMENTARY_DATA = results[4];
-        APP_DATA.DICTIONARY_DATA = results[5];
-        APP_DATA.CATEGORY_NAMES = results[6];
-        APP_DATA.FORTUNE_CONFIG = results[7].config || {};
-        APP_DATA.FORTUNE_ADVICE = results[7].advice || {};
-        APP_DATA.THE_LOAI_DATA = results[8];
+        APP_DATA.QUOTES_DATA = quotes;
+        APP_DATA.WORKS_DATA = works;
 
-        STATE.GLOBAL_INDEX.clear(); 
-        STATE.GLOBAL_INDEX_BY_KEY.clear(); 
-        STATE.GLOBAL_RECORDS.length = 0;
-        
-        const addToIndex = (arr, group) => {
-            if (!Array.isArray(arr)) return;
-            arr.forEach(item => {
-                if (!item?.id) return;
-                if (!item?.title && !item?.name) return; 
-                
-                const key = `${group}:${item.id}`;
-                const record = { key, id: item.id, group, type: group, data: item };
-                if (STATE.GLOBAL_INDEX_BY_KEY.has(key)) return;
-                STATE.GLOBAL_INDEX_BY_KEY.set(key, record);
-                STATE.GLOBAL_RECORDS.push(record);
-                if (!STATE.GLOBAL_INDEX.has(item.id)) STATE.GLOBAL_INDEX.set(item.id, record);
-            });
-        };
-        addToIndex(APP_DATA.THEORY_DATA, 'triet-thuyet');
-        addToIndex(APP_DATA.AUTHOR_DATA, 'ky-tai');
-        addToIndex(APP_DATA.WORKS_DATA, 'tinh-hoa');
-        addToIndex(APP_DATA.THE_LOAI_DATA, 'the-loai');
-
-        await bootstrapNetwork();
-
+        // Render UI ngay khi có dữ liệu Tầng 1
         initMainFilters();
-        
-        if (APP_DATA.QUOTES_DATA && APP_DATA.QUOTES_DATA.length > 0) {
+        if (quotes.length > 0) {
             renderRandomQuote();
             if (STATE.quoteIntervalId) clearInterval(STATE.quoteIntervalId);
             STATE.quoteIntervalId = setInterval(renderRandomQuote, 6000);
@@ -368,7 +359,35 @@ async function loadAllData() {
             if (qContainer) qContainer.innerHTML = `<p style="text-align:center; font-style:italic; color:var(--text-muted); padding: 20px;">Không có dữ liệu danh ngôn.</p>`;
         }
 
-        triggerAsyncSearchIndex();
+        // -------------------------------------------------------------
+        // TẦNG 2: NON-CRITICAL (Tải ngầm phía sau, không chặn UI)
+        // -------------------------------------------------------------
+        requestIdleCallback(async () => {
+            console.log("[SYSTEM] Bắt đầu tải dữ liệu tầng 2 (Background)...");
+            const results = await Promise.all([
+                safeFetch('./data/data-ly-thuyet.json', []),
+                safeFetch('./data/data-tac-gia.json', []),
+                safeFetch('./data/data-loi-binh.json', {}),
+                safeFetch('./data/data-the-loai.json', {}),
+                safeFetch('./data/data-van-khi.json', { config: {}, advice: {} }),
+                safeFetch('./data/data-tu-dien-the-loai.json', [])
+            ]);
+
+            APP_DATA.THEORY_DATA = results[0];
+            APP_DATA.AUTHOR_DATA = results[1];
+            APP_DATA.COMMENTARY_DATA = results[2];
+            APP_DATA.CATEGORY_NAMES = results[3];
+            APP_DATA.FORTUNE_CONFIG = results[4].config || {};
+            APP_DATA.FORTUNE_ADVICE = results[4].advice || {};
+            APP_DATA.THE_LOAI_DATA = results[5];
+
+            // Xây dựng Index & Network
+            buildGlobalIndex();
+            await bootstrapNetwork();
+            
+            triggerAsyncSearchIndex();
+            console.log("[SYSTEM] Đã tải xong toàn bộ dữ liệu ngầm.");
+        });
 
     } catch (err) {
         console.error("[SYSTEM] Lỗi nghiêm trọng khi tải dữ liệu:", err);
@@ -668,7 +687,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         qc.classList.add('show');
     }
 
-    const minSplash = 5000;
+    const minSplash = 4000; // Giảm thời gian chờ Splash xuống 4s vì có Progressive Loading
     const remaining = Math.max(0, minSplash - (Date.now() - t0));
     if (status) status.textContent = "Sẵn sàng trải nghiệm...";
     await new Promise(r => setTimeout(r, remaining));
