@@ -2,13 +2,15 @@
  * ==========================================================
  * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
  * Vị trí: js/ai/master.js
- * Version: 6.0.0 (Living Intelligence Orchestrator)
+ * Version: 7.0.0 (Multi-Perspective Pipeline)
  * ==========================================================
  * CHỨC NĂNG (ORCHESTRATION):
  * - Điều phối câu hỏi từ InputAI đến đúng Agent qua AgentRegistry.
  * - Tích hợp MemoryEngine để nhớ ngữ cảnh hội thoại.
- * - Tự động ghi nhận "Khoảng trống tri thức" khi không tìm thấy Agent.
- * - Render kết quả qua OutputAI (Tích hợp Identity & Dialogue).
+ * - [MỚI v7.0.0] Kích hoạt "Pipeline Đa Chiều" (Multi-Perspective Pipeline)
+ *   khi người dùng yêu cầu Phân tích hoặc Khám phá thực thể.
+ *   Pipeline này sẽ gọi liên tiếp: LiteraryEngine -> Praiser -> Critic -> DataHub
+ *   để tạo ra một báo cáo toàn diện và sâu sắc.
  * ==========================================================
  */
 
@@ -17,11 +19,13 @@ import { OutputAI } from './output-ai.js';
 import { AgentMap, AgentRegistry } from './agents/index.js';
 import { MemoryEngine } from './memory-engine.js';
 import { Identity } from './identity.js';
+import { DataHub } from '../network/data-hub.js';
+import { escapeHTML } from '../utils.js';
 
 // =====================================================================
 // PHẦN 1: PHIÊN BẢN & LOG TIỆN ÍCH
 // =====================================================================
-export const MASTER_VERSION = '6.0.0';
+export const MASTER_VERSION = '7.0.0';
 
 function debugLog(...args) {
     if (typeof window !== 'undefined' && window.VD_MASTER_DEBUG) {
@@ -78,7 +82,69 @@ function normalizeResult(raw, sourceKey) {
 }
 
 // =====================================================================
-// PHẦN 3: HÀM ĐIỀU PHỐI NỘI BỘ (INTERNAL DISPATCHER)
+// PHẦN 3: PIPELINE ĐA CHIỀU (MULTI-PERSPECTIVE PIPELINE)
+// =====================================================================
+async function runMultiPerspectivePipeline(query) {
+    debugLog(`[PIPELINE] Khởi chạy Pipeline đa chiều cho: "${query}"`);
+
+    // 1. Lấy thông tin tác phẩm
+    const workInfo = await AgentMap['literature'].getWorkInfo(query);
+    if (!workInfo.ok) return null; // Không tìm thấy thì để fallback
+
+    const work = workInfo.record;
+    const fullText = workInfo.detail.content || work.desc || '';
+
+    // 2. Phân tích Thi pháp (Analysis Agent)
+    const analysis = await AgentMap['analysis'].analyze(work);
+
+    // 3. Tán thưởng & Phê bình (Praiser & Critic)
+    const praise = await AgentMap['praiser'].analyze(fullText, work.title);
+    const critique = await AgentMap['critic'].analyze(fullText, work.title);
+
+    // 4. Liên kết dữ liệu (DataHub - Hướng 3)
+    let relatedByMood = [];
+    let relatedByTag = [];
+    
+    if (work.cam_xuc && work.cam_xuc.length > 0) {
+        relatedByMood = DataHub.getWorksByMood(work.cam_xuc[0])
+            .filter(w => w.id !== work.id).slice(0, 3);
+    }
+    if (work.tags && work.tags.length > 0) {
+        relatedByTag = DataHub.getWorksByTag(work.tags[0])
+            .filter(w => w.id !== work.id && !relatedByMood.some(m => m.id === w.id)).slice(0, 3);
+    }
+
+    // 5. Tổng hợp Báo cáo HTML
+    let report = `Dựa trên tri thức về <b>"${escapeHTML(work.title)}"</b> của ${escapeHTML(work.author)}, ${Identity.pronouns.self} xin dâng lên ${Identity.pronouns.user} vài góc nhìn:\n\n`;
+    
+    report += `<div style="margin-bottom: 15px;"><b>1. Phân tích Thi pháp:</b><br>${analysis.answer}</div>`;
+    
+    report += `<div style="margin-bottom: 15px;"><b>2. Vẻ đẹp Tán thưởng:</b><br>${praise.commentary}</div>`;
+    
+    report += `<div style="margin-bottom: 15px;"><b>3. Góc nhìn Phản biện:</b><br>${critique.commentary}</div>`;
+
+    if (relatedByMood.length > 0) {
+        report += `<div style="margin-bottom: 15px;"><b>4. Liên kết cảm xúc (${escapeHTML(work.cam_xuc[0])}):</b><br>`;
+        report += `Vì cùng mang cảm xúc này, ${Identity.pronouns.self} gợi ý ${Identity.pronouns.user} tìm đọc thêm: <i>${relatedByMood.map(w => w.title).join(', ')}</i>.</div>`;
+    }
+
+    if (relatedByTag.length > 0) {
+        report += `<div style="margin-bottom: 15px;"><b>5. Liên kết chủ đề (${escapeHTML(work.tags[0])}):</b><br>`;
+        report += `Cùng chủ đề này, còn có các tác phẩm: <i>${relatedByTag.map(w => w.title).join(', ')}</i>.</div>`;
+    }
+
+    const metaList = [work, ...relatedByMood, ...relatedByTag];
+
+    return {
+        answer: report,
+        detail: `Phân tích đa chiều được tổng hợp bởi Hội đồng Văn Đạo.`,
+        source: 'master-pipeline',
+        meta: metaList
+    };
+}
+
+// =====================================================================
+// PHẦN 4: HÀM ĐIỀU PHỐI NỘI BỘ (INTERNAL DISPATCHER)
 // =====================================================================
 async function internalDispatch(intent) {
     if (!intent || typeof intent !== 'object' || !intent.type) {
@@ -93,26 +159,37 @@ async function internalDispatch(intent) {
     // -----------------------------------------------------------------
     const context = MemoryEngine.resolveContext(query);
     if (context && context.targetEntity) {
-        // Nếu câu hỏi chứa đại từ ("ông ấy", "nó"), gắn thực thể trước đó vào query
         debugLog(`[MEMORY] Ngữ cảnh: Đang nói về ${context.targetEntity}`);
-        // Ta có thể thêm thực thể vào intent để Agent hiểu rõ hơn
         intent.contextEntity = context.targetEntity;
     }
 
     debugLog(`Dispatch: type="${taskType}", query="${query}"`);
 
     // -----------------------------------------------------------------
-    // Tra cứu Agent (ĐỘNG)
+    // [KÍCH HOẠT PIPELINE ĐA CHIỀU]
+    // -----------------------------------------------------------------
+    if (taskType === 'analyze-work' || taskType === 'explore') {
+        try {
+            const pipelineResult = await runMultiPerspectivePipeline(query);
+            if (pipelineResult) {
+                MemoryEngine.saveTurn(query, pipelineResult);
+                return pipelineResult;
+            }
+        } catch (err) {
+            errorLog('Lỗi khi chạy Pipeline đa chiều:', err);
+            // Nếu lỗi, tiếp tục fallback xuống Dispatch 1 Agent bên dưới
+        }
+    }
+
+    // -----------------------------------------------------------------
+    // Tra cứu Agent (ĐỘNG) - Dành cho các task đơn lẻ
     // -----------------------------------------------------------------
     let agentKey = AgentRegistry.findAgentForTask(taskType);
 
     if (!agentKey) {
         warnLog(`Không tìm thấy Agent cho task "${taskType}".`);
-        
-        // [TÍCH HỢP HỌC HỎI] Ghi nhận khoảng trống tri thức
         MemoryEngine.logKnowledgeGap(query);
 
-        // Fallback sang search
         const searchAgentKey = AgentRegistry.findAgentForTask('search');
         if (searchAgentKey && AgentMap[searchAgentKey]) {
             agentKey = searchAgentKey;
@@ -145,7 +222,6 @@ async function internalDispatch(intent) {
 
     let rawResult;
     try {
-        // Nếu Agent có hỗ trợ tham số thứ 2 (như Praiser/Critic), ta truyền title
         if (methodName === 'analyze' && (agentKey === 'praiser' || agentKey === 'critic' || agentKey === 'analysis')) {
             rawResult = await agentInstance[methodName](query, intent.title || '');
         } else {
@@ -157,8 +233,6 @@ async function internalDispatch(intent) {
     }
 
     const normalized = normalizeResult(rawResult, agentKey);
-    
-    // [TÍCH HỢP MEMORY] Lưu lại lượt hội thoại này
     MemoryEngine.saveTurn(query, normalized);
 
     return normalized;
@@ -174,7 +248,7 @@ function buildErrorResult(message, detail) {
 }
 
 // =====================================================================
-// PHẦN 4: PUBLIC API — MASTER AI
+// PHẦN 5: PUBLIC API — MASTER AI
 // =====================================================================
 export const MasterAI = {
     version: MASTER_VERSION,
@@ -187,9 +261,6 @@ export const MasterAI = {
         return await internalDispatch(intent);
     },
 
-    /**
-     * Pipeline đầy đủ: parse → dispatch → render.
-     */
     async processQuery(inputElement, container) {
         if (!inputElement || typeof inputElement.value !== 'string') {
             return { type: 'empty' };
@@ -243,13 +314,13 @@ export const MasterAI = {
 export const AIDispatcher = MasterAI;
 
 // =====================================================================
-// PHẦN 5: LOG KHỞI TẠO
+// PHẦN 6: LOG KHỞI TẠO
 // =====================================================================
 if (typeof console !== 'undefined' && console.log) {
     const agentCount = AgentRegistry.getAllAgentKeys().length;
     console.log(
-        `%c[MASTER] Văn Đạo MasterAI v${MASTER_VERSION} (Living Intelligence) sẵn sàng. ` +
-        `Điều phối ${agentCount} Agent. Bản sắc: ${Identity.pronouns.self} - ${Identity.pronouns.user}.`,
+        `%c[MASTER] Văn Đạo MasterAI v${MASTER_VERSION} (Multi-Perspective) sẵn sàng. ` +
+        `Điều phối ${agentCount} Agent.`,
         'color: #8bb8a8; font-weight: bold;'
     );
 }
