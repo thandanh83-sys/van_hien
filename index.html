@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- Tiêu đề & Mô tả (SEO) -->
-    <title>NGỌC THANH | Đại Bách Khoa Toàn Thư</title>
+    <title>Ngọc Thanh | Tinh Hoa Văn Học</title>
     <meta name="description" content="NGỌC THANH - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
     <meta name="robots" content="index, follow">
@@ -128,8 +128,8 @@
     <!-- ================================================================= -->
     <header id="app-header">
         <nav class="navbar" aria-label="Điều hướng chính">
-            <!-- Logo NGỌC THANH -->
-            <div class="nav-brand" onclick="window.switchView('home')" title="Về Trang Chủ">NGỌC THANH</div>
+            <!-- Logo VĂN HIẾN (Đã đổi tên) -->
+            <div class="nav-brand" onclick="window.switchView('home')" title="Về Trang Chủ">VĂN HIẾN</div>
             
             <!-- Các nút điều hướng (Desktop) -->
             <div class="nav-links" id="navMenu" role="menubar">
@@ -421,10 +421,37 @@
     </dialog>
 
     <!-- ================================================================= -->
-    <!-- 19. FOOTER (CHÂN TRANG)                                          -->
+    <!-- 19. FOOTER MỚI (ĐẬM CHẤT VĂN CHƯƠNG - KHÔNG CÓ DÒNG CHỮ TRỢ LÝ AI) -->
     <!-- ================================================================= -->
     <footer class="app-footer">
-        <p>&copy; 2026 Ngọc Thanh. Bảo lưu mọi quyền.</p>
+        <div class="footer-grid">
+            <div class="footer-col brand-col">
+                <div class="footer-brand">NGỌC THANH</div>
+                <p class="footer-slogan">"Văn học là nhân học."</p>
+                <p class="footer-desc">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.</p>
+            </div>
+            <div class="footer-col links-col">
+                <div class="footer-title">Khám Phá</div>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="window.switchView('home')">Trang Chủ</a></li>
+                    <li><a href="#" onclick="window.switchView('heritage')">Văn Hiến (Tác phẩm)</a></li>
+                    <li><a href="#" onclick="window.switchView('encyclopedia')">Đại Bách Khoa</a></li>
+                    <li><a href="#" onclick="window.switchView('analyze')">Thi Pháp Học</a></li>
+                </ul>
+            </div>
+            <div class="footer-col contact-col">
+                <div class="footer-title">Kết Nối</div>
+                <p class="footer-contact-text">Mọi ý kiến đóng góp vui lòng gửi về:</p>
+                <p class="footer-email">contact@ngocthanh.edu.vn</p>
+                <div class="footer-socials">
+                    <span>Facebook</span> &middot; <span>GitHub</span> &middot; <span>Zalo</span>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 Ngọc Thanh. Bảo lưu mọi quyền.</p>
+            <p class="footer-license">Thiết kế bởi Văn Đạo.</p>
+        </div>
     </footer>
 
     <!-- ================================================================= -->
@@ -480,8 +507,8 @@
         }
 
         window.addEventListener('load', () => {
-            // [FIX LỖI CACHE] Ép trình duyệt coi đây là file mới bằng tham số ?v=13.0.0
-            const swUrl = './sw.js?v=13.0.0';
+            // [FIX LỖI CACHE] Ép trình duyệt coi đây là file mới bằng tham số ?v=14.0.0
+            const swUrl = './sw.js?v=14.0.0';
 
             // [FIX LỖI CACHE] updateViaCache: 'none' cấm trình duyệt dùng HTTP cache cho file sw.js
             navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' }).then(reg => {
