@@ -2,13 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - LAYOUTS CSS (css/layouts.css)
  * Vị trí: css/layouts.css
- * Version: 1.1.0 (Custom Modal & Banner Fix)
+ * Version: 1.2.0 (Dialog Standardization & Z-Index Fix)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khung xương: Splash, Silk Transition, Navbar, Container.
  * - Settings Dialog (Offline & Network).
- * - Custom Modal (Thay thế alert/confirm).
- * - Update Banner (Đã sửa lỗi chật chội).
+ * - Custom Modal (Sử dụng chuẩn <dialog> HTML5).
+ * - Update Banner.
  * ==========================================================
  */
 
@@ -20,9 +20,7 @@
     pointer-events: none; overflow: hidden; background: var(--bg-base); 
     display: flex; justify-content: center; align-items: center; flex-direction: column;
 }
-
 .silk-layer { position: absolute; width: 40vw; height: 150vh; border-radius: 50% 50% 50% 50% / 20% 20% 20% 20%; will-change: transform, opacity; transform-origin: center center; filter: blur(20px); }
-
 .silk-layer-1 { background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 20%, #8bb8a8 50%, rgba(255,255,255,0.9) 80%, rgba(255,255,255,0) 100%); transform: rotate(-30deg) translateX(-20vw); animation: silkRibbon1 16s ease-in-out infinite alternate; opacity: 0.9; }
 .silk-layer-2 { background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(220,235,230,0.8) 30%, #739e8f 50%, rgba(220,235,230,0.8) 70%, rgba(255,255,255,0) 100%); transform: rotate(45deg) translateX(20vw); animation: silkRibbon2 20s ease-in-out infinite alternate-reverse; opacity: 0.7; }
 .silk-layer-3 { background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(212,196,168,0.6) 40%, rgba(255,255,255,0.9) 50%, rgba(212,196,168,0.6) 60%, rgba(255,255,255,0) 100%); transform: rotate(10deg) scale(1.2); animation: silkRibbon3 24s ease-in-out infinite alternate; opacity: 0.6; filter: blur(30px); }
@@ -37,7 +35,6 @@
 .boot-status { font-family: var(--font-body); font-size: 1rem; color: var(--text-muted); font-style: italic; margin-bottom: 20px; height: 24px; }
 .boot-quote { max-width: 400px; padding: 0 20px; font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.6; opacity: 0; transition: opacity 1.5s ease; }
 .boot-quote.show { opacity: 1; }
-
 @keyframes bootFadeIn { to { opacity: 1; transform: translateY(0); } }
 
 #jade-splash.leaving .silk-layer-1 { animation: ribbonOut1 1.5s var(--ease-silk-sharp) forwards; }
@@ -67,7 +64,6 @@
    ===================================================================== */
 .container { 
     position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; 
-    /* Tăng padding-top lên 110px để tiêu đề không dính vào Header */
     padding: calc(110px + env(safe-area-inset-top)) 20px 40px 20px; 
 }
 
@@ -92,11 +88,26 @@
 /* =====================================================================
    4. SETTINGS DIALOG (CÀI ĐẶT & MẠNG LƯỚI)
    ===================================================================== */
-dialog { border: none; padding: 0; background: transparent; outline: none; position: fixed; inset: 0; width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 99999; }
+dialog { 
+    border: none; padding: 0; background: transparent; outline: none; 
+    position: fixed; inset: 0; width: 100vw; height: 100vh; 
+    max-width: 100vw; max-height: 100vh; 
+    display: flex; justify-content: center; align-items: center; 
+    z-index: 99999; 
+}
 dialog:not([open]) { display: none; }
-dialog::backdrop { background-color: var(--veil); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+dialog::backdrop { 
+    background-color: rgba(253, 251, 247, 0.75); 
+    backdrop-filter: blur(8px); 
+    -webkit-backdrop-filter: blur(8px); 
+}
 
-#settings-modal { position: relative; width: 90vw; max-width: 450px; max-height: 90vh; overflow-y: auto; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); box-shadow: var(--shadow-heavy); padding: 30px; scrollbar-width: thin; animation: dialogFadeIn 0.3s ease forwards; }
+#settings-modal { 
+    position: relative; width: 90vw; max-width: 450px; max-height: 90vh; 
+    overflow-y: auto; background: #fdfbf7; border: 1px solid var(--border-color); 
+    border-radius: var(--radius-card); box-shadow: var(--shadow-heavy); padding: 30px; 
+    scrollbar-width: thin; animation: dialogFadeIn 0.3s ease forwards; 
+}
 
 @keyframes dialogFadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
@@ -121,20 +132,18 @@ dialog::backdrop { background-color: var(--veil); backdrop-filter: blur(8px); -w
 .network-timestamp { font-family: var(--font-body); font-size: 0.72rem; color: var(--text-muted); font-style: italic; text-align: right; padding-top: 8px; border-top: 1px dashed rgba(139, 184, 168, 0.15); }
 
 /* =====================================================================
-   5. CUSTOM MODAL (THAY THẾ ALERT/CONFIRM - MÀU THANH NGỌC)
+   5. CUSTOM MODAL (THAY THẾ ALERT/CONFIRM - CHUẨN DIALOG)
    ===================================================================== */
-#custom-modal-overlay {
-    position: fixed; inset: 0; background: rgba(253, 251, 247, 0.7);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    z-index: 999999; display: flex; justify-content: center; align-items: center;
-    opacity: 0; transition: opacity 0.3s;
-}
-
+/* Không cần định nghĩa lại #custom-modal-overlay vì đã dùng thẻ <dialog> chung ở trên */
 #custom-modal {
-    background: var(--card-bg); border: 1px solid var(--border-color);
-    border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-    width: 90%; max-width: 380px; padding: 24px; text-align: center;
-    transform: scale(0.95); transition: transform 0.3s;
+    background: #fdfbf7; 
+    border: 1px solid var(--border-color);
+    border-radius: 16px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    width: 90%; 
+    max-width: 380px; 
+    padding: 24px; 
+    text-align: center;
 }
 
 #custom-modal-title {
@@ -160,7 +169,7 @@ dialog::backdrop { background-color: var(--veil); backdrop-filter: blur(8px); -w
 #custom-modal-confirm:hover { background: var(--accent-hover); }
 
 /* =====================================================================
-   6. UPDATE BANNER (ĐÃ FIX LỖI CHẬT CHỘI TRÊN MOBILE)
+   6. UPDATE BANNER
    ===================================================================== */
 #update-banner {
     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(120px);
@@ -205,7 +214,6 @@ dialog::backdrop { background-color: var(--veil); backdrop-filter: blur(8px); -w
     .nav-icon { display: block; }
     .nav-btn::after { display: none; }
 
-    /* Banner Mobile */
     #update-banner { padding: 10px 16px; gap: 10px; font-size: 13px; }
     #update-btn { padding: 6px 12px; font-size: 12px; }
     #dismiss-btn { font-size: 20px; }
