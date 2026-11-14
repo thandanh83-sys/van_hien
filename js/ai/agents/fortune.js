@@ -2,13 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO AI - FORTUNE AGENT (js/ai/agents/fortune.js)
  * Vị trí: js/ai/agents/fortune.js
- * Version: 3.4.0 (Living Intelligence Integration)
+ * Version: 3.5.0 (Quick Comment Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Tính toán vận khí (Bói thơ) theo thuật toán ngẫu nhiên có trọng số.
  * - Tổng hợp 4 góc nhìn: Phân tích + Tán thưởng + Phê bình + Chiêm nghiệm.
- * - Export 3 hàm tiện ích riêng (calculateFortune, getFortuneInfo,
- *   synthesizeDynamicFortune) để main.js dùng trực tiếp trong Fate Modal.
+ * - [MỚI] Sử dụng hàm getQuickComment() thay vì analyze() để câu trả lời
+ *   ngắn gọn, vui vẻ, phù hợp với tính năng gieo quẻ.
  * ==========================================================
  */
 
@@ -44,13 +44,10 @@ export function getFortuneInfo(fortuneKey) {
 export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa', analysisResult = null) {
     const fortune = getFortuneInfo(fortuneKey);
     const validKey = fortune.key; 
-    const analysis = analysisResult || { themes: [], evidence: { symbols: [] } };
     
-    const textToAnalyze = [work.title, work.desc, work.content].filter(Boolean).join(' ');
-    
-    // [ĐÃ SỬA LỖI] Truyền thêm tham số thứ 2 (work.title) cho Praiser & Critic
-    const praiseResult = PraiserAgent.analyze(textToAnalyze, work.title);
-    const criticResult = CriticAgent.analyze(textToAnalyze, work.title);
+    // [SỬA] Dùng hàm nhận xét nhanh thay vì phân tích sâu để giao diện gọn gàng
+    const praiseCommentary = PraiserAgent.getQuickComment(work);
+    const criticCommentary = CriticAgent.getQuickComment(work);
 
     const commentaryData = APP_DATA.COMMENTARY_DATA[validKey] || {};
     const nen = commentaryData.nen || 'Thuận theo tự nhiên.';
@@ -69,12 +66,11 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa', ana
         fortuneInfo: fortune,
         bridgeText: escapeHTML(bridgeText),
         fortuneReflection: escapeHTML(randomCommentary),
-        praiseCommentary: praiseResult.commentary,
-        criticCommentary: criticResult.commentary,
-        literaryCommentary: escapeHTML(analysis.commentaryText || ''),
+        praiseCommentary: praiseCommentary, 
+        criticCommentary: criticCommentary, 
         adviceHtml,
-        strength: analysis.strength || 'Yếu',
-        evidence: analysis.evidence || { themes: [], symbols: [] }
+        strength: 'Vừa',
+        evidence: { themes: [], symbols: [] }
     };
 }
 
