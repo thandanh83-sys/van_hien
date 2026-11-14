@@ -2,29 +2,30 @@
  * ==========================================================
  * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
  * Vị trí: js/ai/master.js
- * Version: 9.0.0 (Unified Semantic Routing)
+ * Version: 10.0.1 (Fixed Imports & Dependencies)
  * ==========================================================
- * TRIẾT LÝ:
- * - Gộp chung Search và Ask Dạo vào một luồng xử lý duy nhất.
- * - SmartInputParser sẽ quyết định: Nếu là từ khóa ngắn -> Search nhanh.
- *   Nếu là câu hỏi dài -> Chạy Pipeline Đa chiều.
+ * TRIẾT LÝ THIẾT KẾ:
+ * 1. OMNIBOX ROUTING: Phân biệt Factoid, Deep Query và Search.
+ * 2. TRÍ NHỚ: MemoryEngine tự động lưu ngữ cảnh.
+ * 3. AN TOÀN: Luôn có Fallback.
  * ==========================================================
  */
 
-import { OutputAI } from './output-ai.js';
+// [FIX] Import đúng đường dẫn tương đối từ thư mục js/ai/
+import { SmartInputParser } from './smart-input-parser.js';
 import { AgentMap, AgentRegistry } from './agents/index.js';
 import { MemoryEngine } from './memory-engine.js';
 import { Identity } from './identity.js';
+import { OutputAI } from './output-ai.js';
 import { DataHub } from '../network/data-hub.js';
-import { escapeHTML } from '../utils.js';
 import { VDSearchEngine } from '../search.js';
-import { SmartInputParser } from './smart-input-parser.js';
-import { preprocessText } from './nlp-tools.js';
+import { escapeHTML } from '../utils.js';
+import { APP_DATA } from '../config.js';
 
 // =====================================================================
-// PHẦN 1: PHIÊN BẢN & LOG
+// PHẦN 1: PHIÊN BẢN & LOG TIỆN ÍCH
 // =====================================================================
-export const MASTER_VERSION = '9.0.0';
+export const MASTER_VERSION = '10.0.1';
 
 function debugLog(...args) {
     if (typeof window !== 'undefined' && window.VD_MASTER_DEBUG) console.log('[MASTER]', ...args);
@@ -32,10 +33,15 @@ function debugLog(...args) {
 function errorLog(...args) { console.error('[MASTER]', ...args); }
 
 // =====================================================================
-// PHẦN 2: ADAPTER
+// PHẦN 2: HÀM ADAPTER — CHUẨN HÓA KẾT QUẢ
 // =====================================================================
-function isStandardResult(obj) { return (obj !== null && typeof obj === 'object' && typeof obj.answer === 'string' && obj.answer.length > 0); }
-function isThematicResult(obj) { return (obj !== null && typeof obj === 'object' && typeof obj.commentary === 'string' && obj.commentary.length > 0); }
+function isStandardResult(obj) {
+    return (obj !== null && typeof obj === 'object' && typeof obj.answer === 'string' && obj.answer.length > 0);
+}
+
+function isThematicResult(obj) {
+    return (obj !== null && typeof obj === 'object' && typeof obj.commentary === 'string' && obj.commentary.length > 0);
+}
 
 function adaptThematicResult(raw, sourceKey) {
     return {
@@ -47,7 +53,15 @@ function adaptThematicResult(raw, sourceKey) {
 }
 
 function normalizeResult(raw, sourceKey) {
-    if (isStandardResult(raw)) return { answer: raw.answer, detail: raw.detail || '', source: raw.source || sourceKey || 'unknown', meta: Array.isArray(raw.meta) ? raw.meta : [], ...raw };
+    if (isStandardResult(raw)) {
+        return {
+            answer: raw.answer,
+            detail: raw.detail || '',
+            source: raw.source || sourceKey || 'unknown',
+            meta: Array.isArray(raw.meta) ? raw.meta : [],
+            ...raw 
+        };
+    }
     if (isThematicResult(raw)) return adaptThematicResult(raw, sourceKey);
     if (raw === null || raw === undefined) return { answer: 'Agent không trả về kết quả.', detail: '', source: 'error', meta: [] };
     return { answer: 'Agent trả về kết quả không xác định.', detail: '', source: 'error', meta: [] };
@@ -59,7 +73,6 @@ function normalizeResult(raw, sourceKey) {
 async function runMultiPerspectivePipeline(parsedInput) {
     debugLog(`[PIPELINE] Khởi chạy Pipeline đa chiều cho: "${parsedInput.raw}"`);
 
-    // 1. Nếu là gợi ý theo cảm xúc (Recommend)
     if (parsedInput.intent === 'recommend' && parsedInput.mood) {
         const moodWorks = DataHub.getWorksByMood(parsedInput.mood);
         if (moodWorks.length > 0) {
@@ -71,7 +84,6 @@ async function runMultiPerspectivePipeline(parsedInput) {
         }
     }
 
-    // 2. Phân tích tác phẩm (Analyze)
     const workInfo = await AgentMap['literature'].getWorkInfo(parsedInput.coreKeyword);
     if (!workInfo.ok) return null;
 
@@ -106,14 +118,48 @@ async function runMultiPerspectivePipeline(parsedInput) {
 }
 
 // =====================================================================
-// PHẦN 4: XỬ LÝ ĐẦU VÀO HỢP NHẤT (UNIFIED HANDLER)
+// PHẦN 4: XỬ LÝ CÂU HỎI NGẮN (FACTOID)
+// =====================================================================
+async function handleFactoid(parsedInput) {
+    let result = null;
+    const norm = parsedInput.normalized;
+    const keyword = parsedInput.coreKeyword;
+
+    if (norm.includes('ai viet') || norm.includes('tac gia') || norm.includes('cua ai')) {
+        result = await AgentMap['literature'].findAuthor(keyword);
+    } else if (norm.includes('tom tat') || norm.includes('noi dung')) {
+        result = await AgentMap['literature'].summarize(keyword);
+    } else if (norm.includes('la ai') || norm.includes('la gi')) {
+        result = await AgentMap['poetics'].explainSymbol(keyword);
+    }
+
+    if (result) {
+        if (!result.meta || result.meta.length === 0) {
+            const searchRes = VDSearchEngine.search(keyword);
+            if (searchRes.length > 0) {
+                result.meta = [DataHub.getMetadata(searchRes[0].id)?.data].filter(Boolean);
+            }
+        }
+        return normalizeResult(result, 'factoid');
+    }
+    return null;
+}
+
+// =====================================================================
+// PHẦN 5: XỬ LÝ ĐẦU VÀO HỢP NHẤT (UNIFIED HANDLER)
 // =====================================================================
 async function internalHandle(rawQuery) {
-    // 1. Dùng SmartInputParser để giải mã câu hỏi
     const parsed = SmartInputParser.parse(rawQuery);
     debugLog('Parsed Input:', parsed);
 
-    // 2. Nếu là câu hỏi sâu (Deep Query) -> Kích hoạt Pipeline đa chiều
+    if (parsed.isFactoid) {
+        const factoidResult = await handleFactoid(parsed);
+        if (factoidResult) {
+            MemoryEngine.saveTurn(rawQuery, factoidResult);
+            return factoidResult;
+        }
+    }
+
     if (parsed.isDeepQuery) {
         const pipelineResult = await runMultiPerspectivePipeline(parsed);
         if (pipelineResult) {
@@ -122,15 +168,12 @@ async function internalHandle(rawQuery) {
         }
     }
 
-    // 3. Nếu là tìm kiếm ngắn (Search) hoặc Pipeline không tìm thấy -> Dùng Search
     let results = VDSearchEngine.search(parsed.coreKeyword).map(r => DataHub.getMetadata(r.id)?.data).filter(Boolean);
     
-    // Nếu không thấy, thử tìm theo cảm xúc
     if (results.length === 0 && parsed.mood) {
         results = DataHub.getWorksByMood(parsed.mood);
     }
 
-    // Tạo lời dẫn dắt (Agent-Guided Search)
     let commentary = '';
     if (results.length === 1) {
         const highlight = AgentMap['praiser'].getQuickHighlight(results[0]);
@@ -159,10 +202,14 @@ async function internalHandle(rawQuery) {
 }
 
 // =====================================================================
-// PHẦN 5: PUBLIC API
+// PHẦN 6: PUBLIC API — MASTER AI
 // =====================================================================
 export const MasterAI = {
     version: MASTER_VERSION,
+
+    parseIntent(input) {
+        return SmartInputParser.parse(input);
+    },
 
     async dispatch(rawQuery) {
         return await internalHandle(rawQuery);
@@ -189,14 +236,29 @@ export const MasterAI = {
         }
 
         return { type: 'answered' };
+    },
+
+    validate() {
+        const errors = [];
+        if (!AgentRegistry || AgentRegistry.getAllAgentKeys().length === 0) errors.push('Không có Agent.');
+        return {
+            ok: errors.length === 0,
+            version: MASTER_VERSION,
+            totalAgents: AgentRegistry.getAllAgentKeys ? AgentRegistry.getAllAgentKeys().length : 0,
+            errors
+        };
     }
 };
 
 export const AIDispatcher = MasterAI;
 
+// =====================================================================
+// PHẦN 7: LOG KHỞI TẠO
+// =====================================================================
 if (typeof console !== 'undefined' && console.log) {
+    const agentCount = AgentRegistry.getAllAgentKeys().length;
     console.log(
-        `%c[MASTER] Văn Đạo MasterAI v${MASTER_VERSION} (Unified Semantic Router) sẵn sàng.`,
+        `%c[MASTER] Văn Đạo MasterAI v${MASTER_VERSION} (Omnibox Routing) sẵn sàng. Điều phối ${agentCount} Agent.`,
         'color: #8bb8a8; font-weight: bold;'
     );
 }
