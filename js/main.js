@@ -2,13 +2,13 @@
  * ==========================================================
  * NGỌC THANH - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 6.0.0 (Progressive Loading & Ultimate Performance)
+ * Version: 6.1.0 (Solid AI UI & Progressive Loading)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
- * - [MỚI] Progressive Loading: Tải dữ liệu theo 2 tầng (Critical & Non-critical).
+ * - [MỚI] Progressive Loading: Tải dữ liệu theo 2 tầng.
+ * - [MỚI] Sửa lỗi xuyên thấu giao diện khối Góc Nhìn Từ Văn Đạo.
  * - Nạp dữ liệu vào APP_DATA và xây dựng STATE.GLOBAL_INDEX.
- * - Xử lý Thi Pháp Học, Bói Thơ, Settings, Offline.
  * ==========================================================
  */
 
@@ -243,6 +243,7 @@ function executePipeline() {
         return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${q}</div></div>`;
     }).join('');
 
+    // [FIX XUYÊN THẤU & ĐỔI TÊN] Khối Góc nhìn từ Văn Đạo
     panel.innerHTML = `
         <div class="result-step" style="border-left-color: var(--text-muted);">
             <div class="step-title">Thanh điệu & Nhịp điệu</div>
@@ -264,27 +265,27 @@ function executePipeline() {
             ${tier3}
         </div>
         
-        <div class="result-step" style="border-left-color: var(--accent-text); background: #f2f7f4;">
-            <div class="step-title">Cảm nhận từ AI</div>
+        <div class="result-step" style="border-left-color: var(--accent-text); background: #ffffff !important; box-shadow: 0 10px 30px rgba(26, 82, 50, 0.08);">
+            <div class="step-title">Góc Nhìn Từ Văn Đạo</div>
             
             <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
-                <div style="background: #fff; padding: 15px; border-radius: 8px; border-left: 3px solid var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700; color: var(--accent-text); text-transform:uppercase; font-size:0.8rem;">
+                <div style="background: #ffffff; padding: 18px; border-radius: 10px; border-left: 4px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-weight:700; color: var(--accent-text); text-transform:uppercase; font-size:0.8rem;">
                         ${sparkleSvg(12, 'var(--accent-text)')} Điểm sáng
                     </div>
                     ${(() => {
                         const praise = PraiserAgent.analyze(raw, 'Bài thơ của bạn');
-                        return `<p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 0;">${praise.commentary}</p>`;
+                        return `<p style="font-style: italic; color: var(--text-main); line-height: 1.7; margin-bottom: 0; font-size: 1.05rem;">${praise.commentary}</p>`;
                     })()}
                 </div>
 
-                <div style="background: #fff; padding: 15px; border-radius: 8px; border-left: 3px solid #a36b6b; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700; color: #a36b6b; text-transform:uppercase; font-size:0.8rem;">
+                <div style="background: #ffffff; padding: 18px; border-radius: 10px; border-left: 4px solid #a36b6b; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px; font-weight:700; color: #a36b6b; text-transform:uppercase; font-size:0.8rem;">
                         ${sparkleSvg(12, '#a36b6b')} Điểm cần lưu ý
                     </div>
                     ${(() => {
                         const critique = CriticAgent.analyze(raw, 'Bài thơ của bạn');
-                        return `<p style="font-style: italic; color: var(--text-main); line-height: 1.6; margin-bottom: 0;">${critique.commentary}</p>`;
+                        return `<p style="font-style: italic; color: var(--text-main); line-height: 1.7; margin-bottom: 0; font-size: 1.05rem;">${critique.commentary}</p>`;
                     })()}
                 </div>
             </div>
