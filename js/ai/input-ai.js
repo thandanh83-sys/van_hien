@@ -4,11 +4,6 @@
  * Vị trí: js/ai/input-ai.js
  * Version: 10.0.0 (Semantic Intent Router)
  * ==========================================================
- * NHIỆM VỤ:
- * 1. Nhận diện câu hỏi thô thành Intent (Ý định).
- * 2. Phân biệt rõ ràng 2 chế độ (Mode): Search vs Ask.
- * 3. Sử dụng kiến trúc Semantic (Hành động + Thực thể) thay vì Regex.
- * ==========================================================
  */
 
 import { preprocessText } from './nlp-tools.js';
@@ -35,9 +30,6 @@ function result(data) {
     };
 }
 
-/**
- * Kiểm tra câu có chứa cụm từ tín hiệu nào không.
- */
 function hasSignal(text, signalGroup) {
     for (const [key, phrases] of Object.entries(signalGroup)) {
         if (phrases.some(p => text.includes(p))) return key;
@@ -50,7 +42,6 @@ function hasSignal(text, signalGroup) {
 // =====================================================================
 
 function detectSpecialQuestion(text) {
-    // 1. Kiểm tra các mẫu câu hỏi đặc biệt (Dùng Special Detector của Agent)
     for (const [agentKey, agent] of Object.entries(AgentRegistry.agents)) {
         if (typeof agent.specialDetector === 'function') {
             const detected = agent.specialDetector(text);
@@ -61,32 +52,24 @@ function detectSpecialQuestion(text) {
 }
 
 function classifyIntent(text, entities) {
-    // 1. Ưu tiên tuyệt đối: Special Detector (VD: "X là ai")
+    // 1. Ưu tiên tuyệt đối: Special Detector
     const special = detectSpecialQuestion(text);
     if (special) {
         return { intent: special, confidence: 0.9, source: 'special-detector' };
     }
 
-    // 2. Phân tích dựa trên Hành động (Action) và Quan hệ (Relation)
+    // 2. Phân tích Hành động & Quan hệ
     const action = hasSignal(text, LANGUAGE_SIGNALS.actions);
     const relation = hasSignal(text, LANGUAGE_SIGNALS.relations);
     const questionType = hasSignal(text, LANGUAGE_SIGNALS.questionTypes);
 
-    // 3. Đối chiếu với INTENT_DEFINITIONS
+    // 3. Đối chiếu Intent
     for (const [intentName, def] of Object.entries(INTENT_DEFINITIONS)) {
         let score = 0;
-
-        // Khớp Action
         if (action && def.action === action) score += 2;
-        
-        // Khớp Relation
         if (relation && def.relation === relation) score += 2;
-
-        // Khớp QuestionType (VD: "la gi" -> definition)
         if (questionType && def.action === 'explain') score += 1;
 
-        // Khớp TargetType (dựa trên EntityExtractor)
-        // VD: Câu hỏi có chứa Tác giả -> targetType: 'author'
         if (entities.length > 0) {
             const hasTarget = entities.some(e => e.group === def.targetType || 
                 (def.targetType === 'author' && e.group === 'ky-tai') ||
@@ -95,13 +78,10 @@ function classifyIntent(text, entities) {
             if (hasTarget) score += 1;
         }
 
-        // Nếu đạt đủ điểm, chọn Intent này
         if (score >= 2) {
             return { intent: intentName, confidence: 0.85, source: 'semantic-match' };
         }
     }
-
-    // 4. Fallback: Nếu không khớp bất kỳ Intent nào
     return null;
 }
 
@@ -116,7 +96,7 @@ export const InputAI = {
         const original = String(input || '').trim();
         if (!original) return result({ mode: 'empty', type: 'empty', originalInput: original });
 
-        // 1. Chuẩn hóa văn bản (Bỏ dấu, xóa dấu câu, sửa lỗi fuzzy)
+        // 1. Chuẩn hóa văn bản
         const clean = preprocessText(original);
         if (!clean) return result({ mode: 'empty', type: 'empty', originalInput: original });
 
@@ -126,10 +106,9 @@ export const InputAI = {
         // 3. Phân loại Intent
         const classification = classifyIntent(clean, entities);
 
-        // 4. Xây dựng Query (Dựa trên Entity hoặc Câu gốc)
+        // 4. Xây dựng Query
         let query = original;
         if (classification && entities.length > 0) {
-            // Nếu là câu hỏi (Ask), ưu tiên lấy tên thực thể chính làm query
             query = entities.map(e => e.name).join(' và ');
         }
 
