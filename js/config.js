@@ -2,16 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - CONFIG MODULE (js/config.js)
  * Vị trí: js/config.js
- * Version: 2.0.0 (DataHub Integration & Global State)
+ * Version: 3.0.0 (Lazy-Load Dictionary & Global State)
  * ==========================================================
  * CHỨC NĂNG:
  * - Chứa Hằng số toàn cục, Kho SVG Icons.
  * - APP_DATA: Dữ liệu tĩnh nạp từ JSON (RAM).
  * - STATE: Trạng thái động của UI và Chỉ mục toàn cục.
- * 
- * TRIẾT LÝ:
- * - STATE.GLOBAL_RECORDS là "nguồn sống" cho DataHub và AI.
- * - Không AI nào được phép tự ý fetch JSON. Mọi thứ đi qua DataHub.
+ * - [MỚI] Tích hợp hàm lazyLoadDictionary() để tối ưu hóa bộ nhớ.
  * ==========================================================
  */
 
@@ -89,3 +86,39 @@ export const STATE = {
     // Mảng chứa tất cả các record (dùng để build Inverted Index)
     GLOBAL_RECORDS: [] 
 };
+
+// =====================================================================
+// 5. LAZY-LOAD TỪ ĐIỂN (TỐI ƯU HÓA BỘ NHỚ)
+// =====================================================================
+/**
+ * Tự động tải 3 file từ điển (symbols, dien-tich, han-viet) khi cần thiết.
+ * Chỉ tải 1 lần duy nhất, sau đó lưu vào APP_DATA.DICTIONARY_DATA.
+ */
+export async function lazyLoadDictionary() {
+    // Nếu đã tải rồi (có dữ liệu) thì bỏ qua
+    if (APP_DATA.DICTIONARY_DATA.symbols && Object.keys(APP_DATA.DICTIONARY_DATA.symbols).length > 0) {
+        return APP_DATA.DICTIONARY_DATA;
+    }
+    
+    try {
+        const [symbols, dienTich, hanViet] = await Promise.all([
+            fetch('./data/tu-dien/symbols.json').then(r => r.json()).catch(() => ({})),
+            fetch('./data/tu-dien/dien-tich.json').then(r => r.json()).catch(() => ({})),
+            fetch('./data/tu-dien/han-viet.json').then(r => r.json()).catch(() => ({}))
+        ]);
+        
+        // Gộp tất cả vào APP_DATA.DICTIONARY_DATA
+        APP_DATA.DICTIONARY_DATA = { 
+            ...APP_DATA.DICTIONARY_DATA, 
+            ...symbols, 
+            ...dienTich, 
+            ...hanViet 
+        };
+        
+        console.log("[DICT] Đã tải xong từ điển (Lazy Load).");
+        return APP_DATA.DICTIONARY_DATA;
+    } catch (e) {
+        console.warn(`[DICT] Lỗi tải từ điển:`, e);
+        return APP_DATA.DICTIONARY_DATA;
+    }
+}
