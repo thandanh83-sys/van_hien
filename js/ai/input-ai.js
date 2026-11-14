@@ -2,17 +2,22 @@
  * ==========================================================
  * VĂN ĐẠO AI - INPUT AI (js/ai/input-ai.js)
  * Vị trí: js/ai/input-ai.js
- * Version: 8.1.0 (Fix: Multi-Word Phrase Matching)
+ * Version: 9.0.0 (Intent Router Architecture)
  * ==========================================================
+ *
+ * NHIỆM VỤ:
+ * 1. Nhận diện câu hỏi thô thành Intent (Ý định).
+ * 2. Phân biệt rõ ràng 2 chế độ (Mode):
+ *    - mode: 'search' (Tra cứu) - Khi người dùng chỉ gõ tên thực thể.
+ *    - mode: 'ask' (Hỏi Đạo) - Khi người dùng đặt câu hỏi hoặc ra lệnh.
+ * 3. Sử dụng `hasPhrase` với Regex ranh giới từ (word boundary) để
+ *    nhận diện chính xác các cụm từ khóa (VD: "la ai", "tom tat").
+ *
  * LỊCH SỬ PHIÊN BẢN:
- * - v8.0.0: Special Detector Plugin Architecture.
- * - v8.1.0: SỬA LỖI NGHIÊM TRỌNG — `detectCommand` trước đây dùng
- *           `words.has(kw)` với `words = new Set(text.split(' '))`.
- *           Vì `words` chỉ chứa từ ĐƠN, các keyword CỤM (VD: 'tom tat',
- *           'ai viet', 'tac pham cua', 'y nghia', 'la ai') KHÔNG BAO GIỜ
- *           match được → mọi intent có keyword cụm đều thất bại.
- *           Nay thay bằng `hasPhrase` (regex với word boundary 2 đầu),
- *           match được cả từ đơn và cụm nhiều từ chính xác.
+ * - v8.1.0: Fix lỗi multi-word keyword.
+ * - v9.0.0: Áp dụng cấu trúc IntentRouter.
+ *           - Trả về object chuẩn { mode, type, query, originalInput, ... }.
+ *           - Tích hợp logic ưu tiên: Command -> Special Question -> Search.
  * ==========================================================
  */
 
@@ -20,22 +25,31 @@ import { extractEntity } from './core.js';
 import { preprocessText } from './nlp-tools.js';
 import { DynamicIntentPatterns, AgentRegistry } from './agents/index.js';
 
-function result(type, mode, query, extra = {}) {
+// =====================================================================
+// PHẦN 1: CÔNG CỤ XỬ LÝ NGÔN NGỮ & KẾT QUẢ
+// =====================================================================
+
+/**
+ * Hàm tạo object kết quả chuẩn (Intent Result).
+ */
+function createResult(data) {
     return {
-        type,
-        mode,
-        query: String(query || '').trim(),
-        questionType: extra.questionType || null,
-        confidence: extra.confidence ?? 0.7,
-        needsClarification: extra.needsClarification ?? false,
-        signals: extra.signals || [],
-        originalInput: extra.originalInput || '',
-        ...extra
+        mode: data.mode || 'search',          // 'search' | 'ask' | 'empty'
+        type: data.type || 'search',          // Intent Type (dùng cho MasterAI)
+        query: String(data.query || '').trim(), // Thực thể trích xuất được
+        originalInput: String(data.originalInput || '').trim(),
+        normalizedInput: String(data.normalizedInput || '').trim(),
+        confidence: data.confidence ?? 0.8,
+        needsClarification: data.needsClarification ?? false,
+        signals: data.signals || [],
+        questionType: data.questionType || null
     };
 }
 
 // =====================================================================
-// PHẦN 2: BỘ PATTERN TRÍCH XUẤT THỰC THỂ (giữ nguyên)
+// PHẦN 2: BỘ PATTERN TRÍCH XUẤT THỰC THỂ (ENTITY EXTRACTION)
+// =====================================================================
+// Giữ nguyên từ v8.x — không thay đổi.
 // =====================================================================
 const EXTRACTION_PATTERNS = {
     'find-related': [/\b(tac pham|bai tho|bai viet|tieu thuyet|truyen ngan|truyen dai)\b/gi, /\b(nao|gi|chi)\b/gi, /\b(lien quan den|lien quan|tuong tu|giong nhu|giong|tuong dong|cung|gan giong)\b/gi, /\b(voi|den|nhu|toi)\b/gi, /\b(co|cho toi|cho minh|tim|liet ke|ke ten)\b/gi, /\b(the loai|tac gia|chu de)\b/gi, /\b(khong|a|nhi|vay)\b/gi],
@@ -63,10 +77,12 @@ const EXTRACTION_PATTERNS = {
 function cleanQuery(text, intentType = 'default') {
     let result = text;
     const patterns = EXTRACTION_PATTERNS[intentType] || EXTRACTION_PATTERNS['default'];
+    
     if (patterns.length) {
-        try { result = extractEntity(text, patterns) || text; }
+        try { result = extractEntity(text, patterns) || text; } 
         catch (error) { console.warn('[InputAI] Entity extraction error:', error); }
     }
+    
     return String(result)
         .replace(/^[\s,.:;!?'"“”‘’()[\]{}]+/, '')
         .replace(/[\s,.:;!?'"“”‘’()[\]{}]+$/, '')
@@ -76,17 +92,15 @@ function cleanQuery(text, intentType = 'default') {
 }
 
 // =====================================================================
-// PHẦN 3: NHẬN DIỆN Ý ĐỊNH (v8.1.0 — MULTI-WORD PHRASE MATCHING)
+// PHẦN 3: INTENT ROUTER (TỰ ĐỘNG NHẬN DIỆN)
 // =====================================================================
 
 /**
- * [v8.1.0] So khớp phrase trong text với word boundary 2 đầu.
- *
- * Khác với `words.has(kw)` (chỉ match từ đơn), hàm này match được cả
- * cụm nhiều từ: 'tom tat', 'ai viet', 'tac pham cua', 'y nghia'...
- *
- * @param {string} text - Câu đã chuẩn hóa.
- * @param {string} phrase - Keyword cần tìm (từ đơn hoặc cụm).
+ * Hàm so khớp cụm từ (Phrase Matching).
+ * Sử dụng Regex để đảm bảo tính chính xác của ranh giới từ.
+ * 
+ * @param {string} text - Câu đã chuẩn hóa (không dấu, không dấu câu).
+ * @param {string} phrase - Cụm từ khóa cần tìm.
  * @returns {boolean}
  */
 function hasPhrase(text, phrase) {
@@ -94,57 +108,44 @@ function hasPhrase(text, phrase) {
     const needle = phrase.trim();
     if (!needle) return false;
 
-    // Escape ký tự đặc biệt của regex (nếu có) trong keyword
+    // Escape các ký tự đặc biệt trong Regex (nếu có)
     const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    // Pattern: bắt đầu hoặc khoảng trắng trước, kết thúc hoặc khoảng trắng sau
-    // Dùng lookahead (?=\s|$) để không "ăn" luôn khoảng trắng sau
+    
+    // Tìm từ khóa nằm giữa khoảng trắng hoặc đầu/cuối chuỗi
     const pattern = new RegExp(`(^|\\s)${escaped}(?=\\s|$)`, 'u');
-
     return pattern.test(text);
 }
 
 /**
- * [v8.1.0] Nhận diện Intent qua DynamicIntentPatterns.
- *
- * Ưu tiên đặc biệt:
- *   1. 'compare-entities' — cấu trúc "X và Y" HOẶC keyword so sánh.
- *   2. Duyệt DynamicIntentPatterns — match keyword đầu tiên.
- *
- * @param {string} text - Câu đã chuẩn hóa.
- * @returns {string|null}
+ * Tầng 1: Nhận diện Intent qua từ khóa (DynamicIntentPatterns).
  */
 function detectCommand(text) {
     if (!text) return null;
-
     const hasAny = (phrases) => phrases.some(p => hasPhrase(text, p));
 
-    // 1. Ưu tiên logic đặc biệt: so sánh cần 2 thực thể
-    if (
-        hasAny(['so sanh', 'compare', 'khac', 'tuong dong']) ||
-        (hasPhrase(text, 'giong') && (hasPhrase(text, 'va') || hasPhrase(text, 'voi')))
-    ) {
+    // 1. Ưu tiên logic so sánh
+    if (hasAny(['so sanh', 'compare', 'khac', 'tuong dong']) || 
+        (hasPhrase(text, 'giong') && (hasPhrase(text, 'va') || hasPhrase(text, 'voi')))) {
         return 'compare-entities';
     }
 
-    // 2. Duyệt DynamicIntentPatterns — match phrase (không còn bị lỗi
-    //    multi-word keyword không match được)
+    // 2. Duyệt qua từ điển Intent
     for (const [intent, keywords] of Object.entries(DynamicIntentPatterns)) {
-        if (keywords.some(kw => hasPhrase(text, kw))) return intent;
+        if (keywords.some(kw => hasPhrase(text, kw))) {
+            return intent;
+        }
     }
-
     return null;
 }
 
 /**
- * Nhận diện câu hỏi chuyên môn qua `specialDetector` của Agent.
- *
- * @param {string} text
- * @returns {string|null}
+ * Tầng 2: Nhận diện Câu hỏi Chuyên môn qua `specialDetector`.
  */
 function detectSpecialQuestion(text) {
+    // Duyệt qua tất cả Agent đã đăng ký
     for (const [agentKey, agent] of Object.entries(AgentRegistry.agents)) {
         if (typeof agent.specialDetector !== 'function') continue;
+
         try {
             const detected = agent.specialDetector(text);
             if (detected && typeof detected === 'string') {
@@ -154,10 +155,7 @@ function detectSpecialQuestion(text) {
                 return detected;
             }
         } catch (err) {
-            console.warn(
-                `[InputAI] specialDetector của Agent "${agentKey}" báo lỗi:`,
-                err.message || err
-            );
+            console.warn(`[InputAI] specialDetector của Agent "${agentKey}" báo lỗi:`, err);
         }
     }
     return null;
@@ -168,48 +166,69 @@ function detectSpecialQuestion(text) {
 // =====================================================================
 
 export const InputAI = {
-    version: '8.1.0',
+    version: '9.0.0',
 
+    /**
+     * Phân tích câu hỏi thô và trả về đối tượng Intent chuẩn.
+     * 
+     * @param {string} input - Câu hỏi thô.
+     * @returns {Object} - { mode, type, query, originalInput, ... }
+     */
     parseIntent(input) {
         const original = String(input || '').trim();
+        
         if (!original) {
-            return result('empty', 'empty', '', { confidence: 1, originalInput: original });
+            return createResult({ mode: 'empty', type: 'empty', query: '', originalInput: original, confidence: 1 });
         }
 
+        // 1. Chuẩn hóa văn bản (Bỏ dấu, xóa dấu câu)
         const clean = preprocessText(original);
         if (!clean) {
-            return result('empty', 'empty', '', { confidence: 1, originalInput: original });
+            return createResult({ mode: 'empty', type: 'empty', query: '', originalInput: original, confidence: 1 });
         }
 
-        // Tầng 1: từ khóa (phrase-aware)
+        // 2. Tầng 1: Thử nhận diện qua từ khóa (Command)
         const command = detectCommand(clean);
         if (command) {
             const query = cleanQuery(clean, command);
-            return result(command, 'command', query, {
+            return createResult({
+                mode: 'ask', // Đã là lệnh -> Hỏi Đạo
+                type: command,
+                query: query,
+                originalInput: original,
+                normalizedInput: clean,
                 confidence: 0.95,
-                signals: ['explicit-command', command],
-                originalInput: original
+                signals: ['explicit-command', command]
             });
         }
 
-        // Tầng 2: specialDetector của Agent
+        // 3. Tầng 2: Thử nhận diện qua Special Detector (VD: "X là ai")
         const special = detectSpecialQuestion(clean);
         if (special) {
             const query = cleanQuery(clean, special);
-            return result(special, 'question', query, {
-                questionType: special,
-                confidence: 0.9,
+            return createResult({
+                mode: 'ask',
+                type: special,
+                query: query,
+                originalInput: original,
+                normalizedInput: clean,
+                confidence: 0.90,
                 signals: ['special-question', special],
-                originalInput: original
+                questionType: special
             });
         }
 
-        // Tầng 3: fallback search
-        return result('search', 'search', clean, {
-            questionType: null,
-            confidence: 0.75,
-            signals: ['topic-query'],
-            originalInput: original
+        // 4. Tầng 3: Fallback (Search)
+        // Không có từ khóa hỏi -> Chế độ Tìm kiếm.
+        // Lưu ý: Truyền `original` để Search Engine tìm literal.
+        return createResult({
+            mode: 'search',
+            type: 'search',
+            query: original,
+            originalInput: original,
+            normalizedInput: clean,
+            confidence: 0.80,
+            signals: ['topic-query']
         });
     }
 };
