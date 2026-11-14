@@ -1,18 +1,1 @@
-{
-  "id": "tac-gia-aesop",
-  "title": "Chân Dung Tác Giả: Aesop",
-  "content": "<h4>I. Tiểu sử</h4><p>Aesop (khoảng thế kỷ 6 TCN) là nhà văn Hy Lạp cổ đại. Tương truyền ông là một người nô lệ, thông minh và có tài kể chuyện.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: <i>Ngụ ngôn Aesop</i> - Tập truyện ngụ ngôn nổi tiếng thế giới, mượn chuyện loài vật để gửi gắm bài học đạo lý (như <i>Thỏ và Rùa</i>, <i>Chó sói và Cừu</i>).</p><h4>III. Phong cách</h4><p>Truyện ngắn gọn, súc tích, giàu tính ẩn dụ. Nhân vật chính thường là các loài vật được nhân cách hóa, đại diện cho các tính cách con người. Kết thúc thường là một bài học đạo đức.</p><h4>IV. Vị trí</h4><p>Được xem là ông tổ của thể loại truyện ngụ ngôn, có ảnh hưởng sâu rộng đến văn học và giáo dục nhân loại.</p>",
-  "era": "THẾ KỶ 6",
-  "nationality": "Hy Lạp",
-  "style": [
-    "truyện ngắn gọn",
-    "súc tích",
-    "giàu tính ẩn dụ",
-    "nhân vật chính thường là các loài vật được nhân cách hóa",
-    "đại diện cho các tính cách con người"
-  ],
-  "tags": [
-    "ngụ ngôn",
-    "gia đình"
-  ]
-}
+{"id":"tac-gia-aesop","title":"Chân Dung Tác Giả: Aesop","content":"<h4>I. Tiểu sử</h4><p>Aesop (khoảng thế kỷ 6 TCN) là nhà văn Hy Lạp cổ đại. Tương truyền ông là một người nô lệ, thông minh và có tài kể chuyện.</p><h4>II. Sự nghiệp</h4><p>Tác phẩm tiêu biểu: <i>Ngụ ngôn Aesop</i> - Tập truyện ngụ ngôn nổi tiếng thế giới, mượn chuyện loài vật để gửi gắm bài học đạo lý (như <i>Thỏ và Rùa</i>, <i>Chó sói và Cừu</i>).</p><h4>III. Phong cách</h4><p>Truyện ngắn gọn, súc tích, giàu tính ẩn dụ. Nhân vật chính thường là các loài vật được nhân cách hóa, đại diện cho các tính cách con người. Kết thúc thường là một bài học đạo đức.</p><h4>IV. Vị trí</h4><p>Được xem là ông tổ của thể loại truyện ngụ ngôn, có ảnh hưởng sâu rộng đến văn học và giáo dục nhân loại.</p>","era":"THẾ KỶ 6","nationality":"Hy Lạp","style":["truyện ngắn gọn","súc tích","giàu tính ẩn dụ","nhân vật chính thường là các loài vật được nhân cách hóa","đại diện cho các tính cách con người"],"tags":["ngụ ngôn","gia đình"]}

@@ -1,18 +1,1 @@
-{
-  "id": "tac-gia-alexandre-dumas",
-  "title": "Chân Dung Tác Giả: Alexandre Dumas",
-  "content": "<h4>I. Tiểu sử</h4><p>Alexandre Dumas (1802-1870) là nhà văn người Pháp, một trong những nhà văn có nhiều tác phẩm được đọc nhất trên thế giới. Ông sinh ra ở Villers-Cotterêts, có cha là một vị tướng lừng danh dưới thời Napoleon.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu: <i>Ba người lính ngự lâm</i> (Les Trois Mousquetaires), <i>Bá tước Monte Cristo</i>, <i>Hai mươi năm sau</i>, <i>Người đàn bà áo trắng</i>.</p><h4>III. Phong cách</h4><p>Ông nổi tiếng với thể loại tiểu thuyết lịch sử và phiêu lưu. Cốt truyện của ông thường ly kỳ, hấp dẫn, đan xen giữa các sự kiện lịch sử có thật và các nhân vật hư cấu. Ông có biệt tài xây dựng tình bạn, lòng trung thành và tinh thần nghĩa hiệp.</p><h4>IV. Vị trí</h4><p>Nhà văn lãng mạn vĩ đại của Pháp, bậc thầy của thể loại tiểu thuyết phiêu lưu lịch sử.</p>",
-  "nationality": "Pháp",
-  "style": [
-    "ông nổi tiếng với thể loại tiểu thuyết lịch sử và phiêu lưu",
-    "cốt truyện của ông thường ly kỳ",
-    "hấp dẫn",
-    "đan xen giữa các sự kiện lịch sử có thật và các nhân vật hư cấu",
-    "ông có biệt tài xây dựng tình bạn"
-  ],
-  "tags": [
-    "chiến tranh",
-    "gia đình",
-    "lịch sử"
-  ]
-}
+{"id":"tac-gia-alexandre-dumas","title":"Chân Dung Tác Giả: Alexandre Dumas","content":"<h4>I. Tiểu sử</h4><p>Alexandre Dumas (1802-1870) là nhà văn người Pháp, một trong những nhà văn có nhiều tác phẩm được đọc nhất trên thế giới. Ông sinh ra ở Villers-Cotterêts, có cha là một vị tướng lừng danh dưới thời Napoleon.</p><h4>II. Sự nghiệp sáng tác</h4><p>Tác phẩm tiêu biểu: <i>Ba người lính ngự lâm</i> (Les Trois Mousquetaires), <i>Bá tước Monte Cristo</i>, <i>Hai mươi năm sau</i>, <i>Người đàn bà áo trắng</i>.</p><h4>III. Phong cách</h4><p>Ông nổi tiếng với thể loại tiểu thuyết lịch sử và phiêu lưu. Cốt truyện của ông thường ly kỳ, hấp dẫn, đan xen giữa các sự kiện lịch sử có thật và các nhân vật hư cấu. Ông có biệt tài xây dựng tình bạn, lòng trung thành và tinh thần nghĩa hiệp.</p><h4>IV. Vị trí</h4><p>Nhà văn lãng mạn vĩ đại của Pháp, bậc thầy của thể loại tiểu thuyết phiêu lưu lịch sử.</p>","nationality":"Pháp","style":["ông nổi tiếng với thể loại tiểu thuyết lịch sử và phiêu lưu","cốt truyện của ông thường ly kỳ","hấp dẫn","đan xen giữa các sự kiện lịch sử có thật và các nhân vật hư cấu","ông có biệt tài xây dựng tình bạn"],"tags":["chiến tranh","gia đình","lịch sử"]}

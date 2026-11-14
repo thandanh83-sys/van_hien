@@ -1,18 +1,1 @@
-{
-  "id": "tac-gia-ly-thuong-kiet",
-  "title": "Chân Dung Tác Giả: Lý Thường Kiệt",
-  "content": "<h4>I. Tiểu sử</h4><p>Lý Thường Kiệt (1019-1105), quê ở Hà Nội. Ông là danh tướng kiệt xuất thời nhà Lý, người chỉ huy cuộc kháng chiến chống quân Tống xâm lược.</p><h4>II. Sự nghiệp</h4><p>Ông là tác giả bài thơ thần <i>Nam quốc sơn hà</i> - Bản tuyên ngôn độc lập đầu tiên của dân tộc Việt Nam, khẳng định chủ quyền lãnh thổ.</p><h4>III. Phong cách</h4><p>Thơ văn của ông mang đậm tinh thần yêu nước, ý chí quyết tâm bảo vệ chủ quyền dân tộc. Giọng điệu hào hùng, đanh thép.</p><h4>IV. Vị trí</h4><p>Biểu tượng của tinh thần yêu nước và ý chí bảo vệ chủ quyền dân tộc.</p>",
-  "era": "NHÀ LÝ",
-  "nationality": "Việt Nam",
-  "style": [
-    "thơ văn của ông mang đậm tinh thần yêu nước",
-    "ý chí quyết tâm bảo vệ chủ quyền dân tộc",
-    "giọng điệu hào hùng",
-    "đanh thép"
-  ],
-  "tags": [
-    "chiến tranh",
-    "nông thôn",
-    "cách mạng"
-  ]
-}
+{"id":"tac-gia-ly-thuong-kiet","title":"Chân Dung Tác Giả: Lý Thường Kiệt","content":"<h4>I. Tiểu sử</h4><p>Lý Thường Kiệt (1019-1105), quê ở Hà Nội. Ông là danh tướng kiệt xuất thời nhà Lý, người chỉ huy cuộc kháng chiến chống quân Tống xâm lược.</p><h4>II. Sự nghiệp</h4><p>Ông là tác giả bài thơ thần <i>Nam quốc sơn hà</i> - Bản tuyên ngôn độc lập đầu tiên của dân tộc Việt Nam, khẳng định chủ quyền lãnh thổ.</p><h4>III. Phong cách</h4><p>Thơ văn của ông mang đậm tinh thần yêu nước, ý chí quyết tâm bảo vệ chủ quyền dân tộc. Giọng điệu hào hùng, đanh thép.</p><h4>IV. Vị trí</h4><p>Biểu tượng của tinh thần yêu nước và ý chí bảo vệ chủ quyền dân tộc.</p>","era":"NHÀ LÝ","nationality":"Việt Nam","style":["thơ văn của ông mang đậm tinh thần yêu nước","ý chí quyết tâm bảo vệ chủ quyền dân tộc","giọng điệu hào hùng","đanh thép"],"tags":["chiến tranh","nông thôn","cách mạng"]}
