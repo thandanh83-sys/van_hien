@@ -1,45 +1,72 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" dir="ltr">
 <head>
     <!-- ================================================================= -->
-    <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO & MOBILE)                       -->
+    <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO, MOBILE & TRÌNH DUYỆT)          -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <title>VĂN HỌC | Đại Bách Khoa Toàn Thư</title>
     <meta name="description" content="VĂN HỌC - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
-    <title>VĂN HỌC | Đại Bách Khoa Toàn Thư</title>
-    
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://vandao.github.io/">
+
     <!-- ================================================================= -->
-    <!-- 2. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tăng tốc tải trang - LCP)       -->
+    <!-- 2. MÀU SẮC GIAO DIỆN (HỖ TRỢ DARK/LIGHT MODE HỆ THỐNG)           -->
+    <!-- ================================================================= -->
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fdfbf7">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a">
+
+    <!-- ================================================================= -->
+    <!-- 3. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tối ưu LCP)                     -->
     <!-- ================================================================= -->
     <link rel="preload" href="assets/fonts/AlexBrush-Regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="assets/khung.jpg" as="image">
     
-    <!-- Preload các file JS AI cốt lõi để tránh hiện tượng "nháy" khi hỏi đáp -->
     <link rel="modulepreload" href="js/ai.js">
     <link rel="modulepreload" href="js/ai/master.js">
     <link rel="modulepreload" href="js/network/data-hub.js">
 
     <!-- ================================================================= -->
-    <!-- 3. FAVICON & PWA MANIFEST                                        -->
+    <!-- 4. FAVICON & PWA MANIFEST                                        -->
     <!-- ================================================================= -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/web-app-manifest-192x192.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 
     <!-- ================================================================= -->
-    <!-- 4. CẤU HÌNH PWA CHO iOS VÀ ĐỒNG BỘ MÀU THANH TRẠNG THÁI          -->
+    <!-- 5. CẤU HÌNH PWA CHO iOS                                          -->
     <!-- ================================================================= -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#fdfbf7">
+    <meta name="apple-mobile-web-app-title" content="Văn Đạo">
 
     <!-- ================================================================= -->
-    <!-- 5. LIÊN KẾT FILE CSS (Đúng thứ tự ưu tiên)                       -->
+    <!-- 6. OPEN GRAPH / CHIA SẺ MẠNG XÃ HỘI (Facebook, Zalo, LinkedIn)     -->
+    <!-- ================================================================= -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Văn Đạo">
+    <meta property="og:title" content="VĂN HỌC | Đại Bách Khoa Toàn Thư">
+    <meta property="og:description" content="Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.">
+    <meta property="og:url" content="https://vandao.github.io/">
+    <meta property="og:image" content="https://vandao.github.io/assets/khung.jpg">
+    <meta property="og:locale" content="vi_VN">
+
+    <!-- ================================================================= -->
+    <!-- 7. TWITTER / X CARD                                              -->
+    <!-- ================================================================= -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="VĂN HỌC | Đại Bách Khoa Toàn Thư">
+    <meta name="twitter:description" content="Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.">
+    <meta name="twitter:image" content="https://vandao.github.io/assets/khung.jpg">
+
+    <!-- ================================================================= -->
+    <!-- 8. LIÊN KẾT FILE CSS (Đúng thứ tự ưu tiên)                       -->
     <!-- ================================================================= -->
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
@@ -50,18 +77,18 @@
 <body>
 
     <!-- ================================================================= -->
-    <!-- 6. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG (Dành cho người dùng bàn phím)    -->
+    <!-- 9. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG                                   -->
     <!-- ================================================================= -->
     <a href="#main-content" class="skip-link">Bỏ qua điều hướng, đến nội dung chính</a>
 
     <!-- ================================================================= -->
-    <!-- 7. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG (CANVAS)                   -->
+    <!-- 10. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG (CANVAS)                   -->
     <!-- ================================================================= -->
     <canvas id="water-canvas" aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; display: block;"></canvas>
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden;"></div>
 
     <!-- ================================================================= -->
-    <!-- 8. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC                     -->
+    <!-- 11. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC                     -->
     <!-- ================================================================= -->
     <div class="silk-transition-overlay" id="silkTransition" aria-hidden="true">
         <div class="silk-sweep"></div>
@@ -69,7 +96,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 9. MÀN HÌNH CHỜ (SPLASH SCREEN)                                  -->
+    <!-- 12. MÀN HÌNH CHỜ (SPLASH SCREEN)                                 -->
     <!-- ================================================================= -->
     <div id="jade-splash" aria-hidden="true">
         <div class="silk-layer silk-layer-1"></div>
@@ -89,7 +116,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 10. THANH ĐIỀU HƯỚNG (HEADER)                                    -->
+    <!-- 13. THANH ĐIỀU HƯỚNG (HEADER)                                    -->
     <!-- ================================================================= -->
     <header id="app-header">
         <nav class="navbar" aria-label="Điều hướng chính">
@@ -121,7 +148,6 @@
 
             <!-- Khối nút bên phải: Cài đặt + Hamburger -->
             <div class="nav-actions">
-                <!-- Nút Cài đặt (Icon Bánh răng) -->
                 <button id="btn-open-settings" class="nav-icon-btn" aria-label="Cài đặt" title="Cài đặt">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
@@ -129,7 +155,6 @@
                     </svg>
                 </button>
                 
-                <!-- Nút Menu Hamburger (Mobile) -->
                 <button class="mobile-menu-btn" id="btn-toggle-menu" onclick="window.toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
@@ -138,10 +163,9 @@
     </header>
 
     <!-- ================================================================= -->
-    <!-- 11. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                         -->
+    <!-- 14. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                         -->
     <!-- ================================================================= -->
     <div class="container">
-        
         <main id="main-content">
             
             <!-- VIEW 1: TRANG CHỦ (HOME) -->
@@ -169,7 +193,6 @@
                     </div>
                 </div>
 
-                <!-- KHỐI DANH NGÔN NGẪU NHIÊN -->
                 <div id="daily-quote-container" aria-live="polite"></div>
             </section>
 
@@ -178,7 +201,6 @@
                 <h1 class="page-title">Văn Hiến</h1>
                 <p class="page-desc">Danh mục Tác phẩm</p>
                 
-                <!-- Ô TÌM KIẾM THÔNG MINH (Gộp Tra Cứu & Hỏi Đạo) -->
                 <div class="search-container" role="search">
                     <label for="search-input" class="sr-only">Tìm tác phẩm hoặc hỏi AI</label>
                     <div class="search-wrap">
@@ -200,7 +222,6 @@
                 <h1 class="page-title">Đại Bách Khoa</h1>
                 <p class="page-desc">Hệ thống tri thức</p>
                 
-                <!-- Ô TÌM KIẾM THÔNG MINH (Gộp Tra Cứu & Hỏi Đạo) -->
                 <div class="search-container" role="search" id="encyclopedia-search-container">
                     <label for="encyclopedia-search" class="sr-only">Tìm kiếm hoặc Hỏi Đạo</label>
                     <div class="search-wrap search-box-wrapper">
@@ -245,7 +266,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 12. GỢI Ý ĐỌC (FATE MODAL)                                       -->
+    <!-- 15. GỢI Ý ĐỌC (FATE MODAL)                                       -->
     <!-- ================================================================= -->
     <div id="fate-modal-overlay" style="display: none;">
         <div id="fate-modal">
@@ -282,7 +303,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 13. SETTINGS DIALOG: TỦ SÁCH OFFLINE & MẠNG LƯỚI (HTML5 Dialog)   -->
+    <!-- 16. SETTINGS DIALOG: TỦ SÁCH OFFLINE & MẠNG LƯỚI (HTML5 Dialog)   -->
     <!-- ================================================================= -->
     <dialog id="settings-dialog">
         <div id="settings-modal">
@@ -357,7 +378,7 @@
     </dialog>
 
     <!-- ================================================================= -->
-    <!-- 14. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
+    <!-- 17. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
     <!-- ================================================================= -->
     <div id="update-banner" aria-live="polite" role="alert">
         <span>Phiên bản mới đã sẵn sàng.</span>
@@ -366,40 +387,44 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 15. CUSTOM MODAL (THAY THẾ ALERT/CONFIRM)                        -->
+    <!-- 18. CUSTOM MODAL (SỬ DỤNG THẺ <DIALOG> CHUẨN HTML5)              -->
     <!-- ================================================================= -->
-    <div id="custom-modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(253, 251, 247, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999999; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s;">
-        <div id="custom-modal" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.15); width: 90%; max-width: 380px; padding: 24px; text-align: center; transform: scale(0.95); transition: transform 0.3s;">
-            <h3 id="custom-modal-title" style="font-family: var(--font-calligraphy); font-size: 2rem; color: var(--accent-text); margin: 0 0 15px;"></h3>
-            <p id="custom-modal-message" style="font-family: var(--font-body); font-size: 1rem; color: var(--text-main); line-height: 1.6; margin-bottom: 25px;"></p>
+    <dialog id="custom-modal-overlay">
+        <div id="custom-modal">
+            <h3 id="custom-modal-title"></h3>
+            <p id="custom-modal-message"></p>
             <div style="display: flex; gap: 12px; justify-content: center;">
-                <button id="custom-modal-cancel" style="flex: 1; padding: 10px; border: 1px solid var(--border-color); background: transparent; border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 0.9rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s;">Hủy</button>
-                <button id="custom-modal-confirm" style="flex: 1; padding: 10px; border: none; background: var(--accent-text); color: #fff; border-radius: var(--radius-pill); font-family: var(--font-body); font-size: 0.9rem; cursor: pointer; transition: all 0.2s;">Đồng ý</button>
+                <button id="custom-modal-cancel">Hủy</button>
+                <button id="custom-modal-confirm">Đồng ý</button>
             </div>
         </div>
-    </div>
+    </dialog>
 
     <!-- ================================================================= -->
-    <!-- 16. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
+    <!-- 19. FOOTER (CHÂN TRANG)                                          -->
+    <!-- ================================================================= -->
+    <footer>
+        <p>&copy; 2026 Văn Đạo. Bảo lưu mọi quyền.</p>
+    </footer>
+
+    <!-- ================================================================= -->
+    <!-- 20. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
         window.VD_APP_VERSION = '3.2.0';
         window.VD_BUILD_DATE  = '2026-11-21';
     </script>
     
-    <!-- File script chính xử lý logic (Bắt buộc phải có type="module") -->
+    <!-- File script chính xử lý logic -->
     <script type="module" src="js/main.js"></script>
 
-    <!-- ================================================================= -->
-    <!-- 17. ĐĂNG KÝ SERVICE WORKER (CHỐNG TỰ ĐỘNG RELOAD)                 -->
-    <!-- ================================================================= -->
+    <!-- Đăng ký Service Worker (Chống tự động reload) -->
     <script>
     (function () {
         if (!('serviceWorker' in navigator)) return;
 
         let isUpdating = false; // Cờ đánh dấu người dùng đã chủ động bấm Cập nhật
 
-        // Chỉ tự động tải lại trang KHI VÀ CHỈ KHI người dùng đã bấm nút Cập nhật
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (isUpdating) {
                 window.location.reload();
@@ -410,12 +435,10 @@
             const banner = document.getElementById('update-banner');
             if (!banner) return;
 
-            // Hiển thị banner trượt lên
             banner.style.transform = 'translateX(-50%) translateY(0)';
             banner.style.opacity = '1';
             banner.style.pointerEvents = 'auto';
 
-            // Nút "Cập nhật": Kích hoạt SW mới và cho phép reload
             document.getElementById('update-btn').onclick = () => {
                 isUpdating = true; 
                 worker.postMessage({ type: 'SKIP_WAITING' });
@@ -423,7 +446,6 @@
                 banner.style.opacity = '0';
             };
 
-            // Nút "Để sau" (Dismiss): Chỉ ẩn banner, tiếp tục đọc bình thường
             document.getElementById('dismiss-btn').onclick = () => {
                 banner.style.transform = 'translateX(-50%) translateY(120px)';
                 banner.style.opacity = '0';
@@ -435,22 +457,18 @@
             const swUrl = './sw.js';
 
             navigator.serviceWorker.register(swUrl).then(reg => {
-                // Kiểm tra cập nhật ngầm (giãn thời gian ra 1 tiếng để đỡ làm phiền)
                 setInterval(() => {
                     if (document.visibilityState === 'visible') {
                         reg.update().catch(() => {});
                     }
                 }, 60 * 60 * 1000); 
 
-                // Nếu đã có bản mới đang chờ sẵn (ví dụ: mở lại tab cũ)
                 if (reg.waiting) showUpdateBanner(reg.waiting);
 
-                // Lắng nghe khi có bản mới đang được cài đặt
                 reg.addEventListener('updatefound', () => {
                     const installing = reg.installing;
                     if (!installing) return;
                     installing.addEventListener('statechange', () => {
-                        // Nếu đã cài xong và có SW cũ đang chạy -> Hiện banner hỏi ý kiến
                         if (installing.state === 'installed' && navigator.serviceWorker.controller) {
                             showUpdateBanner(installing);
                         }
@@ -460,5 +478,19 @@
         });
     })();
     </script>
+
+    <!-- ================================================================= -->
+    <!-- 21. NOSCRIPT FALLBACK (CẢNH BÁO KHI TẮT JAVASCRIPT)               -->
+    <!-- ================================================================= -->
+    <noscript>
+        <div style="position: fixed; inset: 0; background: #fdfbf7; z-index: 9999999; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px;">
+            <div>
+                <h1 style="color: #557a6f; font-family: 'Times New Roman', Times, serif; font-size: 2rem; margin-bottom: 15px;">Văn Đạo cần JavaScript</h1>
+                <p style="color: #2c3e38; font-family: 'Times New Roman', Times, serif; font-size: 1.1rem; line-height: 1.6;">
+                    Để trải nghiệm trọn vẹn kho tàng tri thức và các tính năng AI, vui lòng bật JavaScript trong trình duyệt của bạn.
+                </p>
+            </div>
+        </div>
+    </noscript>
 </body>
 </html>
