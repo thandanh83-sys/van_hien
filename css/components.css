@@ -2,12 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 3.0.0 (Unified Search & Polished Ask Dao)
+ * Version: 3.2.0 (Perfect Centering & Search Sync)
  * ==========================================================
  * CHỨC NĂNG:
  * - Hệ thống Nút bấm (Glassmorphism).
- * - Phân trang, Thanh tìm kiếm thông minh (Đồng bộ Văn Hiến & Bách Khoa).
- * - Khối kết quả Hỏi Đạo (Ask Dao) - Tối ưu hóa độ tương phản & khoảng thở.
+ * - Phân trang.
+ * - Thanh tìm kiếm thông minh (Đồng bộ Văn Hiến & Bách Khoa, có nút X).
+ * - Khối kết quả Hỏi Đạo (Ask Dao) - FIX LỖI VỠ LAYOUT GRID, căn giữa hoàn hảo.
  * - Tooltip biểu tượng, Nút Hỏi AI.
  * ==========================================================
  */
@@ -36,7 +37,6 @@
 }
 .nav-btn:hover, .nav-btn.active { color: var(--text-main); }
 
-/* Dấu chấm nhỏ dưới nút đang Active */
 .nav-btn::after { 
     content: ''; 
     position: absolute; 
@@ -51,10 +51,8 @@
 }
 .nav-btn:hover::after, .nav-btn.active::after { transform: translateX(-50%) scale(1); }
 
-/* Icon nhỏ trong nút Navbar */
 .nav-icon { width: 16px; height: 16px; stroke-width: 2; display: none; } 
 
-/* Nút Bộ lọc (Glassmorphism) */
 .filter-btn { 
     background: rgba(253, 251, 247, 0.6); 
     border: 1px solid rgba(139, 184, 168, 0.2); 
@@ -83,7 +81,6 @@
     -webkit-backdrop-filter: blur(8px);
 }
 
-/* Nút Xem Chi Tiết */
 .detail-btn { 
     background: transparent; 
     color: var(--accent-text); 
@@ -153,7 +150,7 @@
 .page-ellipsis { color: var(--text-muted); font-weight: bold; letter-spacing: 2px; }
 
 /* =====================================================================
-   3. THANH TÌM KIẾM THÔNG MINH (SEARCH BAR) - ĐỒNG BỘ VĂN HIẾN & BÁCH KHOA
+   3. THANH TÌM KIẾM THÔNG MINH (SEARCH BAR) - ĐỒNG BỘ 2 BÊN
    ===================================================================== */
 .search-container { 
     display: flex; 
@@ -191,10 +188,10 @@
 
 #search-input, #encyclopedia-search { 
     width: 100%; 
-    padding: 14px 45px 14px 48px; /* Padding phải 45px để chứa nút X */
+    padding: 14px 45px 14px 48px; 
     border-radius: var(--radius-pill); 
     border: 1px solid var(--border-color); 
-    background: #ffffff; /* Nền trắng đục hoàn toàn để dễ đọc */
+    background: #ffffff; 
     color: var(--text-main); 
     font-family: var(--font-body); 
     outline: none; 
@@ -209,7 +206,7 @@
     background: #ffffff;
 }
 
-/* Ẩn nút X mặc định của trình duyệt để tránh bị 2 nút X */
+/* Ẩn nút X mặc định của trình duyệt */
 input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-results-button,
@@ -245,7 +242,7 @@ input[type="search"]::-webkit-search-results-decoration {
 .clear-btn svg { width: 20px; height: 20px; stroke: currentColor; }
 
 /* =====================================================================
-   4. KẾT QUẢ HỎI ĐẠO (ASK DAO RESULT) - TỐI ƯU KHÔNG GIAN & ĐỘ TƯƠNG PHẢN
+   4. KẾT QUẢ HỎI ĐẠO (ASK DAO RESULT) - FIX LỖI VỠ LAYOUT GRID
    ===================================================================== */
 .ask-loading {
     display: flex;
@@ -257,24 +254,22 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 .ask-loading .spinner { margin-bottom: 20px; }
 
-/* Nền đục hoàn toàn, viền rõ, bóng đổ nhẹ */
+/* FIX: Tự động căn giữa, giới hạn chiều rộng, không bị bóp méo */
 .ask-result {
     background: #ffffff;
     border: 1px solid var(--border-color);
     border-left: 4px solid var(--accent-gold);
     border-radius: 16px;
-    padding: 30px; /* Tăng padding để thoáng hơn */
-    margin-top: 20px;
+    padding: 30px;
+    margin: 20px auto; /* Tự động căn giữa màn hình */
+    width: 100%;
+    max-width: 800px; /* Giới hạn chiều rộng để dễ đọc */
     box-shadow: 0 8px 30px rgba(0,0,0,0.05);
     animation: fadeInContent 0.5s var(--ease-silk) forwards;
     position: relative;
     z-index: 10;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
-/* Nhãn nguồn tri thức */
 .ask-source {
     display: inline-flex;
     align-items: center;
@@ -315,17 +310,15 @@ input[type="search"]::-webkit-search-results-decoration {
     line-height: 1.6;
 }
 
-/* Câu trả lời chính */
 .ask-answer {
     font-family: var(--font-body);
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     color: var(--text-main);
     line-height: 1.8;
     margin-bottom: 25px;
     font-weight: 500;
 }
 
-/* Tiểu dẫn */
 .ask-detail-box {
     background: rgba(139, 184, 168, 0.05); 
     padding: 18px 22px; 
@@ -349,7 +342,6 @@ input[type="search"]::-webkit-search-results-decoration {
     line-height: 1.7;
 }
 
-/* Khối Meta (Cơ duyên gặp gỡ) */
 .ask-meta-wrapper {
     margin-top: 25px; 
     padding-top: 20px; 
@@ -410,7 +402,6 @@ input[type="search"]::-webkit-search-results-decoration {
     font-style: italic;
 }
 
-/* Lời kết */
 .ask-outro {
     margin-top: 30px; 
     text-align: right; 
@@ -426,7 +417,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 /* =====================================================================
-   5. HIGHLIGHT VÀ TOOLTIP (BIỂU TƯỢNG)
+   5. HIGHLIGHT VÀ TOOLTIP
    ===================================================================== */
 mark {
     background-color: #f0ead6;
@@ -474,7 +465,7 @@ mark {
 }
 
 /* =====================================================================
-   6. NÚT HỎI AI (ASK AI BUTTON)
+   6. NÚT HỎI AI
    ===================================================================== */
 .btn-ask-ai {
     display: inline-flex;
@@ -499,7 +490,7 @@ mark {
 .btn-ask-ai svg { animation: spin 4s linear infinite; }
 
 /* =====================================================================
-   7. CÀI ĐẶT & NÚT XÓA OFFLINE (DANGER BUTTON)
+   7. CÀI ĐẶT & NÚT XÓA OFFLINE
    ===================================================================== */
 .offline-option-btn {
     width: 100%; 
@@ -542,35 +533,10 @@ mark {
 }
 
 /* =====================================================================
-   8. SKELETON LOADING
-   ===================================================================== */
-.skeleton { 
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
-    background-size: 200% 100%; 
-    animation: skeletonLoading 1.5s infinite linear; 
-    border-radius: var(--radius-card); 
-}
-@keyframes skeletonLoading { 
-    0% { background-position: 200% 0; } 
-    100% { background-position: -200% 0; } 
-}
-.skeleton-card { 
-    height: 250px; 
-    padding: 20px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 10px; 
-    border-radius: var(--radius-card); 
-}
-.skeleton-line { height: 15px; border-radius: 4px; background: #e0e0e0; }
-.skeleton-line.title { height: 25px; width: 60%; }
-.skeleton-line.desc { height: 12px; width: 100%; }
-
-/* =====================================================================
-   9. RESPONSIVE (MOBILE)
+   8. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
-    .ask-result { padding: 20px 18px; }
+    .ask-result { padding: 20px 18px; margin: 15px auto; }
     .ask-answer { font-size: 1.15rem; }
     .ask-meta-item { min-width: 100%; }
     .ask-outro { text-align: center; font-size: 1.3rem; margin-top: 20px; }
