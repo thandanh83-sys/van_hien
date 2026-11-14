@@ -1,6 +1,15 @@
 {
-    "id": "mat-duong-khat-vong",
-    "title": "Mặt Đường Khát Vọng",
-    "author": "Nguyễn Khoa Điềm",
-    "content": "<h4>I. Thông tin chung</h4><ul><li><b>Thể loại:</b> Trường ca.</li><li><b>Chủ đề:</b> Sự thức tỉnh của tuổi trẻ trước vận mệnh đất nước.</li></ul><h4>II. Phân tích</h4><p>Bản trường ca ca ngợi vẻ đẹp của đất nước, con người Việt Nam. Thể hiện sự kết hợp hài hòa giữa cái chung (đất nước) và cái riêng (cá nhân).</p><h4>III. Giá trị</h4><p><b>Nội dung:</b> Khơi dậy lòng yêu nước, tinh thần trách nhiệm của thế hệ trẻ.</p><p><b>Nghệ thuật:</b> Giọng điệu trữ tình, giàu chất suy tư triết lý.</p>"
+  "id": "mat-duong-khat-vong",
+  "title": "Mặt Đường Khát Vọng",
+  "author": "Nguyễn Khoa Điềm",
+  "content": "<h4>I. Thông tin chung</h4><ul><li><b>Thể loại:</b> Trường ca.</li><li><b>Chủ đề:</b> Sự thức tỉnh của tuổi trẻ trước vận mệnh đất nước.</li></ul><h4>II. Phân tích</h4><p>Bản trường ca ca ngợi vẻ đẹp của đất nước, con người Việt Nam. Thể hiện sự kết hợp hài hòa giữa cái chung (đất nước) và cái riêng (cá nhân).</p><h4>III. Giá trị</h4><p><b>Nội dung:</b> Khơi dậy lòng yêu nước, tinh thần trách nhiệm của thế hệ trẻ.</p><p><b>Nghệ thuật:</b> Giọng điệu trữ tình, giàu chất suy tư triết lý.</p>",
+  "cam_xuc": [
+    "triết lý",
+    "nhiệt huyết",
+    "trữ tình"
+  ],
+  "tags": [
+    "gia đình",
+    "tuổi trẻ"
+  ]
 }
