@@ -2,12 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO AI - COMPARISON AGENT (js/ai/agents/comparison.js)
  * Vị trí: js/ai/agents/comparison.js
- * Version: 1.0.0 (Plugin Architecture)
+ * Version: 1.1.0 (Search Integration & Common Thread)
  * ==========================================================
- * CHỨC NĂNG:
- * - So sánh khách quan giữa 2 Tác giả, 2 Tác phẩm, hoặc 1 Tác giả & 1 Tác phẩm.
- * - Trích xuất 2 thực thể từ câu hỏi (ngăn cách bởi "và", "với").
- * - Sử dụng DataHub để lấy dữ liệu (Offline-First).
+ * TRIẾT LÝ:
+ * - So sánh khách quan giữa 2 Tác giả, 2 Tác phẩm.
+ * - [MỚI] Thêm hàm findCommonThread() phục vụ chế độ Tìm kiếm:
+ *   Tự động tìm ra điểm chung (tác giả, cảm xúc, thời đại) giữa một 
+ *   danh sách các kết quả để có lời dẫn dắt.
  * ==========================================================
  */
 
@@ -19,8 +20,6 @@ export const ComparisonAgent = {
     async compare(input) {
         if (!input) return { answer: 'Bạn muốn so sánh hai đối tượng nào?', source: 'comparison' };
 
-        // 1. Tách câu hỏi thành 2 phần (dựa trên từ khóa "và", "với")
-        // Loại bỏ các từ rác: "so sánh", "giữa", "compare"
         const cleanInput = input.replace(/\b(so sánh|compare|giữa|giua|sự khác nhau|khac nhau)\b/gi, '').trim();
         const parts = cleanInput.split(/\s+(và|với|va|voi)\s+/i);
 
@@ -34,19 +33,14 @@ export const ComparisonAgent = {
         const entity1Name = parts[0].trim();
         const entity2Name = parts[2].trim();
 
-        // 2. Dịch tên thành ID
         const target1 = DataHub.resolveIdFromQuery(entity1Name);
         const target2 = DataHub.resolveIdFromQuery(entity2Name);
 
         if (!target1 || !target2) {
             const missing = !target1 ? entity1Name : entity2Name;
-            return { 
-                answer: `Không tìm thấy dữ liệu cho "${missing}" trong hệ thống để thực hiện so sánh.`, 
-                source: 'comparison' 
-            };
+            return { answer: `Không tìm thấy dữ liệu cho "${missing}" trong hệ thống để thực hiện so sánh.`, source: 'comparison' };
         }
 
-        // 3. Lấy dữ liệu chi tiết
         const data1 = await resolveAndFetch(target1.id);
         const data2 = await resolveAndFetch(target2.id);
 
@@ -54,7 +48,6 @@ export const ComparisonAgent = {
             return { answer: 'Lỗi khi tải dữ liệu để so sánh.', source: 'comparison' };
         }
 
-        // 4. Phân tích và tạo bảng so sánh
         return this._buildComparison(data1, data2, entity1Name, entity2Name);
     },
 
@@ -68,34 +61,22 @@ export const ComparisonAgent = {
         let detail = '';
         const metaList = [r1, r2];
 
-        // Trường hợp 1: So sánh 2 Tác giả
         if (g1 === 'ky-tai' && g2 === 'ky-tai') {
-            const author1 = r1.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
-            const author2 = r2.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
-            
-            // Lấy thời đại (Dựa trên tác phẩm)
-            const works1 = DataHub.getGraph(r1.id)?.works || [];
-            const works2 = DataHub.getGraph(r2.id)?.works || [];
-            const era1 = works1.length > 0 ? works1[0].era : 'Không rõ';
-            const era2 = works2.length > 0 ? works2[0].era : 'Không rõ';
-
-            answer += `• **Thời đại:** ${author1} (${era1}) | ${author2} (${era2})\n`;
-            answer += `• **Số tác phẩm:** ${works1.length} | ${works2.length}\n`;
-            answer += `• **Tác phẩm tiêu biểu:** ${works1.slice(0,2).map(w=>w.title).join(', ') || 'N/A'} | ${works2.slice(0,2).map(w=>w.title).join(', ') || 'N/A'}\n`;
-            
+            // So sánh 2 tác giả
+            answer += `• **Thời đại:** ${r1.era || 'N/A'} | ${r2.era || 'N/A'}\n`;
+            answer += `• **Quốc tịch:** ${r1.nationality || 'N/A'} | ${r2.nationality || 'N/A'}\n`;
+            answer += `• **Phong cách:** ${(r1.style || []).join(', ')} | ${(r2.style || []).join(', ')}\n`;
             detail = 'Cả hai đều là những tác giả có đóng góp quan trọng cho nền văn học.';
         }
-        // Trường hợp 2: So sánh 2 Tác phẩm
         else if (g1 === 'tinh-hoa' && g2 === 'tinh-hoa') {
+            // So sánh 2 tác phẩm
             answer += `• **Tác giả:** ${r1.author} | ${r2.author}\n`;
-            answer += `• **Thời kỳ:** ${r1.era || 'N/A'} | ${r2.era || 'N/A'}\n`;
-            answer += `• **Thể loại:** ${(r1.the_loai||[]).join(', ')} | ${(r2.the_loai||[]).join(', ')}\n`;
-            answer += `• **Nội dung chính:** ${r1.desc || 'Chưa rõ'} | ${r2.desc || 'Chưa rõ'}\n`;
-            
+            answer += `• **Cảm xúc:** ${(r1.cam_xuc || []).join(', ')} | ${(r2.cam_xuc || []).join(', ')}\n`;
+            answer += `• **Thể loại:** ${(r1.the_loai || []).join(', ')} | ${(r2.the_loai || []).join(', ')}\n`;
             detail = 'Việc so sánh hai tác phẩm giúp thấy được sự đa dạng trong phong cách và chủ đề của văn học.';
         }
-        // Trường hợp 3: So sánh 1 Tác giả & 1 Tác phẩm
         else {
+            // So sánh tác giả & tác phẩm
             const authorRecord = g1 === 'ky-tai' ? r1 : r2;
             const workRecord = g1 === 'tinh-hoa' ? r1 : r2;
             const authorName = authorRecord.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
@@ -103,62 +84,77 @@ export const ComparisonAgent = {
             
             const isMatch = workAuthor.includes(authorName.toLowerCase());
             
-            answer += `• **Mối quan hệ:** ${isMatch ? `Có, "${authorName}" là tác giả của tác phẩm "${workRecord.title}".` : `Không tìm thấy liên kết trực tiếp giữa "${authorName}" và "${workRecord.title}".`}\n`;
-            if (isMatch) {
-                answer += `• **Thời kỳ:** Tác phẩm thuộc ${workRecord.era || 'Không rõ'}.\n`;
-            }
+            answer += `• **Mối quan hệ:** ${isMatch ? `Có, "${authorName}" là tác giả của tác phẩm "${workRecord.title}".` : `Không tìm thấy liên kết trực tiếp.`}\n`;
             detail = 'Bạn có thể sử dụng tính năng "Tác phẩm liên quan" để khám phá thêm.';
         }
 
-        return {
-            answer: answer.trim(),
-            detail: detail,
-            source: 'comparison',
-            meta: metaList
-        };
+        return { answer: answer.trim(), detail, source: 'comparison', meta: metaList };
+    },
+
+    /**
+     * [MỚI] Tìm điểm chung giữa một danh sách các kết quả tìm kiếm.
+     * Dùng để tạo câu dẫn dắt trong chế độ Search.
+     * 
+     * @param {Array} results - Mảng các tác phẩm từ DataHub.
+     * @returns {string} Câu nhận xét về điểm chung.
+     */
+    findCommonThread(results) {
+        if (!results || results.length === 0) return '';
+
+        // Đếm tần suất xuất hiện của Tác giả, Cảm xúc, Thể loại
+        const authorCount = {};
+        const moodCount = {};
+        const genreCount = {};
+
+        results.forEach(w => {
+            if (w.author) authorCount[w.author] = (authorCount[w.author] || 0) + 1;
+            if (Array.isArray(w.cam_xuc)) {
+                w.cam_xuc.forEach(m => moodCount[m] = (moodCount[m] || 0) + 1);
+            }
+            if (Array.isArray(w.the_loai)) {
+                w.the_loai.forEach(g => genreCount[g] = (genreCount[g] || 0) + 1);
+            }
+        });
+
+        // Tìm yếu tố xuất hiện nhiều nhất (> 1)
+        const getMax = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1])[0];
+
+        const topMood = getMax(moodCount);
+        const topGenre = getMax(genreCount);
+        const topAuthor = getMax(authorCount);
+
+        let thread = '';
+
+        if (topMood && topMood[1] > 1) {
+            thread += `Tất cả đều mang chung cảm xúc <b>${topMood[0]}</b>. `;
+        }
+        if (topGenre && topGenre[1] > 1) {
+            thread += `Chúng cùng thuộc thể loại <b>${topGenre[0]}</b>. `;
+        }
+        if (topAuthor && topAuthor[1] > 1) {
+            thread += `Đặc biệt, có ${topAuthor[1]} tác phẩm của cùng tác giả <b>${topAuthor[0]}</b>. `;
+        }
+
+        if (!thread) {
+            thread = `Dù khác biệt về phong cách, tất cả đều là những viên ngọc quý của văn học.`;
+        }
+
+        return thread.trim();
     }
 };
 
 // =====================================================================
-// [THÊM MỚI v7.0.0] AGENT INFO - Tự mô tả metadata cho Auto-Registry
+// AGENT INFO
 // =====================================================================
-/**
- * Metadata tự mô tả của ComparisonAgent.
- * Chuyên trách so sánh 2 tác giả, 2 tác phẩm, hoặc 1 tác giả + 1 tác phẩm.
- *
- * CƠ CHẾ HOẠT ĐỘNG:
- * - Tách input thành 2 phần dựa trên từ nối "và" / "với".
- * - Dùng DataHub.resolveIdFromQuery() để dịch tên thành ID.
- * - So sánh dựa trên group:
- *     1. Cả 2 là 'ky-tai'  → So sánh 2 tác giả.
- *     2. Cả 2 là 'tinh-hoa' → So sánh 2 tác phẩm.
- *     3. Hỗn hợp            → So sánh 1 tác giả & 1 tác phẩm.
- *
- * LƯU Ý VỀ INTENT:
- * - InputAI có logic đặc biệt ưu tiên 'compare-entities' TRƯỚC KHI
- *   duyệt qua DynamicIntentPatterns, vì intent này cần cấu trúc
- *   "X và Y" (2 thực thể), không thể nhận diện chỉ bằng 1 từ khóa.
- * - Vì vậy các từ khóa dưới đây chủ yếu đóng vai trò "dự phòng"
- *   khi InputAI không match được cấu trúc đặc biệt.
- */
 ComparisonAgent.agentInfo = {
-    // ---- Định danh ----
     key: 'comparison',
     name: 'So Sánh AI',
     description: 'Chuyên trách so sánh 2 tác giả, 2 tác phẩm.',
-
-    // ---- Năng lực ----
     capabilities: {
-        'compare-entities': 'compare'           // "So sánh Nguyễn Du và Nam Cao"
+        'compare-entities': 'compare'
     },
-
-    // ---- Loại dữ liệu có thể đọc ----
     canRead: ['work', 'author'],
-
-    // ---- Agent được phép ủy thác ----
     canDelegate: ['literature', 'knowledge'],
-
-    // ---- Từ khóa nhận diện Intent ----
     intentPatterns: {
         'compare-entities': ['so sanh', 'compare', 'khac nhau', 'tuong dong', 'giong']
     }
