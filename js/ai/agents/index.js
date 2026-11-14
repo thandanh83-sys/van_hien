@@ -1,8 +1,22 @@
 /**
  * ==========================================================
- * VĂN ĐẠO AI - AGENTS INDEX (js/ai/agents/index.js)
+ * VĂN ĐẠO AI — AGENTS INDEX
  * Vị trí: js/ai/agents/index.js
- * Version: 7.0.1 (Renamed Import & Special Detector Support)
+ * Version: 8.0.0 (Contemplative Agents — No Scoring)
+ * ==========================================================
+ *
+ * ⚠️⚠️⚠️ QUAN TRỌNG — ĐỌC TRƯỚC KHI IMPORT ⚠️⚠️⚠️
+ *
+ * File này import 2 agents mới:
+ *   - ./khuc-tan-thuong.js  (ĐÃ CÓ — thay thế praiser.js)
+ *   - ./goi-mo.js           (CHƯA CÓ — thay thế critic.js)
+ *
+ * Nếu chưa tạo ./goi-mo.js, hãy tạo nó trước khi import file này.
+ * Nếu không, sẽ có lỗi:
+ *   "Failed to resolve module specifier './goi-mo.js'"
+ *
+ * Xem spec ./goi-mo.js trong MASTER PLAN (Phần 1.4).
+ *
  * ==========================================================
  *
  * TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -17,22 +31,18 @@
  *      - AgentRegistry.agents  : { key -> { capabilities, specialDetector, ... } }
  *      - DynamicIntentPatterns : { intent -> [keywords] }
  *
- * 3. HỖ TRỢ SPECIAL DETECTOR (v7.0.1):
+ * 3. HỖ TRỢ SPECIAL DETECTOR:
  *    Mỗi Agent có thể khai báo `specialDetector(text) => intent | null`
  *    trong `agentInfo`. Hàm này được copy vào `AgentRegistry.agents[key]`
- *    để `input-ai.js` gọi khi cần logic nhận diện đặc biệt (VD: cần
- *    cấu trúc "X và Y" cho compare, hoặc pattern phức tạp cho poetics).
+ *    để `input-ai.js` gọi khi cần logic nhận diện đặc biệt.
  *
- * 4. LOG CHÍNH XÁC TÊN AGENT (v7.0.1):
- *    Trước v7.0.1, log warning hiển thị "Object" vì Agent là object
- *    literal (constructor.name = 'Object'). v7.0.1 ưu tiên dùng
- *    `info.key` để log tên thật (VD: "Agent[literature]").
+ * 4. LOG CHÍNH XÁC TÊN AGENT:
+ *    Ưu tiên dùng `info.key` để log tên thật (VD: "Agent[literature]").
  *
- * 5. TƯƠNG THÍCH NGƯỢC (Backward Compatible):
- *    Giữ nguyên toàn bộ API công khai từ v7.0.0:
- *      - AgentMap, AgentRegistry, DynamicIntentPatterns
- *      - findAgentForTask, getMethodName, canDelegate
- *      - getAgentInfo, getAllAgentKeys, validate
+ * 5. KHÔNG CHẤM ĐIỂM VĂN CHƯƠNG (v8.0.0):
+ *    - `praiser.js`     → thay bằng `khuc-tan-thuong.js`
+ *    - `critic.js`      → thay bằng `goi-mo.js`
+ *    - Cả 2 agent mới đều KHÔNG chấm điểm, chỉ gợi mở / tán thưởng.
  *
  * CÁCH THÊM AGENT MỚI (chỉ 3 bước):
  *   1. Tạo file `js/ai/agents/new-agent.js`:
@@ -54,23 +64,27 @@
  */
 
 // =====================================================================
-// PHẦN 1: IMPORT 11 AGENT
+// PHẦN 1: IMPORT 11 AGENT (v8.0.0)
 // =====================================================================
-// LƯU Ý v7.0.1: Import FortuneAgent từ './fortune.js' (KHÔNG còn
-// './fortune-ai.js' — file đã được đổi tên ở đợt 1).
+// LƯU Ý v8.0.0:
+// - Đã THAY THẾ praiser.js → khuc-tan-thuong.js
+// - Đã THAY THẾ critic.js  → goi-mo.js
+// - Tổng số agent vẫn là 11 (không đổi)
 // =====================================================================
 
-import { LiteratureAgent }  from './literature.js';
-import { PoeticsAgent }     from './poetics.js';
-import { AnalysisAgent }    from './analysis.js';
-import { FortuneAgent }     from './fortune.js';        // [ĐÃ ĐỔI] từ './fortune-ai.js'
-import { KnowledgeAgent }   from './knowledge.js';
-import { HistoryAgent }     from './history.js';
-import { TranslationAgent } from './translation.js';
-import { CharacterAgent }   from './character.js';
-import { ComparisonAgent }  from './comparison.js';
-import { PraiserAgent }     from './praiser.js';
-import { CriticAgent }      from './critic.js';
+import { LiteratureAgent }      from './literature.js';
+import { PoeticsAgent }         from './poetics.js';
+import { AnalysisAgent }        from './analysis.js';
+import { FortuneAgent }         from './fortune.js';
+import { KnowledgeAgent }       from './knowledge.js';
+import { HistoryAgent }         from './history.js';
+import { TranslationAgent }     from './translation.js';
+import { CharacterAgent }       from './character.js';
+import { ComparisonAgent }      from './comparison.js';
+
+// ---- Agents mới (v8.0.0) ----
+import { KhucTanThuongAgent }   from './khuc-tan-thuong.js';  // THAY praiser.js
+import { GoiMoAgent }           from './goi-mo.js';           // THAY critic.js
 
 // =====================================================================
 // PHẦN 2: DANH SÁCH CLASS (CHỈ REFERENCE, KHÔNG METADATA)
@@ -79,17 +93,24 @@ import { CriticAgent }      from './critic.js';
 // =====================================================================
 
 const AGENT_CLASSES = [
-    LiteratureAgent,   // key: 'literature'
-    PoeticsAgent,      // key: 'poetics'
-    AnalysisAgent,     // key: 'analysis'
-    FortuneAgent,      // key: 'fortune'   (file: fortune.js)
-    KnowledgeAgent,    // key: 'knowledge'
-    HistoryAgent,      // key: 'history'
-    TranslationAgent,  // key: 'translation'
-    CharacterAgent,    // key: 'character'
-    ComparisonAgent,   // key: 'comparison'
-    PraiserAgent,      // key: 'praiser'
-    CriticAgent        // key: 'critic'
+    // ---- Nhóm Văn học & Tri thức ----
+    LiteratureAgent,      // key: 'literature'    — Tác phẩm, Tác giả, Thể loại
+    PoeticsAgent,         // key: 'poetics'       — Từ điển, Biểu tượng, Điển tích
+    KnowledgeAgent,       // key: 'knowledge'     — Mạng lưới (Tác giả ↔ Tác phẩm)
+    HistoryAgent,         // key: 'history'       — Bối cảnh lịch sử, Thời đại
+
+    // ---- Nhóm Phân tích & Cảm thụ ----
+    AnalysisAgent,        // key: 'analysis'      — Phân tích 4 tầng thi pháp
+    KhucTanThuongAgent,   // key: 'khuc-tan-thuong' — Tán thưởng (thay praiser)
+    GoiMoAgent,           // key: 'goi-mo'        — Gợi mở (thay critic)
+
+    // ---- Nhóm Thực thể & So sánh ----
+    CharacterAgent,       // key: 'character'     — Nhân vật văn học
+    ComparisonAgent,      // key: 'comparison'    — So sánh 2 thực thể
+    TranslationAgent,     // key: 'translation'   — Dịch thuật
+
+    // ---- Nhóm Vận khí ----
+    FortuneAgent          // key: 'fortune'       — Bói thơ, Nên/Tránh
 ];
 
 // =====================================================================
@@ -98,7 +119,7 @@ const AGENT_CLASSES = [
 
 /**
  * Bản đồ key -> Agent Class.
- * Ví dụ: AgentMap['fortune'] === FortuneAgent
+ * Ví dụ: AgentMap['khuc-tan-thuong'] === KhucTanThuongAgent
  */
 export const AgentMap = {};
 
@@ -106,7 +127,6 @@ export const AgentMap = {};
  * Sổ đăng ký năng lực của từng Agent.
  * Cấu trúc: { [key]: { id, key, name, description, capabilities,
  *                       canRead, canDelegate, specialDetector } }
- * [v7.0.1] Thêm trường specialDetector (có thể null).
  */
 export const AgentRegistry = { agents: {} };
 
@@ -143,13 +163,9 @@ for (const AgentClass of AGENT_CLASSES) {
     // -----------------------------------------------------------------
     // BƯỚC 4.2: Đọc metadata tự mô tả TRƯỚC (để log đúng tên)
     // -----------------------------------------------------------------
-    // [v7.0.1 — FIX] Đọc `info` TRƯỚC khi khai báo `className`.
-    // Trước v7.0.1, `className` được khai báo từ `AgentClass.constructor.name`
-    // → luôn là 'Object' vì Agent là object literal.
-    // Sau v7.0.1, ưu tiên `info.key` để log tên thật.
     const info = AgentClass.agentInfo;
 
-    // Bây giờ mới khai báo className (đã có info để ưu tiên)
+    // Ưu tiên `info.key` để log tên thật (VD: "Agent[literature]")
     const className = (info && info.key)
         ? `Agent[${info.key}]`
         : (AgentClass?.name || 'UnknownAgent');
@@ -189,9 +205,6 @@ for (const AgentClass of AGENT_CLASSES) {
     // -----------------------------------------------------------------
     // BƯỚC 4.5: Đăng ký vào AgentRegistry
     // -----------------------------------------------------------------
-    // [v7.0.1] Thêm trường `specialDetector` (copy từ agentInfo).
-    // Trường này được `input-ai.js` dùng để gọi logic nhận diện đặc biệt
-    // của từng Agent (VD: compare cần cấu trúc "X và Y").
     AgentRegistry.agents[agentKey] = {
         // ---- Định danh ----
         id: `agent:${agentKey}`,
@@ -210,10 +223,7 @@ for (const AgentClass of AGENT_CLASSES) {
         // ---- Agent được phép ủy thác ----
         canDelegate: Array.isArray(info.canDelegate) ? [...info.canDelegate] : [],
 
-        // ---- [v7.0.1] Special Detector ----
-        // Nếu Agent khai báo `specialDetector` là hàm trong agentInfo,
-        // copy tham chiếu vào Registry để input-ai.js gọi được.
-        // Nếu không khai báo hoặc không phải hàm → null.
+        // ---- Special Detector (nếu có) ----
         specialDetector: (typeof info.specialDetector === 'function')
             ? info.specialDetector
             : null
@@ -263,7 +273,7 @@ if (typeof console !== 'undefined' && console.log) {
     const summaryColor = skippedCount === 0 ? '#8bb8a8' : '#d4a373';
 
     console.log(
-        `%c[AGENT-REGISTRY v7.0.1] Đã đăng ký ${registeredCount} agent` +
+        `%c[AGENT-REGISTRY v8.0.0] Đã đăng ký ${registeredCount} agent` +
         (skippedCount > 0 ? ` (bỏ qua ${skippedCount})` : '') +
         `. Intent patterns: ${totalIntents}. ` +
         `Special detectors: ${totalSpecialDetectors}.`,
@@ -275,6 +285,13 @@ if (typeof console !== 'undefined' && console.log) {
         registrationWarnings.forEach(w => console.warn('  -', w));
         console.groupEnd();
     }
+
+    // Thông báo đặc biệt về sự thay đổi agent (v8.0.0)
+    console.log(
+        `%c[TRIẾT LÝ VĂN ĐẠO] Không chấm điểm văn chương. ` +
+        `Mỗi bài thơ đều có hồn, nét đẹp riêng.`,
+        'color: #c9a96e; font-style: italic; font-weight: bold;'
+    );
 }
 
 // =====================================================================
@@ -396,3 +413,38 @@ AgentRegistry.validate = function () {
         reasons
     };
 };
+
+// =====================================================================
+// PHẦN 7: GHI CHÚ CHO NGƯỜI BẢO TRÌ
+// =====================================================================
+/**
+ * SAU KHI ĐỔI SANG v8.0.0, CÁC FILE SAU CẦN ĐƯỢC CẬP NHẬT:
+ *
+ * 1. js/ai/master.js
+ *    - Dòng `AgentMap['praiser']`  → `AgentMap['khuc-tan-thuong']`
+ *    - Dòng `AgentMap['critic']`   → `AgentMap['goi-mo']`
+ *
+ * 2. js/ai/agents/fortune.js
+ *    - Import `PraiserAgent`       → `KhucTanThuongAgent`
+ *    - Import `CriticAgent`        → `GoiMoAgent`
+ *    - Dòng `PraiserAgent.getQuickComment` → `KhucTanThuongAgent.getQuickComment`
+ *    - Dòng `CriticAgent.getQuickComment`  → `GoiMoAgent.getQuickComment`
+ *
+ * 3. js/ai/agents/analysis.js
+ *    - Import `PraiserAgent`       → `KhucTanThuongAgent`
+ *    - Import `CriticAgent`        → `GoiMoAgent`
+ *    - Dòng `PraiserAgent.analyze` → `KhucTanThuongAgent.analyze`
+ *    - Dòng `CriticAgent.analyze`  → `GoiMoAgent.analyze`
+ *
+ * 4. data/manifests/agents-manifest.json
+ *    - Chạy: `python tools/update_manifests.py` để tự động cập nhật.
+ *
+ * 5. data/manifests/static-assets.json
+ *    - Chạy: `python tools/update_manifests.py` để tự động cập nhật.
+ *
+ * 6. sw.js
+ *    - Tăng `CACHE_VERSION` (VD: v14.2.0 → v15.0.0)
+ *    - Vì đây là thay đổi lớn (breaking change).
+ *
+ * =====================================================================
+ */
