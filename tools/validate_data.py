@@ -119,7 +119,8 @@ def main():
     a_errors, a_warnings, a_ids = validate_index_file(AUTHORS_INDEX, "Tác Giả", ['id', 'title'])
     ad_errors, ad_warnings = validate_detail_folder(AUTHORS_DIR, a_ids, "Tác Giả")
     all_errors.extend(a_errors + ad_errors)
-    all_warnings.extend(awarnings + ad_warnings)
+    # [ĐÃ SỬA LỖI CHÍNH TẢ Ở ĐÂY]
+    all_warnings.extend(a_warnings + ad_warnings)
 
     print(f"\n{C_TEAL}====================================================================={C_RESET}")
     print(f"{C_GOLD}  BÁO CÁO TỔNG KẾT (AUDIT REPORT){C_RESET}")
