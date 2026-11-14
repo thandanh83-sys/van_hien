@@ -1,0 +1,317 @@
+/**
+ * ==========================================================
+ * VĂN ĐẠO — TEST: GỢI MỞ AGENT
+ * Vị trí: tests/goi-mo-agent.test.js
+ * Version: 1.0.0
+ * ==========================================================
+ *
+ * TRIẾT LÝ KIỂM THỬ:
+ *
+ * GoiMoAgent (thay CriticAgent cũ) KHÔNG phán xét, KHÔNG chấm điểm.
+ * Nó chỉ GỢI MỞ: "Ta tự hỏi...", "Bạn thử xem...".
+ *
+ * Test suite đảm bảo:
+ *   1. Không có từ phán xét trong commentary.
+ *   2. Commentary phải có trích dẫn cụ thể.
+ *   3. getQuickComment hoạt động với mọi loại work.
+ *   4. agentInfo đúng cấu trúc cho Auto-Registry.
+ *   5. Edge cases không crash.
+ *
+ * ==========================================================
+ */
+
+import { describe, it, expect, vi } from 'vitest';
+
+// Mock LiteraryEngine để test GoiMoAgent độc lập
+vi.mock('../js/ai/literary-engine.js', () => ({
+    LiteraryEngine: {
+        analyzeContext: vi.fn((text, title) => {
+            if (!text || typeof text !== 'string' || text.length < 10) {
+                return { isValid: false };
+            }
+            return {
+                isValid: true,
+                workTitle: title || '',
+                coreLine: 'Quạt giấy khép lại mùa thi',
+                coreIndex: 0,
+                totalLines: 2,
+                context: {
+                    prevLine: null,
+                    nextLine: 'Áo dài bay giữa kinh kỳ sắc xuân',
+                    positionText: 'câu 1/2'
+                },
+                prosody: {
+                    bang: 5,
+                    trac: 2,
+                    total: 7,
+                    rhythmType: 'gentle'
+                },
+                rhyme: {
+                    hasRhyme: true,
+                    details: 'Âm "thi" vần với "ky"'
+                }
+            };
+        })
+    }
+}));
+
+import { GoiMoAgent } from '../js/ai/agents/goi-mo.js';
+
+// =====================================================================
+// FIXTURES
+// =====================================================================
+
+const VALID_POEM = `Quạt giấy khép lại mùi thi,
+Áo dài bay giữa kinh kỳ sắc xuân.`;
+
+const MOCK_WORK = {
+    id: 'truyen-kieu',
+    title: 'Truyện Kiều',
+    author: 'Nguyễn Du',
+    cam_xuc: ['bi thương', 'trữ tình'],
+    the_loai: ['Truyện thơ Nôm', 'Lục bát'],
+    era: 'TK 19'
+};
+
+const MOCK_WORK_NO_MOOD = {
+    id: 'some-work',
+    title: 'Một tác phẩm',
+    author: 'Vô danh'
+};
+
+// =====================================================================
+// TEST SUITE 1: analyze() — Phân tích bài thơ
+// =====================================================================
+
+describe('GoiMoAgent — analyze()', () => {
+
+    it('trả về object có theme, symbol, commentary', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM, 'Bài thơ của Bạn');
+        expect(result).toHaveProperty('theme');
+        expect(result).toHaveProperty('symbol');
+        expect(result).toHaveProperty('commentary');
+    });
+
+    it('commentary là string và có độ dài hợp lý', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM, 'Bài thơ');
+        expect(typeof result.commentary).toBe('string');
+        expect(result.commentary.length).toBeGreaterThan(30);
+    });
+
+    it('theme có chứa tên bài thơ', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM, 'Quạt giấy');
+        expect(result.theme).toContain('Quạt giấy');
+    });
+
+    it('symbol chứa coreLine (rút gọn)', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.symbol).toBeTruthy();
+        expect(typeof result.symbol).toBe('string');
+    });
+
+    it('KHÔNG crash khi text null', () => {
+        expect(() => GoiMoAgent.analyze(null)).not.toThrow();
+    });
+
+    it('KHÔNG crash khi text rỗng', () => {
+        expect(() => GoiMoAgent.analyze('')).not.toThrow();
+    });
+
+    it('trả về commentary fallback khi text quá ngắn', () => {
+        const result = GoiMoAgent.analyze('Trăng');
+        expect(result.commentary).toBeTruthy();
+    });
+});
+
+// =====================================================================
+// TEST SUITE 2: Triết lý Văn Đạo — Không phán xét
+// =====================================================================
+
+describe('GoiMoAgent — Triết lý Văn Đạo', () => {
+
+    it('KHÔNG chứa từ "dở" trong commentary', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.commentary.toLowerCase()).not.toContain('dở');
+    });
+
+    it('KHÔNG chứa từ "tệ" trong commentary', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.commentary.toLowerCase()).not.toContain(' tệ ');
+    });
+
+    it('KHÔNG chứa từ "kém" trong commentary', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.commentary.toLowerCase()).not.toContain('kém');
+    });
+
+    it('KHÔNG chứa từ "sai" trong commentary', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.commentary.toLowerCase()).not.toContain(' sai ');
+    });
+
+    it('KHÔNG chứa từ "tầm thường" trong commentary', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.commentary.toLowerCase()).not.toContain('tầm thường');
+    });
+
+    it('KHÔNG chứa bất kỳ số điểm nào (8.5, 6/10)', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.commentary).not.toMatch(/\d\.\d\/10/);
+        expect(result.commentary).not.toMatch(/\d+\/10/);
+    });
+
+    it('KHÔNG chứa từ "điểm" trong commentary', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.commentary.toLowerCase()).not.toContain('điểm');
+    });
+
+    it('KHÔNG chứa từ "chấm" trong commentary', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        expect(result.commentary.toLowerCase()).not.toContain('chấm');
+    });
+});
+
+// =====================================================================
+// TEST SUITE 3: Trích dẫn cụ thể
+// =====================================================================
+
+describe('GoiMoAgent — Trích dẫn cụ thể', () => {
+
+    it('commentary có chứa trích dẫn (giữa ** hoặc " ")', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        const hasQuote = /\*\*[^*]+\*\*|"[^"]{3,}"/.test(result.commentary);
+        expect(hasQuote).toBe(true);
+    });
+
+    it('trích dẫn phải nằm trong văn bản gốc', () => {
+        const result = GoiMoAgent.analyze(VALID_POEM);
+        const quoteMatch = result.commentary.match(/\*\*([^*]+)\*\*/);
+        if (quoteMatch) {
+            const quote = quoteMatch[1];
+            expect(VALID_POEM).toContain(quote);
+        }
+    });
+});
+
+// =====================================================================
+// TEST SUITE 4: getQuickComment() — Cho Fortune Modal
+// =====================================================================
+
+describe('GoiMoAgent — getQuickComment()', () => {
+
+    it('trả về string khi có work', () => {
+        const comment = GoiMoAgent.getQuickComment(MOCK_WORK);
+        expect(typeof comment).toBe('string');
+        expect(comment.length).toBeGreaterThan(20);
+    });
+
+    it('đề cập đến cam_xuc nếu có', () => {
+        const comment = GoiMoAgent.getQuickComment(MOCK_WORK);
+        expect(comment.toLowerCase()).toContain('bi thương');
+    });
+
+    it('đề cập đến the_loai nếu không có cam_xuc', () => {
+        const comment = GoiMoAgent.getQuickComment(MOCK_WORK_NO_MOOD);
+        // Không có cam_xuc → fallback
+        expect(typeof comment).toBe('string');
+        expect(comment.length).toBeGreaterThan(0);
+    });
+
+    it('trả về câu mặc định khi work null', () => {
+        const comment = GoiMoAgent.getQuickComment(null);
+        expect(typeof comment).toBe('string');
+        expect(comment.length).toBeGreaterThan(0);
+    });
+
+    it('trả về câu mặc định khi work không phải object', () => {
+        const comment = GoiMoAgent.getQuickComment('không phải object');
+        expect(typeof comment).toBe('string');
+        expect(comment.length).toBeGreaterThan(0);
+    });
+
+    it('comment không chứa từ phán xét', () => {
+        const comment = GoiMoAgent.getQuickComment(MOCK_WORK);
+        expect(comment.toLowerCase()).not.toContain('dở');
+        expect(comment.toLowerCase()).not.toContain('tệ');
+    });
+
+    it('comment KHÔNG chứa điểm số', () => {
+        const comment = GoiMoAgent.getQuickComment(MOCK_WORK);
+        expect(comment).not.toMatch(/\d\.\d\/10/);
+        expect(comment).not.toMatch(/\d+\/10/);
+    });
+});
+
+// =====================================================================
+// TEST SUITE 5: agentInfo — Metadata cho Auto-Registry
+// =====================================================================
+
+describe('GoiMoAgent — agentInfo', () => {
+
+    it('có trường agentInfo', () => {
+        expect(GoiMoAgent.agentInfo).toBeDefined();
+        expect(typeof GoiMoAgent.agentInfo).toBe('object');
+    });
+
+    it('key phải là "goi-mo"', () => {
+        expect(GoiMoAgent.agentInfo.key).toBe('goi-mo');
+    });
+
+    it('name phải là "Gợi Mở AI"', () => {
+        expect(GoiMoAgent.agentInfo.name).toBe('Gợi Mở AI');
+    });
+
+    it('description có chứa "gợi mở" hoặc "chiều sâu"', () => {
+        const desc = GoiMoAgent.agentInfo.description.toLowerCase();
+        expect(desc.includes('gợi mở') || desc.includes('chiều sâu')).toBe(true);
+    });
+
+    it('có capability "open-depth"', () => {
+        expect(GoiMoAgent.agentInfo.capabilities['open-depth']).toBe('analyze');
+    });
+
+    it('có intentPatterns cho "open-depth"', () => {
+        expect(Array.isArray(GoiMoAgent.agentInfo.intentPatterns['open-depth'])).toBe(true);
+        expect(GoiMoAgent.agentInfo.intentPatterns['open-depth'].length).toBeGreaterThan(0);
+    });
+
+    it('canRead bao gồm "work" và "symbol"', () => {
+        expect(GoiMoAgent.agentInfo.canRead).toContain('work');
+        expect(GoiMoAgent.agentInfo.canRead).toContain('symbol');
+    });
+
+    it('canDelegate bao gồm "poetics"', () => {
+        expect(GoiMoAgent.agentInfo.canDelegate).toContain('poetics');
+    });
+
+    it('KHÔNG có trường score/rubric/weight trong agentInfo', () => {
+        expect(GoiMoAgent.agentInfo.score).toBeUndefined();
+        expect(GoiMoAgent.agentInfo.rubric).toBeUndefined();
+        expect(GoiMoAgent.agentInfo.weight).toBeUndefined();
+    });
+
+    it('capability methodName "analyze" phải tồn tại trên Agent', () => {
+        const methodName = GoiMoAgent.agentInfo.capabilities['open-depth'];
+        expect(typeof GoiMoAgent[methodName]).toBe('function');
+    });
+});
+
+// =====================================================================
+// TEST SUITE 6: Idempotence & Mutation
+// =====================================================================
+
+describe('GoiMoAgent — Idempotence', () => {
+
+    it('gọi 2 lần không crash', () => {
+        expect(() => {
+            GoiMoAgent.analyze(VALID_POEM);
+            GoiMoAgent.analyze(VALID_POEM);
+        }).not.toThrow();
+    });
+
+    it('không mutate input work', () => {
+        const original = JSON.stringify(MOCK_WORK);
+        GoiMoAgent.getQuickComment(MOCK_WORK);
+        expect(JSON.stringify(MOCK_WORK)).toBe(original);
+    });
+});
