@@ -26,9 +26,13 @@
   "js_ai": [
     "./js/ai/core.js",
     "./js/ai/input-ai.js",
+    "./js/ai/literary-engine.js",
     "./js/ai/master.js",
     "./js/ai/math-utils.js",
     "./js/ai/nlp-tools.js",
+    "./js/ai/nlp/entity-extractor.js",
+    "./js/ai/nlp/intent-definitions.js",
+    "./js/ai/nlp/language-signals.js",
     "./js/ai/output-ai.js"
   ],
   "js_agents": [
