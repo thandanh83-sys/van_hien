@@ -25,6 +25,7 @@
   ],
   "js_ai": [
     "./js/ai/core.js",
+    "./js/ai/dialogue-engine.js",
     "./js/ai/identity.js",
     "./js/ai/input-ai.js",
     "./js/ai/literary-engine.js",
