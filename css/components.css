@@ -1,14 +1,13 @@
 /**
  * ==========================================================
- * VĂN ĐẠO - COMPONENTS CSS (css/components.css)
+ * NGỌC THANH - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 3.2.0 (Perfect Centering & Search Sync)
+ * Version: 3.5.0 (Ngọc Thanh Theme & Layout Fixes)
  * ==========================================================
  * CHỨC NĂNG:
- * - Hệ thống Nút bấm (Glassmorphism).
- * - Phân trang.
- * - Thanh tìm kiếm thông minh (Đồng bộ Văn Hiến & Bách Khoa, có nút X).
- * - Khối kết quả Hỏi Đạo (Ask Dao) - FIX LỖI VỠ LAYOUT GRID, căn giữa hoàn hảo.
+ * - Hệ thống Nút bấm (Glassmorphism với màu Ngọc Thanh).
+ * - Phân trang, Thanh tìm kiếm thông minh (Đồng bộ Văn Hiến & Bách Khoa).
+ * - Khối kết quả Hỏi Đạo (Ask Dao) - Fix lỗi bóp méo Layout, tăng tương phản.
  * - Tooltip biểu tượng, Nút Hỏi AI.
  * ==========================================================
  */
@@ -37,6 +36,7 @@
 }
 .nav-btn:hover, .nav-btn.active { color: var(--text-main); }
 
+/* Dấu chấm nhỏ dưới nút đang Active */
 .nav-btn::after { 
     content: ''; 
     position: absolute; 
@@ -45,17 +45,19 @@
     width: 4px; 
     height: 4px; 
     border-radius: 50%; 
-    background: var(--accent-gold); 
+    background: var(--accent); 
     transform: translateX(-50%) scale(0); 
     transition: transform 0.3s; 
 }
 .nav-btn:hover::after, .nav-btn.active::after { transform: translateX(-50%) scale(1); }
 
+/* Icon nhỏ trong nút Navbar */
 .nav-icon { width: 16px; height: 16px; stroke-width: 2; display: none; } 
 
+/* Nút Bộ lọc (Glassmorphism - Ngọc Thanh) */
 .filter-btn { 
-    background: rgba(253, 251, 247, 0.6); 
-    border: 1px solid rgba(139, 184, 168, 0.2); 
+    background: rgba(255, 255, 255, 0.5); 
+    border: 1px solid rgba(46, 139, 87, 0.2); 
     color: var(--text-main); 
     padding: 10px 24px; 
     border-radius: var(--radius-pill); 
@@ -72,15 +74,19 @@
     -webkit-backdrop-filter: blur(4px);
     z-index: 1;
 }
+
 .filter-btn:hover, .filter-btn.active { 
-    background: rgba(139, 184, 168, 0.25); 
+    background: rgba(46, 139, 87, 0.1); 
     border-color: var(--accent); 
     color: var(--accent-text) !important; 
-    box-shadow: 0 4px 15px rgba(139, 184, 168, 0.15); 
+    box-shadow: 0 4px 15px rgba(46, 139, 87, 0.15); 
     backdrop-filter: blur(8px); 
     -webkit-backdrop-filter: blur(8px);
 }
 
+.filter-btn::before { display: none; }
+
+/* Nút Xem Chi Tiết */
 .detail-btn { 
     background: transparent; 
     color: var(--accent-text); 
@@ -134,7 +140,7 @@
 .page-btn:hover:not(:disabled) {
     border-color: var(--accent);
     color: var(--accent);
-    background: rgba(139, 184, 168, 0.05);
+    background: rgba(46, 139, 87, 0.05);
     transform: translateY(-2px);
 }
 
@@ -142,7 +148,7 @@
     background: var(--accent-text);
     color: #fff;
     border-color: var(--accent-text);
-    box-shadow: 0 4px 12px rgba(85, 122, 111, 0.3);
+    box-shadow: 0 4px 12px rgba(26, 82, 50, 0.3);
 }
 
 .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -150,7 +156,7 @@
 .page-ellipsis { color: var(--text-muted); font-weight: bold; letter-spacing: 2px; }
 
 /* =====================================================================
-   3. THANH TÌM KIẾM THÔNG MINH (SEARCH BAR) - ĐỒNG BỘ 2 BÊN
+   3. THANH TÌM KIẾM THÔNG MINH (SEARCH BAR) - ĐỒNG BỘ
    ===================================================================== */
 .search-container { 
     display: flex; 
@@ -197,7 +203,7 @@
     outline: none; 
     font-size: 1rem; 
     transition: all 0.3s ease; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+    box-shadow: 0 4px 15px rgba(46, 139, 87, 0.03); 
 }
 
 #search-input:focus, #encyclopedia-search:focus { 
@@ -235,14 +241,14 @@ input[type="search"]::-webkit-search-results-decoration {
     z-index: 2;
 }
 .clear-btn:hover { 
-    background-color: rgba(139, 184, 168, 0.15); 
+    background-color: rgba(46, 139, 87, 0.1); 
     color: var(--text-main); 
 }
 .clear-btn.show { display: flex; }
 .clear-btn svg { width: 20px; height: 20px; stroke: currentColor; }
 
 /* =====================================================================
-   4. KẾT QUẢ HỎI ĐẠO (ASK DAO RESULT) - FIX LỖI VỠ LAYOUT GRID
+   4. KẾT QUẢ HỎI ĐẠO (ASK DAO RESULT) - FIX LỖI VỠ LAYOUT & TƯƠNG PHẢN
    ===================================================================== */
 .ask-loading {
     display: flex;
@@ -264,12 +270,13 @@ input[type="search"]::-webkit-search-results-decoration {
     margin: 20px auto; /* Tự động căn giữa màn hình */
     width: 100%;
     max-width: 800px; /* Giới hạn chiều rộng để dễ đọc */
-    box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 30px rgba(26, 82, 50, 0.08);
     animation: fadeInContent 0.5s var(--ease-silk) forwards;
     position: relative;
     z-index: 10;
 }
 
+/* Nhãn nguồn tri thức */
 .ask-source {
     display: inline-flex;
     align-items: center;
@@ -281,7 +288,7 @@ input[type="search"]::-webkit-search-results-decoration {
     font-weight: 700;
     margin-bottom: 20px;
     padding: 5px 12px;
-    background: rgba(139, 184, 168, 0.1);
+    background: rgba(46, 139, 87, 0.1);
     border-radius: 12px;
 }
 .ask-source-dot {
@@ -289,7 +296,7 @@ input[type="search"]::-webkit-search-results-decoration {
     height: 6px;
     border-radius: 50%;
     background: var(--accent);
-    box-shadow: 0 0 0 2px rgba(139, 184, 168, 0.2);
+    box-shadow: 0 0 0 2px rgba(46, 139, 87, 0.2);
 }
 
 .ask-query {
@@ -298,18 +305,19 @@ input[type="search"]::-webkit-search-results-decoration {
     font-style: italic;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 1px dashed rgba(139, 184, 168, 0.2);
+    border-bottom: 1px dashed rgba(46, 139, 87, 0.2);
 }
 
 .ask-intro {
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--accent-text);
     font-style: italic;
     margin-bottom: 20px;
     line-height: 1.6;
 }
 
+/* Câu trả lời chính */
 .ask-answer {
     font-family: var(--font-body);
     font-size: 1.25rem;
@@ -319,8 +327,9 @@ input[type="search"]::-webkit-search-results-decoration {
     font-weight: 500;
 }
 
+/* Tiểu dẫn */
 .ask-detail-box {
-    background: rgba(139, 184, 168, 0.05); 
+    background: rgba(46, 139, 87, 0.04); 
     padding: 18px 22px; 
     border-radius: 12px; 
     border-left: 3px solid var(--accent); 
@@ -342,10 +351,11 @@ input[type="search"]::-webkit-search-results-decoration {
     line-height: 1.7;
 }
 
+/* Khối Meta (Cơ duyên gặp gỡ) */
 .ask-meta-wrapper {
     margin-top: 25px; 
     padding-top: 20px; 
-    border-top: 1px dashed rgba(139, 184, 168, 0.3);
+    border-top: 1px dashed rgba(46, 139, 87, 0.25);
 }
 .ask-meta-title {
     font-family: var(--font-body); 
@@ -385,9 +395,9 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .ask-meta-item:hover {
     border-color: var(--accent);
-    background: rgba(139, 184, 168, 0.05);
+    background: rgba(46, 139, 87, 0.04);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(139, 184, 168, 0.1);
+    box-shadow: 0 4px 12px rgba(46, 139, 87, 0.1);
 }
 
 .ask-meta-item .meta-title {
@@ -402,6 +412,7 @@ input[type="search"]::-webkit-search-results-decoration {
     font-style: italic;
 }
 
+/* Lời kết */
 .ask-outro {
     margin-top: 30px; 
     text-align: right; 
@@ -413,14 +424,14 @@ input[type="search"]::-webkit-search-results-decoration {
 
 .ask-error {
     border-left-color: var(--color-error);
-    background: rgba(163, 107, 107, 0.03);
+    background: rgba(192, 57, 43, 0.03);
 }
 
 /* =====================================================================
-   5. HIGHLIGHT VÀ TOOLTIP
+   5. HIGHLIGHT VÀ TOOLTIP (BIỂU TƯỢNG)
    ===================================================================== */
 mark {
-    background-color: #f0ead6;
+    background-color: #d1f2e5; /* Xanh mint nhạt cho highlight */
     color: var(--text-main);
     padding: 0 4px;
     border-radius: 4px; 
@@ -428,7 +439,7 @@ mark {
 }
 
 .symbol-mark {
-    background: rgba(139, 184, 168, 0.25); 
+    background: rgba(46, 139, 87, 0.15); 
     border-radius: 4px;
     padding: 2px 4px; 
     margin: 0 2px;
@@ -465,13 +476,13 @@ mark {
 }
 
 /* =====================================================================
-   6. NÚT HỎI AI
+   6. NÚT HỎI AI (ASK AI BUTTON)
    ===================================================================== */
 .btn-ask-ai {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(212, 196, 168, 0.15);
+    background: rgba(201, 169, 110, 0.15);
     color: var(--accent-text);
     border: 1px solid var(--accent-gold);
     border-radius: var(--radius-pill);
@@ -485,12 +496,12 @@ mark {
 .btn-ask-ai:hover {
     background: var(--accent-gold);
     color: #fff;
-    box-shadow: 0 4px 15px rgba(212, 196, 168, 0.4);
+    box-shadow: 0 4px 15px rgba(201, 169, 110, 0.4);
 }
 .btn-ask-ai svg { animation: spin 4s linear infinite; }
 
 /* =====================================================================
-   7. CÀI ĐẶT & NÚT XÓA OFFLINE
+   7. CÀI ĐẶT & NÚT XÓA OFFLINE (DANGER BUTTON)
    ===================================================================== */
 .offline-option-btn {
     width: 100%; 
@@ -507,7 +518,7 @@ mark {
 }
 .offline-option-btn:hover { 
     border-color: var(--accent); 
-    background: rgba(139, 184, 168, 0.05); 
+    background: rgba(46, 139, 87, 0.04); 
 }
 
 .offline-text-btn {
@@ -515,25 +526,50 @@ mark {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background: rgba(163, 107, 107, 0.05); 
-    border: 1px solid rgba(163, 107, 107, 0.2);
+    background: rgba(192, 57, 43, 0.05); 
+    border: 1px solid rgba(192, 57, 43, 0.2);
     border-radius: 8px;
     padding: 10px 24px;
     font-family: var(--font-body);
     font-size: 0.9rem;
-    color: #a36b6b;
+    color: var(--color-error);
     cursor: pointer;
     transition: all 0.3s ease;
     margin: 0 auto;
 }
 .offline-text-btn:hover {
-    background: rgba(163, 107, 107, 0.1);
-    border-color: #a36b6b;
-    box-shadow: 0 4px 12px rgba(163, 107, 107, 0.15);
+    background: rgba(192, 57, 43, 0.1);
+    border-color: var(--color-error);
+    box-shadow: 0 4px 12px rgba(192, 57, 43, 0.15);
 }
 
 /* =====================================================================
-   8. RESPONSIVE (MOBILE)
+   8. SKELETON LOADING
+   ===================================================================== */
+.skeleton { 
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
+    background-size: 200% 100%; 
+    animation: skeletonLoading 1.5s infinite linear; 
+    border-radius: var(--radius-card); 
+}
+@keyframes skeletonLoading { 
+    0% { background-position: 200% 0; } 
+    100% { background-position: -200% 0; } 
+}
+.skeleton-card { 
+    height: 250px; 
+    padding: 20px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    border-radius: var(--radius-card); 
+}
+.skeleton-line { height: 15px; border-radius: 4px; background: #e0e0e0; }
+.skeleton-line.title { height: 25px; width: 60%; }
+.skeleton-line.desc { height: 12px; width: 100%; }
+
+/* =====================================================================
+   9. RESPONSIVE (MOBILE)
    ===================================================================== */
 @media (max-width: 850px) {
     .ask-result { padding: 20px 18px; margin: 15px auto; }
