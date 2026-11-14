@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - UTILS MODULE (js/utils.js)
  * Vị trí: js/utils.js
- * Version: 2.1.0 (Standardized Text Processing & Dialog Modals)
+ * Version: 2.2.0 (Standardized Text Processing & Dialog Modals)
  * ==========================================================
  * CHỨC NĂNG:
  * - Các hàm tiện ích xử lý chuỗi, tiếng Việt (không dấu, chuẩn hóa).
@@ -10,6 +10,7 @@
  *   để đảm bảo luôn nổi lên trên cùng (Top Layer), không bị kẹt dưới
  *   các thành phần khác như Settings Dialog.
  * - Hỗ trợ tự động đóng (auto-close) cho showAlert.
+ * - [MỚI] Sửa lỗi Highlight từ khóa (không bắt nhầm chữ "ai" trong "mai").
  * ==========================================================
  */
 
@@ -95,16 +96,24 @@ export function escapeHTML(str) {
 
 /**
  * 8. Highlight từ khóa tìm kiếm (Bọc từ khóa trong thẻ <mark>)
+ * [FIX] Sử dụng Regex word boundary để không bắt nhầm chữ "ai" trong "mai", "hai"
  */
 export function highlightText(text, tokens) {
     if (!text || !tokens?.length) return escapeHTML(text);
-    return text.split(/(\s+)/).map(word => {
-        const clean = removeAccents(word.toLowerCase());
-        if (tokens.some(t => clean.includes(t)) && word.trim()) {
-            return `<mark>${escapeHTML(word)}</mark>`;
-        }
-        return escapeHTML(word);
-    }).join('');
+    
+    // Lọc bỏ các token quá ngắn (1-2 ký tự) nếu nó dễ gây nhiễu (như "ai", "và")
+    const safeTokens = tokens.filter(t => t.length > 1 || t === 'ai'); 
+    
+    let result = escapeHTML(text);
+    
+    safeTokens.forEach(token => {
+        const escapedToken = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        // Regex: Khớp chính xác từ (word boundary), không phân biệt hoa thường
+        const regex = new RegExp(`(^|[^\\p{L}\\p{N}])(${escapedToken})(?=$|[^\\p{L}\\p{N}])`, 'giu');
+        result = result.replace(regex, `$1<mark>$2</mark>`);
+    });
+    
+    return result;
 }
 
 /**
