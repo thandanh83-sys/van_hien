@@ -2,13 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - RENDER MODULE (js/render.js)
  * Vị trí: js/render.js
- * Version: 2.1.0 (Intent Router UX & AI Buttons)
+ * Version: 2.2.0 (Clean UI & Intent Router UX)
  * ==========================================================
  * CHỨC NĂNG:
  * - Hiển thị Văn Hiến (Tác phẩm), Bách Khoa (Tác giả, Lý thuyết).
  * - Tự động tạo liên kết Tác giả/Tác phẩm liên quan qua DataHub.
  * - Quản lý Lazy Load, Phân trang, và Tooltip biểu tượng.
- * - [MỚI] Gợi ý chuyển sang Hỏi Đạo AI nếu người dùng gõ câu hỏi vào ô tìm kiếm.
+ * - [MỚI] Đã xóa nút "Hỏi AI Tóm Tắt" ở phần Related Section để 
+ *   giao diện gọn gàng hơn, tránh việc AI tự hỏi tự trả lời.
  * ==========================================================
  */
 
@@ -98,9 +99,8 @@ export function renderHeritage() {
         );
     }
 
-    // === [MỚI] XỬ LÝ KHI KHÔNG CÓ KẾT QUẢ (INTENT ROUTER UX) ===
+    // === XỬ LÝ KHI KHÔNG CÓ KẾT QUẢ (INTENT ROUTER UX) ===
     if (!data.length) {
-        // Kiểm tra xem người dùng có đang đặt câu hỏi không
         const isQuestion = /[?]|\b(la ai|la gi|the nao|tai sao|nhu the nao)\b/i.test(keyword);
         
         if (isQuestion) {
@@ -112,7 +112,6 @@ export function renderHeritage() {
                     <p style="color:var(--text-muted);font-style:italic;margin-bottom:20px;">
                         Nhấn <strong>Enter</strong> hoặc click nút bên dưới để Hỏi Đạo AI.
                     </p>
-                    <!-- Nút này gọi hàm toàn cục, không giả lập phím Enter -->
                     <button class="btn-ask-ai" onclick="window.triggerSmartSearch('search-input', 'heritage-grid', 'main-filter-bar', 'pagination-container')">
                         Hỏi Đạo AI ngay
                     </button>
@@ -121,7 +120,8 @@ export function renderHeritage() {
         } else {
             grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy mục từ nào phù hợp.</p>`;
         }
-        document.getElementById('pagination-container').innerHTML = '';
+        const pagContainer = document.getElementById('pagination-container');
+        if (pagContainer) pagContainer.innerHTML = '';
         return;
     }
 
@@ -373,8 +373,10 @@ export function searchEncyclopedia() {
         const emptyContainer = document.getElementById('encyclopedia-container');
         emptyContainer.dataset.searchMode = 'true';
         emptyContainer.innerHTML = `<p style="text-align:center;padding:40px;color:var(--text-muted);font-style:italic;">Không tìm thấy kết quả nào cho "${escapeHTML(kw)}".</p>`;
-        document.getElementById('encyclopedia-count').textContent = `Tìm thấy 0 mục`;
-        document.getElementById('encyclopedia-pagination').innerHTML = '';
+        const countEl = document.getElementById('encyclopedia-count');
+        if (countEl) countEl.textContent = `Tìm thấy 0 mục`;
+        const pagEl = document.getElementById('encyclopedia-pagination');
+        if (pagEl) pagEl.innerHTML = '';
         return;
     }
     const tokens = removeAccents(kw.toLowerCase()).split(/\s+/).filter(t => t.length);
@@ -385,7 +387,8 @@ export function searchEncyclopedia() {
     
     STATE.currentEncyPage = 1;
     renderEncyclopediaList(data, true, tokens);
-    document.getElementById('encyclopedia-count').textContent = `Tìm thấy ${results.length} mục`;
+    const countEl = document.getElementById('encyclopedia-count');
+    if (countEl) countEl.textContent = `Tìm thấy ${results.length} mục`;
 }
 
 // =====================================================================
@@ -556,18 +559,7 @@ export function appendRelatedSection(container, item, group) {
         `;
     }
 
-    // Nút Hỏi AI (Được xử lý toàn cục ở main.js)
-    html += `
-        <div style="margin-top: 30px; text-align: center; border-top: 1px dashed rgba(139,184,168,0.3); padding-top: 20px;">
-            <button type="button" class="btn-ask-ai"
-                data-ai-action="summarize-work"
-                data-work-title="${escapeHTML(item.title)}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>
-                Hỏi AI Tóm Tắt Tác Phẩm Này
-            </button>
-            <div id="ai-inline-result" style="display: none; margin-top: 15px; text-align: left;"></div>
-        </div>
-    `;
+    // ĐÃ XÓA NÚT HỎI AI THEO YÊU CẦU
     
     section.innerHTML = html;
     container.appendChild(section);
