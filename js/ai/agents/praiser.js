@@ -2,12 +2,12 @@
  * ==========================================================
  * VĂN ĐẠO AI - PRAISER AGENT (js/ai/agents/praiser.js)
  * Vị trí: js/ai/agents/praiser.js
- * Version: 3.1.0 (Search Integration & Quick Highlight)
+ * Version: 3.2.0 (Quick Comment for Fate Modal)
  * ==========================================================
  * TRIẾT LÝ:
- * - Lời khen không sáo rỗng, phải dựa trên nhịp Bằng/Trắc, vị trí và cảm xúc.
- * - [MỚI] Thêm hàm getQuickHighlight() phục vụ riêng cho chế độ Tìm kiếm
- *   (trả về câu nhận xét cực ngắn, không chạy phân tích sâu).
+ * - Lời khen không sáo rỗng, phải dựa trên nhịp Bằng/Trắc và vị trí.
+ * - [MỚI] Thêm hàm getQuickComment() phục vụ riêng cho tính năng Bói thơ
+ *   (trả về câu nhận xét siêu ngắn, vui vẻ, không chạy phân tích nặng).
  * ==========================================================
  */
 
@@ -68,32 +68,22 @@ export const PraiserAgent = {
     },
 
     /**
-     * [MỚI] Trích xuất nhanh một câu khen ngắn gọn (Dùng cho Search).
-     * Không chạy phân tích sâu, chỉ dựa vào metadata để trả về trong 1ms.
+     * [MỚI] Nhận xét siêu ngắn dành riêng cho Bói thơ (Fate Modal).
+     * Dựa trên metadata (cam_xuc, the_loai) để trả về trong 1ms.
      * 
      * @param {Object} work - Object tác phẩm từ DataHub.
      * @returns {string} Câu nhận xét ngắn.
      */
-    getQuickHighlight(work) {
-        if (!work) return '';
+    getQuickComment(work) {
+        if (!work) return "Một áng văn hữu duyên.";
         
-        // Ưu tiên 1: Khen dựa trên Cảm xúc (cam_xuc)
         if (work.cam_xuc && work.cam_xuc.length > 0) {
-            const moods = work.cam_xuc.join(', ');
-            return `Tác phẩm mang đậm cảm xúc <i>${moods}</i>, rất đáng để chiêm nghiệm.`;
+            return `Áng văn này mang đậm cảm xúc <b>${work.cam_xuc[0]}</b>, đọc lên thấy tâm hồn lắng đọng lạ kỳ.`;
         }
-        
-        // Ưu tiên 2: Khen dựa trên Thể loại
         if (work.the_loai && work.the_loai.length > 0) {
-            return `Một tác phẩm tiêu biểu cho thể loại <i>${work.the_loai[0]}</i> mà bạn không nên bỏ lỡ.`;
+            return `Một tác phẩm xuất sắc của thể loại <b>${work.the_loai[0]}</b>.`;
         }
-        
-        // Fallback: Dùng mô tả ngắn (desc)
-        if (work.desc) {
-            return `<i>"${work.desc}"</i>`;
-        }
-
-        return `Một áng văn hữu duyên dành cho bạn.`;
+        return "Nét đẹp của tác phẩm nằm ở sự chân thành và mộc mạc.";
     }
 };
 
