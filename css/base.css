@@ -1,8 +1,8 @@
 /**
  * ==========================================================
- * VĂN ĐẠO - BASE CSS (css/base.css)
+ * NGỌC THANH - BASE CSS (css/base.css)
  * Vị trí: css/base.css
- * Version: 1.1.0 (Nền tảng & Hiệu ứng)
+ * Version: 2.0.0 (Ngọc Thanh Foundation)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khai báo Font chữ cục bộ.
@@ -42,8 +42,8 @@ html {
 
 body {
     background-color: var(--bg-base);
-    /* Làm trong suốt lớp gradient để nhìn rõ ảnh nền nen.jpg */
-    background-image: linear-gradient(135deg, rgba(253, 251, 247, 0.75) 0%, rgba(235, 243, 240, 0.85) 100%), url('../assets/nen.jpg');
+    /* [MỚI] Phủ lớp gradient xanh ngọc thanh để hòa quyện với ảnh nền */
+    background-image: linear-gradient(135deg, rgba(247, 252, 249, 0.85) 0%, rgba(220, 240, 230, 0.9) 100%), url('../assets/nen.jpg');
     background-size: cover; 
     background-position: center; 
     background-attachment: fixed; 
@@ -58,21 +58,21 @@ body {
     text-rendering: optimizeLegibility;
 }
 
-/* Tùy chỉnh thanh cuộn */
+/* Tùy chỉnh thanh cuộn (Scrollbar) - Màu Ngọc Thanh */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
 
-/* Màu nền khi bôi đen văn bản */
+/* Màu nền khi bôi đen văn bản - Xanh Mint nhạt */
 ::selection { 
-    background: #d4ece6; 
-    color: var(--ink-soft);      
+    background: #a8e6cf; 
+    color: var(--text-main);      
     text-shadow: none;
 }
 
 /* =====================================================================
-   3. HIỆU ỨNG NỀN: SÓNG NƯỚC & HẠT SƯƠNG
+   3. HIỆU ỨNG NỀN: SÓNG NƯỚC & HẠT SƯƠNG NGỌC THANH
    ===================================================================== */
 #water-canvas {
     position: fixed !important; 
@@ -90,7 +90,7 @@ body {
     overflow: hidden; 
 }
 
-/* Hạt sương: Trắng trong, phát sáng nhẹ, tinh tế */
+/* Hạt sương: Ánh ngọc bích, phát sáng nhẹ, tinh tế */
 .dewdrop {
     position: absolute; 
     border-radius: 50%;
@@ -98,9 +98,10 @@ body {
     transform: translate3d(0, 0, 0); 
     animation: floatUp linear infinite; 
     
-    background: radial-gradient(circle at 30% 30%, #ffffff, rgba(255, 255, 255, 0.2));
-    box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.6), inset 0 0 2px rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    /* [MỚI] Đổi sang màu xanh ngọc bích thay vì trắng */
+    background: radial-gradient(circle at 30% 30%, rgba(168, 230, 207, 0.9), rgba(46, 139, 87, 0.2));
+    box-shadow: 0 0 8px 2px rgba(46, 139, 87, 0.4), inset 0 0 2px rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(1px);
 }
 
