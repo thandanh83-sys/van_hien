@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO - DATA HUB (js/network/data-hub.js)
  * Vị trí: js/network/data-hub.js
- * Version: 3.1.0 (Modular Facade Architecture)
+ * Version: 4.0.0 (Semantic Query & Graph Integration)
  * ==========================================================
  * CHỨC NĂNG:
  * - Cửa ngõ duy nhất (Facade) cho toàn bộ AI truy xuất dữ liệu.
@@ -11,11 +11,8 @@
  *   2. Source Manager (Quản lý nguồn, Cache, Fallback)
  *   3. Graph Engine (Xử lý đồ thị tri thức)
  *   4. Validator (Kiểm tra dữ liệu)
- * 
- * TRIẾT LÝ:
- * - Mọi AI chỉ giao tiếp qua ID.
- * - Không AI nào tự ý fetch JSON.
- * - Offline-First: Ưu tiên RAM -> Cache -> GitHub.
+ * - [MỚI v4.0.0] Bổ sung các hàm truy vấn ngữ nghĩa (Semantic Queries)
+ *   dựa trên trường dữ liệu mới: cam_xuc, tags, style, nationality.
  * ==========================================================
  */
 
@@ -164,6 +161,18 @@ const GraphEngine = {
             genres.forEach(g => {
                 edges.push({ from: `work:${id}`, relation: 'has_genre', to: `genre:${normalizeRouteText(g)}`, source: 'local-data', confidence: 1.0 });
             });
+            
+            // [MỚI] Liên kết theo Cảm xúc và Tags
+            if (Array.isArray(item.cam_xuc)) {
+                item.cam_xuc.forEach(m => {
+                    edges.push({ from: `work:${id}`, relation: 'has_mood', to: `mood:${normalizeRouteText(m)}`, source: 'local-data', confidence: 1.0 });
+                });
+            }
+            if (Array.isArray(item.tags)) {
+                item.tags.forEach(t => {
+                    edges.push({ from: `work:${id}`, relation: 'has_tag', to: `tag:${normalizeRouteText(t)}`, source: 'local-data', confidence: 1.0 });
+                });
+            }
         }
         else if (meta.group === 'ky-tai') {
             const authorName = item.title.replace(/^Chân Dung Tác Giả:\s*/i, '').trim();
@@ -228,6 +237,7 @@ const Validator = {
 // =====================================================================
 
 export const DataHub = {
+    // --- Nhóm hàm định tuyến cũ ---
     resolveIdFromQuery: (query) => IDRouter.resolveIdFromQuery(query),
 
     getMetadata: (id) => {
@@ -255,6 +265,68 @@ export const DataHub = {
         return GraphEngine.getGraph(id);
     },
 
+    // =================================================================
+    // [NHÓM HÀM MỚI v4.0.0] TRUY VẤN NGỮ NGHĨA (SEMANTIC QUERIES)
+    // =================================================================
+
+    /**
+     * Lấy tác phẩm dựa trên Cảm xúc (Mood).
+     * @param {string} mood - Cảm xúc cần tìm (VD: "bi tráng")
+     * @returns {Array} Mảng các tác phẩm.
+     */
+    getWorksByMood: (mood) => {
+        if (!mood) return [];
+        const normalizedMood = normalizeRouteText(mood);
+        return APP_DATA.WORKS_DATA.filter(w => {
+            const moods = w.cam_xuc || [];
+            return moods.some(m => normalizeRouteText(m).includes(normalizedMood));
+        });
+    },
+
+    /**
+     * Lấy tác phẩm dựa trên Thẻ ngữ nghĩa (Tag).
+     * @param {string} tag - Thẻ cần tìm (VD: "chiến tranh")
+     * @returns {Array} Mảng các tác phẩm.
+     */
+    getWorksByTag: (tag) => {
+        if (!tag) return [];
+        const normalizedTag = normalizeRouteText(tag);
+        return APP_DATA.WORKS_DATA.filter(w => {
+            const tags = w.tags || [];
+            return tags.some(t => normalizeRouteText(t).includes(normalizedTag));
+        });
+    },
+
+    /**
+     * Lấy tác giả dựa trên Quốc tịch.
+     * @param {string} nationality - Quốc gia (VD: "Việt Nam")
+     * @returns {Array} Mảng các tác giả.
+     */
+    getAuthorsByNationality: (nationality) => {
+        if (!nationality) return [];
+        const normalizedNat = normalizeRouteText(nationality);
+        return APP_DATA.AUTHOR_DATA.filter(a => {
+            return normalizeRouteText(a.nationality || '').includes(normalizedNat);
+        });
+    },
+
+    /**
+     * Lấy tác giả dựa trên Phong cách.
+     * @param {string} style - Phong cách (VD: "trào phúng")
+     * @returns {Array} Mảng các tác giả.
+     */
+    getAuthorsByStyle: (style) => {
+        if (!style) return [];
+        const normalizedStyle = normalizeRouteText(style);
+        return APP_DATA.AUTHOR_DATA.filter(a => {
+            const styles = a.style || [];
+            return styles.some(s => normalizeRouteText(s).includes(normalizedStyle));
+        });
+    },
+
+    // =================================================================
+    // Các hàm tiện ích khác
+    // =================================================================
     getWorksByGenre: (genreName) => {
         return APP_DATA.WORKS_DATA.filter(w => {
             const wGenres = Array.isArray(w.the_loai) ? w.the_loai : (w.the_loai ? [w.the_loai] : []);
