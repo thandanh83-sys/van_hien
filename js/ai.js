@@ -1,8 +1,8 @@
 /**
  * ==========================================================
- * VĂN ĐẠO AI - MAIN ENTRY POINT (js/ai.js)
+ * NGỌC THANH - MAIN ENTRY POINT (js/ai.js)
  * Vị trí: js/ai.js
- * Version: 4.2.0 (Living Intelligence Network)
+ * Version: 4.3.0 (Living Intelligence Network)
  * ==========================================================
  * CHỨC NĂNG:
  * - Đóng vai trò là "Cổng giao tiếp" (Facade) duy nhất cho toàn bộ AI.
@@ -74,6 +74,7 @@ export { LiteraryEngine } from './ai/literary-engine.js';
 export { MemoryEngine } from './ai/memory-engine.js';
 export { Identity } from './ai/identity.js';
 export { DialogueEngine } from './ai/dialogue-engine.js';
+export { SmartInputParser } from './ai/smart-input-parser.js';
 
 // =====================================================================
 // 7. TRUNG TÂM DỮ LIỆU (DATA HUB) - TRÁI TIM CỦA MẠNG LƯỚI
@@ -83,21 +84,5 @@ export { DataHub } from './network/data-hub.js';
 // =====================================================================
 // 8. PHIÊN BẢN & METADATA (Dùng cho Audit/Debug)
 // =====================================================================
-export const AI_VERSION = '4.2.0';
+export const AI_VERSION = '4.3.0';
 export const AI_ARCHITECTURE = 'Living Intelligence Network (11 Agents)';
-
-export async function debugAI() {
-    const { AgentRegistry } = await import('./ai/agents/index.js');
-    const { CoreCache, safeGetArray } = await import('./ai/core.js');
-    const { DataHub } = await import('./network/data-hub.js');
-    
-    console.log('%c[AI SYSTEM] Trạng thái tổng quan:', 'color: #8bb8a8; font-weight: bold; font-size: 14px;');
-    console.log('  • Version:', AI_VERSION);
-    console.log('  • Architecture:', AI_ARCHITECTURE);
-    console.log('  • Tổng số Agents:', AgentRegistry.getAllAgentKeys().length);
-    console.log('  • Danh sách Agents:', AgentRegistry.getAllAgentKeys().join(', '));
-    console.log('  • Core Cache:', CoreCache.stats());
-    console.log('  • DataHub Test:', DataHub.getMetadata('truyen-kieu') ? 'Sẵn sàng' : 'Chưa kết nối');
-    console.log('  • Tác phẩm:', safeGetArray('WORKS_DATA').length);
-    console.log('  • Tác giả:', safeGetArray('AUTHOR_DATA').length);
-}
