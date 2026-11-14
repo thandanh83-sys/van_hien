@@ -2,14 +2,14 @@
  * ==========================================================
  * VĂN ĐẠO - MAIN ENTRY POINT (js/main.js)
  * Vị trí: js/main.js
- * Version: 4.0.0 (Clean UI & Literary Soul)
+ * Version: 5.0.0 (Ultimate Integration & Dual Search)
  * ==========================================================
  * CHỨC NĂNG:
  * - Khởi chạy App, quản lý Splash Screen, hiệu ứng nền.
  * - Nạp dữ liệu vào APP_DATA và xây dựng STATE.GLOBAL_INDEX.
  * - Xử lý Thi Pháp Học & Bói Thơ (Tích hợp AI, giao diện mềm mại).
- * - [MỚI] Xóa bỏ các nút "Hỏi AI" tự động, tự động đóng thông báo,
- *   và tối ưu hóa giao diện Thi Pháp/Bói Thơ.
+ * - Quản lý Settings (Offline & Network Health).
+ * - Tương thích hoàn toàn với 2 thanh tìm kiếm (Văn Hiến & Bách Khoa).
  * ==========================================================
  */
 
@@ -29,7 +29,7 @@ import { triggerAsyncSearchIndex } from './search.js';
 import { downloadAllOffline, clearOfflineData, cancelDownload, checkStorageSize } from './offline.js';
 import { 
     AIDispatcher, analyzeWork, calculateFortune, synthesizeDynamicFortune, 
-    PraiserAgent, CriticAgent, MasterAI, OutputAI 
+    PraiserAgent, CriticAgent, MasterAI, OutputAI, LiteraryEngine, Identity
 } from './ai.js';
 import { runFullDiagnosis } from './audit.js';
 import { bootstrapNetwork, DataHub, AgentRegistry } from './network/index.js';
@@ -204,7 +204,6 @@ function executePipeline() {
         `<div class="line-row" style="border-bottom:none!important;padding:8px 0;"><span style="color:var(--text-muted);font-size:0.85rem;min-width:30px;">${String(l.lineNum).padStart(2,'0')}</span><span style="flex:1;text-align:center;padding:0 10px;">${escapeHTML(l.text)}</span><span class="pattern-text">${escapeHTML(l.pattern)}</span></div>`
     ).join('');
 
-    // Vần
     const renderRhyme = (title, arr, color) => {
         const matches = arr.filter(i => i.isMatch);
         const groups = {};
@@ -235,7 +234,6 @@ function executePipeline() {
 
     const tier1 = `<div style="margin-bottom:20px;"><strong>Thể thơ:</strong> ${report.form.form} <span style="color:var(--text-muted);font-size:0.85rem;"> — ${report.form.note}</span></div>${rhymeHtml}`;
     
-    // Biểu tượng
     const tier2 = !report.symbols.length
         ? `<p style="font-style:italic;color:var(--text-muted);">Không phát hiện biểu tượng đặc biệt.</p>`
         : report.symbols.map(s => `<div class="symbol-row" style="padding:8px 0;">
@@ -243,12 +241,10 @@ function executePipeline() {
             <span class="symbol-meaning"><em style="font-size:0.8rem;">[${escapeHTML(s.type)}]</em> ${escapeHTML(s.mean)}</span>
         </div>`).join('');
         
-    // Câu hỏi gợi mở
     const tier3 = report.questions.map(q => {
         return `<div class="question-item" style="display:flex;gap:8px;padding:8px 0;"><div>${ICONS.question}</div><div style="line-height:1.6;">${q}</div></div>`;
     }).join('');
 
-    // Render giao diện mới mềm mại (Không dùng chữ TẦNG)
     panel.innerHTML = `
         <div class="result-step" style="border-left-color: var(--text-muted);">
             <div class="step-title">Thanh điệu & Nhịp điệu</div>
@@ -425,7 +421,6 @@ async function randomPoem() {
 
     const randomWork = validWorks[Math.floor(Math.random() * validWorks.length)];
     
-    // Fetch full content để AI phân tích sâu hơn
     let fullContent = randomWork.content || '';
     try {
         const detail = await DataHub.getDetail(randomWork.id);
@@ -450,7 +445,6 @@ async function randomPoem() {
         badge.style.borderColor = fortuneInfo.color;
     }
 
-    // Hiển thị rõ Bạn đã bốc được bài gì
     if (titleEl) {
         titleEl.innerHTML = `
             <span style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 8px; font-family: var(--font-body); text-transform: uppercase; letter-spacing: 2px;">Bạn đã bốc được</span>
@@ -465,6 +459,7 @@ async function randomPoem() {
     }
 
     if (commentaryEl) {
+        // Sử dụng Quick Comment ngắn gọn thay vì phân tích dài dòng
         commentaryEl.innerHTML = `
             <div style="margin-bottom:18px; color:var(--accent-text); font-style:italic; line-height:1.8;">
                 ${aiResult.bridgeText}
@@ -594,29 +589,39 @@ window.searchEncyclopedia = searchEncyclopedia;
 window.changePage = changePage;
 window.audit = runFullDiagnosis;
 
-window.handleSearchInput = function() {
-    const input = document.getElementById('encyclopedia-search');
-    const clearBtn = document.getElementById('clear-search-btn');
+// [NÂNG CẤP] Hỗ trợ 2 thanh tìm kiếm độc lập
+window.handleSearchInput = function(inputId = 'encyclopedia-search', btnId = 'clear-search-btn') {
+    const input = document.getElementById(inputId);
+    const clearBtn = document.getElementById(btnId);
     if (!input || !clearBtn) return;
     if (input.value.length > 0) clearBtn.classList.add('show');
     else clearBtn.classList.remove('show');
 };
 
-window.clearSearch = function() {
-    const input = document.getElementById('encyclopedia-search');
-    const clearBtn = document.getElementById('clear-search-btn');
+window.clearSearch = function(inputId = 'encyclopedia-search', btnId = 'clear-search-btn', type = 'encyclopedia') {
+    const input = document.getElementById(inputId);
+    const clearBtn = document.getElementById(btnId);
     if (!input) return;
     
     input.value = ''; 
     if (clearBtn) clearBtn.classList.remove('show'); 
     
     import('./ask-dao.js').then(m => {
-        m.resetSearchState({
-            inputId: 'encyclopedia-search',
-            filterBarId: 'encyclopedia-filter-bar',
-            paginationId: 'encyclopedia-pagination',
-            fallbackRenderFn: renderEncyclopedia
-        });
+        if (type === 'heritage') {
+            m.resetSearchState({
+                inputId: inputId,
+                filterBarId: 'main-filter-bar',
+                paginationId: 'pagination-container',
+                fallbackRenderFn: () => { STATE.currentPage = 1; renderHeritage(); }
+            });
+        } else {
+            m.resetSearchState({
+                inputId: inputId,
+                filterBarId: 'encyclopedia-filter-bar',
+                paginationId: 'encyclopedia-pagination',
+                fallbackRenderFn: renderEncyclopedia
+            });
+        }
     });
 };
 
@@ -689,7 +694,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 10.4. Sự kiện Tìm kiếm / Hỏi Đạo (Thống nhất qua Intent Router)
-    const setupSearchEvents = (inputId, containerId, filterBarId, paginationId, fallbackFn) => {
+    const setupSearchEvents = (inputId, containerId, filterBarId, paginationId, fallbackFn, btnId) => {
         const input = document.getElementById(inputId);
         if (!input) return;
 
@@ -699,26 +704,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!input.value.trim()) {
                 resetSearchState(config);
             } else {
-                fallbackFn(); // Render danh sách tạm khi đang gõ
+                fallbackFn(); 
             }
         }, 300));
 
         input.addEventListener('keydown', e => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                handleSmartSearch(config); // Intent Router quyết định Search hay Ask
+                handleSmartSearch(config); 
             }
         });
     };
 
     setupSearchEvents(
         'search-input', 'heritage-grid', 'main-filter-bar', 'pagination-container',
-        () => { STATE.currentPage = 1; renderHeritage(); }
+        () => { STATE.currentPage = 1; renderHeritage(); }, 'clear-search-btn-heritage'
     );
 
     setupSearchEvents(
         'encyclopedia-search', 'encyclopedia-container', 'encyclopedia-filter-bar', 'encyclopedia-pagination',
-        () => { searchEncyclopedia(); }
+        () => { searchEncyclopedia(); }, 'clear-search-btn'
     );
 
     // 10.5. Xử lý URL params
@@ -729,7 +734,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         history.replaceState(null, '', window.location.pathname);
     }
 
-    // 10.6. Xử lý click điều hướng (Chỉ còn Data-route)
+    // 10.6. Xử lý click điều hướng
     document.addEventListener('click', e => {
         const routeControl = e.target.closest('[data-route-encyclopedia="true"]');
         if (routeControl) {
@@ -759,27 +764,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 10.7. Settings Dialog & Network
+    // 10.7. Settings Dialog (HTML5 <dialog>)
     const settingsDialog = document.getElementById('settings-dialog');
     const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnCloseSettings = document.getElementById('btn-close-settings');
 
     if (settingsDialog && btnOpenSettings && btnCloseSettings) {
         btnOpenSettings.addEventListener('click', () => {
-            if (typeof settingsDialog.showModal === 'function') settingsDialog.showModal();
-            else settingsDialog.setAttribute('open', '');
+            settingsDialog.showModal();
             checkStorageSize(); 
             setTimeout(() => refreshNetworkStatus(true), 200);
         });
         btnCloseSettings.addEventListener('click', () => {
-            if (typeof settingsDialog.close === 'function') settingsDialog.close();
-            else settingsDialog.removeAttribute('open');
+            settingsDialog.close();
         });
         settingsDialog.addEventListener('click', (e) => {
             const dialogDimensions = settingsDialog.getBoundingClientRect();
             if (e.clientX < dialogDimensions.left || e.clientX > dialogDimensions.right || e.clientY < dialogDimensions.top || e.clientY > dialogDimensions.bottom) {
-                if (typeof settingsDialog.close === 'function') settingsDialog.close();
-                else settingsDialog.removeAttribute('open');
+                settingsDialog.close();
             }
         });
     }
@@ -842,7 +844,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isConfirmed = await showConfirm("Bạn có chắc chắn muốn xóa toàn bộ dữ liệu Offline?", "Xóa dữ liệu");
             if (isConfirmed) {
                 await clearOfflineData();
-                await showAlert("Đã xóa dữ liệu Offline thành công!", "Thành công", 2000); // Tự đóng sau 2s
+                await showAlert("Đã xóa dữ liệu Offline thành công!", "Thành công", 2000);
                 if (progressSection) progressSection.style.display = 'none';
                 if (progressBar) progressBar.style.width = '0%';
             }
