@@ -5,27 +5,33 @@
     <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO, MOBILE & TRÌNH DUYỆT)          -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
+    <!-- Ngăn trình duyệt tự động thu phóng, giữ giao diện chuẩn trên mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- Tiêu đề & Mô tả (SEO) -->
     <title>NGỌC THANH | Đại Bách Khoa Toàn Thư</title>
     <meta name="description" content="NGỌC THANH - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
     <meta name="author" content="Văn Đạo">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://vandao.github.io/">
+    <link rel="canonical" href="https://thanhdnh83-sys.github.io/van_hien/">
 
     <!-- ================================================================= -->
     <!-- 2. MÀU SẮC GIAO DIỆN (HỖ TRỢ DARK/LIGHT MODE HỆ THỐNG)           -->
     <!-- ================================================================= -->
     <meta name="color-scheme" content="light dark">
+    <!-- Màu thanh trạng thái (Theme color) chuyển theo Sáng/Tối -->
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7fcf9">
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#112a20">
 
     <!-- ================================================================= -->
-    <!-- 3. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tối ưu LCP)                     -->
+    <!-- 3. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tối ưu LCP - Tốc độ tải)        -->
     <!-- ================================================================= -->
+    <!-- Tải trước Font chữ viết tay để tránh hiện tượng "nháy" chữ -->
     <link rel="preload" href="assets/fonts/AlexBrush-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <!-- Tải trước ảnh nền chính -->
     <link rel="preload" href="assets/khung.jpg" as="image">
     
+    <!-- Tải trước các file JS lõi của AI để khởi động bộ não nhanh hơn -->
     <link rel="modulepreload" href="js/ai.js">
     <link rel="modulepreload" href="js/ai/master.js">
     <link rel="modulepreload" href="js/ai/smart-input-parser.js">
@@ -37,10 +43,11 @@
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/web-app-manifest-192x192.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <!-- crossorigin="use-credentials" để tránh lỗi tải manifest ẩn danh -->
     <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 
     <!-- ================================================================= -->
-    <!-- 5. CẤU HÌNH PWA CHO iOS                                          -->
+    <!-- 5. CẤU HÌNH PWA CHO iOS (Safari)                                 -->
     <!-- ================================================================= -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -54,8 +61,8 @@
     <meta property="og:site_name" content="Ngọc Thanh">
     <meta property="og:title" content="NGỌC THANH | Đại Bách Khoa Toàn Thư">
     <meta property="og:description" content="Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.">
-    <meta property="og:url" content="https://vandao.github.io/">
-    <meta property="og:image" content="https://vandao.github.io/assets/khung.jpg">
+    <meta property="og:url" content="https://thanhdnh83-sys.github.io/van_hien/">
+    <meta property="og:image" content="https://thanhdnh83-sys.github.io/van_hien/assets/khung.jpg">
     <meta property="og:locale" content="vi_VN">
 
     <!-- ================================================================= -->
@@ -64,10 +71,10 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="NGỌC THANH | Đại Bách Khoa Toàn Thư">
     <meta name="twitter:description" content="Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.">
-    <meta name="twitter:image" content="https://vandao.github.io/assets/khung.jpg">
+    <meta name="twitter:image" content="https://thanhdnh83-sys.github.io/van_hien/assets/khung.jpg">
 
     <!-- ================================================================= -->
-    <!-- 8. LIÊN KẾT FILE CSS (Đúng thứ tự ưu tiên)                       -->
+    <!-- 8. LIÊN KẾT FILE CSS (Thứ tự ưu tiên từ gốc đến ngọn)            -->
     <!-- ================================================================= -->
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
@@ -78,7 +85,7 @@
 <body>
 
     <!-- ================================================================= -->
-    <!-- 9. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG                                   -->
+    <!-- 9. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG (Dành cho người dùng bàn phím)    -->
     <!-- ================================================================= -->
     <a href="#main-content" class="skip-link">Bỏ qua điều hướng, đến nội dung chính</a>
 
@@ -149,6 +156,7 @@
 
             <!-- Khối nút bên phải: Cài đặt + Hamburger -->
             <div class="nav-actions">
+                <!-- Nút Cài đặt (Icon Bánh răng) -->
                 <button id="btn-open-settings" class="nav-icon-btn" aria-label="Cài đặt" title="Cài đặt">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
@@ -156,6 +164,7 @@
                     </svg>
                 </button>
                 
+                <!-- Nút Menu Hamburger (Mobile) -->
                 <button class="mobile-menu-btn" id="btn-toggle-menu" onclick="window.toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
@@ -206,6 +215,7 @@
                     <label for="search-input" class="sr-only">Tìm tác phẩm hoặc hỏi AI</label>
                     <div class="search-wrap search-box-wrapper">
                         <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <!-- Input Tìm kiếm Văn Hiến: Gọi handleSearchInput với ID riêng -->
                         <input type="search" id="search-input" placeholder="Tìm tác phẩm hoặc hỏi: Ai viết Tắt Đèn?..." aria-describedby="heritage-count" oninput="window.handleSearchInput('search-input', 'clear-search-btn-heritage')">
                         <!-- Nút X cho Văn Hiến -->
                         <button type="button" id="clear-search-btn-heritage" class="clear-btn" onclick="window.clearSearch('search-input', 'clear-search-btn-heritage', 'heritage')" title="Xóa tìm kiếm">
@@ -234,6 +244,7 @@
                     <label for="encyclopedia-search" class="sr-only">Tìm kiếm hoặc Hỏi Đạo</label>
                     <div class="search-wrap search-box-wrapper">
                         <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <!-- Input Tìm kiếm Bách Khoa: Gọi handleSearchInput với ID riêng -->
                         <input type="search" id="encyclopedia-search" placeholder="Tìm kiếm hoặc hỏi: Tác phẩm thời nhà Lê? / Lục bát là gì?" aria-describedby="encyclopedia-count" oninput="window.handleSearchInput('encyclopedia-search', 'clear-search-btn')">
                         <!-- Nút X cho Bách Khoa -->
                         <button type="button" id="clear-search-btn" class="clear-btn" onclick="window.clearSearch('encyclopedia-search', 'clear-search-btn', 'encyclopedia')" title="Xóa tìm kiếm">
@@ -420,20 +431,23 @@
     <!-- 20. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
     <!-- ================================================================= -->
     <script>
-        window.VD_APP_VERSION = '4.0.0';
+        window.VD_APP_VERSION = '5.0.0';
         window.VD_BUILD_DATE  = '2026-11-21';
     </script>
     
-    <!-- File script chính xử lý logic -->
+    <!-- File script chính xử lý logic (Bắt buộc phải có type="module") -->
     <script type="module" src="js/main.js"></script>
 
-    <!-- Đăng ký Service Worker (Chống tự động reload) -->
+    <!-- ================================================================= -->
+    <!-- 21. ĐĂNG KÝ SERVICE WORKER (CHỐNG TỰ ĐỘNG RELOAD)                 -->
+    <!-- ================================================================= -->
     <script>
     (function () {
         if (!('serviceWorker' in navigator)) return;
 
-        let isUpdating = false;
+        let isUpdating = false; // Cờ đánh dấu người dùng đã chủ động bấm Cập nhật
 
+        // Chỉ tự động tải lại trang KHI VÀ CHỈ KHI người dùng đã bấm nút Cập nhật
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (isUpdating) {
                 window.location.reload();
@@ -444,10 +458,12 @@
             const banner = document.getElementById('update-banner');
             if (!banner) return;
 
+            // Hiển thị banner trượt lên
             banner.style.transform = 'translateX(-50%) translateY(0)';
             banner.style.opacity = '1';
             banner.style.pointerEvents = 'auto';
 
+            // Nút "Cập nhật": Kích hoạt SW mới và cho phép reload
             document.getElementById('update-btn').onclick = () => {
                 isUpdating = true; 
                 worker.postMessage({ type: 'SKIP_WAITING' });
@@ -455,6 +471,7 @@
                 banner.style.opacity = '0';
             };
 
+            // Nút "Để sau" (Dismiss): Chỉ ẩn banner, tiếp tục đọc bình thường
             document.getElementById('dismiss-btn').onclick = () => {
                 banner.style.transform = 'translateX(-50%) translateY(120px)';
                 banner.style.opacity = '0';
@@ -466,18 +483,22 @@
             const swUrl = './sw.js';
 
             navigator.serviceWorker.register(swUrl).then(reg => {
+                // Kiểm tra cập nhật ngầm (giãn thời gian ra 1 tiếng để đỡ làm phiền)
                 setInterval(() => {
                     if (document.visibilityState === 'visible') {
                         reg.update().catch(() => {});
                     }
                 }, 60 * 60 * 1000); 
 
+                // Nếu đã có bản mới đang chờ sẵn (ví dụ: mở lại tab cũ)
                 if (reg.waiting) showUpdateBanner(reg.waiting);
 
+                // Lắng nghe khi có bản mới đang được cài đặt
                 reg.addEventListener('updatefound', () => {
                     const installing = reg.installing;
                     if (!installing) return;
                     installing.addEventListener('statechange', () => {
+                        // Nếu đã cài xong và có SW cũ đang chạy -> Hiện banner hỏi ý kiến
                         if (installing.state === 'installed' && navigator.serviceWorker.controller) {
                             showUpdateBanner(installing);
                         }
@@ -489,7 +510,7 @@
     </script>
 
     <!-- ================================================================= -->
-    <!-- 21. NOSCRIPT FALLBACK                                            -->
+    <!-- 22. NOSCRIPT FALLBACK (CẢNH BÁO KHI TẮT JAVASCRIPT)               -->
     <!-- ================================================================= -->
     <noscript>
         <div style="position: fixed; inset: 0; background: #f7fcf9; z-index: 9999999; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px;">
