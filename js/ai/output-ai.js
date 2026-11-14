@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO AI - OUTPUT AI (js/ai/output-ai.js)
  * Vị trí: js/ai/output-ai.js
- * Version: 6.0.0 (Living Intelligence Expression)
+ * Version: 6.0.1 (Living Intelligence Expression)
  * ==========================================================
  * TRIẾT LÝ:
  * - Không chỉ hiển thị dữ liệu, mà biểu đạt nó với phong thái Nho - Đạo - Phật.
@@ -51,9 +51,11 @@ export const OutputAI = {
                             ${validMetas.map(m => {
                                 const title = m.title || m.name || m.id;
                                 let group = m._group || 'tinh-hoa';
-                                if (m.id.startsWith('tac-gia')) group = 'ky-tai';
-                                else if (m.id.startsWith('quyen')) group = 'triet-thuyet';
-                                else if (m.id.startsWith('the-loai')) group = 'the-loai';
+                                
+                                // [ĐÃ SỬA LỖI] Ép kiểu String() trước khi dùng .startsWith()
+                                if (String(m.id).startsWith('tac-gia')) group = 'ky-tai';
+                                else if (String(m.id).startsWith('quyen')) group = 'triet-thuyet';
+                                else if (String(m.id).startsWith('the-loai')) group = 'the-loai';
 
                                 const subText = m.author ? `Tác giả: ${m.author}` : (m.era ? `Thời kỳ: ${m.era}` : '');
 
