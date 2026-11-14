@@ -1,8 +1,8 @@
 /**
  * ==========================================================
- * VĂN ĐẠO AI - MASTER MODULE (js/ai/master.js)
+ * NGỌC THANH - MASTER MODULE (js/ai/master.js)
  * Vị trí: js/ai/master.js
- * Version: 10.0.1 (Fixed Imports & Dependencies)
+ * Version: 10.0.2 (Fixed Absolute Relative Imports)
  * ==========================================================
  * TRIẾT LÝ THIẾT KẾ:
  * 1. OMNIBOX ROUTING: Phân biệt Factoid, Deep Query và Search.
@@ -11,7 +11,7 @@
  * ==========================================================
  */
 
-// [FIX] Import đúng đường dẫn tương đối từ thư mục js/ai/
+// [FIX LỖI 404] Import chính xác từ thư mục js/ai/ lùi ra ngoài (../)
 import { SmartInputParser } from './smart-input-parser.js';
 import { AgentMap, AgentRegistry } from './agents/index.js';
 import { MemoryEngine } from './memory-engine.js';
@@ -25,7 +25,7 @@ import { APP_DATA } from '../config.js';
 // =====================================================================
 // PHẦN 1: PHIÊN BẢN & LOG TIỆN ÍCH
 // =====================================================================
-export const MASTER_VERSION = '10.0.1';
+export const MASTER_VERSION = '10.0.2';
 
 function debugLog(...args) {
     if (typeof window !== 'undefined' && window.VD_MASTER_DEBUG) console.log('[MASTER]', ...args);
@@ -73,6 +73,7 @@ function normalizeResult(raw, sourceKey) {
 async function runMultiPerspectivePipeline(parsedInput) {
     debugLog(`[PIPELINE] Khởi chạy Pipeline đa chiều cho: "${parsedInput.raw}"`);
 
+    // 1. Gợi ý theo cảm xúc (Recommend)
     if (parsedInput.intent === 'recommend' && parsedInput.mood) {
         const moodWorks = DataHub.getWorksByMood(parsedInput.mood);
         if (moodWorks.length > 0) {
@@ -84,6 +85,7 @@ async function runMultiPerspectivePipeline(parsedInput) {
         }
     }
 
+    // 2. Phân tích tác phẩm (Analyze)
     const workInfo = await AgentMap['literature'].getWorkInfo(parsedInput.coreKeyword);
     if (!workInfo.ok) return null;
 
@@ -111,7 +113,7 @@ async function runMultiPerspectivePipeline(parsedInput) {
 
     return {
         answer: report,
-        detail: `Phân tích đa chiều được tổng hợp bởi Hội đồng Văn Đạo.`,
+        detail: `Phân tích đa chiều được tổng hợp bởi Hội đồng Ngọc Thanh.`,
         source: 'master-pipeline',
         meta: [work, ...relatedByMood]
     };
@@ -168,6 +170,7 @@ async function internalHandle(rawQuery) {
         }
     }
 
+    // Fallback: Agent-Guided Search
     let results = VDSearchEngine.search(parsed.coreKeyword).map(r => DataHub.getMetadata(r.id)?.data).filter(Boolean);
     
     if (results.length === 0 && parsed.mood) {
@@ -258,7 +261,7 @@ export const AIDispatcher = MasterAI;
 if (typeof console !== 'undefined' && console.log) {
     const agentCount = AgentRegistry.getAllAgentKeys().length;
     console.log(
-        `%c[MASTER] Văn Đạo MasterAI v${MASTER_VERSION} (Omnibox Routing) sẵn sàng. Điều phối ${agentCount} Agent.`,
-        'color: #8bb8a8; font-weight: bold;'
+        `%c[MASTER] Ngọc Thanh MasterAI v${MASTER_VERSION} (Omnibox Routing) sẵn sàng. Điều phối ${agentCount} Agent.`,
+        'color: #2e8b57; font-weight: bold;'
     );
 }
