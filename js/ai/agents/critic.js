@@ -2,11 +2,12 @@
  * ==========================================================
  * VĂN ĐẠO AI - CRITIC AGENT (js/ai/agents/critic.js)
  * Vị trí: js/ai/agents/critic.js
- * Version: 3.0.0 (Literary Context & Soul Edition)
+ * Version: 3.2.0 (Quick Comment for Fate Modal)
  * ==========================================================
  * TRIẾT LÝ:
  * - Phê bình có căn cứ, dựa trên sự đứt gãy nhịp điệu hoặc ngữ cảnh.
  * - Thái độ xây dựng, tôn trọng người viết.
+ * - [MỚI] Thêm hàm getQuickComment() phục vụ riêng cho tính năng Bói thơ.
  * ==========================================================
  */
 
@@ -14,27 +15,18 @@ import { LiteraryEngine } from '../literary-engine.js';
 
 export const CriticAgent = {
     /**
-     * Phân tích văn bản để tìm hạn chế, điểm cần cải thiện.
-     * 
-     * @param {string} text - Văn bản cần phân tích.
-     * @param {string} title - Tên tác phẩm (tùy chọn).
-     * @returns {Object} { theme, symbol, commentary }
+     * Phân tích văn bản để tìm hạn chế (Dùng cho Pipeline).
      */
     analyze(text, title = '') {
         const ctx = LiteraryEngine.analyzeContext(text, title);
 
         if (!ctx.isValid) {
-            return { 
-                theme: '', 
-                symbol: '', 
-                commentary: 'Cần có nội dung cụ thể để đưa ra lời góp ý.' 
-            };
+            return { theme: '', symbol: '', commentary: 'Cần có nội dung cụ thể để đưa ra lời góp ý.' };
         }
 
         const { coreLine, context, prosody, rhyme } = ctx;
         const workName = title ? `tác phẩm "${title}"` : 'bài thơ';
 
-        // 1. Mở bài
         const openings = [
             `Dù ${workName} có nhiều nỗ lực, nhưng khi xét câu thơ <i>"${coreLine}"</i>, ta thấy vẫn còn những điểm cần bàn lại.`,
             `Xét riêng câu <i>"${coreLine}"</i> ở ${context.positionText}, tác giả dường như còn khá dè dặt.`,
@@ -42,7 +34,6 @@ export const CriticAgent = {
         ];
         const intro = openings[Math.floor(Math.random() * openings.length)];
 
-        // 2. Phân tích Nhịp điệu (Prosody)
         let rhythmComment = '';
         if (prosody.rhythmType === 'gentle' && prosody.total > 5) {
             rhythmComment = `Việc lạm dụng quá nhiều thanh Bằng (${prosody.bang}) khiến câu thơ đôi chỗ trở nên đều đều, thiếu đi độ căng cần thiết của cảm xúc.`;
@@ -52,7 +43,6 @@ export const CriticAgent = {
             rhythmComment = `Nhịp điệu Bằng/Trắc tuy cân bằng nhưng lại thiếu đi những điểm nhấn đột phá để tạo dư vị.`;
         }
 
-        // 3. Phân tích Ngữ cảnh (Context)
         let contextComment = '';
         if (context.prevLine) {
             contextComment = `Mối liên kết với câu trước <i>"${context.prevLine}"</i> còn khá lỏng lẻo. Sự chuyển ý đột ngột khiến mạch thơ bị ngắt quãng.`;
@@ -60,13 +50,11 @@ export const CriticAgent = {
             contextComment = `Mở đầu bằng <i>"${coreLine}"</i> là một ý hay, nhưng mạch thơ sau đó (câu <i>"${context.nextLine}"</i>) chưa giữ được độ căng cần thiết.`;
         }
 
-        // 4. Vần điệu (Rhyme)
         let rhymeComment = '';
         if (!rhyme.hasRhyme && context.nextLine) {
             rhymeComment = `Việc thiếu đi sự gieo vần với câu tiếp theo khiến câu thơ bị rời rạc, thiếu tính nhạc.`;
         }
 
-        // 5. Kết bài
         const endings = [
             `Tác phẩm cần được gọt giũa thêm để có thể tỏa sáng.`,
             `Hy vọng tác giả sẽ có những bước tiến xa hơn trong các sáng tác sau.`,
@@ -79,6 +67,21 @@ export const CriticAgent = {
             symbol: coreLine.substring(0, 20) + '...',
             commentary: `${intro} ${rhythmComment} ${contextComment} ${rhymeComment} ${outro}`
         };
+    },
+
+    /**
+     * [MỚI] Nhận xét siêu ngắn dành riêng cho Bói thơ (Fate Modal).
+     * 
+     * @param {Object} work - Object tác phẩm từ DataHub.
+     * @returns {string} Câu nhận xét ngắn.
+     */
+    getQuickComment(work) {
+        if (!work) return "Cần thêm thời gian để cảm nhận trọn vẹn.";
+        
+        if (work.cam_xuc && work.cam_xuc.length > 0) {
+            return `Cảm xúc <b>${work.cam_xuc[0]}</b> được khai thác tốt, nhưng đôi chỗ nhịp điệu chưa thật sự nhuần nhuyễn.`;
+        }
+        return "Tác phẩm có ý vị riêng, nhưng cần đọc chậm và ngẫm nghĩ nhiều hơn để thấm.";
     }
 };
 
