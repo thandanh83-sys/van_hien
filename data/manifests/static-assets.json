@@ -24,6 +24,7 @@
     "./js/utils.js"
   ],
   "js_ai": [
+    "./js/ai/contemplative-engine.js",
     "./js/ai/core.js",
     "./js/ai/dialogue-engine.js",
     "./js/ai/identity.js",
