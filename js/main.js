@@ -10,13 +10,11 @@
  * 1. KHÔNG CHẤM ĐIỂM (No Scoring):
  *    - Không có UI nào hiển thị điểm số.
  *    - Chỉ có câu hỏi chiêm nghiệm và lời gợi mở.
- *    - Tier 4 của executePipeline đổi từ "Praiser/Critic" sang
- *      "Khúc Tán Thưởng" và "Lời Gợi Mở".
  *
  * 2. TÁCH BIỆT LOGIC VÀ RENDER:
  *    - main.js: điều phối, nạp dữ liệu, xử lý sự kiện.
- *    - render.js: render UI (showToast, renderContemplativeQuestions...).
- *    - ai.js: chỉ là facade, không chứa logic.
+ *    - render.js: render UI.
+ *    - ai.js: chỉ là facade.
  *
  * 3. GRACEFUL DEGRADATION:
  *    - Nếu ContemplativeEngine chưa sẵn sàng → dùng POETRY_ANALYZER cũ.
@@ -25,17 +23,18 @@
  *
  * 4. TIẾN TRÌNH TẢI (Progressive Loading):
  *    - Tầng 1 (Critical): danh ngôn + tác phẩm → UI hiện ngay.
- *    - Tầng 2 (Background): lý thuyết, tác giả, từ điển, contemplative...
+ *    - Tầng 2 (Background): lý thuyết, tác giả, contemplative...
  *
  * 5. TƯƠNG THÍCH NGƯỢC:
  *    - Tất cả hàm cũ vẫn export ra window.
- *    - Chỉ THÊM hàm mới, không XÓA.
  *    - `criticCommentary` vẫn được giữ làm alias cho `goiMoCommentary`.
  *
  * LỊCH SỬ PHIÊN BẢN:
  * - v6.1.0: Solid AI UI & Progressive Loading.
- * - v7.0.0: Contemplative UI. Tích hợp ContemplativeEngine, KhucTanThuongAgent,
- *           GoiMoAgent. Bỏ hoàn toàn CriticAgent/PraiserAgent.
+ * - v7.0.0: Contemplative UI. Tích hợp ContemplativeEngine,
+ *           KhucTanThuongAgent, GoiMoAgent. Bỏ hoàn toàn
+ *           CriticAgent/PraiserAgent.
+ *
  * ==========================================================
  */
 
@@ -53,7 +52,7 @@ import {
     bindEncyclopediaEvents, filterEncyclopediaGroup,
     filterMainCategory, filterSubGenre, renderEncyclopedia,
     changePage, findSymbols,
-    // [v3.0.0 — NEW]
+    // [v3.0.0 — NEW] Bạch Ngọc UI helpers
     showToast, renderContemplativeQuestions, renderCopyButton, renderSkeleton
 } from './render.js';
 import { triggerAsyncSearchIndex } from './search.js';
@@ -1062,3 +1061,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         'color: #c9a96e; font-style: italic; font-weight: bold; padding: 6px 12px;'
     );
 });
+
+// =====================================================================
+// GHI CHÚ CHO NGƯỜI BẢO TRÌ
+// =====================================================================
+/**
+ * SAU KHI DÙNG main.js v7.0.0 (FULL):
+ *
+ * 1. File này KHÔNG còn bị cắt — đã có đầy đủ:
+ *    - 11.8. Nút tải Offline (đầy đủ handlers)
+ *    - 11.9. bindEncyclopediaEvents()
+ *    - 11.10. Log triết lý Văn Đạo
+ *    - Đóng DOMContentLoaded (});
+ *
+ * 2. Đã tích hợp:
+ *    - KhucTanThuongAgent + GoiMoAgent (thay Praiser/Critic)
+ *    - ContemplativeEngine (dynamic import, có try/catch)
+ *    - renderContemplativeQuestions, renderCopyButton (từ render.js v3.0.0)
+ *    - safeFetch('./data/contemplative-prompts.json') (tầng 2)
+ *
+ * 3. Tương thích ngược:
+ *    - Tất cả hàm cũ vẫn export ra window.
+ *    - `aiResult.criticCommentary` vẫn được dùng làm fallback cho `goiMoCommentary`.
+ *
+ * 4. KHÔNG BAO GIỜ thêm hiển thị điểm số vào file này.
+ *    Đó là tư duy của Prompt Evaluator, không phải Văn Đạo.
+ */
