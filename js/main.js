@@ -36,7 +36,6 @@
  * - v6.1.0: Solid AI UI & Progressive Loading.
  * - v7.0.0: Contemplative UI. Tích hợp ContemplativeEngine, KhucTanThuongAgent,
  *           GoiMoAgent. Bỏ hoàn toàn CriticAgent/PraiserAgent.
- *
  * ==========================================================
  */
 
@@ -54,7 +53,7 @@ import {
     bindEncyclopediaEvents, filterEncyclopediaGroup,
     filterMainCategory, filterSubGenre, renderEncyclopedia,
     changePage, findSymbols,
-    // [v3.0.0 - NEW]
+    // [v3.0.0 — NEW]
     showToast, renderContemplativeQuestions, renderCopyButton, renderSkeleton
 } from './render.js';
 import { triggerAsyncSearchIndex } from './search.js';
@@ -66,7 +65,7 @@ import {
     MasterAI, OutputAI, LiteraryEngine, Identity
 } from './ai.js';
 
-// [v8.0.0 - NEW] Thay PraiserAgent/CriticAgent
+// [v8.0.0 — NEW] Thay PraiserAgent/CriticAgent
 import { KhucTanThuongAgent } from './ai/agents/khuc-tan-thuong.js';
 import { GoiMoAgent } from './ai/agents/goi-mo.js';
 
@@ -136,7 +135,7 @@ function initDewdrops() {
 }
 
 // =====================================================================
-// 4. THI PHÁP HỌC (POETRY ANALYZER) — Giữ nguyên, không đổi
+// 4. THI PHÁP HỌC (POETRY ANALYZER)
 // =====================================================================
 const POETRY_ANALYZER = (() => {
     function getTone(s) {
@@ -223,24 +222,13 @@ const POETRY_ANALYZER = (() => {
         return { lastSyllables: lastSyl, rhymeParts, details: result };
     }
 
-    function buildQuestions(form, rhymes, symbols) {
-        const questions = [];
-        if (form.confidence !== 'cao') questions.push(`Bài được nhận diện là "${form.form}" (độ tin cậy ${form.confidence}).`);
-        const hasChanRhyme = rhymes.details.chan.some(item => item.isMatch);
-        if (!hasChanRhyme) questions.push('Phép dò chưa nhận diện được vần chân rõ ràng.');
-        if (symbols.length) questions.push(`"${symbols[0].keyword}" xuất hiện — gợi nghĩa nào?`);
-        questions.push('Điều gì ở bài thơ này là "của riêng" tác giả?');
-        return questions.slice(0, 5);
-    }
-
     function generateReport(text) {
         const bangTrac = analyzeBangTrac(text);
         if (!bangTrac.length) return null;
         const form = detectForm(bangTrac);
         const rhymes = checkRhymeDetails(bangTrac);
         const symbols = findSymbols(text);
-        const questions = buildQuestions(form, rhymes, symbols);
-        return { bangTrac, form, rhymes, symbols, questions };
+        return { bangTrac, form, rhymes, symbols };
     }
 
     return { generateReport };
@@ -257,18 +245,10 @@ const POETRY_ANALYZER = (() => {
  * Tầng 0: Thanh điệu & Nhịp điệu (Bằng/Trắc)
  * Tầng 1: Thể thơ & Vần
  * Tầng 2: Biểu tượng & Điển tích
- * Tầng 3: Gợi mở chiêm nghiệm (POETRY_ANALYZER + ContemplativeEngine)
+ * Tầng 3: Gợi mở chiêm nghiệm (từ ContemplativeEngine)
  * Tầng 4: Khúc Tán Thưởng (từ KhucTanThuongAgent)
  * Tầng 5: Lời Gợi Mở (từ GoiMoAgent)
  * ─────────────────────────────────────────────────────
- *
- * [v7.0.0] Thay đổi so với v6.1.0:
- * - Thêm tầng 3 dùng ContemplativeEngine (nếu có).
- * - Tách tầng 4 cũ (Praiser/Critic) thành 2 tầng mới:
- *   + Tầng 4: Khúc Tán Thưởng
- *   + Tầng 5: Lời Gợi Mở
- * - Thêm nút copy cho mỗi tầng cảm thụ.
- * - KHÔNG còn bất kỳ điểm số nào.
  *
  * @returns {Promise<void>}
  */
@@ -321,19 +301,12 @@ async function executePipeline() {
             contemplativeQuestions = mod.ContemplativeEngine.generate(raw, prompts) || [];
         }
     } catch (err) {
-        // ContemplativeEngine chưa sẵn sàng — graceful degradation
-        // Dùng tạm câu hỏi từ POETRY_ANALYZER
-        console.info('[MAIN] ContemplativeEngine chưa sẵn sàng, dùng câu hỏi cơ bản.');
+        console.info('[MAIN] ContemplativeEngine chưa sẵn sàng:', err);
     }
 
-    // ---- Bước 4: Chuẩn bị câu hỏi cho tầng 3 ----
-    // Gộp câu hỏi cấu trúc (POETRY_ANALYZER) và câu hỏi chiêm nghiệm (ContemplativeEngine)
-    const structuralQuestions = report.questions.map(q => ({ question: q, quote: null }));
-    const allQuestions = [...structuralQuestions, ...contemplativeQuestions].slice(0, 6);
+    // ---- Bước 4: Xây dựng HTML cho từng tầng ----
 
-    // ---- Bước 5: Xây dựng HTML cho từng tầng ----
-
-    // Tầng 0: Thanh điệu & Nhịp điệu (KHÔNG đổi)
+    // Tầng 0: Thanh điệu & Nhịp điệu
     const tier0 = `
         <div style="margin-bottom: 20px; padding: 15px; background: rgba(139,184,168,0.05); border-radius: 8px; border: 1px dashed var(--border-color);">
             <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-family: var(--font-body); font-weight: bold;">Bài thơ của Bạn</div>
@@ -398,13 +371,9 @@ async function executePipeline() {
         </div>`).join('');
 
     // Tầng 3: Gợi mở chiêm nghiệm
-    const tier3 = allQuestions.length > 0
-        ? renderContemplativeQuestions(allQuestions)
-        : `<p style="font-style:italic;color:var(--text-muted);text-align:center;padding:20px 0;">
-            Chưa có gợi mở nào. Mời Bạn đọc chậm lại và tự cảm nhận.
-        </p>`;
+    const tier3 = renderContemplativeQuestions(contemplativeQuestions);
 
-    // Tầng 4: Khúc Tán Thưởng (từ KhucTanThuongAgent)
+    // Tầng 4: Khúc Tán Thưởng
     const tier4 = `
         <div style="background: #ffffff; padding: 18px; border-radius: 10px; border-left: 4px solid var(--accent); box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:10px;">
@@ -419,7 +388,7 @@ async function executePipeline() {
         </div>
     `;
 
-    // Tầng 5: Lời Gợi Mở (từ GoiMoAgent)
+    // Tầng 5: Lời Gợi Mở
     const tier5 = `
         <div style="background: #ffffff; padding: 18px; border-radius: 10px; border-left: 4px solid #a36b6b; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:10px;">
@@ -434,7 +403,7 @@ async function executePipeline() {
         </div>
     `;
 
-    // ---- Bước 6: Ghép tất cả vào panel ----
+    // ---- Bước 5: Ghép tất cả vào panel ----
     panel.innerHTML = `
         <div class="result-step" style="border-left-color: var(--text-muted);">
             <div class="step-title">Thanh điệu &amp; Nhịp điệu</div>
@@ -543,7 +512,7 @@ async function loadAllData() {
                 safeFetch('./data/data-the-loai.json', {}),
                 safeFetch('./data/data-van-khi.json', { config: {}, advice: {} }),
                 safeFetch('./data/data-tu-dien-the-loai.json', []),
-                // [v4.0.0 - NEW] Bộ câu hỏi chiêm nghiệm
+                // [v7.0.0 — NEW] Bộ câu hỏi chiêm nghiệm
                 safeFetch('./data/contemplative-prompts.json', {})
             ]);
 
@@ -564,7 +533,7 @@ async function loadAllData() {
 
             // Log trạng thái Contemplative
             if (isContemplativeReady()) {
-                const dimCount = Object.keys(APP_DATA.CONTEMPLATIVE_PROMPTS).length;
+                const dimCount = Object.keys(APP_DATA.CONTEMPLATIVE_PROMPTS).filter(k => !k.startsWith('_')).length;
                 console.log(`[SYSTEM] Contemplative Prompts: ${dimCount} chiều kích đã sẵn sàng.`);
             } else {
                 console.info(`[SYSTEM] Contemplative Prompts chưa sẵn sàng — dùng câu hỏi cơ bản.`);
@@ -600,16 +569,8 @@ function renderRandomQuote() {
 }
 
 // =====================================================================
-// 7. BÓI THƠ (FATE MODAL) — v4.0.0 Contemplative
+// 7. BÓI THƠ (FATE MODAL) — v7.0.0 Contemplative
 // =====================================================================
-/**
- * Bói thơ: chọn ngẫu nhiên một tác phẩm + tính vận khí + hiển thị 3 góc nhìn.
- *
- * 3 góc nhìn (không chấm điểm):
- * 1. Lời chiêm nghiệm thiền vị (từ fortune_texts)
- * 2. Khúc Tán Thưởng (từ KhucTanThuongAgent.getQuickComment)
- * 3. Lời Gợi Mở (từ GoiMoAgent.getQuickComment)
- */
 async function randomPoem() {
     const validWorks = APP_DATA.WORKS_DATA.filter(work => work && work.id);
     if (!validWorks.length) {
@@ -682,7 +643,6 @@ async function randomPoem() {
 
     // Cập nhật phần bình luận (3 góc nhìn)
     if (commentaryEl) {
-        // [v4.0.0] Dùng goiMoCommentary (mới), fallback về criticCommentary (cũ)
         const goiMoText = aiResult.goiMoCommentary || aiResult.criticCommentary || '';
 
         commentaryEl.innerHTML = `
