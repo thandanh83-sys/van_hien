@@ -44,7 +44,7 @@
  * - v6.0.1: Living Intelligence Expression.
  * - v7.0.0: Contemplative Renderer.
  *   - [NEW] Toast nội bộ (Bạch Ngọc style).
- *   - [NEW] Copy button cho từng meta item.
+ *   - [NEW] Copy button cho meta list ("Chép tất cả").
  *   - [NEW] Source label mapping (Việt hóa tên nguồn).
  *   - [NEW] Fallback khi DialogueEngine lỗi.
  *   - [NEW] Guard chống trùng lặp meta (cùng id).
@@ -464,7 +464,7 @@ export const OutputAI = {
         // 3.1. Nút "Chép tất cả" (cho meta list)
         const copyAllBtn = container.querySelector('.output-ai-copy-all');
         if (copyAllBtn) {
-            // Hiện nút khi hover wrapper (dùng CSS class nếu có, fallback inline)
+            // Hiện nút khi hover wrapper
             const wrapper = copyAllBtn.closest('.ask-meta-wrapper');
             if (wrapper) {
                 wrapper.addEventListener('mouseenter', () => {
@@ -664,9 +664,6 @@ export const OutputAI = {
  *    .ask-meta-wrapper:hover .output-ai-copy-all {
  *        opacity: 1 !important;
  *    }
- *
- *    (Hiện tại code đã dùng JS mouseenter/mouseleave để hover,
- *    nhưng CSS sẽ tối ưu hơn nếu có.)
  *
  * 2. Không cần sửa gì ở các file khác:
  *    - master.js đã gọi OutputAI.render(container, result, query)
