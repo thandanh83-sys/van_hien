@@ -79,7 +79,7 @@
     <link rel="stylesheet" href="css/reader.css">
 
     <!-- ================================================================= -->
-    <!-- 9. VERSION METADATA (dùng cho audit & debug)                     -->
+    <!-- 9. VERSION METADATA                                               -->
     <!-- ================================================================= -->
     <script>
         window.VD_APP_VERSION = '4.0.0';
@@ -284,7 +284,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 16. GỢI Ý ĐỌC (FATE MODAL) — Contemplative Labels                -->
+    <!-- 16. GỢI Ý ĐỌC (FATE MODAL)                                       -->
     <!-- ================================================================= -->
     <div id="fate-modal-overlay" style="display: none;">
         <div id="fate-modal">
@@ -336,11 +336,11 @@
 
                 <div style="background: rgba(46, 139, 87, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 1rem;">Tủ Sách Offline</span>
+                        <span style="font-family: var(--font-body); font-weight: 700; font-size: 1rem;">Kho Dữ Liệu Lõi</span>
                         <span id="settings-storage-text" style="font-family: var(--font-body); font-size: 0.8rem; color: var(--text-muted);">Chưa kiểm tra</span>
                     </div>
                     <p style="font-family: var(--font-body); font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5;">
-                        Mang thư viện tri thức theo bên mình, kể cả khi không có kết nối mạng.
+                        Tải Từ điển, Lý thuyết và Danh ngôn về máy. Các tác phẩm chi tiết sẽ tự động lưu khi bạn bấm đọc.
                     </p>
 
                     <div id="offline-progress-section" style="display: none; margin-bottom: 15px;">
@@ -354,7 +354,7 @@
                     </div>
 
                     <div style="display: flex; gap: 10px;">
-                        <button id="offline-btn-start" class="btn filter-btn" style="flex: 1; padding: 10px; font-size: 0.8rem;">Tải Toàn Bộ</button>
+                        <button id="offline-btn-start" class="btn filter-btn" style="flex: 1; padding: 10px; font-size: 0.8rem;">Tải Kho Dữ Liệu</button>
                         <button id="offline-btn-cancel" class="btn filter-btn" style="flex: 1; padding: 10px; font-size: 0.8rem; background: transparent; border-color: var(--color-error); color: var(--color-error); display: none;">Hủy</button>
                     </div>
                 </div>
@@ -384,9 +384,12 @@
             </div>
 
             <div style="text-align: center; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                <p style="font-family: var(--font-body); font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4;">
+                    Dọn dẹp Tủ Sách để giải phóng bộ nhớ.<br>(Bản nháp và Cài đặt của Bạn vẫn được giữ an toàn).
+                </p>
                 <button class="offline-text-btn" id="offline-btn-clear">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    Xóa dữ liệu Offline
+                    Xóa Tủ Sách Offline
                 </button>
             </div>
 
@@ -423,7 +426,7 @@
     </dialog>
 
     <!-- ================================================================= -->
-    <!-- 20. FOOTER                                                       -->
+    <!-- 20. FOOTER (Đã xóa dòng bản quyền - Clean Footer)                 -->
     <!-- ================================================================= -->
     <footer class="app-footer">
         <div class="footer-grid">
@@ -450,9 +453,8 @@
                 </div>
             </div>
         </div>
-        <div class="footer-bottom">
-            <p>© 2026 Văn Đạo. Bảo lưu mọi quyền.</p>
-            <p class="footer-license">Thiết kế bởi Văn Đạo — Contemplative Edition.</p>
+        <div class="footer-bottom" style="justify-content: center;">
+            <p class="footer-license" style="margin: 0;">Thiết kế bởi Văn Đạo — Contemplative Edition.</p>
         </div>
     </footer>
 
@@ -537,7 +539,7 @@
                     Để trải nghiệm trọn vẹn kho tàng tri thức và các tính năng AI, vui lòng bật JavaScript trong trình duyệt của bạn.
                 </p>
             </div>
-        </footer>
+        </div>
     </noscript>
 </body>
 </html>
