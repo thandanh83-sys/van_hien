@@ -598,3 +598,27 @@ KhucTanThuongAgent.agentInfo = {
     // ---- Không có specialDetector ----
     // (Vì đây là agent đơn giản, intent rõ ràng qua từ khóa)
 };
+
+// ==========================================================
+// GHI CHÚ CHO NGƯỜI BẢO TRÌ
+// ==========================================================
+/**
+ * SAU KHI DÙNG khuc-tan-thuong.js v4.1.0:
+ *
+ * 1. Đây là file HOÀN CHỈNH — không bị cắt.
+ *    Đã có đầy đủ `agentInfo` ở cuối.
+ *
+ * 2. Kiểm tra nhanh trong Console (F12):
+ *    import { KhucTanThuongAgent } from './js/ai/agents/khuc-tan-thuong.js';
+ *    console.log(KhucTanThuongAgent.agentInfo.key);  // → 'khuc-tan-thuong'
+ *    console.log(KhucTanThuongAgent.agentInfo.capabilities);  // → { praise-work: 'analyze', ... }
+ *
+ * 3. File này THAY THẾ hoàn toàn `praiser.js`. Sau khi thay:
+ *    - Xóa: js/ai/agents/praiser.js
+ *    - Kiểm tra: AgentRegistry.validate() phải pass với 11 agents.
+ *
+ * 4. Triết lý cốt lõi:
+ *    - "Không chấm điểm văn chương. Mỗi bài thơ đều có hồn, nét đẹp riêng."
+ *    - Chỉ chiêm nghiệm, gợi mở, tôn vinh.
+ *    - Không bao giờ chấm điểm, xếp hạng, phán xét.
+ */
