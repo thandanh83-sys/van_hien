@@ -2,39 +2,38 @@
  * ==========================================================
  * VĂN ĐẠO — RENDER MODULE
  * Vị trí: js/render.js
- * Version: 3.0.0 (Contemplative UI — No Scoring)
+ * Version: 3.1.0 (Fixed Work Card Click — Contemplative UI)
  * ==========================================================
  *
  * TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
  *
  * 1. KHÔNG CHẤM ĐIỂM (No Scoring):
  *    - Không có hàm nào render điểm số.
- *    - Không có UI nào hiển thị "8.5/10".
  *    - Chỉ có câu hỏi chiêm nghiệm và lời gợi mở.
  *
  * 2. TÁCH BIỆT RENDER LOGIC:
- *    - renderHeritage:              Văn Hiến (danh sách tác phẩm)
- *    - renderEncyclopedia:          Bách Khoa (accordion)
- *    - renderPagination:            Phân trang
- *    - renderContemplativeQuestions: [v3.0.0] Câu hỏi chiêm nghiệm
- *    - renderCopyButton:            [v3.0.0] Nút copy từng tầng
- *    - showToast:                   [v3.0.0] Thông báo Bạch Ngọc
- *    - renderSkeleton:              [v3.0.0] Skeleton loading
+ *    - renderHeritage:               Văn Hiến (danh sách tác phẩm)
+ *    - renderEncyclopedia:           Bách Khoa (accordion)
+ *    - renderPagination:             Phân trang
+ *    - renderContemplativeQuestions: Câu hỏi chiêm nghiệm
+ *    - renderCopyButton:             Nút copy từng tầng
+ *    - showToast:                    Thông báo Bạch Ngọc
+ *    - renderSkeleton:               Skeleton loading
  *
  * 3. UI BẠCH NGỌC:
- *    - Không gradient neon.
- *    - Không emoji.
- *    - Chỉ dùng CSS variables (--accent, --accent-gold, --text-main...).
+ *    - Không gradient neon, không emoji.
+ *    - Chỉ dùng CSS variables.
  *
  * 4. TƯƠNG THÍCH NGƯỢC:
  *    - Tất cả export cũ vẫn giữ nguyên.
- *    - main.js cũ vẫn chạy được nếu chưa cập nhật.
- *    - Chỉ THÊM các hàm mới, không XÓA hàm cũ.
+ *    - Chỉ THÊM hàm mới, không XÓA hàm cũ.
  *
  * LỊCH SỬ PHIÊN BẢN:
  * - v2.3.0: Clean UI & Intent Router UX.
- * - v3.0.0: Thêm Contemplative UI (không chấm điểm), Toast, Skeleton,
- *           Copy button. Giữ nguyên tất cả chức năng cũ.
+ * - v3.0.0: Contemplative UI (không chấm điểm), Toast, Skeleton, Copy.
+ * - v3.1.0: [FIX] Work Card click — thêm data-route-* vào OUTER div
+ *           để click bất kỳ chỗ nào cũng điều hướng được, không chỉ
+ *           phải nhắm trúng chữ tiêu đề như trước.
  * ==========================================================
  */
 
@@ -62,7 +61,7 @@ export const PerformanceEngine = (() => {
 })();
 
 // =====================================================================
-// MODULE 2: BẠCH NGỌC UI HELPERS (v3.0.0 — NEW)
+// MODULE 2: BẠCH NGỌC UI HELPERS
 // =====================================================================
 
 /**
@@ -73,7 +72,6 @@ export const PerformanceEngine = (() => {
  * @param {number} duration - Thời gian hiển thị (ms), mặc định 2500
  */
 export function showToast(message, type = 'success', duration = 2500) {
-    // Tạo container nếu chưa có
     let container = document.getElementById('vd-toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -93,14 +91,14 @@ export function showToast(message, type = 'success', duration = 2500) {
         document.body.appendChild(container);
     }
 
-    // Icon SVG theo type
     const icons = {
         success: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
         error:   `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
         info:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
     };
 
-    // Tạo toast element
+    const accentColor = type === 'error' ? 'var(--color-error, #c0392b)' : 'var(--accent, #2e8b57)';
+
     const toast = document.createElement('div');
     toast.style.cssText = `
         background: #ffffff;
@@ -111,7 +109,7 @@ export function showToast(message, type = 'success', duration = 2500) {
         padding: 12px 22px;
         border-radius: 999px;
         border: 1px solid var(--border-color, rgba(46, 139, 87, 0.25));
-        border-left: 3px solid ${type === 'error' ? 'var(--color-error, #c0392b)' : 'var(--accent, #2e8b57)'};
+        border-left: 3px solid ${accentColor};
         box-shadow: 0 8px 25px rgba(26, 82, 50, 0.12);
         opacity: 0;
         transform: translateY(20px);
@@ -123,7 +121,6 @@ export function showToast(message, type = 'success', duration = 2500) {
         max-width: 90vw;
     `;
 
-    const accentColor = type === 'error' ? 'var(--color-error, #c0392b)' : 'var(--accent, #2e8b57)';
     toast.innerHTML = `
         <span style="color:${accentColor};flex-shrink:0;">${icons[type] || icons.info}</span>
         <span>${escapeHTML(message)}</span>
@@ -145,9 +142,6 @@ export function showToast(message, type = 'success', duration = 2500) {
 
 /**
  * Render câu hỏi chiêm nghiệm (thay thế hoàn toàn điểm số).
- *
- * @param {Array} questions - Mảng câu hỏi từ ContemplativeEngine
- * @returns {string} HTML
  */
 export function renderContemplativeQuestions(questions) {
     if (!Array.isArray(questions) || questions.length === 0) {
@@ -156,7 +150,6 @@ export function renderContemplativeQuestions(questions) {
         </p>`;
     }
 
-    // Biểu tượng hoa văn (SVG, không emoji)
     const fleuronSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-gold); flex-shrink: 0; margin-top: 4px;" aria-hidden="true"><path d="M12 2C9 5 6 8 6 12s3 7 6 10c3-3 6-6 6-10s-3-7-6-10z"></path><path d="M12 2v20"></path></svg>`;
 
     return questions.map(q => `
@@ -172,15 +165,9 @@ export function renderContemplativeQuestions(questions) {
 
 /**
  * Render nút copy từng tầng (chỉ hiện khi hover).
- *
- * @param {string} textToCopy - Nội dung cần copy
- * @param {string} label      - Nhãn (mặc định: 'Chép')
- * @returns {string} HTML
  */
 export function renderCopyButton(textToCopy, label = 'Chép') {
     const penSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-
-    // Mã hóa nội dung để tránh lỗi HTML
     const encoded = encodeURIComponent(textToCopy || '');
 
     return `
@@ -213,9 +200,6 @@ export function renderCopyButton(textToCopy, label = 'Chép') {
 
 /**
  * Render Skeleton loading (style Bạch Ngọc).
- *
- * @param {number} count - Số item skeleton
- * @returns {string} HTML
  */
 export function renderSkeleton(count = 3) {
     const items = Array.from({ length: count }, () => `
@@ -301,7 +285,6 @@ export function renderHeritage() {
         );
     }
 
-    // === XỬ LÝ KHI KHÔNG CÓ KẾT QUẢ (INTENT ROUTER UX) ===
     if (!data.length) {
         const isQuestion = /[?]|\b(la ai|la gi|the nao|tai sao|nhu the nao|ai viet)\b/i.test(keyword);
 
@@ -738,6 +721,17 @@ export function findRelatedAuthors(current, limit = 4) {
     return [];
 }
 
+/**
+ * [v3.1.0 — FIX] Append Related Section
+ *
+ * Sửa lỗi "Work Card nhấn nhiều lần không được":
+ * - TRƯỚC: Chỉ thẻ inner (.work-related-title, .work-related-author) có
+ *   data-route-encyclopedia. Click vào padding / meta / arrow → không có gì.
+ * - SAU: Thêm data-route-encyclopedia="true" + data-route-id + data-route-group
+ *   vào OUTER div (.work-related-card). Click bất kỳ chỗ nào cũng điều hướng.
+ * - Riêng .work-related-author vẫn giữ data-route-group="ky-tai" để click
+ *   vào tên tác giả thì điều hướng đến tác giả (không phải tác phẩm).
+ */
 export function appendRelatedSection(container, item, group) {
     if (container.querySelector('.related-section')) return;
 
@@ -750,6 +744,9 @@ export function appendRelatedSection(container, item, group) {
 
     let html = '';
 
+    // =====================================================================
+    // TÁC GIẢ LIÊN QUAN (Button — cả nút click được)
+    // =====================================================================
     if (relatedAuthors.length > 0) {
         html += `
             <div class="related-block">
@@ -773,19 +770,22 @@ export function appendRelatedSection(container, item, group) {
         `;
     }
 
+    // =====================================================================
+    // TÁC PHẨM LIÊN QUAN (Div — TOÀN BỘ card đều click được)
+    // =====================================================================
     if (relatedWorks.length > 0) {
         html += `
             <div class="related-block">
                 <div class="related-title">Tác phẩm liên quan</div>
                 <div class="related-grid">
                     ${relatedWorks.map(w => `
-                        <div class="related-card work-related-card">
-                            <div class="work-related-title"
-                                data-route-encyclopedia="true"
-                                data-route-id="${escapeHTML(w.id)}"
-                                data-route-group="tinh-hoa"
-                                data-route-title="${escapeHTML(w.title)}"
-                                data-route-author="${escapeHTML(w.author || '')}">
+                        <div class="related-card work-related-card"
+                            data-route-encyclopedia="true"
+                            data-route-id="${escapeHTML(w.id)}"
+                            data-route-group="tinh-hoa"
+                            data-route-title="${escapeHTML(w.title)}"
+                            data-route-author="${escapeHTML(w.author || '')}">
+                            <div class="work-related-title">
                                 ${escapeHTML(w.title)}
                             </div>
                             <div class="work-related-meta">
@@ -845,13 +845,9 @@ export function changePage(page, containerId = 'pagination-container', pageType 
 }
 
 // =====================================================================
-// MODULE 8: COPY SECTION HANDLER (v3.0.0 — NEW)
+// MODULE 8: COPY SECTION HANDLER
 // =====================================================================
 
-/**
- * Hàm xử lý copy được gắn vào window để dùng trong inline onclick.
- * Được renderCopyButton sinh ra.
- */
 if (typeof window !== 'undefined') {
     window.__vandao_copySection = function(btn) {
         if (!btn) return;
@@ -895,19 +891,25 @@ if (typeof window !== 'undefined') {
 // GHI CHÚ CHO NGƯỜI BẢO TRÌ
 // =====================================================================
 /**
- * SAU KHI DÙNG render.js v3.0.0, BẠN CẦN:
+ * SAU KHI DÙNG render.js v3.1.0:
  *
- * 1. main.js:
- *    - Sửa `executePipeline` để dùng `renderContemplativeQuestions`
- *      thay cho tier chấm điểm.
- *    - Dùng `showToast` khi copy thành công.
- *    - Dùng `renderSkeleton` khi đang tải.
- *    - Dùng `renderCopyButton` cho mỗi tầng phân tích.
+ * 1. [FIX v3.1.0] Lỗi "Work Card nhấn nhiều lần không được":
+ *    - Nguyên nhân: Chỉ có inner (title + author) có data-route-encyclopedia.
+ *    - Cách sửa: Thêm data-route-* vào OUTER div (.work-related-card).
+ *    - Kết quả: Click bất kỳ chỗ nào trên card đều điều hướng.
  *
- * 2. css/components.css:
- *    - Thêm CSS cho `.btn-copy-section`, `.contemplative-question`,
- *      `.skeleton-bach-ngoc` (xem phần II ở phản hồi trước).
+ * 2. Logic closest() trong main.js:
+ *    - e.target.closest('[data-route-encyclopedia="true"]')
+ *    - Tìm thẻ gần nhất có attribute này (bao gồm chính nó).
+ *    - Author span giữ data-route-group="ky-tai" → click vào tên tác giả
+ *      vẫn điều hướng đến tác giả (không phải tác phẩm).
  *
- * 3. sw.js:
- *    - Tăng CACHE_VERSION vì có file JS mới.
+ * 3. Các hàm mới:
+ *    - showToast: Thông báo Bạch Ngọc
+ *    - renderContemplativeQuestions: Câu hỏi chiêm nghiệm
+ *    - renderCopyButton: Nút copy từng tầng
+ *    - renderSkeleton: Skeleton loading
+ *
+ * 4. Triết lý cốt lõi:
+ *    - "Không chấm điểm văn chương. Mỗi bài thơ đều có hồn, nét đẹp riêng."
  */
