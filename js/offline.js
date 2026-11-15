@@ -2,13 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - OFFLINE MODULE (js/offline.js)
  * Vị trí: js/offline.js
- * Version: 3.0.0 (Lazy-Load Strategy — No Scoring)
+ * Version: 4.0.0 (Offline Delta Strategy — Core Only)
  * ==========================================================
  * TRIẾT LÝ:
- * - KHÔNG tải toàn bộ hàng ngàn file chi tiết (gây đầy bộ nhớ).
+ * - KHÔNG tải toàn bộ hàng ngàn file tác phẩm/tác giả (tránh đầy bộ nhớ).
  * - Chỉ tải "Kho lõi" (Core Data): Index, Từ điển, Lý thuyết.
- * - Các file chi tiết (Tác giả/Tác phẩm) sẽ được Service Worker
- *   tự động cache khi người dùng thực sự bấm vào đọc (Runtime Cache).
+ * - Áp dụng Delta Update: Chỉ tải file có mã hash thay đổi.
+ * - Gọi cache.put() trực tiếp để đảm bảo 100% offline.
  * ==========================================================
  */
 
@@ -20,17 +20,18 @@ import { APP_DATA } from './config.js';
 let isDownloading = false;
 let isCancelled = false;
 
+const CACHE_NAME = 'vandao-core-v4';
+const VERSION_URL = './data/manifests/data-version.json';
+const LOCAL_VERSION_KEY = 'vandao_core_version';
+
 const CONFIG = Object.freeze({
-    BATCH_SIZE: 10,
+    BATCH_SIZE: 5,
     RETRY_PER_FILE: 2,
     RETRY_DELAY: 500,
     YIELD_DELAY: 50,
     TIMEOUT: 8000
 });
 
-// ==========================================================
-// PHẦN 2: UTILITIES
-// ==========================================================
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function fetchWithRetry(url, attempts = CONFIG.RETRY_PER_FILE) {
@@ -51,7 +52,7 @@ async function fetchWithRetry(url, attempts = CONFIG.RETRY_PER_FILE) {
 }
 
 // ==========================================================
-// PHẦN 3: STORAGE CHECK & CLEAR
+// PHẦN 2: STORAGE CHECK & CLEAR
 // ==========================================================
 export async function checkStorageSize() {
     const storageText = document.getElementById('settings-storage-text');
@@ -63,12 +64,11 @@ export async function checkStorageSize() {
     try {
         const estimate = await navigator.storage.estimate();
         const usedMB = (estimate.usage / (1024 * 1024)).toFixed(2);
-        const quotaMB = (estimate.quota / (1024 * 1024)).toFixed(0);
         const percent = ((estimate.usage / estimate.quota) * 100).toFixed(1);
 
         if (storageText) {
             storageText.textContent = `Đã dùng: ${usedMB} MB (${percent}%)`;
-            storageText.title = `Tổng dung lượng khả dụng: ${quotaMB} MB`;
+            storageText.title = `Tổng dung lượng khả dụng: ${(estimate.quota / (1024 * 1024)).toFixed(0)} MB`;
         }
         return { used: estimate.usage, quota: estimate.quota };
     } catch (err) {
@@ -82,6 +82,7 @@ export async function clearOfflineData() {
         const cacheNames = await caches.keys();
         const vandaoCaches = cacheNames.filter(name => name.startsWith('vandao-'));
         await Promise.all(vandaoCaches.map(name => caches.delete(name)));
+        localStorage.removeItem(LOCAL_VERSION_KEY); // Xóa dấu vết version
         await checkStorageSize();
         return true;
     } catch (error) {
@@ -90,34 +91,36 @@ export async function clearOfflineData() {
 }
 
 // ==========================================================
-// PHẦN 4: COLLECT CORE URLS (CHỈ TẢI KHO LÕI)
+// PHẦN 3: DELTA UPDATE LOGIC (CHỈ TẢI FILE THAY ĐỔI)
 // ==========================================================
-async function collectUrlsToDownload() {
+async function getFilesToDownload() {
+    // 1. Lấy manifest version từ server
+    const res = await fetch(VERSION_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error('Không thể tải data-version.json');
+    const serverManifest = await res.json();
+
+    // 2. Lấy version đang lưu ở máy khách
+    let localManifest = { files: {} };
+    try {
+        const saved = localStorage.getItem(LOCAL_VERSION_KEY);
+        if (saved) localManifest = JSON.parse(saved);
+    } catch (e) {}
+
     const queue = [];
-    
-    // 1. Tải các file dữ liệu tĩnh cốt lõi (Rất nhẹ, chỉ vài trăm KB)
-    const coreDataFiles = [
-        './data/data-danh-ngon.json',
-        './data/data-ly-thuyet.json',
-        './data/data-the-loai.json',
-        './data/data-tu-dien-the-loai.json',
-        './data/data-loi-binh.json',
-        './data/data-van-khi.json',
-        './data/contemplative-prompts.json',
-        './data/tu-dien/symbols.json',
-        './data/tu-dien/dien-tich.json',
-        './data/tu-dien/han-viet.json'
-    ];
 
-    coreDataFiles.forEach(url => {
-        queue.push({ url, id: url.split('/').pop(), type: 'core' });
-    });
+    // 3. So sánh Delta
+    for (const [url, hash] of Object.entries(serverManifest.files)) {
+        const localHash = localManifest.files ? localManifest.files[url] : null;
+        if (hash !== localHash) {
+            queue.push({ url, hash });
+        }
+    }
 
-    return queue;
+    return { queue, serverManifest };
 }
 
 // ==========================================================
-// PHẦN 5: DOWNLOAD ALL (Chỉ tải Kho Lõi)
+// PHẦN 4: DOWNLOAD ALL (CHỈ TẢI KHO LÕI + CACHE THỦ CÔNG)
 // ==========================================================
 export async function downloadAllOffline(progressCallback) {
     if (isDownloading) return { success: false, message: 'Đang tải dữ liệu...' };
@@ -126,14 +129,22 @@ export async function downloadAllOffline(progressCallback) {
     isCancelled = false;
 
     try {
-        const queue = await collectUrlsToDownload();
+        // Bước 1: Lấy danh sách file cần tải (Delta Update)
+        const { queue, serverManifest } = await getFilesToDownload();
         const totalFiles = queue.length;
 
-        if (totalFiles === 0) return { success: false, message: 'Không có dữ liệu để tải.' };
+        if (totalFiles === 0) {
+            // Nếu không có file nào thay đổi, cập nhật version và báo hoàn tất
+            localStorage.setItem(LOCAL_VERSION_KEY, JSON.stringify(serverManifest));
+            return { success: true, message: 'Dữ liệu đã là mới nhất.' };
+        }
 
+        // Bước 2: Mở Cache Storage
+        const cache = await caches.open(CACHE_NAME);
         let completedFiles = 0;
         let failedFiles = 0;
 
+        // Bước 3: Tải từng batch
         for (let i = 0; i < totalFiles; i += CONFIG.BATCH_SIZE) {
             if (isCancelled) break;
 
@@ -143,7 +154,9 @@ export async function downloadAllOffline(progressCallback) {
             await Promise.allSettled(
                 batch.map(async (item) => {
                     const res = await fetchWithRetry(item.url, CONFIG.RETRY_PER_FILE);
-                    if (res) {
+                    if (res && res.ok) {
+                        // [QUAN TRỌNG] Chủ động lưu vào Cache
+                        await cache.put(item.url, res.clone());
                         batchSuccess++;
                         return { ok: true, item };
                     } else {
@@ -164,13 +177,18 @@ export async function downloadAllOffline(progressCallback) {
             await sleep(CONFIG.YIELD_DELAY);
         }
 
+        // Bước 4: Nếu tải thành công toàn bộ, lưu version mới
+        if (failedFiles === 0 && !isCancelled) {
+            localStorage.setItem(LOCAL_VERSION_KEY, JSON.stringify(serverManifest));
+        }
+
         return {
             success: true,
             status: isCancelled ? 'cancelled' : 'completed',
             total: totalFiles,
             completed: completedFiles,
             failed: failedFiles,
-            message: isCancelled ? `Đã hủy. Hoàn thành: ${completedFiles}/${totalFiles}` : `Hoàn tất. Lỗi: ${failedFiles}`
+            message: isCancelled ? `Đã hủy. Hoàn thành: ${completedFiles}/${totalFiles}` : `Hoàn tất ${completedFiles} file mới.`
         };
 
     } catch (error) {
