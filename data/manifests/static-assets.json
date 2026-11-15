@@ -45,7 +45,6 @@
     "./js/ai/agents/analysis.js",
     "./js/ai/agents/character.js",
     "./js/ai/agents/comparison.js",
-    "./js/ai/agents/critic.js",
     "./js/ai/agents/fortune.js",
     "./js/ai/agents/goi-mo.js",
     "./js/ai/agents/history.js",
@@ -54,7 +53,6 @@
     "./js/ai/agents/knowledge.js",
     "./js/ai/agents/literature.js",
     "./js/ai/agents/poetics.js",
-    "./js/ai/agents/praiser.js",
     "./js/ai/agents/translation.js"
   ],
   "js_network": [

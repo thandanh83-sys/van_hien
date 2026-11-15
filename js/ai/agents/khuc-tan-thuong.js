@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO — KHÚC TÁN THƯỞNG AGENT
  * Vị trí: js/ai/agents/khuc-tan-thuong.js
- * Version: 4.0.0 (Contemplative Praise — No Scoring)
+ * Version: 4.1.0 (Contemplative Praise — No Scoring)
  * ==========================================================
  *
  * TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -35,9 +35,12 @@
  *
  * LỊCH SỬ PHIÊN BẢN:
  * - v3.3.0: (tiền thân — PraiserAgent) Tán thưởng dựa trên nhịp điệu.
- * - v4.0.0: Đổi tên KhucTanThuongAgent, bỏ hoàn toàn ngôn ngữ
- *           đánh giá, thêm validation chống sáo rỗng, thêm
- *           fallback graceful cho edge cases.
+ * - v4.0.0: Đổi tên KhucTanThuongAgent, bỏ ngôn ngữ đánh giá,
+ *           thêm validation chống sáo rỗng, thêm fallback graceful.
+ * - v4.1.0: Chuẩn hóa escapeHTML cho mọi trường, thêm builder
+ *           `_buildStructuralPraise` (khen cấu trúc), cải thiện
+ *           validation với nhiều trường hợp hơn, thêm metadata
+ *           `evidence.quote` để InsightValidator có thể kiểm chứng.
  *
  * ==========================================================
  */
@@ -63,7 +66,10 @@ export const KhucTanThuongAgent = {
      *
      * @param {string} text - Văn bản thô của bài thơ
      * @param {string} title - Tên bài thơ (tùy chọn)
-     * @returns {Object} { theme, symbol, commentary, isValid }
+     * @returns {Object} {
+     *   theme, symbol, commentary, isValid,
+     *   evidence: { coreLine, quote, positionText }
+     * }
      */
     analyze(text, title = '') {
         // -----------------------------------------------------------------
@@ -110,7 +116,7 @@ export const KhucTanThuongAgent = {
         const parts = [];
 
         // 3.1. Mở bài — luôn trích dẫn câu thơ trung tâm
-        parts.push(this._buildOpening(coreLine, prosody, workName));
+        parts.push(this._buildOpening(coreLine, workName));
 
         // 3.2. Nhận xét về nhịp điệu (Bằng/Trắc)
         parts.push(this._buildRhythmComment(coreLine, prosody));
@@ -123,23 +129,36 @@ export const KhucTanThuongAgent = {
         const rhymeComment = this._buildRhymeComment(rhyme, coreLine);
         if (rhymeComment) parts.push(rhymeComment);
 
-        // 3.5. Kết bài — mở ra một hướng mới, không đóng lại
+        // 3.5. Khen cấu trúc (nếu có đủ điều kiện)
+        const structuralPraise = this._buildStructuralPraise(prosody, rhyme);
+        if (structuralPraise) parts.push(structuralPraise);
+
+        // 3.6. Kết bài — mở ra một hướng mới, không đóng lại
         parts.push(this._buildEnding());
 
         // -----------------------------------------------------------------
         // BƯỚC 4: Ghép lời bình và validate
         // -----------------------------------------------------------------
         const rawCommentary = parts.filter(Boolean).join(' ');
-        const validated = this._validatePraise(rawCommentary, text);
+        const validated = this._validatePraise(rawCommentary, text, coreLine);
 
         // -----------------------------------------------------------------
-        // BƯỚC 5: Trả kết quả chuẩn (giữ tương thích với PraiserAgent cũ)
+        // BƯỚC 5: Trả kết quả chuẩn (tương thích PraiserAgent cũ)
         // -----------------------------------------------------------------
         return {
             theme: workName,
             symbol: coreLine.substring(0, 30) + (coreLine.length > 30 ? '...' : ''),
             commentary: validated.commentary,
-            isValid: validated.valid
+            isValid: validated.valid,
+
+            // [v4.1.0] Metadata cho InsightValidator
+            evidence: {
+                coreLine: coreLine,
+                quote: coreLine,
+                positionText: context.positionText || '',
+                hasRhyme: !!(rhyme && rhyme.hasRhyme),
+                rhythmType: prosody && prosody.rhythmType ? prosody.rhythmType : 'unknown'
+            }
         };
     },
 
@@ -187,14 +206,15 @@ export const KhucTanThuongAgent = {
      * Quy tắc:
      * 1. Không được dùng từ phán xét cay nghiệt (dở, tệ, kém...)
      * 2. Không được khen sáo rỗng mà không có trích dẫn
-     * 3. Phải có ít nhất một câu thơ được trích dẫn (giữa dấu **)
+     * 3. Phải có ít nhất một câu thơ được trích dẫn (giữa ** hoặc "...")
      *
      * @private
      * @param {string} commentary - Lời bình cần kiểm tra
      * @param {string} originalText - Văn bản gốc
+     * @param {string} coreLine - Câu thơ trung tâm
      * @returns {Object} { valid, commentary, reason? }
      */
-    _validatePraise(commentary, originalText) {
+    _validatePraise(commentary, originalText, coreLine) {
         if (!commentary || typeof commentary !== 'string') {
             return {
                 valid: false,
@@ -209,7 +229,8 @@ export const KhucTanThuongAgent = {
         const judgmentalWords = [
             'dở', 'tệ', 'kém', 'vụng', 'non tay', 'yếu',
             'tầm thường', 'vô nghĩa', 'nhạt nhẽo', 'rỗng tuếch',
-            'thảm họa', 'tồi tệ', 'kém cỏi', 'thất bại'
+            'thảm họa', 'tồi tệ', 'kém cỏi', 'thất bại',
+            'sai', 'hỏng', 'vô vị', 'buồn chán'
         ];
         const lowerCommentary = commentary.toLowerCase();
         const foundJudgment = judgmentalWords.find(w =>
@@ -220,7 +241,6 @@ export const KhucTanThuongAgent = {
                 `[KHÚC-TÁN-THƯỞNG] Phát hiện từ phán xét: "${foundJudgment}". ` +
                 `Đã tự động loại bỏ câu chứa từ này.`
             );
-            // Loại bỏ câu chứa từ phán xét
             const sentences = commentary.split(/(?<=[.!?])\s+/);
             const cleaned = sentences
                 .filter(s => !judgmentalWords.some(w => s.toLowerCase().includes(w)))
@@ -237,10 +257,15 @@ export const KhucTanThuongAgent = {
         // -----------------------------------------------------------------
         const hasQuote = /\*\*[^*]+\*\*|"[^"]{3,}"/.test(commentary);
         if (!hasQuote) {
+            // Tự động chèn coreLine nếu có
+            const safeCoreLine = coreLine ? escapeHTML(coreLine) : '';
+            const injected = safeCoreLine
+                ? commentary + ` Câu thơ **"${safeCoreLine}"** đã chạm vào ta.`
+                : commentary + ' (Lưu ý: lời bình cần gắn với câu thơ cụ thể.)';
             return {
-                valid: false,
-                commentary: commentary + ' (Lưu ý: lời bình cần gắn với câu thơ cụ thể.)',
-                reason: 'no_specific_quote'
+                valid: true,
+                commentary: injected,
+                reason: 'quote_injected'
             };
         }
 
@@ -263,6 +288,22 @@ export const KhucTanThuongAgent = {
         }
 
         // -----------------------------------------------------------------
+        // RULE 4: Trích dẫn phải nằm trong văn bản gốc
+        // -----------------------------------------------------------------
+        const quoteMatch = commentary.match(/\*\*([^*]+)\*\*|"([^"]{3,})"/);
+        if (quoteMatch) {
+            const quote = quoteMatch[1] || quoteMatch[2];
+            const normalizedOriginal = originalText.toLowerCase().replace(/\s+/g, ' ');
+            const normalizedQuote = quote.toLowerCase().replace(/\s+/g, ' ');
+            if (normalizedOriginal && !normalizedOriginal.includes(normalizedQuote)) {
+                console.warn(
+                    `[KHÚC-TÁN-THƯỞNG] Trích dẫn "${quote}" không khớp văn bản gốc.`
+                );
+                // Vẫn giữ valid vì người dùng có thể đã dùng quote từ nguồn khác
+            }
+        }
+
+        // -----------------------------------------------------------------
         // PASS: Lời bình hợp lệ
         // -----------------------------------------------------------------
         return { valid: true, commentary };
@@ -276,7 +317,7 @@ export const KhucTanThuongAgent = {
      * Mở bài — luôn trích dẫn câu thơ trung tâm.
      * @private
      */
-    _buildOpening(coreLine, prosody, workName) {
+    _buildOpening(coreLine, workName) {
         const safeLine = escapeHTML(coreLine);
 
         const openings = [
@@ -284,7 +325,8 @@ export const KhucTanThuongAgent = {
             `Ta bị chạm ở câu **"${safeLine}"** trong ${workName}.`,
             `Có một nét đẹp rất riêng ở câu **"${safeLine}"**.`,
             `Đọc đến câu **"${safeLine}"**, ta thấy lòng mình lắng lại.`,
-            `Câu **"${safeLine}"** khiến ta phải đọc lại lần thứ hai.`
+            `Câu **"${safeLine}"** khiến ta phải đọc lại lần thứ hai.`,
+            `Có một khoảnh khắc dừng lại ở câu **"${safeLine}"** — khoảnh khắc của sự nhận ra.`
         ];
 
         return this._pick(openings);
@@ -327,7 +369,6 @@ export const KhucTanThuongAgent = {
             ]);
         }
 
-        // rhythmType === 'balanced'
         return this._pick([
             `Sự đan xen Bằng/Trắc ở câu **"${safeLine}"** tạo nên một nhạc điệu uyển chuyển. ` +
             `Đọc lên, ta thấy câu thơ có một nhịp điệu riêng — nhịp của tâm hồn.`,
@@ -383,7 +424,6 @@ export const KhucTanThuongAgent = {
      */
     _buildRhymeComment(rhyme, coreLine) {
         if (!rhyme || !rhyme.hasRhyme || !rhyme.details) {
-            // Không có vần không phải là điều xấu — chỉ là thơ tự do
             return '';
         }
 
@@ -398,6 +438,30 @@ export const KhucTanThuongAgent = {
             `Ta chú ý đến cách gieo vần: ${safeDetails}. ` +
             `Vần điệu ấy làm câu thơ có một dư âm riêng, đọc lên thấy lòng mình lắng lại.`
         ]);
+    },
+
+    /**
+     * Khen cấu trúc tổng thể (khi có đủ dữ liệu).
+     * @private
+     */
+    _buildStructuralPraise(prosody, rhyme) {
+        if (!prosody || !rhyme) return '';
+
+        const hasTotal = prosody.total && prosody.total >= 5;
+        const hasRhyme = rhyme.hasRhyme;
+        const isBalanced = prosody.rhythmType === 'balanced';
+
+        if (hasTotal && hasRhyme && isBalanced) {
+            return this._pick([
+                `Cấu trúc bài thơ có sự cân bằng giữa nhịp điệu và vần điệu. ` +
+                `Đó là dấu hiệu của một người viết biết mình đang làm gì.`,
+
+                `Sự hòa hợp giữa bằng trắc và vần điệu cho thấy một sự chăm chút tỉ mỉ. ` +
+                `Có những cái đẹp chỉ hiện ra khi ta nhìn kỹ.`
+            ]);
+        }
+
+        return '';
     },
 
     /**
@@ -422,7 +486,9 @@ export const KhucTanThuongAgent = {
             `trong những lần đọc sau, trong những người đọc khác.`,
 
             `Không có gì để thêm, không có gì để bớt. ` +
-            `Chỉ là một khoảnh khắc đẹp, và ta muốn chia sẻ lại cùng Bạn.`
+            `Chỉ là một khoảnh khắc đẹp, và ta muốn chia sẻ lại cùng Bạn.`,
+
+            `Bạn có thể thấy khác ta. Đó là điều tốt — vì thơ không có chân lý duy nhất.`
         ];
         return this._pick(endings);
     },
@@ -450,7 +516,8 @@ export const KhucTanThuongAgent = {
             symbol: '',
             commentary: 'Cần có nội dung cụ thể để ta cùng cảm nhận. ' +
                         'Mời Bạn nhập một bài thơ, và ta sẽ cùng ngắm.',
-            isValid: false
+            isValid: false,
+            evidence: { coreLine: '', quote: '', positionText: '', hasRhyme: false, rhythmType: 'unknown' }
         };
     },
 
@@ -464,7 +531,8 @@ export const KhucTanThuongAgent = {
             symbol: '',
             commentary: 'Bài thơ quá ngắn để ta có thể cảm nhận trọn vẹn. ' +
                         'Nhưng đôi khi, một câu thơ cũng đủ để mở ra cả một trời.',
-            isValid: false
+            isValid: false,
+            evidence: { coreLine: '', quote: '', positionText: '', hasRhyme: false, rhythmType: 'unknown' }
         };
     },
 
@@ -479,7 +547,8 @@ export const KhucTanThuongAgent = {
             commentary: 'Ta chưa thể cảm nhận được bài thơ này. ' +
                         'Có thể văn bản chưa đủ rõ, hoặc chưa đủ để ta dừng lại. ' +
                         'Mời Bạn thử lại với một bài thơ khác.',
-            isValid: false
+            isValid: false,
+            evidence: { coreLine: '', quote: '', positionText: '', hasRhyme: false, rhythmType: 'unknown' }
         };
     }
 };
@@ -487,6 +556,7 @@ export const KhucTanThuongAgent = {
 // ==========================================================
 // PHẦN 2: AUTO-REGISTRY METADATA
 // ==========================================================
+
 /**
  * Metadata tự mô tả của KhucTanThuongAgent.
  *
@@ -506,8 +576,8 @@ KhucTanThuongAgent.agentInfo = {
 
     // ---- Năng lực (task → method) ----
     capabilities: {
-        'praise-work': 'analyze',        // "Khen bài thơ này", "Tìm vẻ đẹp"
-        'quick-praise': 'getQuickComment' // Dùng cho Fortune Modal
+        'praise-work': 'analyze',          // "Khen bài thơ này", "Tìm vẻ đẹp"
+        'quick-praise': 'getQuickComment'  // Dùng cho Fortune Modal
     },
 
     // ---- Loại dữ liệu có thể đọc ----
