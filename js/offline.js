@@ -2,13 +2,15 @@
  * ==========================================================
  * VĂN ĐẠO - OFFLINE MODULE (js/offline.js)
  * Vị trí: js/offline.js
- * Version: 5.0.0 (Offline Delta Strategy + IndexedDB)
+ * Version: 5.1.0 (Offline Delta Strategy + Safe Clear)
  * ==========================================================
  * TRIẾT LÝ:
  * - KHÔNG tải toàn bộ hàng ngàn file (tránh đầy bộ nhớ).
  * - Chỉ tải "Kho lõi" (Core Data): Index, Từ điển, Lý thuyết.
  * - Áp dụng Delta Update: Chỉ tải file có mã hash thay đổi.
  * - Tự động nạp han-viet.json vào IndexedDB để giải phóng RAM.
+ * - [v5.1.0] Hàm clearOfflineData xóa sạch Tủ Sách nhưng GIỮ LẠI
+ *   cài đặt cá nhân (Theme, Draft).
  * ==========================================================
  */
 
@@ -53,7 +55,7 @@ async function fetchWithRetry(url, attempts = CONFIG.RETRY_PER_FILE) {
 }
 
 // ==========================================================
-// PHẦN 2: STORAGE CHECK & CLEAR
+// PHẦN 2: STORAGE CHECK & CLEAR (SAFE CLEAR - v5.1.0)
 // ==========================================================
 export async function checkStorageSize() {
     const storageText = document.getElementById('settings-storage-text');
@@ -77,25 +79,62 @@ export async function checkStorageSize() {
     }
 }
 
+/**
+ * XÓA SẠCH TỦ SÁCH OFFLINE (Safe Clear)
+ * 
+ * Hành động:
+ * 1. Xóa toàn bộ Cache API (vandao-*).
+ * 2. Xóa toàn bộ IndexedDB (Hán Việt).
+ * 3. Xóa dấu vết Version (LocalStorage).
+ * 
+ * KHÔNG XÓA:
+ * - Theme Sáng/Tối.
+ * - Bản nháp bài thơ (vandao_draft_poem).
+ * - Service Worker (để web vẫn chạy offline).
+ */
 export async function clearOfflineData() {
-    if (!('caches' in window)) return false;
+    if (!('caches' in window)) {
+        console.warn("[OFFLINE] Trình duyệt không hỗ trợ Cache API.");
+        return false;
+    }
+
     try {
+        // 1. Xóa Cache API
         const cacheNames = await caches.keys();
         const vandaoCaches = cacheNames.filter(name => name.startsWith('vandao-'));
-        await Promise.all(vandaoCaches.map(name => caches.delete(name)));
+        
+        if (vandaoCaches.length > 0) {
+            await Promise.all(vandaoCaches.map(name => caches.delete(name)));
+            console.log(`[OFFLINE] Đã xóa ${vandaoCaches.length} Cache API:`, vandaoCaches);
+        } else {
+            console.log("[OFFLINE] Không có Cache API nào để xóa.");
+        }
+
+        // 2. Xóa IndexedDB (Từ điển Hán Việt)
+        try {
+            const dictCount = await DictionaryDB.count();
+            await DictionaryDB.clear();
+            console.log(`[OFFLINE] Đã xóa IndexedDB (${dictCount} từ Hán Việt).`);
+        } catch (e) {
+            console.warn("[OFFLINE] Lỗi khi xóa IndexedDB (có thể chưa khởi tạo):", e);
+        }
+
+        // 3. Xóa dấu vết Version (Để lần sau tải lại từ đầu)
         localStorage.removeItem(LOCAL_VERSION_KEY);
-        
-        await DictionaryDB.clear();
-        
+        console.log("[OFFLINE] Đã xóa dấu vết Version.");
+
+        // 4. Cập nhật lại UI
         await checkStorageSize();
+        
         return true;
     } catch (error) {
+        console.error("[OFFLINE] Lỗi khi xóa dữ liệu Offline:", error);
         return false;
     }
 }
 
 // ==========================================================
-// PHẦN 3: DELTA UPDATE LOGIC
+// PHẦN 3: DELTA UPDATE LOGIC (CHỈ TẢI FILE THAY ĐỔI)
 // ==========================================================
 async function getFilesToDownload() {
     const res = await fetch(VERSION_URL, { cache: 'no-store' });
@@ -121,7 +160,7 @@ async function getFilesToDownload() {
 }
 
 // ==========================================================
-// PHẦN 4: DOWNLOAD ALL
+// PHẦN 4: DOWNLOAD ALL (CHỈ TẢI KHO LÕI + CACHE THỦ CÔNG)
 // ==========================================================
 export async function downloadAllOffline(progressCallback) {
     if (isDownloading) return { success: false, message: 'Đang tải dữ liệu...' };
@@ -154,7 +193,7 @@ export async function downloadAllOffline(progressCallback) {
                     if (res && res.ok) {
                         await cache.put(item.url, res.clone());
                         
-                        // [MỚI] XỬ LÝ ĐẶC BIỆT CHO TỪ ĐIỂN HÁN VIỆT
+                        // XỬ LÝ ĐẶC BIỆT CHO TỪ ĐIỂN HÁN VIỆT
                         if (item.url.includes('han-viet.json')) {
                             try {
                                 const jsonData = await res.clone().json();
