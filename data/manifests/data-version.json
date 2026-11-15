@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-11-15T00:00:00Z",
+  "files": {
+    "./data/data-danh-ngon.json": "hash_1",
+    "./data/data-ly-thuyet.json": "hash_1",
+    "./data/data-the-loai.json": "hash_1",
+    "./data/data-tu-dien-the-loai.json": "hash_1",
+    "./data/data-loi-binh.json": "hash_1",
+    "./data/data-van-khi.json": "hash_1",
+    "./data/contemplative-prompts.json": "hash_1",
+    "./data/tu-dien/symbols.json": "hash_1",
+    "./data/tu-dien/dien-tich.json": "hash_1",
+    "./data/tu-dien/han-viet.json": "hash_1"
+  }
+}
