@@ -2,17 +2,18 @@
  * ==========================================================
  * VĂN ĐẠO - OFFLINE MODULE (js/offline.js)
  * Vị trí: js/offline.js
- * Version: 4.0.0 (Offline Delta Strategy — Core Only)
+ * Version: 5.0.0 (Offline Delta Strategy + IndexedDB)
  * ==========================================================
  * TRIẾT LÝ:
- * - KHÔNG tải toàn bộ hàng ngàn file tác phẩm/tác giả (tránh đầy bộ nhớ).
+ * - KHÔNG tải toàn bộ hàng ngàn file (tránh đầy bộ nhớ).
  * - Chỉ tải "Kho lõi" (Core Data): Index, Từ điển, Lý thuyết.
  * - Áp dụng Delta Update: Chỉ tải file có mã hash thay đổi.
- * - Gọi cache.put() trực tiếp để đảm bảo 100% offline.
+ * - Tự động nạp han-viet.json vào IndexedDB để giải phóng RAM.
  * ==========================================================
  */
 
 import { APP_DATA } from './config.js';
+import { DictionaryDB } from './network/dictionary-db.js';
 
 // ==========================================================
 // PHẦN 1: STATE & CẤU HÌNH
@@ -82,7 +83,10 @@ export async function clearOfflineData() {
         const cacheNames = await caches.keys();
         const vandaoCaches = cacheNames.filter(name => name.startsWith('vandao-'));
         await Promise.all(vandaoCaches.map(name => caches.delete(name)));
-        localStorage.removeItem(LOCAL_VERSION_KEY); // Xóa dấu vết version
+        localStorage.removeItem(LOCAL_VERSION_KEY);
+        
+        await DictionaryDB.clear();
+        
         await checkStorageSize();
         return true;
     } catch (error) {
@@ -91,15 +95,13 @@ export async function clearOfflineData() {
 }
 
 // ==========================================================
-// PHẦN 3: DELTA UPDATE LOGIC (CHỈ TẢI FILE THAY ĐỔI)
+// PHẦN 3: DELTA UPDATE LOGIC
 // ==========================================================
 async function getFilesToDownload() {
-    // 1. Lấy manifest version từ server
     const res = await fetch(VERSION_URL, { cache: 'no-store' });
     if (!res.ok) throw new Error('Không thể tải data-version.json');
     const serverManifest = await res.json();
 
-    // 2. Lấy version đang lưu ở máy khách
     let localManifest = { files: {} };
     try {
         const saved = localStorage.getItem(LOCAL_VERSION_KEY);
@@ -108,7 +110,6 @@ async function getFilesToDownload() {
 
     const queue = [];
 
-    // 3. So sánh Delta
     for (const [url, hash] of Object.entries(serverManifest.files)) {
         const localHash = localManifest.files ? localManifest.files[url] : null;
         if (hash !== localHash) {
@@ -120,7 +121,7 @@ async function getFilesToDownload() {
 }
 
 // ==========================================================
-// PHẦN 4: DOWNLOAD ALL (CHỈ TẢI KHO LÕI + CACHE THỦ CÔNG)
+// PHẦN 4: DOWNLOAD ALL
 // ==========================================================
 export async function downloadAllOffline(progressCallback) {
     if (isDownloading) return { success: false, message: 'Đang tải dữ liệu...' };
@@ -129,22 +130,18 @@ export async function downloadAllOffline(progressCallback) {
     isCancelled = false;
 
     try {
-        // Bước 1: Lấy danh sách file cần tải (Delta Update)
         const { queue, serverManifest } = await getFilesToDownload();
         const totalFiles = queue.length;
 
         if (totalFiles === 0) {
-            // Nếu không có file nào thay đổi, cập nhật version và báo hoàn tất
             localStorage.setItem(LOCAL_VERSION_KEY, JSON.stringify(serverManifest));
             return { success: true, message: 'Dữ liệu đã là mới nhất.' };
         }
 
-        // Bước 2: Mở Cache Storage
         const cache = await caches.open(CACHE_NAME);
         let completedFiles = 0;
         let failedFiles = 0;
 
-        // Bước 3: Tải từng batch
         for (let i = 0; i < totalFiles; i += CONFIG.BATCH_SIZE) {
             if (isCancelled) break;
 
@@ -155,8 +152,20 @@ export async function downloadAllOffline(progressCallback) {
                 batch.map(async (item) => {
                     const res = await fetchWithRetry(item.url, CONFIG.RETRY_PER_FILE);
                     if (res && res.ok) {
-                        // [QUAN TRỌNG] Chủ động lưu vào Cache
                         await cache.put(item.url, res.clone());
+                        
+                        // [MỚI] XỬ LÝ ĐẶC BIỆT CHO TỪ ĐIỂN HÁN VIỆT
+                        if (item.url.includes('han-viet.json')) {
+                            try {
+                                const jsonData = await res.clone().json();
+                                const flatData = jsonData.hanViet || jsonData;
+                                await DictionaryDB.importData(flatData);
+                                console.log(`[OFFLINE] Đã nạp từ điển Hán Việt vào IndexedDB.`);
+                            } catch (e) {
+                                console.error(`[OFFLINE] Lỗi nạp Hán Việt vào DB:`, e);
+                            }
+                        }
+
                         batchSuccess++;
                         return { ok: true, item };
                     } else {
@@ -177,7 +186,6 @@ export async function downloadAllOffline(progressCallback) {
             await sleep(CONFIG.YIELD_DELAY);
         }
 
-        // Bước 4: Nếu tải thành công toàn bộ, lưu version mới
         if (failedFiles === 0 && !isCancelled) {
             localStorage.setItem(LOCAL_VERSION_KEY, JSON.stringify(serverManifest));
         }
