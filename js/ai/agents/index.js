@@ -9,13 +9,11 @@
  *
  * File này import 2 agents mới:
  *   - ./khuc-tan-thuong.js  (ĐÃ CÓ — thay thế praiser.js)
- *   - ./goi-mo.js           (CHƯA CÓ — thay thế critic.js)
+ *   - ./goi-mo.js           (ĐÃ CÓ — thay thế critic.js)
  *
- * Nếu chưa tạo ./goi-mo.js, hãy tạo nó trước khi import file này.
+ * Nếu 2 file này chưa tồn tại, hãy tạo chúng TRƯỚC.
  * Nếu không, sẽ có lỗi:
- *   "Failed to resolve module specifier './goi-mo.js'"
- *
- * Xem spec ./goi-mo.js trong MASTER PLAN (Phần 1.4).
+ *   "Failed to resolve module specifier './khuc-tan-thuong.js'"
  *
  * ==========================================================
  *
@@ -94,23 +92,23 @@ import { GoiMoAgent }           from './goi-mo.js';           // THAY critic.js
 
 const AGENT_CLASSES = [
     // ---- Nhóm Văn học & Tri thức ----
-    LiteratureAgent,      // key: 'literature'    — Tác phẩm, Tác giả, Thể loại
-    PoeticsAgent,         // key: 'poetics'       — Từ điển, Biểu tượng, Điển tích
-    KnowledgeAgent,       // key: 'knowledge'     — Mạng lưới (Tác giả ↔ Tác phẩm)
-    HistoryAgent,         // key: 'history'       — Bối cảnh lịch sử, Thời đại
+    LiteratureAgent,      // key: 'literature'       — Tác phẩm, Tác giả, Thể loại
+    PoeticsAgent,         // key: 'poetics'          — Từ điển, Biểu tượng, Điển tích
+    KnowledgeAgent,       // key: 'knowledge'        — Mạng lưới (Tác giả ↔ Tác phẩm)
+    HistoryAgent,         // key: 'history'          — Bối cảnh lịch sử, Thời đại
 
     // ---- Nhóm Phân tích & Cảm thụ ----
-    AnalysisAgent,        // key: 'analysis'      — Phân tích 4 tầng thi pháp
-    KhucTanThuongAgent,   // key: 'khuc-tan-thuong' — Tán thưởng (thay praiser)
-    GoiMoAgent,           // key: 'goi-mo'        — Gợi mở (thay critic)
+    AnalysisAgent,        // key: 'analysis'         — Phân tích 4 tầng thi pháp
+    KhucTanThuongAgent,   // key: 'khuc-tan-thuong'  — Tán thưởng (thay praiser)
+    GoiMoAgent,           // key: 'goi-mo'           — Gợi mở (thay critic)
 
     // ---- Nhóm Thực thể & So sánh ----
-    CharacterAgent,       // key: 'character'     — Nhân vật văn học
-    ComparisonAgent,      // key: 'comparison'    — So sánh 2 thực thể
-    TranslationAgent,     // key: 'translation'   — Dịch thuật
+    CharacterAgent,       // key: 'character'        — Nhân vật văn học
+    ComparisonAgent,      // key: 'comparison'       — So sánh 2 thực thể
+    TranslationAgent,     // key: 'translation'      — Dịch thuật
 
     // ---- Nhóm Vận khí ----
-    FortuneAgent          // key: 'fortune'       — Bói thơ, Nên/Tránh
+    FortuneAgent          // key: 'fortune'          — Bói thơ, Nên/Tránh
 ];
 
 // =====================================================================
@@ -286,7 +284,7 @@ if (typeof console !== 'undefined' && console.log) {
         console.groupEnd();
     }
 
-    // Thông báo đặc biệt về sự thay đổi agent (v8.0.0)
+    // Thông báo đặc biệt về triết lý Văn Đạo
     console.log(
         `%c[TRIẾT LÝ VĂN ĐẠO] Không chấm điểm văn chương. ` +
         `Mỗi bài thơ đều có hồn, nét đẹp riêng.`,
@@ -418,7 +416,7 @@ AgentRegistry.validate = function () {
 // PHẦN 7: GHI CHÚ CHO NGƯỜI BẢO TRÌ
 // =====================================================================
 /**
- * SAU KHI ĐỔI SANG v8.0.0, CÁC FILE SAU CẦN ĐƯỢC CẬP NHẬT:
+ * SAU KHI DÙNG index.js v8.0.0, CÁC FILE SAU CẦN ĐƯỢC CẬP NHẬT:
  *
  * 1. js/ai/master.js
  *    - Dòng `AgentMap['praiser']`  → `AgentMap['khuc-tan-thuong']`
@@ -427,23 +425,34 @@ AgentRegistry.validate = function () {
  * 2. js/ai/agents/fortune.js
  *    - Import `PraiserAgent`       → `KhucTanThuongAgent`
  *    - Import `CriticAgent`        → `GoiMoAgent`
- *    - Dòng `PraiserAgent.getQuickComment` → `KhucTanThuongAgent.getQuickComment`
- *    - Dòng `CriticAgent.getQuickComment`  → `GoiMoAgent.getQuickComment`
  *
  * 3. js/ai/agents/analysis.js
  *    - Import `PraiserAgent`       → `KhucTanThuongAgent`
  *    - Import `CriticAgent`        → `GoiMoAgent`
- *    - Dòng `PraiserAgent.analyze` → `KhucTanThuongAgent.analyze`
- *    - Dòng `CriticAgent.analyze`  → `GoiMoAgent.analyze`
  *
- * 4. data/manifests/agents-manifest.json
+ * 4. js/ai.js
+ *    - Bỏ export `PraiserAgent`, `CriticAgent`
+ *    - Thêm export `KhucTanThuongAgent`, `GoiMoAgent`
+ *
+ * 5. js/ai/nlp/intent-definitions.js
+ *    - Đổi agent cho `praise-work` từ `'praiser'` → `'khuc-tan-thuong'`
+ *    - Đổi agent cho `criticize-work` từ `'critic'` → `'goi-mo'`
+ *    - (Hoặc đổi key `criticize-work` → `open-depth`)
+ *
+ * 6. js/ai/nlp/language-signals.js
+ *    - Đổi `criticize` → `open-depth` (nếu đổi key intent)
+ *
+ * 7. js/audit.js
+ *    - Đổi test case `criticize-work` → `open-depth`
+ *
+ * 8. data/manifests/agents-manifest.json
  *    - Chạy: `python tools/update_manifests.py` để tự động cập nhật.
  *
- * 5. data/manifests/static-assets.json
+ * 9. data/manifests/static-assets.json
  *    - Chạy: `python tools/update_manifests.py` để tự động cập nhật.
  *
- * 6. sw.js
- *    - Tăng `CACHE_VERSION` (VD: v14.2.0 → v15.0.0)
+ * 10. sw.js
+ *    - Tăng `CACHE_VERSION` (VD: v14.2.0 → v15.0.0).
  *    - Vì đây là thay đổi lớn (breaking change).
  *
  * =====================================================================
