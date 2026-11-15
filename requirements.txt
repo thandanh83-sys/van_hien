@@ -1,23 +1,29 @@
 # =====================================================================
 # VĂN ĐẠO ENGINE - TỆP KHAI BÁO MÔI TRƯỜNG PYTHON & CẨM NANG BẢO TRÌ
 # Tác giả: Văn Đạo
-# Phiên bản: 3.0.0 (Unified Intelligence Network)
-# 
+# Phiên bản: 4.0.0 (Contemplative Edition — No Scoring)
+#
 # MỤC ĐÍCH:
 # 1. Quản lý các thư viện Python phụ thuộc cho thư mục tools/.
 # 2. Lưu trữ các "Nguyên tắc vàng" (Golden Rules) để bảo trì dự án.
 #    Đây là nơi ghi chú những lỗi đã từng xảy ra (trắng trang, mất hiệu ứng)
 #    để các lần sửa code sau không bị mù quáng.
+#
+# LỊCH SỬ PHIÊN BẢN:
+# - v1.0.0: Khai báo cơ bản.
+# - v2.0.0: Thêm 8 Quy tắc vàng (từ dự án cũ).
+# - v3.0.0: Nâng cấp lên 12 Quy tắc vàng (thêm 4 quy tắc contemplative).
+# - v4.0.0: Cập nhật Quy tắc 12 — "Không chấm điểm văn chương".
 # =====================================================================
 
 
 # ---------------------------------------------------------------------
 # PHẦN 1: THƯ VIỆN LÕI (HIỆN TẠI ĐANG DÙNG - KHÔNG CẦN CÀI ĐẶT)
 # ---------------------------------------------------------------------
-# Các script trong thư mục `tools/` được viết HOÀN TOÀN bằng Thư viện chuẩn 
+# Các script trong thư mục `tools/` được viết HOÀN TOÀN bằng Thư viện chuẩn
 # (Standard Library) của Python. Dự án này KHÔNG CẦN BẤT KỲ THƯ VIỆN BÊN THỨ BA NÀO.
-# 
-# Lợi ích: GitHub Actions chạy cực nhanh, bảo mật tuyệt đối, 
+#
+# Lợi ích: GitHub Actions chạy cực nhanh, bảo mật tuyệt đối,
 # không bao giờ gặp lỗi "Dependency Hell" (xung đột phiên bản).
 #
 # Các thư viện chuẩn đang được sử dụng ngầm trong code:
@@ -31,7 +37,7 @@
 # ---------------------------------------------------------------------
 # PHẦN 2: THƯ VIỆN DỰ PHÒNG (MỞ KHÓA NẾU TƯƠNG LAI CẦN NÂNG CẤP)
 # ---------------------------------------------------------------------
-# Nếu trong tương lai bạn muốn mở rộng dự án (ví dụ: cào dữ liệu tự động, 
+# Nếu trong tương lai bạn muốn mở rộng dự án (ví dụ: cào dữ liệu tự động,
 # kiểm thử tự động), hãy xóa dấu `#` ở đầu dòng để kích hoạt.
 
 # --- Xử lý dữ liệu nâng cao ---
@@ -50,15 +56,15 @@
 
 
 # =====================================================================
-# PHẦN 3: ⚠️ CẨM NANG BẢO TRÌ (MAINTENANCE NOTES) - ĐỌC KỸ TRƯỚC KHI SỬA
+# PHẦN 3: ⚠️ CẨM NANG BẢO TRÌ (MAINTENANCE NOTES) — 12 QUY TẮC VÀNG
 # =====================================================================
-# Dưới đây là 8 "Nguyên tắc vàng" được đúc kết từ những lần sửa code bị lỗi.
+# Dưới đây là 12 "Nguyên tắc vàng" được đúc kết từ những lần sửa code bị lỗi.
 # Tuân thủ nghiêm ngặt để không bao giờ gặp lại cảnh "trắng trang" hay mất hiệu ứng.
 
 # ---------------------------------------------------------------------
 # [QUY TẮC 1] SỬA GIAO DIỆN (HTML/CSS/JS) -> PHẢI TĂNG VERSION TRONG sw.js
 # ---------------------------------------------------------------------
-# Vấn đề: Service Worker giữ file cũ trong ổ cứng người dùng. Sửa code mà không 
+# Vấn đề: Service Worker giữ file cũ trong ổ cứng người dùng. Sửa code mà không
 # đổi version thì họ không thấy code mới (gây lỗi trắng trang, mất layout).
 # Cách làm: Mở file sw.js, tìm dòng: `const CACHE_VERSION = 'v1.0.0';`
 # Đổi thành: `const CACHE_VERSION = 'v1.0.1';` (hoặc bất kỳ số nào mới hơn).
@@ -85,7 +91,7 @@
 # [QUY TẮC 4] LỖI TRẮNG TRANG KHI DÙNG ES6 MODULES (IMPORT/EXPORT)
 # ---------------------------------------------------------------------
 # Vấn đề: Lỗi "does not provide an export named..." hoặc "Failed to fetch dynamically imported module".
-# Cách làm: 
+# Cách làm:
 # - Đảm bảo mọi hàm cần dùng ở file khác đều có chữ `export` ở file gốc.
 # - Tên hàm khi import phải viết HOA/thường giống hệt file gốc.
 # - File gốc phải gọi đúng đường dẫn tương đối (./utils.js, ./network/data-hub.js).
@@ -102,37 +108,96 @@
 # ---------------------------------------------------------------------
 # Vấn đề: Tooltip bắt nhầm từ trong câu (VD: "nước" trong "yêu nước").
 # Cách làm: Không thêm các từ quá phổ biến vào mục "symbols".
-# Nếu thêm, phải kiểm tra lại hàm `findSymbols()` trong `js/render.js` 
+# Nếu thêm, phải kiểm tra lại hàm `findSymbols()` trong `js/render.js`
 # để đảm bảo Regex ranh giới từ (word boundary) hoạt động chính xác.
 
 # ---------------------------------------------------------------------
 # [QUY TẮC 7] TỦ SÁCH OFFLINE (OFFLINE LIBRARY)
 # ---------------------------------------------------------------------
 # Vấn đề: Logic tải offline nằm ở 2 nơi, nếu sửa bên này quên bên kia sẽ lỗi.
-# Cách làm: Nếu sửa logic tải trong `js/offline.js`, phải kiểm tra lại 
+# Cách làm: Nếu sửa logic tải trong `js/offline.js`, phải kiểm tra lại
 # sự kiện `DOWNLOAD_BATCH` trong file `sw.js` để chúng khớp lệnh (postMessage).
 # Lưu ý: File này KHÔNG phụ thuộc MotherNode nữa, nó lấy URL trực tiếp từ APP_DATA.
 
 # ---------------------------------------------------------------------
 # [QUY TẮC 8] MẠNG LƯỚI TRI THỨC (DATAHUB) - ID LÀ TRUNG TÂM
 # ---------------------------------------------------------------------
-# Vấn đề: Các AI con (Agents) không được phép tự ý `fetch` file JSON. 
+# Vấn đề: Các AI con (Agents) không được phép tự ý `fetch` file JSON.
 # Mọi truy xuất dữ liệu BẮT BUỘC phải đi qua `DataHub` (js/network/data-hub.js).
-# Cách làm: 
+# Cách làm:
 # - Khi cần lấy metadata: `DataHub.getMetadata(id)`.
 # - Khi cần lấy nội dung chi tiết: `await DataHub.getDetail(id)`.
 # - Khi cần tìm liên kết (Tác giả, Tác phẩm cùng thể loại): `DataHub.getGraph(id)`.
 # - Khi cần lấy dữ liệu có chọn lọc: `await DataHub.getEntity(id, ['title', 'author'])`.
-# - Nếu bạn thêm một loại thực thể mới (ví dụ: Nhân vật), phải đảm bảo nó có 
+# - Nếu bạn thêm một loại thực thể mới (ví dụ: Nhân vật), phải đảm bảo nó có
 #   trường `id` và được đăng ký vào `STATE.GLOBAL_INDEX` trong `main.js`.
-# 
-# LƯU Ý: MotherNode đã bị xóa. Không còn "Máy Mẹ - Máy Con" nữa. 
+#
+# LƯU Ý: MotherNode đã bị xóa. Không còn "Máy Mẹ - Máy Con" nữa.
 # Chỉ có DataHub là trung tâm duy nhất.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 9] KHI THÊM TÍNH NĂNG MỚI -> PHẢI CẬP NHẬT MANIFEST
+# ---------------------------------------------------------------------
+# Vấn đề: Service Worker sử dụng `data/manifests/static-assets.json` để biết
+# file nào cần cache. Nếu thêm file JS/CSS mới mà không cập nhật manifest,
+# file mới sẽ KHÔNG được cache → người dùng mất mạng sẽ không thấy tính năng mới.
+# Cách làm:
+# - Chạy: `python tools/update_manifests.py`
+# - Kiểm tra: mở `data/manifests/static-assets.json`, đảm bảo file mới đã có trong mảng.
+# - Nếu file thuộc nhóm mới (VD: `js/validators/`), có thể cần sửa hàm
+#   `build_js_ai()` trong `update_manifests.py` để thêm đường dẫn quét.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 10] KHI SỬA RUBRIC/TIÊU CHÍ -> PHẢI CẬP NHẬT CẢ VALIDATOR
+# ---------------------------------------------------------------------
+# Vấn đề: Nếu thêm chiều kích chiêm nghiệm mới vào `contemplative-prompts.json`,
+# phải cập nhật `ContemplativeEngine` và `InsightValidator` để chúng hiểu.
+# Cách làm:
+# - Thêm dimension mới vào `data/contemplative-prompts.json`.
+# - Nếu dimension cần xử lý đặc biệt (VD: cần quote), sửa `ContemplativeEngine._generateFromStructure()`.
+# - Nếu thêm quy tắc validation mới (VD: "không dùng từ 'xấu'"), sửa `InsightValidator.validateTone()`.
+# - Chạy test: `npm test` để đảm bảo không vỡ test cũ.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 11] KHÔNG BAO GIỜ ĐỂ AI TỰ CHẤM ĐIỂM MÀ KHÔNG CÓ RUBRIC
+# ---------------------------------------------------------------------
+# Vấn đề: Nếu AI tự cho điểm mà không có rubric, đó là "cảm tính" → nguy hiểm.
+# Cách làm:
+# - ĐÃ TỰ ĐỘNG TUÂN THỦ: Văn Đạo 2.0 KHÔNG chấm điểm văn chương.
+# - Nếu ai đó muốn thêm điểm số vào Agents, hãy TỪ CHỐI.
+# - Nếu bắt buộc phải có rubric (cho mục đích nào đó), phải:
+#   + Định nghĩa rubric rõ ràng (thang 0-10 với mô tả từng mức).
+#   + Có validator kiểm tra điểm có nằm trong thang không.
+#   + Có test case cho rubric.
+# - Nhưng với Văn Đạo, cách đúng là: KHÔNG CHẤM ĐIỂM.
+
+# ---------------------------------------------------------------------
+# [QUY TẮC 12] ⚠️ KHÔNG CHẤM ĐIỂM VĂN CHƯƠNG — MỖI BÀI THƠ ĐỀU CÓ HỒN
+# ---------------------------------------------------------------------
+# Đây là QUY TẮC TỐI THƯỢNG của Văn Đạo. Ghi đè lên tất cả các quy tắc khác.
+#
+# "Mỗi bài thơ đều có hồn, nét đẹp riêng. Không có thang điểm nào đo được
+# cái hồn ấy. Văn Đạo không chấm điểm, không xếp hạng, không so sánh hơn kém.
+# Văn Đạo chỉ chiêm nghiệm, gợi mở, tôn vinh."
+#
+# Cách làm:
+# - KHÔNG thêm trường `score`, `grade`, `rank`, `points` vào bất kỳ file JSON nào.
+# - KHÔNG thêm UI hiển thị điểm số (VD: "8.5/10", "Bài thơ đạt 85%").
+# - KHÔNG thêm hàm `calculateScore()`, `ratePoem()`, `gradeWork()` trong code.
+# - KHÔNG để Agents trả về điểm số trong kết quả.
+# - Nếu ai đó đề xuất chấm điểm → HÃY TỪ CHỐI.
+#
+# Đây là tư duy của Prompt Evaluator (dự án cũ), KHÔNG PHẢI của Văn Đạo.
+#
+# Triết lý cốt lõi:
+#   - Ta — Bạn, cùng chiêm nghiệm.
+#   - Không phán xét, không xếp hạng.
+#   - Chỉ tôn vinh vẻ đẹp đã có, và gợi mở chiều sâu có thể có.
 
 # =====================================================================
 # HƯỚNG DẪN CHẠY CÁC TOOL (Dành cho lập trình viên)
 # =====================================================================
-# 
+#
 # Bước 1: Cài đặt Python 3.10+ (Nếu chưa có).
 # Bước 2: Mở Terminal/Command Prompt tại thư mục gốc dự án.
 # Bước 3: Chạy lệnh tương ứng với tool bạn muốn dùng:
@@ -140,8 +205,10 @@
 #         python tools/split_authors.py
 #         python tools/auto_fill_content.py
 #         python tools/validate_data.py
+#         python tools/update_manifests.py
 #
 # LƯU Ý QUAN TRỌNG:
 # - KHÔNG chạy các tool này trực tiếp trên GitHub Pages.
 # - Chúng được thiết kế để chạy tự động thông qua GitHub Actions.
+# - Trước khi push code, chạy `python tools/validate_data.py` để kiểm tra.
 # =====================================================================
