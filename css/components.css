@@ -2,7 +2,7 @@
  * ==========================================================
  * NGỌC THANH - COMPONENTS CSS (css/components.css)
  * Vị trí: css/components.css
- * Version: 4.0.0 (Ngọc Thanh Tinh Tế & Đồng Bộ)
+ * Version: 5.0.0 (Contemplative UI — No Scoring)
  * ==========================================================
  * CHỨC NĂNG:
  * - Hệ thống Nút bấm (Glassmorphism).
@@ -10,6 +10,8 @@
  * - Khối kết quả Hỏi Đạo (Ask Dao).
  * - Tooltip biểu tượng, Nút Hỏi AI.
  * - Khung Cài đặt (Settings) siêu tinh tế với các Badge.
+ * - [v5.0.0] Bạch Ngọc UI: Copy button, Contemplative question,
+ *            Skeleton loading, Toast notification.
  * ==========================================================
  */
 
@@ -531,7 +533,7 @@ mark {
 }
 
 /* =====================================================================
-   8. SKELETON LOADING
+   8. SKELETON LOADING (Cũ — gradient xám)
    ===================================================================== */
 .skeleton { 
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
@@ -564,3 +566,166 @@ mark {
     .ask-meta-item { min-width: 100%; }
     .ask-outro { text-align: center; font-size: 1.3rem; margin-top: 20px; }
 }
+
+/* =====================================================================
+   10. [v5.0.0 — NEW] BẠCH NGỌC UI COMPONENTS
+   ===================================================================== */
+
+/* 10.1. Copy Button (hover reveal) */
+.btn-copy-section {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--text-muted);
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s var(--ease-silk);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    float: right;
+}
+.section-group:hover .btn-copy-section,
+.ask-meta-wrapper:hover .btn-copy-section,
+.result-step:hover .btn-copy-section {
+    opacity: 1;
+}
+.btn-copy-section:hover {
+    color: var(--accent-text);
+    border-color: var(--accent);
+    background: #ffffff;
+}
+.btn-copy-section.copied {
+    color: var(--accent);
+    border-color: var(--accent);
+    opacity: 1;
+}
+
+/* 10.2. Contemplative Question */
+.contemplative-question {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dashed rgba(46, 139, 87, 0.15);
+    line-height: 1.7;
+}
+.contemplative-question:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.contemplative-question svg {
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+/* 10.3. Skeleton Loading (Bạch Ngọc — shimmer nhẹ) */
+.skeleton-bach-ngoc {
+    background: linear-gradient(
+        90deg,
+        rgba(247, 252, 249, 0.5) 25%,
+        rgba(220, 240, 230, 0.8) 50%,
+        rgba(247, 252, 249, 0.5) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeletonShimmer 2s infinite linear;
+    border-radius: var(--radius-card);
+}
+@keyframes skeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* 10.4. Toast Notification (Bạch Ngọc style) */
+.toast-bach-ngoc {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #ffffff;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-style: italic;
+    padding: 14px 24px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--accent);
+    box-shadow: var(--shadow-solid);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s var(--ease-silk);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.toast-bach-ngoc.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+.toast-bach-ngoc.toast-error {
+    border-left-color: var(--color-error);
+}
+.toast-bach-ngoc svg {
+    flex-shrink: 0;
+    color: var(--accent);
+}
+.toast-bach-ngoc.toast-error svg {
+    color: var(--color-error);
+}
+
+/* 10.5. Nút "Chép tất cả" (output-ai.js dùng) */
+.output-ai-copy-all {
+    opacity: 0;
+    transition: all 0.3s var(--ease-silk);
+}
+.ask-meta-wrapper:hover .output-ai-copy-all {
+    opacity: 1 !important;
+}
+
+/* 10.6. Output AI Container (nếu cần style riêng) */
+#vd-toast-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    align-items: center;
+}
+
+/* =====================================================================
+   GHI CHÚ CHO NGƯỜI BẢO TRÌ
+   ===================================================================== */
+/**
+ * SAU KHI DÙNG components.css v5.0.0:
+ *
+ * 1. Đã thêm section 10 (Bạch Ngọc UI):
+ *    - .btn-copy-section        (nút copy hover reveal)
+ *    - .contemplative-question  (câu hỏi chiêm nghiệm)
+ *    - .skeleton-bach-ngoc      (skeleton shimmer nhẹ)
+ *    - .toast-bach-ngoc         (toast notification)
+ *    - .output-ai-copy-all      (nút "Chép tất cả")
+ *
+ * 2. Các file CSS khác KHÔNG cần sửa:
+ *    - base.css, layouts.css, reader.css, variables.css giữ nguyên.
+ *    - Có thể xóa `css/components-bach-ngoc.css` (nếu đã tạo) vì
+ *      nội dung đã được gộp vào components.css v5.0.0.
+ *
+ * 3. Nếu dùng riêng file components-bach-ngoc.css:
+ *    - Có thể giữ cả 2, không xung đột (cùng class, cùng giá trị).
+ *    - Hoặc xóa 1 trong 2 để tránh trùng lặp.
+ *
+ * 4. Triết lý cốt lõi:
+ *    - Bạch Ngọc: trắng ngà, viền ngọc, không neon, không emoji.
+ *    - Font Times New Roman cho body.
+ *    - Font Alex Brush cho title/lời bình.
+ */
