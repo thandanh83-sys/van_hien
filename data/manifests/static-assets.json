@@ -72,6 +72,7 @@
   ],
   "json_manifests": [
     "./data/manifests/agents-manifest.json",
+    "./data/manifests/data-version.json",
     "./data/manifests/index.json",
     "./data/manifests/node-ky-tai.json",
     "./data/manifests/node-the-loai.json",
