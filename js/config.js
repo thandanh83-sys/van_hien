@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO — CONFIG MODULE
  * Vị trí: js/config.js
- * Version: 4.0.0 (Contemplative Config — No Scoring)
+ * Version: 4.1.0 (Contemplative Config — No Scoring)
  * ==========================================================
  *
  * TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
@@ -23,10 +23,16 @@
  *    - KHÔNG có trường `scores`, `rubric`, `weights` trong APP_DATA.
  *    - CHỈ có `CONTEMPLATIVE_PROMPTS` — bộ câu hỏi chiêm nghiệm.
  *
+ * 5. HELPERS CHO CONTEMPLATIVE (v4.1.0):
+ *    - `getRandomContemplativeQuestion(dimension)`: lấy câu hỏi ngẫu nhiên.
+ *    - `isContemplativeReady()`: kiểm tra bộ câu hỏi đã sẵn sàng.
+ *    - `listContemplativeDimensions()`: liệt kê các chiều kích.
+ *
  * LỊCH SỬ PHIÊN BẢN:
  * - v3.0.0: Lazy-Load Dictionary & Global State.
- * - v4.0.0: Thêm CONTEMPLATIVE_PROMPTS. Bỏ hoàn toàn mọi trường
- *           liên quan đến điểm số. Giữ nguyên toàn bộ API cũ.
+ * - v4.0.0: Thêm CONTEMPLATIVE_PROMPTS. Bỏ hoàn toàn trường điểm số.
+ * - v4.1.0: Thêm 3 helper functions cho Contemplative features.
+ *           Cải thiện lazyLoadDictionary với guard toàn diện hơn.
  *
  * ==========================================================
  */
@@ -48,9 +54,10 @@ export const ICONS = {
     chevron:    `<svg ${SVG_ATTR} width="20" height="20" class="chevron-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
     sparkle:    `<svg ${SVG_ATTR} width="18" height="18"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>`,
 
-    // ---- [MỚI v4.0.0] Icon cho chiêm nghiệm ----
+    // ---- [v4.0.0] Icon cho chiêm nghiệm ----
     leaf:       `<svg ${SVG_ATTR} width="16" height="16"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg>`,
-    fleuron:    `<svg ${SVG_ATTR} width="14" height="14" style="color:var(--accent-gold);"><path d="M12 2C9 5 6 8 6 12s3 7 6 10c3-3 6-6 6-10s-3-7-6-10z"></path><path d="M12 2v20"></path></svg>`
+    fleuron:    `<svg ${SVG_ATTR} width="14" height="14" style="color:var(--accent-gold);"><path d="M12 2C9 5 6 8 6 12s3 7 6 10c3-3 6-6 6-10s-3-7-6-10z"></path><path d="M12 2v20"></path></svg>`,
+    copy:       `<svg ${SVG_ATTR} width="12" height="12"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>`
 };
 
 // =====================================================================
@@ -110,6 +117,7 @@ export const APP_DATA = {
      * {
      *   "hinh_tuong": {
      *     "name": "Hình tượng",
+     *     "description": "...",
      *     "questions": ["...", "..."]
      *   },
      *   ...
@@ -207,7 +215,7 @@ export async function lazyLoadDictionary() {
 }
 
 // =====================================================================
-// PHẦN 6: HELPER CHO CONTEMPLATIVE PROMPTS
+// PHẦN 6: HELPERS CHO CONTEMPLATIVE PROMPTS (MỚI v4.1.0)
 // =====================================================================
 
 /**
@@ -215,6 +223,10 @@ export async function lazyLoadDictionary() {
  *
  * @param {string} dimension - Key chiều kích (VD: 'hinh_tuong')
  * @returns {string|null} Câu hỏi hoặc null nếu không có
+ *
+ * @example
+ * getRandomContemplativeQuestion('hinh_tuong')
+ * // → "Hình ảnh nào trong bài khiến Bạn dừng lại lâu nhất?"
  */
 export function getRandomContemplativeQuestion(dimension) {
     const prompts = APP_DATA.CONTEMPLATIVE_PROMPTS || {};
@@ -228,28 +240,72 @@ export function getRandomContemplativeQuestion(dimension) {
 /**
  * Kiểm tra xem Contemplative Prompts đã sẵn sàng chưa.
  *
- * @returns {boolean}
+ * @returns {boolean} True nếu đã nạp được ít nhất 1 chiều kích
+ *
+ * @example
+ * if (isContemplativeReady()) {
+ *     // tính năng gợi mở đã sẵn sàng
+ * }
  */
 export function isContemplativeReady() {
-    return !!(APP_DATA.CONTEMPLATIVE_PROMPTS
-        && Object.keys(APP_DATA.CONTEMPLATIVE_PROMPTS).length > 0);
+    const prompts = APP_DATA.CONTEMPLATIVE_PROMPTS;
+    if (!prompts || typeof prompts !== 'object') return false;
+
+    // Đếm số chiều kích có questions
+    return Object.keys(prompts).some(key => {
+        if (key.startsWith('_')) return false;
+        const dim = prompts[key];
+        return dim && Array.isArray(dim.questions) && dim.questions.length > 0;
+    });
+}
+
+/**
+ * Liệt kê danh sách các chiều kích chiêm nghiệm có sẵn.
+ *
+ * @returns {Array<{ key: string, name: string, count: number }>}
+ *
+ * @example
+ * listContemplativeDimensions()
+ * // → [{ key: 'hinh_tuong', name: 'Hình tượng', count: 3 }, ...]
+ */
+export function listContemplativeDimensions() {
+    const prompts = APP_DATA.CONTEMPLATIVE_PROMPTS || {};
+    return Object.keys(prompts)
+        .filter(key => !key.startsWith('_'))
+        .filter(key => {
+            const dim = prompts[key];
+            return dim && Array.isArray(dim.questions) && dim.questions.length > 0;
+        })
+        .map(key => ({
+            key,
+            name: prompts[key].name || key,
+            count: prompts[key].questions.length
+        }));
 }
 
 // =====================================================================
 // GHI CHÚ CHO NGƯỜI BẢO TRÌ
 // =====================================================================
 /**
- * SAU KHI DÙNG config.js v4.0.0:
+ * SAU KHI DÙNG config.js v4.1.0:
  *
- * 1. Thêm file data/contemplative-prompts.json (theo MASTER PLAN 1.1)
+ * 1. Thêm file data/contemplative-prompts.json (theo FILE 1 ở trên)
  *
  * 2. Cập nhật main.js để nạp file này trong loadAllData() (Tầng 2):
  *    safeFetch('./data/contemplative-prompts.json', {})
  *    → APP_DATA.CONTEMPLATIVE_PROMPTS
  *
- * 3. (Tùy chọn) Cập nhật core.js để export getRandomContemplativeQuestion
- *    nếu muốn dùng ở nhiều nơi.
+ * 3. Cập nhật main.js để log trạng thái sau khi nạp:
+ *    if (isContemplativeReady()) {
+ *        const dims = listContemplativeDimensions();
+ *        console.log(`[SYSTEM] Contemplative: ${dims.length} chiều kích đã sẵn sàng.`);
+ *    }
  *
  * 4. KHÔNG thêm trường score/rubric/weight vào APP_DATA.
  *    Đó là tư duy của Prompt Evaluator, không phải Văn Đạo.
+ *
+ * 5. Triết lý cốt lõi:
+ *    - Mỗi bài thơ đều có hồn, nét đẹp riêng.
+ *    - Không chấm điểm, không xếp hạng.
+ *    - Chỉ chiêm nghiệm, gợi mở, tôn vinh.
  */
