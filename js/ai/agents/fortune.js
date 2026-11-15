@@ -13,8 +13,7 @@
  *    - 6 mức vận khí (Đại Cát → Đại Hung) chỉ là 6 "tâm thế"
  *      để Bạn chiêm nghiệm, không phải 6 thang điểm.
  *
- * 2. 4 GÓC NHÌN ĐỀU TÔN VINH BÀI THƠ:
- *    - Phân tích (Analysis): chỉ ra cấu trúc, không phán xét.
+ * 2. 3 GÓC NHÌN ĐỀU TÔN VINH BÀI THƠ:
  *    - Tán thưởng (Khúc Tán Thưởng): chỉ ra vẻ đẹp (đã có).
  *    - Gợi mở (Lời Gợi Mở): mở ra chiều sâu (có thể có).
  *    - Chiêm nghiệm (Fortune Reflection): lời bình thiền vị.
@@ -26,15 +25,18 @@
  *    - Chỉ dùng "Ta tự hỏi...", "Bạn thử xem...", "Có một gợi mở...".
  *
  * 4. FALLBACK GRACEFUL:
- *    - Nếu LiteraryEngine không phân tích được → vẫn trả về
- *      lời bình thiền vị từ fortune_texts.
+ *    - Nếu agents lỗi → vẫn trả về lời bình thiền vị từ fortune_texts.
  *    - Nếu work là null/undefined → vẫn trả về khung cơ bản.
+ *
+ * 5. TƯƠNG THÍCH NGƯỢC:
+ *    - Giữ cả field `criticCommentary` (legacy) và `goiMoCommentary` (mới).
+ *    - `main.js` cũ đọc `criticCommentary` vẫn chạy.
  *
  * LỊCH SỬ PHIÊN BẢN:
  * - v3.6.0: (tiền thân) Tích hợp PraiserAgent + CriticAgent.
  * - v4.0.0: Đổi sang KhucTanThuongAgent + GoiMoAgent.
  *           Bỏ hoàn toàn ngôn ngữ "critic/phê bình".
- *           Thêm `contemplativeReflection` (tùy chọn).
+ *           Thêm `goiMoCommentary` (alias mới cho `criticCommentary`).
  *
  * ==========================================================
  */
@@ -86,17 +88,16 @@ export function getFortuneInfo(fortuneKey) {
 }
 
 // ==========================================================
-// PHẦN 2: TỔNG HỢP 4 GÓC NHÌN
+// PHẦN 2: TỔNG HỢP 3 GÓC NHÌN
 // ==========================================================
 
 /**
- * Tổng hợp 4 góc nhìn thành một kết quả Fortune hoàn chỉnh.
+ * Tổng hợp 3 góc nhìn thành một kết quả Fortune hoàn chỉnh.
  *
- * 4 góc nhìn:
- * 1. Phân tích (Analysis) — từ tham số analysisResult (nếu có)
- * 2. Tán thưởng (Khúc Tán Thưởng) — từ KhucTanThuongAgent
- * 3. Gợi mở (Lời Gợi Mở) — từ GoiMoAgent
- * 4. Chiêm nghiệm (Fortune Reflection) — từ fortune_texts (thiền vị)
+ * 3 góc nhìn:
+ * 1. Tán thưởng (Khúc Tán Thưởng) — từ KhucTanThuongAgent
+ * 2. Gợi mở (Lời Gợi Mở) — từ GoiMoAgent
+ * 3. Chiêm nghiệm (Fortune Reflection) — từ fortune_texts (thiền vị)
  *
  * @param {Object} work - Object tác phẩm (từ DataHub)
  * @param {string} fortuneKey - Key vận khí
@@ -211,7 +212,7 @@ export function synthesizeDynamicFortune(work = {}, fortuneKey = 'binh-hoa', ana
 
         // ---- Gợi mở (từ GoiMoAgent) ----
         // LƯU Ý: Giữ cả 2 field name để tương thích ngược:
-        // - 'criticCommentary': tên cũ (main.js có thể đọc)
+        // - 'criticCommentary': tên cũ (main.js cũ có thể đọc)
         // - 'goiMoCommentary':  tên mới (khuyến nghị dùng)
         criticCommentary: goiMoCommentary,   // [LEGACY] giữ cho tương thích
         goiMoCommentary,                     // [NEW] khuyến nghị
