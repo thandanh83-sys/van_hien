@@ -17,7 +17,6 @@ const STORE_NAME = 'han_viet';
 export const DictionaryDB = {
     db: null,
 
-    // 1. Khởi tạo Database
     async init() {
         if (this.db) return this.db;
 
@@ -34,31 +33,27 @@ export const DictionaryDB = {
             request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    // KeyPath là 'id' (VD: 'han_viet_vọng')
                     const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-                    // Tạo Index để tìm kiếm theo từ khóa không dấu
                     store.createIndex('normalized', 'normalized', { unique: false });
                 }
             };
         });
     },
 
-    // 2. Import dữ liệu từ file JSON vào Database
     async importData(dataObject) {
         const db = await this.init();
         return new Promise((resolve, reject) => {
             const tx = db.transaction(STORE_NAME, 'readwrite');
             const store = tx.objectStore(STORE_NAME);
 
-            // Xóa dữ liệu cũ trước khi import mới
-            store.clear();
+            store.clear(); // Xóa cũ trước khi import mới
 
             let count = 0;
             for (const [keyword, info] of Object.entries(dataObject)) {
                 const record = {
                     id: `han_viet_${keyword}`,
                     keyword: keyword,
-                    normalized: info.normalized || keyword.toLowerCase(), // Fallback
+                    normalized: info.normalized || keyword.toLowerCase(),
                     mean: info.mean || '',
                     vol: info.vol || '',
                     sec: info.sec || ''
@@ -72,7 +67,6 @@ export const DictionaryDB = {
         });
     },
 
-    // 3. Lấy chính xác một từ
     async getExact(normalizedKeyword) {
         const db = await this.init();
         return new Promise((resolve, reject) => {
@@ -82,14 +76,12 @@ export const DictionaryDB = {
             const request = index.getAll(normalizedKeyword);
 
             request.onsuccess = () => {
-                // Trả về kết quả đầu tiên khớp chính xác
                 resolve(request.result.length > 0 ? request.result[0] : null);
             };
             request.onerror = (e) => reject(e.target.error);
         });
     },
 
-    // 4. Tìm kiếm gần đúng (Partial Match)
     async searchPartial(queryNormalized, limit = 5) {
         const db = await this.init();
         return new Promise((resolve, reject) => {
@@ -97,7 +89,6 @@ export const DictionaryDB = {
             const store = tx.objectStore(STORE_NAME);
             const results = [];
             
-            // Dùng Cursor để quét tuần tự (nhanh hơn getAll)
             const request = store.openCursor();
             
             request.onsuccess = (e) => {
@@ -116,7 +107,6 @@ export const DictionaryDB = {
         });
     },
 
-    // 5. Đếm tổng số từ (Dùng cho Audit)
     async count() {
         const db = await this.init();
         return new Promise((resolve) => {
@@ -127,7 +117,6 @@ export const DictionaryDB = {
         });
     },
 
-    // 6. Xóa toàn bộ DB
     async clear() {
         const db = await this.init();
         return new Promise((resolve) => {
