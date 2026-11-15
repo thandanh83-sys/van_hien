@@ -2,7 +2,7 @@
  * ==========================================================
  * VĂN ĐẠO — AUDIT MODULE (Bác sĩ chẩn đoán hệ thống)
  * Vị trí: js/audit.js
- * Version: 5.0.0 (Contemplative Audit — No Scoring)
+ * Version: 6.0.0 (Hybrid Dictionary & Contemplative Edition)
  * ==========================================================
  *
  * HƯỚNG DẪN SỬ DỤNG (Mở Console F12, gõ trực tiếp):
@@ -12,43 +12,13 @@
  * - Khám tác phẩm: window.auditWorks()
  * - Khám tác giả: window.auditAuthors()
  * - Khám AI: window.auditAIPipeline()
- *
- * TRIẾT LÝ THIẾT KẾ (DESIGN PHILOSOPHY):
- *
- * 1. CHẨN ĐOÁN, KHÔNG CHẤM ĐIỂM (Diagnose, Don't Score):
- *    - Audit kiểm tra tính toàn vẹn hệ thống (file, mạng, dữ liệu, AI).
- *    - KHÔNG đánh giá chất lượng văn chương.
- *    - KHÔNG có điểm số cho bài thơ.
- *
- * 2. ĐỒNG BỘ VỚI CONTEMPLATIVE (v5.0.0):
- *    - Test case `criticize-work` → đổi thành `open-depth`.
- *    - Test case `praise-work` → giữ nguyên key, agent đổi sang
- *      `khuc-tan-thuong`.
- *    - Sử dụng `InputAI.parseIntent` thay vì `MasterAI.parseIntent`
- *      để khớp với INTENT_DEFINITIONS (find-author-of, open-depth...).
- *
- * 3. PURE TEXT ICONS:
- *    - Không emoji, không unicode icon.
- *    - Chỉ dùng text thuần: [OK], [FAIL], [LỖI], [GỢI Ý].
- *
- * 4. BÁO CÁO TẬP TRUNG:
- *    - Chỉ in chi tiết khi có lỗi.
- *    - Thành công thì log ngắn gọn.
- *    - Cuối cùng có tổng kết.
- *
- * LỊCH SỬ PHIÊN BẢN:
- * - v4.2.0: Pure Text Icons & Manifest-Driven Diagnostics.
- * - v5.0.0: Contemplative Audit.
- *   - [ĐỔI] Test case `criticize-work` → `open-depth`.
- *   - [ĐỔI] Dùng `InputAI.parseIntent` thay `MasterAI.parseIntent`.
- *   - [ĐỔI] Label `Điểm sáng` / `Điểm cần lưu ý` không còn dùng.
- *   - [THÊM] Test case `open-depth` kiểm tra "Lời Gợi Mở".
- *
+ * - Khám Từ điển (DB): window.auditDictionaryDB()
  * ==========================================================
  */
 
 import { APP_DATA, STATE } from './config.js';
 import { DataHub, AgentRegistry, VDBus } from './network/index.js';
+import { DictionaryDB } from './network/dictionary-db.js';
 
 // Tính toán đường dẫn gốc (Từ thư mục js/ lùi ra ngoài 1 cấp)
 const BASE_URL = new URL('../', import.meta.url).href;
@@ -78,7 +48,7 @@ async function fetchJson(relativePath) {
     }
 }
 
-// Các hàm Log (Chỉ in chi tiết khi có Lỗi)
+// Các hàm Log
 function logGroup(title, color = '#2c3e38') {
     console.group(`%c${title}`, `color: ${color}; font-weight: bold; font-size: 14px;`);
 }
@@ -96,7 +66,7 @@ function logSuccessShort(msg) {
 // PHẦN 2: CÁC HÀM KHÁM CHUYÊN KHOA
 // ==========================================================
 
-// 2.1 Khám File Tĩnh (Đọc từ Manifest)
+// 2.1 Khám File Tĩnh
 export async function auditStaticFiles() {
     logGroup('[BÁC SĨ] KHÁM FILE TĨNH (Theo Manifest)...');
     const missingFiles = [];
@@ -109,8 +79,6 @@ export async function auditStaticFiles() {
         if (!res.ok) throw new Error(`Không tải được static-assets.json (HTTP ${res.status})`);
 
         const manifest = await res.json();
-
-        // Gộp tất cả các mảng lại thành một danh sách phẳng
         const allUrls = [
             ...(manifest.root || []),
             ...(manifest.css || []),
@@ -123,7 +91,6 @@ export async function auditStaticFiles() {
             ...(manifest.assets || [])
         ];
 
-        // Loại bỏ trùng lặp
         const uniqueUrls = [...new Set(allUrls)];
         totalFiles = uniqueUrls.length;
 
@@ -147,7 +114,7 @@ export async function auditStaticFiles() {
         logError(`Lỗi tải Manifest: ${err.message}`);
         logAdvice('Hãy chắc chắn file data/manifests/static-assets.json đã tồn tại và đúng cú pháp JSON.');
     }
-
+    console.groupEnd();
     return { missingFiles, validFiles, totalFiles };
 }
 
@@ -171,7 +138,6 @@ export async function auditNetwork() {
         if (agentKeys.length === 0) {
             errors.push({ node: 'AgentRegistry', error: 'Không có Agent nào được đăng ký.' });
         } else {
-            // Dùng validate() mới của v8.0.0
             if (typeof AgentRegistry.validate === 'function') {
                 const validation = AgentRegistry.validate();
                 if (validation.invalid.length > 0) {
@@ -179,13 +145,6 @@ export async function auditNetwork() {
                         node: 'AgentRegistry',
                         error: `Các Agent không hợp lệ: ${validation.invalid.join(', ')}`
                     });
-                }
-            } else {
-                // Fallback nếu chạy với index.js cũ
-                const { AgentMap } = await import('./ai/agents/index.js');
-                const missingInMap = agentKeys.filter(k => !AgentMap[k]);
-                if (missingInMap.length > 0) {
-                    errors.push({ node: 'AgentRegistry', error: `Thiếu trong AgentMap: ${missingInMap.join(', ')}` });
                 }
             }
         }
@@ -199,6 +158,7 @@ export async function auditNetwork() {
     } else {
         logSuccessShort('DataHub và AgentRegistry hoạt động tốt.');
     }
+    console.groupEnd();
     return { errors };
 }
 
@@ -229,6 +189,7 @@ export async function auditWorks() {
     } else {
         logSuccessShort(`Tất cả ${APP_DATA.WORKS_DATA.length} Tác phẩm đều hoàn hảo.`);
     }
+    console.groupEnd();
     return { issues };
 }
 
@@ -259,45 +220,51 @@ export async function auditAuthors() {
     } else {
         logSuccessShort(`Tất cả ${APP_DATA.AUTHOR_DATA.length} Tác giả đều hoàn hảo.`);
     }
+    console.groupEnd();
     return { issues };
 }
 
-// 2.5 Khám AI (Toàn bộ Pipeline — v5.0.0 Contemplative)
+// 2.5 Khám Từ Điển IndexedDB (v6.0.0)
+export async function auditDictionaryDB() {
+    logGroup('[BÁC SĨ] KHÁM TỪ ĐIỂN INDEXEDDB (Hán Việt)...');
+    try {
+        const count = await DictionaryDB.count();
+        if (count > 0) {
+            logSuccessShort(`IndexedDB đang chứa ${count} từ Hán Việt.`);
+        } else {
+            logAdvice('IndexedDB trống. Hãy bấm "Tải Kho Dữ Liệu Lõi" trong Cài đặt để nạp từ điển Hán Việt.');
+        }
+    } catch (err) {
+        logError(`Lỗi đọc IndexedDB: ${err.message}`);
+        logAdvice('Trình duyệt có thể chặn IndexedDB (VD: chế độ ẩn danh).');
+    }
+    console.groupEnd();
+}
+
+// 2.6 Khám AI (Contemplative Pipeline)
 export async function auditAIPipeline() {
     logGroup('[BÁC SĨ] KHÁM SỨC KHỎE AI (Contemplative Pipeline)...');
     const testCases = [
-        // =================================================================
-        // NHÓM 1: Văn học & Tác giả
-        // =================================================================
+        // Nhóm 1: Văn học & Tác giả
         { input: "Ai viết Truyện Kiều?", expectedType: "find-author-of", expectedKeyword: "Nguyễn Du" },
         { input: "Tóm tắt Chí Phèo", expectedType: "summarize-work", expectedKeyword: "Chí Phèo" },
         { input: "Tiểu sử Nguyễn Du", expectedType: "find-author-info", expectedKeyword: "Nguyễn Du" },
         { input: "Nguyễn Du có những tác phẩm nào?", expectedType: "list-author-works", expectedKeyword: "Nguyễn Du" },
 
-        // =================================================================
-        // NHÓM 2: Mạng lưới & Lịch sử
-        // =================================================================
+        // Nhóm 2: Mạng lưới & Lịch sử
         { input: "Tác phẩm nào giống Truyện Kiều?", expectedType: "find-related", expectedKeyword: "Truyện Kiều" },
         { input: "Tác phẩm thời nhà Lê", expectedType: "find-works-by-era", expectedKeyword: "Lê" },
         { input: "Truyện Kiều viết thời nào?", expectedType: "get-historical-context", expectedKeyword: "TK 19" },
 
-        // =================================================================
-        // NHÓM 3: Thi pháp
-        // =================================================================
+        // Nhóm 3: Thi pháp
         { input: "Ý nghĩa của trăng", expectedType: "explain-symbol", expectedKeyword: "trăng" },
 
-        // =================================================================
-        // NHÓM 4: Các Agent đặc biệt
-        // =================================================================
+        // Nhóm 4: Các Agent đặc biệt
         { input: "Dịch Truyện Kiều sang tiếng Anh", expectedType: "translate-work", expectedKeyword: "The Tale of Kieu" },
         { input: "Thúy Kiều là ai?", expectedType: "get-character-info", expectedKeyword: "Truyện Kiều" },
         { input: "So sánh Nguyễn Du và Nam Cao", expectedType: "compare-entities", expectedKeyword: "Nguyễn Du" },
 
-        // =================================================================
-        // NHÓM 5: Cảm thụ (v5.0.0)
-        // =================================================================
-        // [v5.0.0 — ĐỔI] Từ "Chê bài thơ này" (criticize-work) → "Gợi mở chiều sâu Tây Tiến" (open-depth)
-        // Lý do: Không còn phê bình, chỉ gợi mở.
+        // Nhóm 5: Cảm thụ (v4.0.0)
         { input: "Khen bài thơ Tây Tiến", expectedType: "praise-work", expectedKeyword: "Tây Tiến" },
         { input: "Gợi mở chiều sâu Tây Tiến", expectedType: "open-depth", expectedKeyword: "Lời Gợi Mở" }
     ];
@@ -306,46 +273,31 @@ export async function auditAIPipeline() {
     const failedCases = [];
 
     try {
-        // [v5.0.0 — ĐỔI] Dùng InputAI.parseIntent (khớp với INTENT_DEFINITIONS)
-        // thay vì MasterAI.parseIntent (dùng SmartInputParser).
         const { InputAI } = await import('./ai/input-ai.js');
         const { MasterAI } = await import('./ai/master.js');
         const { OutputAI } = await import('./ai/output-ai.js');
         const dummyContainer = document.createElement('div');
 
         for (const tc of testCases) {
-            // -----------------------------------------------------------------
-            // Bước 1: Kiểm tra Intent type
-            // -----------------------------------------------------------------
             let intent;
             try {
                 intent = InputAI.parseIntent(tc.input);
             } catch (err) {
-                failedCases.push({
-                    'Câu hỏi': tc.input,
-                    'Lỗi': `InputAI.parseIntent: ${err.message}`
-                });
+                failedCases.push({ 'Câu hỏi': tc.input, 'Lỗi': `InputAI.parseIntent: ${err.message}` });
                 continue;
             }
 
             const isIntentCorrect = intent.type === tc.expectedType;
-
-            // -----------------------------------------------------------------
-            // Bước 2: Dispatch qua MasterAI (nếu intent không phải 'search')
-            // -----------------------------------------------------------------
             let result = null;
             let isOutputOk = false;
 
             if (intent.type !== 'search') {
                 try {
-                    result = await MasterAI.dispatch(tc.input);  // Truyền raw string
+                    result = await MasterAI.dispatch(tc.input);
                 } catch (err) {
                     result = { answer: `Lỗi dispatch: ${err.message}`, source: 'error' };
                 }
 
-                // -----------------------------------------------------------------
-                // Bước 3: Render HTML để kiểm tra OutputAI
-                // -----------------------------------------------------------------
                 try {
                     OutputAI.render(dummyContainer, result, tc.input);
                     isOutputOk = dummyContainer.innerHTML.includes(tc.expectedKeyword);
@@ -354,21 +306,11 @@ export async function auditAIPipeline() {
                 }
             }
 
-            // -----------------------------------------------------------------
-            // Bước 4: Kiểm tra kết quả có chứa keyword không
-            // -----------------------------------------------------------------
             const combinedResult = result
-                ? [
-                    result.answer || '',
-                    result.detail || '',
-                    ...(result.meta || []).map(m => m.title || m.name || '')
-                ].join(' ')
+                ? [result.answer || '', result.detail || '', ...(result.meta || []).map(m => m.title || m.name || '')].join(' ')
                 : '';
             const isResultOk = combinedResult.includes(tc.expectedKeyword);
 
-            // -----------------------------------------------------------------
-            // Bước 5: Ghi nhận kết quả
-            // -----------------------------------------------------------------
             if (!isIntentCorrect || !isResultOk || !isOutputOk) {
                 failedCases.push({
                     'Câu hỏi': tc.input,
@@ -381,9 +323,6 @@ export async function auditAIPipeline() {
             }
         }
 
-        // -----------------------------------------------------------------
-        // Bước 6: In báo cáo
-        // -----------------------------------------------------------------
         if (failedCases.length > 0) {
             logError(`Có ${failedCases.length}/${testCases.length} test cases thất bại. Chi tiết:`);
             console.table(failedCases);
@@ -395,6 +334,7 @@ export async function auditAIPipeline() {
     } catch (err) {
         logError(`Lỗi khởi tạo AI: ${err.message}`);
     }
+    console.groupEnd();
     return results;
 }
 
@@ -404,7 +344,7 @@ export async function auditAIPipeline() {
 export async function runFullDiagnosis() {
     console.clear();
     console.log(
-        "%c=== BỆNH VIỆN VĂN ĐẠO - CHẨN ĐOÁN TOÀN DIỆN v5.0.0 ===",
+        "%c=== BỆNH VIỆN VĂN ĐẠO - CHẨN ĐOÁN TOÀN DIỆN v6.0.0 ===",
         "background: linear-gradient(135deg, #2c3e38, #557a6f); color: #d4c4a8; font-size: 16px; font-weight: bold; padding: 10px 20px; border-radius: 8px;"
     );
 
@@ -412,6 +352,7 @@ export async function runFullDiagnosis() {
     const networkResult = await auditNetwork();
     const worksResult = await auditWorks();
     const authorsResult = await auditAuthors();
+    await auditDictionaryDB(); // [MỚI v6.0.0]
     await auditAIPipeline();
 
     const totalErrors =
@@ -433,7 +374,6 @@ export async function runFullDiagnosis() {
         );
     }
 
-    // Log triết lý Văn Đạo
     console.log(
         `%c[TRIẾT LÝ VĂN ĐẠO] Không chấm điểm văn chương. Mỗi bài thơ đều có hồn, nét đẹp riêng.`,
         'color: #c9a96e; font-style: italic; font-weight: bold; padding: 6px 12px;'
@@ -448,6 +388,7 @@ window.auditStaticFiles = auditStaticFiles;
 window.auditNetwork = auditNetwork;
 window.auditWorks = auditWorks;
 window.auditAuthors = auditAuthors;
+window.auditDictionaryDB = auditDictionaryDB;
 window.auditAIPipeline = auditAIPipeline;
 
 export default {
@@ -456,32 +397,6 @@ export default {
     auditNetwork,
     auditWorks,
     auditAuthors,
+    auditDictionaryDB,
     auditAIPipeline
 };
-
-// ==========================================================
-// GHI CHÚ CHO NGƯỜI BẢO TRÌ
-// ==========================================================
-/**
- * SAU KHI DÙNG audit.js v5.0.0:
- *
- * 1. Đã thay đổi:
- *    - Test case "Chê bài thơ này" (criticize-work) → "Gợi mở chiều sâu Tây Tiến" (open-depth)
- *    - `MasterAI.parseIntent` → `InputAI.parseIntent` (khớp với INTENT_DEFINITIONS)
- *    - `MasterAI.dispatch(intent)` → `MasterAI.dispatch(tc.input)` (truyền raw string)
- *
- * 2. Đã thêm:
- *    - Log triết lý "Không chấm điểm văn chương" ở cuối runFullDiagnosis.
- *
- * 3. Tương thích ngược:
- *    - Tất cả các hàm audit cũ (auditStaticFiles, auditNetwork...) giữ nguyên.
- *    - Chỉ sửa nội bộ auditAIPipeline.
- *
- * 4. Cách chạy kiểm tra:
- *    - Mở app → F12 → Console → `window.auditAIPipeline()`
- *    - Hoặc `window.audit()` để chạy toàn bộ chẩn đoán.
- *
- * 5. Triết lý cốt lõi:
- *    - Chẩn đoán hệ thống, không chấm điểm văn chương.
- *    - Test case `open-depth` kiểm tra "Lời Gợi Mở" (không phải "Phê bình").
- */
