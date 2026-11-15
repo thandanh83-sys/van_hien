@@ -58,6 +58,7 @@
   "js_network": [
     "./js/network/bus.js",
     "./js/network/data-hub.js",
+    "./js/network/dictionary-db.js",
     "./js/network/index.js"
   ],
   "json_data": [
