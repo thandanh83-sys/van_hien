@@ -1,7 +1,7 @@
 {
   "_schema": "vandao.contemplative-prompts/v1",
-  "_description": "Bộ câu hỏi chiêm nghiệm — thay thế hoàn toàn rubric chấm điểm. Mỗi chiều kích có 2-3 câu hỏi gợi mở, giọng 'Ta — Bạn', không phán xét, không chấm điểm.",
-  "_note": "Đây là dữ liệu tĩnh. Muốn thêm chiều kích mới, thêm key vào object này. ContemplativeEngine sẽ tự động đọc và sinh câu hỏi ngẫu nhiên.",
+  "_description": "Bộ câu hỏi chiêm nghiệm — thay thế hoàn toàn rubric chấm điểm. Mỗi chiều kích có 3 câu hỏi gợi mở, giọng 'Ta — Bạn', không phán xét, không chấm điểm.",
+  "_note": "Đây là dữ liệu tĩnh. Muốn thêm chiều kích mới, thêm key vào object này. ContemplativeEngine sẽ tự động đọc và sinh câu hỏi ngẫu nhiên. Các key bắt đầu bằng '_' sẽ bị bỏ qua.",
   "_version": "1.0.0",
   "_updatedAt": "2026-11-15",
 
