@@ -5,36 +5,33 @@
     <!-- 1. KHAI BÁO THÔNG TIN CƠ BẢN (SEO, MOBILE & TRÌNH DUYỆT)          -->
     <!-- ================================================================= -->
     <meta charset="UTF-8">
-    <!-- Ngăn trình duyệt tự động thu phóng, giữ giao diện chuẩn trên mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- Tiêu đề & Mô tả (SEO) -->
-    <title>Ngọc Thanh | Tinh Hoa Văn Học</title>
-    <meta name="description" content="NGỌC THANH - Đại Bách Khoa Toàn Thư về Văn học, Thi pháp và Nghệ thuật Nhân loại. Nơi ngôn từ được phân tách, và vẻ đẹp được tôn vinh.">
+
+    <title>Văn Đạo | Đại Bách Khoa Toàn Thư — Contemplative Edition</title>
+    <meta name="description" content="VĂN ĐẠO — Không gian chiêm nghiệm văn học, thi pháp và tinh hoa tri thức nhân loại. Không chấm điểm, chỉ tôn vinh vẻ đẹp. Mỗi bài thơ đều có hồn, nét đẹp riêng.">
     <meta name="author" content="Văn Đạo">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://thanhdnh83-sys.github.io/van_hien/">
 
     <!-- ================================================================= -->
-    <!-- 2. MÀU SẮC GIAO DIỆN (HỖ TRỢ DARK/LIGHT MODE HỆ THỐNG)           -->
+    <!-- 2. MÀU SẮC GIAO DIỆN                                              -->
     <!-- ================================================================= -->
     <meta name="color-scheme" content="light dark">
-    <!-- Màu thanh trạng thái (Theme color) chuyển theo Sáng/Tối -->
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7fcf9">
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#112a20">
 
     <!-- ================================================================= -->
-    <!-- 3. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tối ưu LCP - Tốc độ tải)        -->
+    <!-- 3. PRELOAD TÀI NGUYÊN QUAN TRỌNG (Tối ưu LCP)                      -->
     <!-- ================================================================= -->
-    <!-- Tải trước Font chữ viết tay để tránh hiện tượng "nháy" chữ -->
     <link rel="preload" href="assets/fonts/AlexBrush-Regular.woff2" as="font" type="font/woff2" crossorigin>
-    <!-- Tải trước ảnh nền chính -->
     <link rel="preload" href="assets/khung.jpg" as="image">
-    
-    <!-- Tải trước các file JS lõi của AI để khởi động bộ não nhanh hơn -->
+
     <link rel="modulepreload" href="js/ai.js">
     <link rel="modulepreload" href="js/ai/master.js">
     <link rel="modulepreload" href="js/ai/smart-input-parser.js">
+    <link rel="modulepreload" href="js/ai/agents/khuc-tan-thuong.js">
+    <link rel="modulepreload" href="js/ai/agents/goi-mo.js">
+    <link rel="modulepreload" href="js/ai/contemplative-engine.js">
     <link rel="modulepreload" href="js/network/data-hub.js">
 
     <!-- ================================================================= -->
@@ -43,7 +40,6 @@
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/web-app-manifest-192x192.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-    <!-- crossorigin="use-credentials" để tránh lỗi tải manifest ẩn danh -->
     <link rel="manifest" href="manifest.json" crossorigin="use-credentials">
 
     <!-- ================================================================= -->
@@ -52,15 +48,15 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Ngọc Thanh">
+    <meta name="apple-mobile-web-app-title" content="Văn Đạo">
 
     <!-- ================================================================= -->
-    <!-- 6. OPEN GRAPH / CHIA SẺ MẠNG XÃ HỘI (Facebook, Zalo, LinkedIn)     -->
+    <!-- 6. OPEN GRAPH / CHIA SẺ MẠNG XÃ HỘI                              -->
     <!-- ================================================================= -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Ngọc Thanh">
-    <meta property="og:title" content="NGỌC THANH | Đại Bách Khoa Toàn Thư">
-    <meta property="og:description" content="Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.">
+    <meta property="og:site_name" content="Văn Đạo">
+    <meta property="og:title" content="VĂN ĐẠO | Không gian Chiêm nghiệm Văn học">
+    <meta property="og:description" content="Không chấm điểm văn chương. Mỗi bài thơ đều có hồn, nét đẹp riêng. Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.">
     <meta property="og:url" content="https://thanhdnh83-sys.github.io/van_hien/">
     <meta property="og:image" content="https://thanhdnh83-sys.github.io/van_hien/assets/khung.jpg">
     <meta property="og:locale" content="vi_VN">
@@ -69,34 +65,44 @@
     <!-- 7. TWITTER / X CARD                                              -->
     <!-- ================================================================= -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="NGỌC THANH | Đại Bách Khoa Toàn Thư">
-    <meta name="twitter:description" content="Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.">
+    <meta name="twitter:title" content="VĂN ĐẠO | Không gian Chiêm nghiệm Văn học">
+    <meta name="twitter:description" content="Không chấm điểm văn chương. Mỗi bài thơ đều có hồn, nét đẹp riêng.">
     <meta name="twitter:image" content="https://thanhdnh83-sys.github.io/van_hien/assets/khung.jpg">
 
     <!-- ================================================================= -->
-    <!-- 8. LIÊN KẾT FILE CSS (Thứ tự ưu tiên từ gốc đến ngọn)            -->
+    <!-- 8. LIÊN KẾT FILE CSS                                              -->
     <!-- ================================================================= -->
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/layouts.css">
     <link rel="stylesheet" href="css/reader.css">
+
+    <!-- ================================================================= -->
+    <!-- 9. VERSION METADATA (dùng cho audit & debug)                     -->
+    <!-- ================================================================= -->
+    <script>
+        window.VD_APP_VERSION = '4.0.0';
+        window.VD_BUILD_DATE  = '2026-11-15';
+        window.VD_EDITION     = 'Contemplative';
+        window.VD_PHILOSOPHY  = 'Không chấm điểm văn chương. Mỗi bài thơ đều có hồn, nét đẹp riêng.';
+    </script>
 </head>
 <body>
 
     <!-- ================================================================= -->
-    <!-- 9. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG (Dành cho người dùng bàn phím)    -->
+    <!-- 10. TRỢ NĂNG: BỎ QUA ĐIỀU HƯỚNG                                  -->
     <!-- ================================================================= -->
     <a href="#main-content" class="skip-link">Bỏ qua điều hướng, đến nội dung chính</a>
 
     <!-- ================================================================= -->
-    <!-- 10. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG (CANVAS)                   -->
+    <!-- 11. LỚP HIỆU ỨNG SÓNG NƯỚC & HẠT SƯƠNG                          -->
     <!-- ================================================================= -->
     <canvas id="water-canvas" aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; display: block;"></canvas>
     <div class="dewdrop-container" id="dewdrop-container" aria-hidden="true" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; overflow: hidden;"></div>
 
     <!-- ================================================================= -->
-    <!-- 11. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA THANH NGỌC                     -->
+    <!-- 12. HIỆU ỨNG CHUYỂN CẢNH: DẢI LỤA                                -->
     <!-- ================================================================= -->
     <div class="silk-transition-overlay" id="silkTransition" aria-hidden="true">
         <div class="silk-sweep"></div>
@@ -104,18 +110,18 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 12. MÀN HÌNH CHỜ (SPLASH SCREEN)                                 -->
+    <!-- 13. MÀN HÌNH CHỜ (SPLASH SCREEN)                                 -->
     <!-- ================================================================= -->
     <div id="jade-splash" aria-hidden="true">
         <div class="silk-layer silk-layer-1"></div>
         <div class="silk-layer silk-layer-2"></div>
         <div class="silk-layer silk-layer-3"></div>
-        
+
         <div class="boot-content">
-            <h1 class="boot-brand">NGỌC THANH</h1>
-            <p class="boot-subtitle">A WORLD OF KNOWLEDGE</p>
+            <h1 class="boot-brand">VĂN ĐẠO</h1>
+            <p class="boot-subtitle">CONTEMPLATIVE EDITION</p>
             <div class="boot-status">
-                <span class="status-text" id="bootStatusText">Đang khởi tạo trải nghiệm...</span>
+                <span class="status-text" id="bootStatusText">Đang kết nối tri thức...</span>
             </div>
             <div class="boot-quote">
                 <p id="splash-quote-text"></p>
@@ -124,47 +130,42 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 13. THANH ĐIỀU HƯỚNG (HEADER)                                    -->
+    <!-- 14. THANH ĐIỀU HƯỚNG (HEADER)                                    -->
     <!-- ================================================================= -->
     <header id="app-header">
         <nav class="navbar" aria-label="Điều hướng chính">
-            <!-- Logo VĂN HIẾN -->
-            <div class="nav-brand" onclick="window.switchView('home')" title="Về Trang Chủ">VĂN HIẾN</div>
-            
-            <!-- Các nút điều hướng (Desktop) -->
+            <div class="nav-brand" onclick="window.switchView('home')" title="Về Trang Chủ">VĂN ĐẠO</div>
+
             <div class="nav-links" id="navMenu" role="menubar">
                 <button class="nav-btn active" onclick="window.switchView('home')" id="nav-home" role="menuitem" aria-current="page">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                     Trang Chủ
                 </button>
-                
+
                 <button class="nav-btn" onclick="window.switchView('heritage')" id="nav-heritage" role="menuitem">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                     Văn Hiến
                 </button>
-                
+
                 <button class="nav-btn" onclick="window.switchView('encyclopedia')" id="nav-encyclopedia" role="menuitem">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                     Bách Khoa
                 </button>
-                
+
                 <button class="nav-btn" onclick="window.switchView('analyze')" id="nav-analyze" role="menuitem">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                     Thi Pháp
                 </button>
             </div>
 
-            <!-- Khối nút bên phải: Cài đặt + Hamburger -->
             <div class="nav-actions">
-                <!-- Nút Cài đặt (Icon Bánh răng) -->
                 <button id="btn-open-settings" class="nav-icon-btn" aria-label="Cài đặt" title="Cài đặt">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="3"></circle>
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg>
                 </button>
-                
-                <!-- Nút Menu Hamburger (Mobile) -->
+
                 <button class="mobile-menu-btn" id="btn-toggle-menu" onclick="window.toggleMobileMenu()" aria-label="Mở Menu" aria-expanded="false" aria-controls="navMenu">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
@@ -173,18 +174,18 @@
     </header>
 
     <!-- ================================================================= -->
-    <!-- 14. CONTAINER CHÍNH CHỨA TOÀN BỘ NỘI DUNG                         -->
+    <!-- 15. CONTAINER CHÍNH                                              -->
     <!-- ================================================================= -->
     <div class="container">
         <main id="main-content">
-            
+
             <!-- VIEW 1: TRANG CHỦ (HOME) -->
             <section id="view-home" class="view active" role="tabpanel" aria-label="Trang chủ">
                 <div class="hero">
                     <div class="hero-content">
                         <h1>Vẻ Đẹp <i>Ngọc Thanh</i><br><span class="no-wrap">Giữa Làn Nước Tĩnh</span></h1>
-                        <p>Lấy cảm hứng từ những đóa sen trắng tinh khôi mang sắc ngọc bích dịu dàng, lưu giữ trọn vẹn sự thanh tịnh và nét sang trọng vượt thời gian.</p>
-                        
+                        <p>Không chấm điểm văn chương. Mỗi bài thơ đều có hồn, nét đẹp riêng. Đây là không gian chiêm nghiệm — nơi ngôn từ được tôn vinh, và vẻ đẹp được lắng nghe.</p>
+
                         <div class="hero-actions">
                             <button class="btn-hero-primary" onclick="window.switchView('heritage')">Khám Phá Tuyệt Tác</button>
                             <button id="draw-literary-fate-btn" class="btn-hero-secondary" aria-label="Một bài thơ cho hôm nay">
@@ -195,7 +196,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="hero-visual">
                         <div class="arch-frame">
                             <img src="assets/khung.jpg" alt="Tranh sáo trúc" loading="lazy" decoding="async">
@@ -210,14 +211,12 @@
             <section id="view-heritage" class="view" role="tabpanel" aria-label="Văn Hiến">
                 <h1 class="page-title">Văn Hiến</h1>
                 <p class="page-desc">Danh mục Tác phẩm</p>
-                
+
                 <div class="search-container" role="search">
                     <label for="search-input" class="sr-only">Tìm tác phẩm hoặc hỏi AI</label>
                     <div class="search-wrap search-box-wrapper">
                         <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <!-- Input Tìm kiếm Văn Hiến: Gọi handleSearchInput với ID riêng -->
                         <input type="search" id="search-input" placeholder="Tìm tác phẩm hoặc hỏi: Ai viết Tắt Đèn?..." aria-describedby="heritage-count" oninput="window.handleSearchInput('search-input', 'clear-search-btn-heritage')">
-                        <!-- Nút X cho Văn Hiến -->
                         <button type="button" id="clear-search-btn-heritage" class="clear-btn" onclick="window.clearSearch('search-input', 'clear-search-btn-heritage', 'heritage')" title="Xóa tìm kiếm">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -230,7 +229,7 @@
 
                 <div class="filter-bar" id="main-filter-bar"></div>
                 <div class="filter-bar" id="sub-filter-bar" style="display: none;"></div>
-                
+
                 <div class="heritage-grid" id="heritage-grid"></div>
                 <div id="pagination-container" class="pagination-container"></div>
             </section>
@@ -239,14 +238,12 @@
             <section id="view-encyclopedia" class="view" role="tabpanel" aria-label="Đại Bách Khoa">
                 <h1 class="page-title">Đại Bách Khoa</h1>
                 <p class="page-desc">Hệ thống tri thức</p>
-                
+
                 <div class="search-container" role="search" id="encyclopedia-search-container">
                     <label for="encyclopedia-search" class="sr-only">Tìm kiếm hoặc Hỏi Đạo</label>
                     <div class="search-wrap search-box-wrapper">
                         <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <!-- Input Tìm kiếm Bách Khoa: Gọi handleSearchInput với ID riêng -->
                         <input type="search" id="encyclopedia-search" placeholder="Tìm kiếm hoặc hỏi: Tác phẩm thời nhà Lê? / Lục bát là gì?" aria-describedby="encyclopedia-count" oninput="window.handleSearchInput('encyclopedia-search', 'clear-search-btn')">
-                        <!-- Nút X cho Bách Khoa -->
                         <button type="button" id="clear-search-btn" class="clear-btn" onclick="window.clearSearch('encyclopedia-search', 'clear-search-btn', 'encyclopedia')" title="Xóa tìm kiếm">
                             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -269,16 +266,17 @@
                 <div id="encyclopedia-pagination" class="pagination-container"></div>
             </section>
 
-            <!-- VIEW 4: THI PHÁP HỌC (ANALYZE) -->
+            <!-- VIEW 4: THI PHÁP HỌC (ANALYZE) — Contemplative Edition -->
             <section id="view-analyze" class="view" role="tabpanel" aria-label="Thi Pháp Học">
                 <h1 class="page-title">Thi Pháp Học</h1>
-                
+                <p class="page-desc">Chiêm nghiệm vẻ đẹp — Không chấm điểm</p>
+
                 <div class="analyze-box">
                     <label for="poemInput" class="sr-only">Nhập bài thơ cần phân tích</label>
                     <textarea id="poemInput" placeholder="Quạt giấy khép lại mùa thi,&#10;Áo dài bay giữa kinh kỳ sắc xuân.&#10;Thầy cô tựa ánh trăng ngần,&#10;Dắt em qua những thăng trầm thế gian."></textarea>
                     <button onclick="window.executePipeline()">Phân Tích Ngay</button>
                 </div>
-                
+
                 <div id="results-panel" aria-live="polite"></div>
             </section>
 
@@ -286,12 +284,12 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 15. GỢI Ý ĐỌC (FATE MODAL)                                       -->
+    <!-- 16. GỢI Ý ĐỌC (FATE MODAL) — Contemplative Labels                -->
     <!-- ================================================================= -->
     <div id="fate-modal-overlay" style="display: none;">
         <div id="fate-modal">
             <button id="fate-close-btn" class="fate-close-btn" aria-label="Đóng">&times;</button>
-            
+
             <div id="fate-loading">
                 <div class="spinner"></div>
                 <p style="margin-top: 20px; font-family: var(--font-body); color: var(--text-muted); font-style: italic;">Đang tìm duyên lành...</p>
@@ -301,7 +299,7 @@
                 <div style="text-align: center; margin-bottom: 20px;">
                     <h2 id="fate-title" style="font-family: var(--font-calligraphy); font-size: 2.5rem; color: var(--text-main); margin: 0 0 5px;"></h2>
                 </div>
-                
+
                 <div style="background: rgba(46, 139, 87, 0.05); padding: 20px; border-left: 3px solid var(--accent-gold); border-radius: 4px; margin-bottom: 30px;">
                     <p id="fate-excerpt" style="font-family: var(--font-body); font-size: 1.1rem; color: var(--text-main); line-height: 1.8; font-style: italic; margin: 0;"></p>
                 </div>
@@ -311,10 +309,10 @@
                         <p style="font-family: var(--font-calligraphy); font-size: 1.8rem; color: var(--accent-text); margin: 0;">Lời Bình</p>
                         <span id="fate-badge" style="font-size: 0.75rem; padding: 3px 10px; border: 1px solid var(--accent); color: var(--accent-text); border-radius: 20px; text-transform: uppercase; font-weight: 700; transition: all 0.3s;"></span>
                     </div>
-                    
+
                     <div id="fate-commentary" style="font-family: var(--font-body); font-size: 1.05rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 20px; text-align: left;"></div>
                 </div>
-                
+
                 <div style="display: flex; justify-content: center; border-top: 1px solid rgba(46, 139, 87, 0.15); padding-top: 20px; margin-top: 20px;">
                     <button id="fate-goto-btn" style="background: transparent; border: none; color: var(--accent); font-family: var(--font-body); font-size: 0.95rem; font-weight: 700; cursor: pointer; padding: 0; letter-spacing: 1px; text-transform: uppercase; transition: color 0.3s;">Đọc toàn bộ tác phẩm &rarr;</button>
                 </div>
@@ -323,20 +321,19 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 16. SETTINGS DIALOG: TỦ SÁCH OFFLINE & MẠNG LƯỚI (HTML5 Dialog)   -->
+    <!-- 17. SETTINGS DIALOG                                              -->
     <!-- ================================================================= -->
     <dialog id="settings-dialog">
         <div id="settings-modal">
             <button id="btn-close-settings" class="fate-close-btn" aria-label="Đóng">&times;</button>
-            
+
             <div style="text-align: center; margin-bottom: 24px;">
                 <h2 style="font-family: var(--font-calligraphy); font-size: 2.5rem; color: var(--accent-text); margin: 0;">Cài đặt</h2>
             </div>
 
-            <!-- Khối Tủ Sách Offline -->
             <div style="margin-bottom: 20px;">
                 <p style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">Dữ liệu & Lưu trữ</p>
-                
+
                 <div style="background: rgba(46, 139, 87, 0.05); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="font-family: var(--font-body); font-weight: 700; font-size: 1rem;">Tủ Sách Offline</span>
@@ -363,12 +360,11 @@
                 </div>
             </div>
 
-            <!-- Khối Mạng Lưới Tri Thức (Network) -->
             <div style="margin-bottom: 20px;">
                 <p style="font-family: var(--font-body); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px;">
                     Mạng Lưới Tri Thức (DataHub)
                 </p>
-                
+
                 <div class="network-section">
                     <div class="network-summary">
                         <div class="network-dots" id="network-dots"></div>
@@ -380,25 +376,31 @@
                             </svg>
                         </button>
                     </div>
-                    
+
                     <div class="network-nodes" id="network-nodes"></div>
-                    
+
                     <div class="network-timestamp" id="network-timestamp"></div>
                 </div>
             </div>
 
-            <!-- Khối Xóa Dữ Liệu -->
             <div style="text-align: center; border-top: 1px dashed var(--border-color); padding-top: 15px;">
                 <button class="offline-text-btn" id="offline-btn-clear">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     Xóa dữ liệu Offline
                 </button>
             </div>
+
+            <!-- Triết lý Văn Đạo -->
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border-color); text-align: center; font-family: var(--font-body); font-size: 0.8rem; color: var(--text-muted); font-style: italic; line-height: 1.6;">
+                <p style="margin: 0;">"Không chấm điểm văn chương.</p>
+                <p style="margin: 4px 0 0 0;">Mỗi bài thơ đều có hồn, nét đẹp riêng."</p>
+                <p style="margin: 8px 0 0 0; font-size: 0.7rem; opacity: 0.7;">Văn Đạo 4.0.0 — Contemplative Edition</p>
+            </div>
         </div>
     </dialog>
 
     <!-- ================================================================= -->
-    <!-- 17. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
+    <!-- 18. BANNER THÔNG BÁO CẬP NHẬT (Service Worker)                    -->
     <!-- ================================================================= -->
     <div id="update-banner" aria-live="polite" role="alert">
         <span>Phiên bản mới đã sẵn sàng.</span>
@@ -407,7 +409,7 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- 18. CUSTOM MODAL (SỬ DỤNG THẺ <DIALOG> CHUẨN HTML5)              -->
+    <!-- 19. CUSTOM MODAL                                                 -->
     <!-- ================================================================= -->
     <dialog id="custom-modal-overlay">
         <div id="custom-modal">
@@ -421,14 +423,14 @@
     </dialog>
 
     <!-- ================================================================= -->
-    <!-- 19. FOOTER MỚI (ĐẬM CHẤT VĂN CHƯƠNG)                             -->
+    <!-- 20. FOOTER                                                       -->
     <!-- ================================================================= -->
     <footer class="app-footer">
         <div class="footer-grid">
             <div class="footer-col brand-col">
-                <div class="footer-brand">NGỌC THANH</div>
-                <p class="footer-slogan">"Văn học là nhân học."</p>
-                <p class="footer-desc">Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại.</p>
+                <div class="footer-brand">VĂN ĐẠO</div>
+                <p class="footer-slogan">"Không chấm điểm văn chương."</p>
+                <p class="footer-desc">Không gian chiêm nghiệm văn học, thi pháp và tinh hoa tri thức nhân loại. Mỗi bài thơ đều có hồn, nét đẹp riêng.</p>
             </div>
             <div class="footer-col links-col">
                 <div class="footer-title">Khám Phá</div>
@@ -442,39 +444,32 @@
             <div class="footer-col contact-col">
                 <div class="footer-title">Kết Nối</div>
                 <p class="footer-contact-text">Mọi ý kiến đóng góp vui lòng gửi về:</p>
-                <p class="footer-email">contact@ngocthanh.edu.vn</p>
+                <p class="footer-email">contact@vandao.edu.vn</p>
                 <div class="footer-socials">
                     <span>Facebook</span> &middot; <span>GitHub</span> &middot; <span>Zalo</span>
                 </div>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2026 Ngọc Thanh. Bảo lưu mọi quyền.</p>
-            <p class="footer-license">Thiết kế bởi Văn Đạo.</p>
+            <p>© 2026 Văn Đạo. Bảo lưu mọi quyền.</p>
+            <p class="footer-license">Thiết kế bởi Văn Đạo — Contemplative Edition.</p>
         </div>
     </footer>
 
     <!-- ================================================================= -->
-    <!-- 20. SCRIPTS & CẤU HÌNH PHIÊN BẢN                                  -->
+    <!-- 21. SCRIPTS                                                      -->
     <!-- ================================================================= -->
-    <script>
-        window.VD_APP_VERSION = '6.0.0';
-        window.VD_BUILD_DATE  = '2026-11-21';
-    </script>
-    
-    <!-- File script chính xử lý logic (Bắt buộc phải có type="module") -->
     <script type="module" src="js/main.js"></script>
 
     <!-- ================================================================= -->
-    <!-- 21. ĐĂNG KÝ SERVICE WORKER (CHỐNG TỰ ĐỘNG RELOAD & FIX CACHE)      -->
+    <!-- 22. ĐĂNG KÝ SERVICE WORKER                                       -->
     <!-- ================================================================= -->
     <script>
     (function () {
         if (!('serviceWorker' in navigator)) return;
 
-        let isUpdating = false; // Cờ đánh dấu người dùng đã chủ động bấm Cập nhật
+        let isUpdating = false;
 
-        // Chỉ tự động tải lại trang KHI VÀ CHỈ KHI người dùng đã bấm nút Cập nhật
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (isUpdating) {
                 window.location.reload();
@@ -485,20 +480,17 @@
             const banner = document.getElementById('update-banner');
             if (!banner) return;
 
-            // Hiển thị banner trượt lên
             banner.style.transform = 'translateX(-50%) translateY(0)';
             banner.style.opacity = '1';
             banner.style.pointerEvents = 'auto';
 
-            // Nút "Cập nhật": Kích hoạt SW mới và cho phép reload
             document.getElementById('update-btn').onclick = () => {
-                isUpdating = true; 
+                isUpdating = true;
                 worker.postMessage({ type: 'SKIP_WAITING' });
                 banner.style.transform = 'translateX(-50%) translateY(120px)';
                 banner.style.opacity = '0';
             };
 
-            // Nút "Để sau" (Dismiss): Chỉ ẩn banner, tiếp tục đọc bình thường
             document.getElementById('dismiss-btn').onclick = () => {
                 banner.style.transform = 'translateX(-50%) translateY(120px)';
                 banner.style.opacity = '0';
@@ -507,30 +499,23 @@
         }
 
         window.addEventListener('load', () => {
-            // [FIX LỖI CACHE] Ép trình duyệt coi đây là file mới bằng tham số ?v=14.1.2
-            const swUrl = './sw.js?v=14.1.2';
+            const swUrl = './sw.js?v=15.0.0';
 
-            // [FIX LỖI CACHE] updateViaCache: 'none' cấm trình duyệt dùng HTTP cache cho file sw.js
             navigator.serviceWorker.register(swUrl, { updateViaCache: 'none' }).then(reg => {
-                // Ép trình duyệt kiểm tra file sw.js mới ngay lập tức
                 reg.update().catch(() => {});
-                
-                // Kiểm tra cập nhật ngầm (giãn thời gian ra 1 tiếng để đỡ làm phiền)
+
                 setInterval(() => {
                     if (document.visibilityState === 'visible') {
                         reg.update().catch(() => {});
                     }
-                }, 60 * 60 * 1000); 
+                }, 60 * 60 * 1000);
 
-                // Nếu đã có bản mới đang chờ sẵn (ví dụ: mở lại tab cũ)
                 if (reg.waiting) showUpdateBanner(reg.waiting);
 
-                // Lắng nghe khi có bản mới đang được cài đặt
                 reg.addEventListener('updatefound', () => {
                     const installing = reg.installing;
                     if (!installing) return;
                     installing.addEventListener('statechange', () => {
-                        // Nếu đã cài xong và có SW cũ đang chạy -> Hiện banner hỏi ý kiến
                         if (installing.state === 'installed' && navigator.serviceWorker.controller) {
                             showUpdateBanner(installing);
                         }
@@ -542,17 +527,17 @@
     </script>
 
     <!-- ================================================================= -->
-    <!-- 22. NOSCRIPT FALLBACK (CẢNH BÁO KHI TẮT JAVASCRIPT)               -->
+    <!-- 23. NOSCRIPT FALLBACK                                            -->
     <!-- ================================================================= -->
     <noscript>
         <div style="position: fixed; inset: 0; background: #f7fcf9; z-index: 9999999; display: flex; justify-content: center; align-items: center; text-align: center; padding: 20px;">
             <div>
-                <h1 style="color: var(--accent-text); font-family: 'Times New Roman', Times, serif; font-size: 2rem; margin-bottom: 15px;">Ngọc Thanh cần JavaScript</h1>
+                <h1 style="color: var(--accent-text); font-family: 'Times New Roman', Times, serif; font-size: 2rem; margin-bottom: 15px;">Văn Đạo cần JavaScript</h1>
                 <p style="color: var(--text-main); font-family: 'Times New Roman', Times, serif; font-size: 1.1rem; line-height: 1.6;">
                     Để trải nghiệm trọn vẹn kho tàng tri thức và các tính năng AI, vui lòng bật JavaScript trong trình duyệt của bạn.
                 </p>
             </div>
-        </div>
+        </footer>
     </noscript>
 </body>
 </html>
