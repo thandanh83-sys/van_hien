@@ -13,13 +13,13 @@
  *    - Chỉ có câu hỏi chiêm nghiệm và lời gợi mở.
  *
  * 2. TÁCH BIỆT RENDER LOGIC:
- *    - renderHeritage:       Văn Hiến (danh sách tác phẩm)
- *    - renderEncyclopedia:   Bách Khoa (accordion)
- *    - renderPagination:     Phân trang
- *    - renderContemplativeQuestions: [MỚI] Câu hỏi chiêm nghiệm
- *    - renderCopyButton:     [MỚI] Nút copy từng tầng
- *    - showToast:            [MỚI] Thông báo Bạch Ngọc
- *    - renderSkeleton:       [MỚI] Skeleton loading
+ *    - renderHeritage:              Văn Hiến (danh sách tác phẩm)
+ *    - renderEncyclopedia:          Bách Khoa (accordion)
+ *    - renderPagination:            Phân trang
+ *    - renderContemplativeQuestions: [v3.0.0] Câu hỏi chiêm nghiệm
+ *    - renderCopyButton:            [v3.0.0] Nút copy từng tầng
+ *    - showToast:                   [v3.0.0] Thông báo Bạch Ngọc
+ *    - renderSkeleton:              [v3.0.0] Skeleton loading
  *
  * 3. UI BẠCH NGỌC:
  *    - Không gradient neon.
@@ -32,10 +32,9 @@
  *    - Chỉ THÊM các hàm mới, không XÓA hàm cũ.
  *
  * LỊCH SỬ PHIÊN BẢN:
- * - v2.3.0: (tiền thân) Clean UI & Intent Router UX.
+ * - v2.3.0: Clean UI & Intent Router UX.
  * - v3.0.0: Thêm Contemplative UI (không chấm điểm), Toast, Skeleton,
  *           Copy button. Giữ nguyên tất cả chức năng cũ.
- *
  * ==========================================================
  */
 
@@ -63,7 +62,7 @@ export const PerformanceEngine = (() => {
 })();
 
 // =====================================================================
-// MODULE 2: BẠCH NGỌC UI HELPERS (MỚI)
+// MODULE 2: BẠCH NGỌC UI HELPERS (v3.0.0 — NEW)
 // =====================================================================
 
 /**
@@ -89,33 +88,34 @@ export function showToast(message, type = 'success', duration = 2500) {
             flex-direction: column;
             gap: 10px;
             pointer-events: none;
+            align-items: center;
         `;
         document.body.appendChild(container);
     }
 
     // Icon SVG theo type
     const icons = {
-        success: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
-        error:   `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
-        info:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
+        success: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+        error:   `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
+        info:    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
     };
 
     // Tạo toast element
     const toast = document.createElement('div');
     toast.style.cssText = `
         background: #ffffff;
-        color: var(--text-main);
-        font-family: var(--font-body);
-        font-size: 1rem;
+        color: var(--text-main, #112a20);
+        font-family: var(--font-body, 'Times New Roman', serif);
+        font-size: 0.95rem;
         font-style: italic;
-        padding: 14px 24px;
-        border-radius: var(--radius-pill);
-        border: 1px solid var(--border-color);
-        border-left: 3px solid ${type === 'error' ? 'var(--color-error)' : 'var(--accent)'};
-        box-shadow: var(--shadow-solid);
+        padding: 12px 22px;
+        border-radius: 999px;
+        border: 1px solid var(--border-color, rgba(46, 139, 87, 0.25));
+        border-left: 3px solid ${type === 'error' ? 'var(--color-error, #c0392b)' : 'var(--accent, #2e8b57)'};
+        box-shadow: 0 8px 25px rgba(26, 82, 50, 0.12);
         opacity: 0;
         transform: translateY(20px);
-        transition: all 0.3s var(--ease-silk);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         display: flex;
         align-items: center;
         gap: 10px;
@@ -123,22 +123,19 @@ export function showToast(message, type = 'success', duration = 2500) {
         max-width: 90vw;
     `;
 
+    const accentColor = type === 'error' ? 'var(--color-error, #c0392b)' : 'var(--accent, #2e8b57)';
     toast.innerHTML = `
-        <span style="color: ${type === 'error' ? 'var(--color-error)' : 'var(--accent)'}; flex-shrink: 0;">
-            ${icons[type] || icons.info}
-        </span>
+        <span style="color:${accentColor};flex-shrink:0;">${icons[type] || icons.info}</span>
         <span>${escapeHTML(message)}</span>
     `;
 
     container.appendChild(toast);
 
-    // Hiện toast
     requestAnimationFrame(() => {
         toast.style.opacity = '1';
         toast.style.transform = 'translateY(0)';
     });
 
-    // Tự động ẩn
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(20px)';
@@ -160,7 +157,7 @@ export function renderContemplativeQuestions(questions) {
     }
 
     // Biểu tượng hoa văn (SVG, không emoji)
-    const fleuronSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-gold); flex-shrink: 0;"><path d="M12 2C9 5 6 8 6 12s3 7 6 10c3-3 6-6 6-10s-3-7-6-10z"></path><path d="M12 2v20"></path></svg>`;
+    const fleuronSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-gold); flex-shrink: 0; margin-top: 4px;" aria-hidden="true"><path d="M12 2C9 5 6 8 6 12s3 7 6 10c3-3 6-6 6-10s-3-7-6-10z"></path><path d="M12 2v20"></path></svg>`;
 
     return questions.map(q => `
         <div class="contemplative-question" style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px dashed rgba(46, 139, 87, 0.15); line-height: 1.7;">
@@ -181,45 +178,16 @@ export function renderContemplativeQuestions(questions) {
  * @returns {string} HTML
  */
 export function renderCopyButton(textToCopy, label = 'Chép') {
-    const penSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+    const penSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
 
     // Mã hóa nội dung để tránh lỗi HTML
-    const encoded = encodeURIComponent(textToCopy);
+    const encoded = encodeURIComponent(textToCopy || '');
 
     return `
         <button type="button"
                 class="btn-copy-section"
                 data-copy-content="${encoded}"
-                onclick="(function(btn){
-                    const content = decodeURIComponent(btn.getAttribute('data-copy-content'));
-                    if (navigator.clipboard && window.isSecureContext) {
-                        navigator.clipboard.writeText(content).then(function(){
-                            btn.classList.add('copied');
-                            const original = btn.innerHTML;
-                            btn.innerHTML = '${penSvg} Đã chép';
-                            setTimeout(function(){
-                                btn.classList.remove('copied');
-                                btn.innerHTML = original;
-                            }, 1800);
-                        });
-                    } else {
-                        const ta = document.createElement('textarea');
-                        ta.value = content;
-                        ta.style.position = 'fixed';
-                        ta.style.opacity = '0';
-                        document.body.appendChild(ta);
-                        ta.select();
-                        try { document.execCommand('copy'); } catch(e) {}
-                        document.body.removeChild(ta);
-                        btn.classList.add('copied');
-                        const original = btn.innerHTML;
-                        btn.innerHTML = '${penSvg} Đã chép';
-                        setTimeout(function(){
-                            btn.classList.remove('copied');
-                            btn.innerHTML = original;
-                        }, 1800);
-                    }
-                })(this)"
+                onclick="window.__vandao_copySection(this)"
                 title="Chép nội dung này"
                 style="
                     background: rgba(255, 255, 255, 0.9);
@@ -877,6 +845,53 @@ export function changePage(page, containerId = 'pagination-container', pageType 
 }
 
 // =====================================================================
+// MODULE 8: COPY SECTION HANDLER (v3.0.0 — NEW)
+// =====================================================================
+
+/**
+ * Hàm xử lý copy được gắn vào window để dùng trong inline onclick.
+ * Được renderCopyButton sinh ra.
+ */
+if (typeof window !== 'undefined') {
+    window.__vandao_copySection = function(btn) {
+        if (!btn) return;
+        const content = decodeURIComponent(btn.getAttribute('data-copy-content') || '');
+        if (!content) return;
+
+        const onSuccess = () => {
+            btn.classList.add('copied');
+            const original = btn.innerHTML;
+            const penSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+            btn.innerHTML = `${penSvg} Đã chép`;
+            showToast('Đã chép vào bộ nhớ tạm.', 'success');
+            setTimeout(() => {
+                btn.classList.remove('copied');
+                btn.innerHTML = original;
+            }, 1800);
+        };
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(content).then(onSuccess).catch(() => {
+                showToast('Trình duyệt từ chối sao chép.', 'error');
+            });
+        } else {
+            const ta = document.createElement('textarea');
+            ta.value = content;
+            ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                onSuccess();
+            } catch (e) {
+                showToast('Trình duyệt từ chối sao chép.', 'error');
+            }
+            document.body.removeChild(ta);
+        }
+    };
+}
+
+// =====================================================================
 // GHI CHÚ CHO NGƯỜI BẢO TRÌ
 // =====================================================================
 /**
@@ -884,18 +899,15 @@ export function changePage(page, containerId = 'pagination-container', pageType 
  *
  * 1. main.js:
  *    - Sửa `executePipeline` để dùng `renderContemplativeQuestions`
- *      thay cho tier chấm điểm (nếu có).
+ *      thay cho tier chấm điểm.
  *    - Dùng `showToast` khi copy thành công.
  *    - Dùng `renderSkeleton` khi đang tải.
  *    - Dùng `renderCopyButton` cho mỗi tầng phân tích.
  *
  * 2. css/components.css:
  *    - Thêm CSS cho `.btn-copy-section`, `.contemplative-question`,
- *      `.skeleton-bach-ngoc` (xem MASTER PLAN Phần 1.6).
+ *      `.skeleton-bach-ngoc` (xem phần II ở phản hồi trước).
  *
  * 3. sw.js:
  *    - Tăng CACHE_VERSION vì có file JS mới.
- *
- * 4. data/manifests/static-assets.json:
- *    - Chạy `python tools/update_manifests.py` (nếu cần).
  */
