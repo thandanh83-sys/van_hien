@@ -1,33 +1,33 @@
 {
   "name": "VĂN ĐẠO — Đại Bách Khoa Toàn Thư",
   "short_name": "Văn Đạo",
-  "description": "Không gian khám phá văn học, thi pháp và tinh hoa tri thức nhân loại. Nơi ngôn từ được phân tách, và trí tuệ nhân tạo đồng hành cùng bạn.",
-  "version": "3.2.0",
-  
+  "description": "Không gian chiêm nghiệm văn học, thi pháp và tinh hoa tri thức nhân loại. Không chấm điểm — Mỗi bài thơ đều có hồn, nét đẹp riêng.",
+  "version": "4.0.0",
+
   "id": "./?source=pwa",
   "start_url": "./?source=pwa",
   "scope": "./",
-  
+
   "display": "standalone",
   "display_override": [
     "window-controls-overlay",
     "standalone",
     "minimal-ui"
   ],
-  
+
   "orientation": "portrait-primary",
-  "background_color": "#fdfbf7",
-  "theme_color": "#fdfbf7",
+  "background_color": "#f7fcf9",
+  "theme_color": "#f7fcf9",
   "lang": "vi",
   "dir": "ltr",
   "categories": ["books", "education", "literature", "reference"],
   "prefer_related_applications": false,
-  
+
   "launch_handler": {
     "client_mode": "navigate-existing"
   },
   "handle_links": "preferred",
-  
+
   "icons": [
     {
       "src": "assets/web-app-manifest-192x192.png",
@@ -60,7 +60,7 @@
       "purpose": "any"
     }
   ],
-  
+
   "screenshots": [
     {
       "src": "assets/khung.jpg",
@@ -84,12 +84,12 @@
       "label": "Không gian đọc Văn Đạo trên máy tính"
     }
   ],
-  
+
   "shortcuts": [
     {
       "name": "Văn Hiến (Tác phẩm)",
       "short_name": "Văn Hiến",
-      "description": "Tra cứu danh mục tác phẩm văn học",
+      "description": "Tra cứu danh mục 95 tác phẩm văn học",
       "url": "./index.html?tab=heritage&source=shortcut",
       "icons": [
         {
@@ -102,7 +102,7 @@
     {
       "name": "Bách Khoa & Hỏi Đạo",
       "short_name": "Bách Khoa",
-      "description": "Hệ thống tri thức, tra cứu tác giả và Hỏi Đạo AI",
+      "description": "Hệ thống tri thức: 18 quyển lý thuyết, 78 tác giả, Hỏi Đạo AI",
       "url": "./index.html?tab=encyclopedia&source=shortcut",
       "icons": [
         {
@@ -115,7 +115,7 @@
     {
       "name": "Thi Pháp Học",
       "short_name": "Thi Pháp",
-      "description": "Phân tích cấu trúc thơ (Bằng/Trắc)",
+      "description": "Chiêm nghiệm vẻ đẹp thơ — Không chấm điểm",
       "url": "./index.html?tab=analyze&source=shortcut",
       "icons": [
         {
@@ -125,5 +125,11 @@
         }
       ]
     }
-  ]
+  ],
+
+  "related_applications": [],
+
+  "edge_side_panel": {
+    "preferred_width": 480
+  }
 }
