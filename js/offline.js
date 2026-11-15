@@ -2,17 +2,13 @@
  * ==========================================================
  * VĂN ĐẠO - OFFLINE MODULE (js/offline.js)
  * Vị trí: js/offline.js
- * Version: 2.0.0 (Independent & Pure Offline-First)
+ * Version: 3.0.0 (Lazy-Load Strategy — No Scoring)
  * ==========================================================
- * CHỨC NĂNG:
- * - Tải toàn bộ data JSON (tác phẩm, tác giả) về Cache.
- * - Kiểm tra dung lượng Storage.
- * - Xóa dữ liệu Offline.
- * 
  * TRIẾT LÝ:
- * - Không phụ thuộc MotherNode. Tự lấy URL từ APP_DATA.
- * - Chia nhỏ Batch để tránh nghẽn UI.
- * - Báo cáo tiến độ chính xác.
+ * - KHÔNG tải toàn bộ hàng ngàn file chi tiết (gây đầy bộ nhớ).
+ * - Chỉ tải "Kho lõi" (Core Data): Index, Từ điển, Lý thuyết.
+ * - Các file chi tiết (Tác giả/Tác phẩm) sẽ được Service Worker
+ *   tự động cache khi người dùng thực sự bấm vào đọc (Runtime Cache).
  * ==========================================================
  */
 
@@ -25,37 +21,29 @@ let isDownloading = false;
 let isCancelled = false;
 
 const CONFIG = Object.freeze({
-    BATCH_SIZE: 10,           // Số file tải mỗi lô
-    RETRY_PER_FILE: 2,        // Số lần retry mỗi file
-    RETRY_DELAY: 500,         // Delay retry (ms)
-    YIELD_DELAY: 50,          // Delay nhường UI (ms)
-    TIMEOUT: 8000             // Timeout mỗi fetch (ms)
+    BATCH_SIZE: 10,
+    RETRY_PER_FILE: 2,
+    RETRY_DELAY: 500,
+    YIELD_DELAY: 50,
+    TIMEOUT: 8000
 });
 
 // ==========================================================
-// PHẦN 2: UTILITIES (Hàm tiện ích)
+// PHẦN 2: UTILITIES
 // ==========================================================
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-/**
- * Fetch với timeout + retry
- */
 async function fetchWithRetry(url, attempts = CONFIG.RETRY_PER_FILE) {
     for (let i = 0; i <= attempts; i++) {
         try {
             const controller = new AbortController();
             const timer = setTimeout(() => controller.abort(), CONFIG.TIMEOUT);
-
             const res = await fetch(url, { signal: controller.signal });
             clearTimeout(timer);
-
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             return res;
         } catch (err) {
-            if (i === attempts) {
-                console.warn(`[OFFLINE] Bỏ qua file sau ${attempts + 1} lần thử: ${url}`);
-                return null;
-            }
+            if (i === attempts) return null;
             await sleep(CONFIG.RETRY_DELAY * (i + 1));
         }
     }
@@ -65,7 +53,6 @@ async function fetchWithRetry(url, attempts = CONFIG.RETRY_PER_FILE) {
 // ==========================================================
 // PHẦN 3: STORAGE CHECK & CLEAR
 // ==========================================================
-
 export async function checkStorageSize() {
     const storageText = document.getElementById('settings-storage-text');
     if (!navigator.storage || !navigator.storage.estimate) {
@@ -82,12 +69,9 @@ export async function checkStorageSize() {
         if (storageText) {
             storageText.textContent = `Đã dùng: ${usedMB} MB (${percent}%)`;
             storageText.title = `Tổng dung lượng khả dụng: ${quotaMB} MB`;
-            storageText.style.color = 'var(--accent-text)';
         }
-        return { used: estimate.usage, quota: estimate.quota, usedMB, quotaMB, percent };
+        return { used: estimate.usage, quota: estimate.quota };
     } catch (err) {
-        console.warn("[STORAGE] Không lấy được thông tin:", err);
-        if (storageText) storageText.textContent = "Không xác định";
         return null;
     }
 }
@@ -98,55 +82,45 @@ export async function clearOfflineData() {
         const cacheNames = await caches.keys();
         const vandaoCaches = cacheNames.filter(name => name.startsWith('vandao-'));
         await Promise.all(vandaoCaches.map(name => caches.delete(name)));
-        console.log(`[OFFLINE] Đã xóa ${vandaoCaches.length} cache:`, vandaoCaches);
         await checkStorageSize();
         return true;
     } catch (error) {
-        console.error("[OFFLINE] Lỗi khi xóa cache:", error);
         return false;
     }
 }
 
 // ==========================================================
-// PHẦN 4: COLLECT URLS (Lấy từ APP_DATA, không cần MotherNode)
+// PHẦN 4: COLLECT CORE URLS (CHỈ TẢI KHO LÕI)
 // ==========================================================
-
 async function collectUrlsToDownload() {
     const queue = [];
-    // Lấy trực tiếp từ RAM
-    const works = APP_DATA.WORKS_DATA || [];
-    const authors = APP_DATA.AUTHOR_DATA || [];
+    
+    // 1. Tải các file dữ liệu tĩnh cốt lõi (Rất nhẹ, chỉ vài trăm KB)
+    const coreDataFiles = [
+        './data/data-danh-ngon.json',
+        './data/data-ly-thuyet.json',
+        './data/data-the-loai.json',
+        './data/data-tu-dien-the-loai.json',
+        './data/data-loi-binh.json',
+        './data/data-van-khi.json',
+        './data/contemplative-prompts.json',
+        './data/tu-dien/symbols.json',
+        './data/tu-dien/dien-tich.json',
+        './data/tu-dien/han-viet.json'
+    ];
 
-    works.forEach(w => {
-        if (w.id) {
-            queue.push({
-                url: `./data/tac-pham/${encodeURIComponent(w.id)}.json`,
-                id: w.id,
-                type: 'work'
-            });
-        }
+    coreDataFiles.forEach(url => {
+        queue.push({ url, id: url.split('/').pop(), type: 'core' });
     });
 
-    authors.forEach(a => {
-        if (a.id) {
-            queue.push({
-                url: `./data/tac-gia/${encodeURIComponent(a.id)}.json`,
-                id: a.id,
-                type: 'author'
-            });
-        }
-    });
     return queue;
 }
 
 // ==========================================================
-// PHẦN 5: DOWNLOAD ALL (Tiến trình chính)
+// PHẦN 5: DOWNLOAD ALL (Chỉ tải Kho Lõi)
 // ==========================================================
-
 export async function downloadAllOffline(progressCallback) {
-    if (isDownloading) {
-        return { success: false, message: 'Đang tải dữ liệu, vui lòng đợi...' };
-    }
+    if (isDownloading) return { success: false, message: 'Đang tải dữ liệu...' };
 
     isDownloading = true;
     isCancelled = false;
@@ -155,18 +129,13 @@ export async function downloadAllOffline(progressCallback) {
         const queue = await collectUrlsToDownload();
         const totalFiles = queue.length;
 
-        if (totalFiles === 0) {
-            return { success: false, message: 'Không có dữ liệu để tải.' };
-        }
+        if (totalFiles === 0) return { success: false, message: 'Không có dữ liệu để tải.' };
 
         let completedFiles = 0;
         let failedFiles = 0;
 
         for (let i = 0; i < totalFiles; i += CONFIG.BATCH_SIZE) {
-            if (isCancelled) {
-                console.log('[OFFLINE] Người dùng đã hủy');
-                break;
-            }
+            if (isCancelled) break;
 
             const batch = queue.slice(i, i + CONFIG.BATCH_SIZE);
             let batchSuccess = 0;
@@ -195,22 +164,17 @@ export async function downloadAllOffline(progressCallback) {
             await sleep(CONFIG.YIELD_DELAY);
         }
 
-        const finalStatus = isCancelled ? 'cancelled' : 'completed';
-
         return {
             success: true,
-            status: finalStatus,
+            status: isCancelled ? 'cancelled' : 'completed',
             total: totalFiles,
             completed: completedFiles,
             failed: failedFiles,
-            message: isCancelled
-                ? `Đã hủy. Hoàn thành: ${completedFiles}/${totalFiles}`
-                : `Hoàn tất. Thành công: ${completedFiles - failedFiles}, Lỗi: ${failedFiles}`
+            message: isCancelled ? `Đã hủy. Hoàn thành: ${completedFiles}/${totalFiles}` : `Hoàn tất. Lỗi: ${failedFiles}`
         };
 
     } catch (error) {
-        console.error("[OFFLINE] Lỗi hệ thống:", error);
-        return { success: false, error: error.message, message: `Lỗi: ${error.message}` };
+        return { success: false, message: `Lỗi: ${error.message}` };
     } finally {
         isDownloading = false;
         isCancelled = false;
@@ -219,10 +183,7 @@ export async function downloadAllOffline(progressCallback) {
 }
 
 export function cancelDownload() {
-    if (isDownloading) {
-        isCancelled = true;
-        console.log('[OFFLINE] Đã gửi tín hiệu hủy');
-    }
+    if (isDownloading) isCancelled = true;
 }
 
 export function isDownloadingNow() {
